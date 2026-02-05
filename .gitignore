@@ -10,7 +10,6 @@ yarn.lock
 
 # Database files
 data/
-*.json
 
 # Uploaded files
 uploads/

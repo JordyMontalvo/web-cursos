@@ -1,0 +1,32 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/courses",
+      "destination": "/api/courses.js"
+    },
+    {
+      "source": "/api/upload",
+      "destination": "/api/upload.js"
+    },
+    {
+      "source": "/admin",
+      "destination": "/public/admin.html"
+    },
+    {
+      "source": "/curso/:id",
+      "destination": "/public/curso.html"
+    },
+    {
+      "source": "/(.*).css",
+      "destination": "/public/$1.css"
+    },
+    {
+      "source": "/(.*).js",
+      "destination": "/public/$1.js"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "/uploads/$1"
+    }
+  ]
+}
