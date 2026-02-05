@@ -15,6 +15,7 @@
     {
       "source": "/curso/:id",
       "destination": "/public/curso.html"
+      
     },
     {
       "source": "/(.*).css",
