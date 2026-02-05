@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IATIBET ZUREON - Plataforma de Cursos Online</title>
+    <meta
+      name="description"
+      content="Un espacio para transformar tu mente, finanzas y espíritu"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <div class="logo-icon"></div>
+            <span class="logo-text">LOGO</span>
+          </div>
+
+          <nav class="nav">
+            <a href="#" class="nav-link">Cursos</a>
+          </nav>
+
+          <div class="header-search">
+            <input
+              type="search"
+              placeholder="Búsqueda..."
+              class="search-input"
+            />
+            <svg
+              class="search-icon"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M19 19L14.65 14.65"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+
+          <button class="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <div class="header-actions">
+            <a href="#" class="btn-link">Entrar</a>
+            <a href="#" class="btn-primary">Crear Cuenta</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <p class="hero-subtitle">BIENVENIDO A</p>
+          <h1 class="hero-title">IATIBET ZUREON</h1>
+          <p class="hero-description">
+            Un espacio para transformar tu mente, finanzas y espíritu
+          </p>
+        </div>
+
+        <div class="hero-video">
+          <div class="video-placeholder">
+            <button class="play-button">
+              <svg width="68" height="48" viewBox="0 0 68 48">
+                <path
+                  d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z"
+                  fill="#FF0000"
+                />
+                <path d="M 45,24 27,14 27,34" fill="#FFFFFF" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cursos Online Section -->
+    <section class="courses-section">
+      <div class="container">
+        <h2 class="section-title">Cursos Online</h2>
+
+        <div class="filters">
+          <select class="filter-select">
+            <option>Seleccionar el Curso</option>
+            <option>Inteligencia Artificial</option>
+            <option>Finanzas</option>
+            <option>Marketing Digital</option>
+          </select>
+
+          <select class="filter-select">
+            <option>Especialización</option>
+            <option>Básico</option>
+            <option>Intermedio</option>
+            <option>Avanzado</option>
+          </select>
+
+          <select class="filter-select">
+            <option>Cursos</option>
+            <option>Todos</option>
+            <option>Gratis</option>
+            <option>Premium</option>
+          </select>
+
+          <button class="btn-reset">Restablecer Filtros</button>
+        </div>
+
+        <div class="courses-grid" id="coursesGrid">
+          <!-- Course cards will be dynamically generated -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Los más Vistos Section -->
+    <section class="popular-section">
+      <div class="container">
+        <h2 class="section-title">Los más Vistos</h2>
+
+        <div class="courses-grid" id="popularGrid">
+          <!-- Popular course cards will be dynamically generated -->
+        </div>
+      </div>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>
