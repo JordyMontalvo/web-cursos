@@ -8,10 +8,6 @@ yarn.lock
 .env.local
 .env.*.local
 
-# Vercel
-.vercel
-.vercel.json
-
 # Database files
 data/
 *.json
