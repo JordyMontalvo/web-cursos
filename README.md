@@ -1,6 +1,25 @@
 # 🎓 IATIBET ZUREON - Plataforma de Cursos Online
 
-Una moderna plataforma de cursos online con panel de administración completo.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tu-usuario/web-cursos)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen)](https://nodejs.org)
+
+Una moderna plataforma de cursos online con diseño vibrante púrpura/magenta, panel de administración completo y API REST.
+
+## 🌟 Demo en Vivo
+
+- **Sitio Principal**: [Ver Demo](https://tu-proyecto.vercel.app)
+- **Panel Admin**: [Ver Admin](https://tu-proyecto.vercel.app/admin)
+
+> ⚠️ Después de desplegar, actualiza estos enlaces con tu URL de Vercel
+
+## 📸 Capturas de Pantalla
+
+### Página Principal
+![Página Principal](docs/screenshot-home.png)
+
+### Panel de Administración
+![Panel Admin](docs/screenshot-admin.png)
 
 ## ✨ Características
 
