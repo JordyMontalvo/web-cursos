@@ -1,14 +1,17 @@
 {
   "version": 2,
-  "buildCommand": null,
-  "devCommand": null,
   "installCommand": "npm install",
   "framework": null,
-  "public": true,
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/curso/:id", "destination": "/curso.html" },
-    { "source": "/api/courses", "destination": "/api/courses.js" },
-    { "source": "/api/upload", "destination": "/api/upload.js" }
+    { "source": "/admin/content/:id", "destination": "/content-manager.html" },
+    { "source": "/admin",             "destination": "/admin.html" },
+    { "source": "/curso/:id",         "destination": "/curso.html" },
+    { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=:episodeId" },
+    { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=new" },
+    { "source": "/api/courses/:id/chapters/:chapterId",                     "destination": "/api/courses?id=:id&chapterId=:chapterId" },
+    { "source": "/api/courses/:id/chapters",                                "destination": "/api/courses?id=:id&chapterId=new" },
+    { "source": "/api/courses/:id",                                         "destination": "/api/courses?id=:id" },
+    { "source": "/api/courses",                                             "destination": "/api/courses" },
+    { "source": "/api/upload",                                              "destination": "/api/upload" }
   ]
 }
