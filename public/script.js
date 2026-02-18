@@ -8,13 +8,14 @@ let featuredCourses = [];
 // Fetch courses from API
 async function fetchCourses() {
     try {
-        const response = await fetch('/api/courses');
+        await configReady;
+        const response = await fetch(apiUrl('/api/courses'));
         const data = await response.json();
         
         if (data.success) {
             coursesData = data.courses;
             featuredCourses = data.courses.filter(c => c.featured);
-            episodesData = data.courses; // Use same courses as episodes for now
+            episodesData = data.courses;
             return data.courses;
         }
     } catch (error) {
@@ -28,7 +29,8 @@ async function fetchCourses() {
 // ===================================
 function createCourseCard(course) {
     const card = document.createElement('a');
-    card.href = `/curso/${course.id}`;
+    const courseId = course._id || course.id;
+    card.href = `/curso/${courseId}`;
     card.className = 'course-card';
     
     card.innerHTML = `
@@ -47,10 +49,10 @@ function createCourseCard(course) {
             <div class="course-stats">
                 <div class="stat-item">
                     <div class="stat-icon">●</div>
-                    <span>${course.chapters} Capítulos</span>
+                    <span>${course.totalChapters || 0} Capítulos</span>
                 </div>
                 <div class="stat-item">
-                    <span>${course.episodes} Capítulos</span>
+                    <span>${course.totalEpisodes || 0} Episodios</span>
                 </div>
             </div>
             <button class="btn-start">
@@ -291,14 +293,14 @@ function addMobileStyles() {
 // ===================================
 // Initialize App
 // ===================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing IATIBET ZUREON Platform...');
     
     // Add mobile styles
     addMobileStyles();
     
     // Render content
-    renderCourses();
+    await renderCourses();
     renderEpisodes();
     
     // Setup interactivity
