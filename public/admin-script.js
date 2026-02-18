@@ -66,7 +66,7 @@ async function createCourse(courseData) {
 
 async function updateCourse(id, courseData) {
     try {
-        const response = await fetch(apiUrl(`/api/courses/${id}`, {
+        const response = await fetch(apiUrl(`/api/courses/${id}`), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(courseData)
@@ -93,7 +93,7 @@ async function deleteCourse(id, courseName) {
     }
     
     try {
-        const response = await fetch(apiUrl(`/api/courses/${id}`, {
+        const response = await fetch(apiUrl(`/api/courses/${id}`), {
             method: 'DELETE'
         });
         
@@ -345,7 +345,7 @@ async function openContentManager(courseId) {
     // Buscar curso actualizado desde la API para asegurar que tenemos los capítulos
     try {
         console.log('Fetching content for course:', courseId);
-        const response = await fetch(apiUrl(`/api/courses/${courseId}`);
+        const response = await fetch(apiUrl(`/api/courses/${courseId}`));
         
         if (!response.ok) {
             const textText = await response.text();
@@ -453,7 +453,7 @@ async function editChapter(e, chapterId, currentTitle, currentDesc) {
     if (newDesc === null) return;
 
     try {
-        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}`, {
+        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}`), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: newTitle, description: newDesc })
@@ -479,7 +479,7 @@ async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl) {
     if (newUrl === null) return;
 
     try {
-        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/${episodeId}`, {
+        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/${episodeId}`), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: newTitle, videoUrl: newUrl })
@@ -521,7 +521,7 @@ async function saveNewChapter() {
     }
     
     try {
-        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters`, {
+        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, description })
@@ -554,7 +554,7 @@ async function deleteChapter(e, chapterId) {
     if (!confirm('¿Seguro que quieres eliminar este capítulo y sus episodios?')) return;
     
     try {
-        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}`, {
+        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}`), {
             method: 'DELETE'
         });
         
@@ -586,7 +586,7 @@ async function addEpisode(chapterId) {
     }
     
     try {
-        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes`, {
+        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, videoUrl })
@@ -612,7 +612,7 @@ async function deleteEpisode(e, chapterId, episodeId) {
     if (!confirm('¿Eliminar este episodio?')) return;
     
     try {
-        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/${episodeId}`, {
+        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/${episodeId}`), {
             method: 'DELETE'
         });
         
