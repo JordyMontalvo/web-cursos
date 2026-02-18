@@ -6,6 +6,7 @@
     { "source": "/admin/content/:id", "destination": "/content-manager.html" },
     { "source": "/admin",             "destination": "/admin.html" },
     { "source": "/curso/:id",         "destination": "/curso.html" },
+    { "source": "/api/config",        "destination": "/api/config.js" },
     { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=:episodeId" },
     { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=new" },
     { "source": "/api/courses/:id/chapters/:chapterId",                     "destination": "/api/courses?id=:id&chapterId=:chapterId" },

@@ -405,6 +405,7 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="/config.js"></script>
 <script>
 // ─────────────────────────────────────────────
 // State
@@ -416,8 +417,7 @@ let selectedChapterId = null;
 // ─────────────────────────────────────────────
 // Init
 // ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    // Get courseId from URL: /admin/content/COURSE_ID
+document.addEventListener('DOMContentLoaded', async () => {
     const parts = window.location.pathname.split('/');
     courseId = parts[parts.length - 1];
 
@@ -426,6 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    await configReady; // esperar que se cargue la URL del backend
     loadCourse();
 });
 
@@ -434,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─────────────────────────────────────────────
 async function loadCourse() {
     try {
-        const res = await fetch(`/api/courses/${courseId}`);
+        const res = await fetch(apiUrl(`/api/courses/${courseId}`));
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (!data.success) throw new Error(data.message);
@@ -634,7 +635,7 @@ async function saveEditChapter(chapterId) {
     if (!newTitle) { showToast('El título es obligatorio', 'error'); return; }
 
     try {
-        const res = await fetch(`/api/courses/${courseId}/chapters/${chapterId}`, {
+        const res = await fetch(apiUrl(`/api/courses/${courseId}/chapters/${chapterId}`), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: newTitle, description: newDesc })
@@ -680,7 +681,7 @@ async function saveEditEpisode(chapterId, episodeId) {
     if (!title || !videoUrl) { showToast('Título y URL son obligatorios', 'error'); return; }
 
     try {
-        const res = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/episodes/${episodeId}`, {
+        const res = await fetch(apiUrl(`/api/courses/${courseId}/chapters/${chapterId}/episodes/${episodeId}`), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, videoUrl, duration })
@@ -715,7 +716,7 @@ async function saveNewChapter() {
     if (!title) { showToast('El título es obligatorio', 'error'); return; }
 
     try {
-        const res = await fetch(`/api/courses/${courseId}/chapters`, {
+        const res = await fetch(apiUrl(`/api/courses/${courseId}/chapters`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, description })
@@ -742,7 +743,7 @@ async function deleteChapter(e, chapterId) {
     if (!confirm(`¿Eliminar el capítulo "${chapter?.title}"? Se eliminarán todos sus episodios.`)) return;
 
     try {
-        const res = await fetch(`/api/courses/${courseId}/chapters/${chapterId}`, { method: 'DELETE' });
+        const res = await fetch(apiUrl(`/api/courses/${courseId}/chapters/${chapterId}`), { method: 'DELETE' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         showSaved();
         if (selectedChapterId === chapterId) {
@@ -765,7 +766,7 @@ async function addEpisode(chapterId) {
     if (!title || !videoUrl) { showToast('Título y URL son obligatorios', 'error'); return; }
 
     try {
-        const res = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/episodes`, {
+        const res = await fetch(apiUrl(`/api/courses/${courseId}/chapters/${chapterId}/episodes`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, videoUrl })
@@ -786,7 +787,7 @@ async function deleteEpisode(chapterId, episodeId) {
     if (!confirm('¿Eliminar este episodio?')) return;
 
     try {
-        const res = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/episodes/${episodeId}`, { method: 'DELETE' });
+        const res = await fetch(apiUrl(`/api/courses/${courseId}/chapters/${chapterId}/episodes/${episodeId}`), { method: 'DELETE' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         showSaved();
         await loadCourse();

@@ -688,10 +688,10 @@ document.getElementById('contentModal')?.addEventListener('click', (e) => {
 // Initialize
 // ===================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('🔧 Initializing Admin Panel...');
     
-    // Fetch courses
+    await configReady; // esperar URL del backend
     fetchCourses();
     
     // Setup search
