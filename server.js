@@ -382,6 +382,11 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// Gestor de contenido de curso (capítulos y episodios)
+app.get('/admin/content/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'content-manager.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════╗
