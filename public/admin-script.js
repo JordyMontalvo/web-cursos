@@ -13,15 +13,30 @@ let currentContentCourseId = null; // ID del curso cuyo contenido se está edita
 async function fetchCourses() {
     try {
         const response = await fetch('/api/courses');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log('📦 Cursos recibidos:', data);
         
         if (data.success) {
-            allCourses = data.courses;
+            // Asegurarnos de que cada curso tenga un ID válido
+            allCourses = (data.courses || []).filter(c => {
+                if (!c._id && !c.id) {
+                    console.warn('⚠️ Curso ignorado por falta de ID:', c);
+                    return false;
+                }
+                return true;
+            });
             renderCoursesTable(allCourses);
             updateStats();
+        } else {
+            showToast('Error en la respuesta del servidor', 'error');
         }
     } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error('❌ Error fetching courses:', error);
         showToast('Error al cargar los cursos', 'error');
     }
 }
