@@ -35,7 +35,7 @@ const courseSchema = new mongoose.Schema({
     },
     thumbnail: {
         type: String,
-        default: '/uploads/default-course.jpg'
+        default: '/images/default-course.jpg'
     },
     description: String,
     videoUrl: String, // Tráiler o video principal del curso

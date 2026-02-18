@@ -38,7 +38,7 @@ async function seedDatabase() {
             const initialCourse = new Course({
                 name: 'Inteligencia Artificial IA',
                 category: 'FINANZA',
-                thumbnail: '/uploads/default-course.jpg', // Asegúrate de que esta imagen exista o usa una URL externa temporal
+                thumbnail: '/images/default-course.jpg', // Asegúrate de que esta imagen exista o usa una URL externa temporal
                 description: 'Aprende los fundamentos de la Inteligencia Artificial',
                 featured: true,
                 chapters: [
@@ -159,7 +159,7 @@ app.post('/api/courses', async (req, res) => {
             totalChapters: parseInt(req.body.chapters) || 0, // Mantener compatibilidad inicial
             totalEpisodes: parseInt(req.body.episodes) || 0, // Mantener compatibilidad inicial
             videoUrl: req.body.videoUrl || '',
-            thumbnail: req.body.thumbnail || '/uploads/default-course.jpg',
+            thumbnail: req.body.thumbnail || '/images/default-course.jpg',
             description: req.body.description || '',
             featured: req.body.featured === 'true' || req.body.featured === true
         });

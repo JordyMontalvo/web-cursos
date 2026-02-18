@@ -139,15 +139,24 @@ function renderCoursesTable(courses) {
         return;
     }
     
-    tbody.innerHTML = courses.map(course => `
+    tbody.innerHTML = courses.map(course => {
+        // Asegurar que tenemos un ID válido
+        const courseId = course._id || course.id;
+        
+        if (!courseId) {
+            console.error('Curso sin ID encontrado:', course);
+            return '';
+        }
+
+        return `
         <tr>
-            <td><strong>#${course._id ? course._id.slice(-6) : 'ID'}</strong></td>
+            <td><strong>#${typeof courseId === 'string' ? courseId.slice(-6) : courseId}</strong></td>
             <td>
-                <img src="${course.thumbnail}" alt="${course.name}" class="thumbnail-cell" onerror="this.src='/uploads/default-course.jpg'">
+                <img src="${course.thumbnail}" alt="${course.name}" class="thumbnail-cell" onerror="this.src='/images/default-course.jpg'">
             </td>
             <td><strong>${course.name}</strong></td>
             <td><span class="badge">${course.category}</span></td>
-            <td>${course.totalChapters || 0}</td>
+            <td>${course.totalChapters || (course.chapters ? course.chapters.length : 0)}</td>
             <td>${course.totalEpisodes || 0}</td>
             <td>
                 ${course.featured 
@@ -156,17 +165,17 @@ function renderCoursesTable(courses) {
             </td>
             <td>
                 <div class="table-actions-cell">
-                    <button class="btn-icon btn-content" onclick="openContentManager('${course._id}')" title="Gestionar Contenido">
+                    <button class="btn-icon btn-content" onclick="openContentManager('${courseId}')" title="Gestionar Contenido">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
-                    <button class="btn-icon btn-edit" onclick="editCourse('${course._id}')" title="Editar">
+                    <button class="btn-icon btn-edit" onclick="editCourse('${courseId}')" title="Editar">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <path d="M11.333 2.00004C11.5081 1.82494 11.716 1.68605 11.9447 1.59129C12.1735 1.49653 12.4187 1.44775 12.6663 1.44775C12.914 1.44775 13.1592 1.49653 13.3879 1.59129C13.6167 1.68605 13.8246 1.82494 13.9997 2.00004C14.1748 2.17513 14.3137 2.383 14.4084 2.61178C14.5032 2.84055 14.552 3.08575 14.552 3.33337C14.552 3.58099 14.5032 3.82619 14.4084 4.05497C14.3137 4.28374 14.1748 4.49161 13.9997 4.66671L5.33301 13.3334L1.33301 14.6667L2.66634 10.6667L11.333 2.00004Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
-                    <button class="btn-icon btn-delete" onclick="deleteCourse('${course._id}', '${course.name.replace(/'/g, "\\'")}')">
+                    <button class="btn-icon btn-delete" onclick="deleteCourse('${courseId}', '${course.name.replace(/'/g, "\\'")}')">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M5.33301 4.00004V2.66671C5.33301 2.31309 5.47348 1.97395 5.72353 1.7239C5.97358 1.47385 6.31272 1.33337 6.66634 1.33337H9.33301C9.68663 1.33337 10.0258 1.47385 10.2758 1.7239C10.5259 1.97395 10.6663 2.31309 10.6663 2.66671V4.00004M12.6663 4.00004V13.3334C12.6663 13.687 12.5259 14.0261 12.2758 14.2762C12.0258 14.5262 11.6866 14.6667 11.333 14.6667H4.66634C4.31272 14.6667 3.97358 14.5262 3.72353 14.2762C3.47348 14.0261 3.33301 13.687 3.33301 13.3334V4.00004H12.6663Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -175,7 +184,8 @@ function renderCoursesTable(courses) {
                 </div>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function updateStats() {
@@ -202,28 +212,34 @@ function openAddCourseModal() {
 }
 
 function editCourse(id) {
-    const course = allCourses.find(c => c._id === id);
+    const course = allCourses.find(c => (c._id === id || c.id === id || c.id == id));
     if (!course) return;
     
-    editingCourseId = id;
+    // Usar el ID correcto que tenga el objeto
+    const courseId = course._id || course.id;
+    editingCourseId = courseId;
+
     document.getElementById('modalTitle').textContent = 'Editar Curso';
     
     // Fill form
-    document.getElementById('courseId').value = course._id;
+    document.getElementById('courseId').value = courseId;
     document.getElementById('courseName').value = course.name;
     document.getElementById('courseCategory').value = course.category;
-    document.getElementById('courseChapters').value = course.totalChapters || course.chapters.length;
-    document.getElementById('courseEpisodes').value = course.totalEpisodes;
+    document.getElementById('courseChapters').value = course.totalChapters || (course.chapters ? course.chapters.length : 0);
+    document.getElementById('courseEpisodes').value = course.totalEpisodes || 0;
     document.getElementById('courseDescription').value = course.description || '';
     document.getElementById('courseVideoUrl').value = course.videoUrl || '';
     document.getElementById('thumbnailUrl').value = course.thumbnail || '';
     document.getElementById('courseFeatured').checked = course.featured;
     
     // Show thumbnail preview
+    const preview = document.getElementById('imagePreview');
     if (course.thumbnail) {
-        const preview = document.getElementById('imagePreview');
-        preview.innerHTML = `<img src="${course.thumbnail}" alt="Preview">`;
+        preview.innerHTML = `<img src="${course.thumbnail}" alt="Preview" onerror="this.src='/images/default-course.jpg'">`;
         preview.classList.add('active');
+    } else {
+        preview.innerHTML = '';
+        preview.classList.remove('active');
     }
     
     document.getElementById('courseModal').classList.add('active');
@@ -304,12 +320,24 @@ async function previewImage(input) {
 // ===================================
 
 async function openContentManager(courseId) {
-    // Si viene del string 'ID', ignorar (caso raro)
-    if (!courseId) return;
+    // Si viene del string 'ID' o undefined, ignorar
+    if (!courseId || courseId === 'undefined' || courseId === 'null') {
+        console.error('ID de curso inválido:', courseId);
+        showToast('Error: ID de curso no válido', 'error');
+        return;
+    }
 
     // Buscar curso actualizado desde la API para asegurar que tenemos los capítulos
     try {
+        console.log('Fetching content for course:', courseId);
         const response = await fetch(`/api/courses/${courseId}`);
+        
+        if (!response.ok) {
+            const textText = await response.text();
+            console.error('API Error:', response.status, textText);
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+
         const data = await response.json();
         
         if (data.success) {
@@ -320,6 +348,8 @@ async function openContentManager(courseId) {
             renderChapters(course);
             
             document.getElementById('contentModal').classList.add('active');
+        } else {
+            showToast(data.message || 'Error al cargar curso', 'error');
         }
     } catch (error) {
         console.error('Error fetching course for content:', error);
