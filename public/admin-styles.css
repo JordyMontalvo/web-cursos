@@ -286,6 +286,11 @@
     animation: modalSlideIn 0.3s ease;
 }
 
+#contentModal .modal-content {
+    max-width: 1000px;
+    height: 90vh;
+}
+
 @keyframes modalSlideIn {
     from {
         opacity: 0;

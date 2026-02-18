@@ -386,6 +386,7 @@ function renderChapters(course) {
         return;
     }
     
+// ... (renderChapters function)
     container.innerHTML = course.chapters.map((chapter, index) => `
         <div class="chapter-item ${index === 0 ? 'active' : ''}" id="chapter-${chapter._id}">
             <div class="chapter-header" onclick="toggleChapter(event, '${chapter._id}')">
@@ -394,6 +395,11 @@ function renderChapters(course) {
                     ${chapter.description ? `<small style="color: #666;">${chapter.description}</small>` : ''}
                 </div>
                 <div class="chapter-actions">
+                    <button class="btn-icon btn-edit btn-small" onclick="editChapter(event, '${chapter._id}', '${chapter.title}', '${chapter.description || ''}')" title="Editar Capítulo">
+                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                    </button>
                     <button class="btn-icon btn-delete btn-small" onclick="deleteChapter(event, '${chapter._id}')" title="Eliminar Capítulo">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/>
@@ -410,6 +416,11 @@ function renderChapters(course) {
                                 ${episode.duration ? `<small>(${episode.duration})</small>` : ''}
                             </div>
                             <div class="episode-actions">
+                                <button class="btn-icon btn-edit btn-small" style="width: 28px; height: 28px;" onclick="editEpisode(event, '${chapter._id}', '${episode._id}', '${episode.title}', '${episode.videoUrl}')" title="Editar Episodio">
+                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
                                 <button class="btn-icon btn-delete btn-small" style="width: 28px; height: 28px;" onclick="deleteEpisode(event, '${chapter._id}', '${episode._id}')" title="Eliminar Episodio">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
@@ -431,6 +442,59 @@ function renderChapters(course) {
             </div>
         </div>
     `).join('');
+}
+
+// Funciones para editar (Implementación básica inline por ahora)
+async function editChapter(e, chapterId, currentTitle, currentDesc) {
+    if (e) e.stopPropagation();
+    const newTitle = prompt('Nuevo título del capítulo:', currentTitle);
+    if (newTitle === null) return; // Cancelado
+    const newDesc = prompt('Nueva descripción:', currentDesc);
+    if (newDesc === null) return;
+
+    try {
+        const response = await fetch(`/api/courses/${currentContentCourseId}/chapters/${chapterId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle, description: newDesc })
+        });
+        if (response.ok) {
+            showToast('Capítulo actualizado');
+            openContentManager(currentContentCourseId);
+            fetchCourses();
+        } else {
+            showToast('Error al actualizar', 'error');
+        }
+    } catch(err) {
+        console.error(err);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl) {
+    if (e) e.stopPropagation();
+    const newTitle = prompt('Nuevo título del episodio:', currentTitle);
+    if (newTitle === null) return;
+    const newUrl = prompt('Nueva URL del video:', currentUrl);
+    if (newUrl === null) return;
+
+    try {
+        const response = await fetch(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/${episodeId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle, videoUrl: newUrl })
+        });
+        if (response.ok) {
+            showToast('Episodio actualizado');
+            openContentManager(currentContentCourseId);
+            fetchCourses();
+        } else {
+            showToast('Error al actualizar', 'error');
+        }
+    } catch(err) {
+        console.error(err);
+        showToast('Error de conexión', 'error');
+    }
 }
 
 function toggleChapter(e, chapterId) {
