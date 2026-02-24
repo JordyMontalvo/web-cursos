@@ -27,7 +27,8 @@
           </div>
 
           <nav class="nav">
-            <a href="#" class="nav-link">Cursos</a>
+            <a href="/" class="nav-link">Cursos</a>
+            <a href="/membresia" class="nav-link" id="navMembresia" style="display:none;">Mi Membresía</a>
           </nav>
 
           <div class="header-search">
@@ -66,9 +67,9 @@
             <span></span>
           </button>
 
-          <div class="header-actions">
-            <a href="#" class="btn-link">Entrar</a>
-            <a href="#" class="btn-primary">Crear Cuenta</a>
+          <div class="header-actions" id="headerActions">
+            <a href="/login" class="btn-link">Entrar</a>
+            <a href="/register" class="btn-primary">Crear Cuenta</a>
           </div>
         </div>
       </div>
@@ -149,6 +150,37 @@
     </section>
 
     <script src="/config.js"></script>
+    <script>
+    // Auth header dinámico
+    (function() {
+        const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+        const actionsEl = document.getElementById('headerActions');
+        if (user) {
+            document.getElementById('navMembresia').style.display = 'inline';
+            const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
+            const hasMem = user.hasMembership;
+            actionsEl.innerHTML = `
+                <div style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:.4rem 1rem .4rem .5rem;cursor:pointer;position:relative;" class="user-badge-idx">
+                    <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#4FFFB0);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;">${initials}</div>
+                    <span style="font-size:.875rem;font-weight:500;color:#fff;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.name}</span>
+                    <span style="font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:100px;background:${hasMem ? 'rgba(79,255,176,.1)':'rgba(124,58,237,.2)'};color:${hasMem ? '#4FFFB0':'#A78BFA'};">${hasMem ? (user.membershipPlan||'Pro') : 'Sin plan'}</span>
+                    <div style="position:absolute;top:calc(100% + .5rem);right:0;background:#18182A;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.5rem;min-width:180px;display:none;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.4);" class="dd">
+                        <a href="/membresia" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;border-radius:10px;font-size:.875rem;color:rgba(255,255,255,.7);text-decoration:none;transition:background .15s;">💎 Membresía</a>
+                        ${user.role === 'admin' ? '<a href="/admin" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;border-radius:10px;font-size:.875rem;color:rgba(255,255,255,.7);text-decoration:none;">⚙️ Admin</a>' : ''}
+                        <div style="height:1px;background:rgba(255,255,255,.07);margin:.25rem 0;"></div>
+                        <div onclick="localStorage.removeItem('authToken');localStorage.removeItem('authUser');location.href='/login'" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;border-radius:10px;font-size:.875rem;color:#FF6B70;cursor:pointer;">🚪 Cerrar sesión</div>
+                    </div>
+                </div>`;
+            // Hover dropdown
+            const badge = actionsEl.querySelector('.user-badge-idx');
+            const dd = actionsEl.querySelector('.dd');
+            if (badge && dd) {
+                badge.addEventListener('mouseenter', () => dd.style.display = 'block');
+                badge.addEventListener('mouseleave', () => dd.style.display = 'none');
+            }
+        }
+    })();
+    </script>
     <script src="script.js"></script>
   </body>
 </html>

@@ -119,7 +119,173 @@
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
+<style>
+    /* Membership Lock Screen */
+    .lock-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(10,10,15,0.96);
+        backdrop-filter: blur(12px);
+        z-index: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    .lock-screen.hidden { display: none; }
+    .lock-card {
+        background: rgba(20,20,35,0.9);
+        border: 1px solid rgba(124,58,237,0.3);
+        border-radius: 28px;
+        padding: 3rem 2.5rem;
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 80px rgba(124,58,237,0.08);
+    }
+    .lock-card-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(79,255,176,0.1));
+        border: 1px solid rgba(124,58,237,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto 1.75rem;
+    }
+    .lock-card h2 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.75rem;
+    }
+    .lock-card p {
+        color: rgba(255,255,255,0.55);
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+    .lock-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 2rem;
+        background: linear-gradient(135deg, #7C3AED, #5B21B6);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s;
+        margin-bottom: 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+    .lock-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.4); }
+    .lock-btn-outline {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 2rem;
+        background: transparent;
+        color: rgba(255,255,255,0.5);
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s;
+        width: 100%;
+    }
+    .lock-btn-outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+    /* User badge header */
+    .user-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 100px;
+        padding: 0.4rem 1rem 0.4rem 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+    }
+    .user-badge:hover { background: rgba(255,255,255,0.1); }
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7C3AED, #4FFFB0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    .user-name { font-size: 0.875rem; font-weight: 500; color: #fff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .membership-tag {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 100px;
+        background: rgba(124,58,237,0.2);
+        color: #A78BFA;
+        letter-spacing: 0.04em;
+    }
+    .membership-tag.active { background: rgba(79,255,176,0.1); color: #4FFFB0; }
+    .user-dropdown {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        background: #18182A;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        padding: 0.5rem;
+        min-width: 180px;
+        display: none;
+        z-index: 200;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .user-badge:hover .user-dropdown { display: block; }
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 0.875rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        color: rgba(255,255,255,0.7);
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+    }
+    .dropdown-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .dropdown-item.danger { color: #FF6B70; }
+    .dropdown-item.danger:hover { background: rgba(255,75,85,0.1); }
+    .dropdown-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 0.25rem 0; }
+</style>
 <body>
+    <!-- Membership Lock Screen -->
+    <div class="lock-screen" id="lockScreen">
+        <div class="lock-card">
+            <div class="lock-card-icon">🔒</div>
+            <h2>Contenido Exclusivo</h2>
+            <p>Este curso está disponible solo para miembros activos. Elige un plan y accede a todos los cursos de la plataforma.</p>
+            <a href="#" class="lock-btn" id="lockMembershipBtn">
+                💎 Ver planes de membresía
+            </a>
+            <a href="/" class="lock-btn-outline">← Volver al inicio</a>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -139,9 +305,9 @@
                     </svg>
                 </div>
                 <button class="menu-btn"><span></span><span></span><span></span></button>
-                <div class="header-actions">
-                    <a href="#" class="btn-link">Entrar</a>
-                    <a href="#" class="btn-primary">Crear Cuenta</a>
+                <div class="header-actions" id="headerActions">
+                    <a href="/login" class="btn-link">Entrar</a>
+                    <a href="/register" class="btn-primary">Crear Cuenta</a>
                 </div>
             </div>
         </div>
@@ -207,11 +373,40 @@
     <script src="/config.js"></script>
     <script>
     let course = null;
-    let allEpisodes = []; // flat list: [{chapterIndex, episodeIndex, chapter, episode}]
+    let allEpisodes = [];
     let currentEpisodeIndex = 0;
+
+    // ── Auth Header ──────────────────────────────────────────────────────────
+    function updateHeader() {
+        const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+        const actionsEl = document.getElementById('headerActions');
+        if (user) {
+            const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
+            const hasMem = user.hasMembership;
+            actionsEl.innerHTML = `
+                <div class="user-badge">
+                    <div class="user-avatar">${initials}</div>
+                    <span class="user-name">${user.name}</span>
+                    <span class="membership-tag ${hasMem ? 'active' : ''}">${hasMem ? user.membershipPlan || 'Pro' : 'Sin plan'}</span>
+                    <div class="user-dropdown">
+                        <a href="/" class="dropdown-item">🏠 Inicio</a>
+                        <a href="/membresia" class="dropdown-item">💎 Membresía</a>
+                        ${user.role === 'admin' ? '<a href="/admin" class="dropdown-item">⚙️ Admin</a>' : ''}
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item danger" onclick="logout()">🚪 Cerrar sesión</div>
+                    </div>
+                </div>`;
+        }
+    }
+    function logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        window.location.href = '/login';
+    }
 
     // ── Init ──────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
+        updateHeader();
         const parts = window.location.pathname.split('/');
         const courseId = parts[parts.length - 1];
 
@@ -222,13 +417,49 @@
 
         await configReady;
 
+        // Verificar autenticación y membresía
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = `/login?redirect=/curso/${courseId}`;
+            return;
+        }
+
         try {
+            // Verificar acceso
+            const accessRes = await fetch(apiUrl('/api/auth/check-access'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const accessData = await accessRes.json();
+
+            if (!accessData.success || !accessData.hasAccess) {
+                // Sin membresía: mostrar pantalla de bloqueo
+                const lockScreen = document.getElementById('lockScreen');
+                lockScreen.classList.remove('hidden');
+                // Cargar el curso de fondo pero sin mostrar contenido
+                const courseRes = await fetch(apiUrl(`/api/courses/${courseId}`));
+                const courseData = await courseRes.json();
+                const courseName = courseData.success ? encodeURIComponent(courseData.course.name) : '';
+                document.getElementById('lockMembershipBtn').href = `/membresia?from=${courseId}&course=${courseName}`;
+                document.getElementById('loadingState').style.display = 'none';
+                return;
+            }
+
+            // Actualizar user en localStorage con datos frescos
+            if (accessData.hasMembership !== undefined) {
+                const user = JSON.parse(localStorage.getItem('authUser') || '{}');
+                user.hasMembership = accessData.hasMembership;
+                user.membershipPlan = accessData.membershipPlan;
+                localStorage.setItem('authUser', JSON.stringify(user));
+            }
+
+            // Cargar el curso
             const res = await fetch(apiUrl(`/api/courses/${courseId}`));
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if (!data.success) throw new Error(data.message);
 
             course = data.course;
+            document.getElementById('lockScreen').classList.add('hidden');
             initCourse();
         } catch (err) {
             document.getElementById('loadingState').innerHTML = `<p style="color:#f87171;">Error al cargar el curso: ${err.message}</p>`;

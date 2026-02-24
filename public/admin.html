@@ -26,13 +26,15 @@
                     <a href="/admin" class="nav-link active">Administración</a>
                 </nav>
                 
-                <div class="header-actions">
-                    <button class="btn-primary" onclick="openAddCourseModal()">
+                <div class="header-actions" id="adminHeaderActions">
+                    <span id="adminUserName" style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin-right:0.5rem;"></span>
+                    <button class="btn-primary" onclick="openAddCourseModal()" id="btnNewCourse">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right: 0.5rem;">
                             <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                         Nuevo Curso
                     </button>
+                    <button class="btn-secondary" onclick="adminLogout()" style="margin-left:0.5rem;">🚪 Salir</button>
                 </div>
             </div>
         </div>
@@ -42,9 +44,19 @@
     <div class="admin-container">
         <div class="container">
             <div class="admin-header">
-                <h1 class="admin-title">Gestión de Cursos</h1>
-                <p class="admin-description">Administra los cursos de la plataforma</p>
+                <h1 class="admin-title">Panel de Administración</h1>
+                <p class="admin-description">Gestiona cursos, membresías y usuarios de la plataforma</p>
             </div>
+
+            <!-- Tabs -->
+            <div style="display:flex;gap:.5rem;margin-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:0;">
+                <button class="admin-tab active" id="tab-courses" onclick="switchTab('courses')" style="padding:.75rem 1.5rem;background:none;border:none;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid #7C3AED;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">📚 Cursos</button>
+                <button class="admin-tab" id="tab-memberships" onclick="switchTab('memberships')" style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">💎 Membresías</button>
+                <button class="admin-tab" id="tab-users" onclick="switchTab('users')" style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">👥 Usuarios</button>
+            </div>
+
+            <!-- COURSES SECTION -->
+            <div id="section-courses">
 
             <!-- Stats Cards -->
             <div class="stats-grid">
@@ -120,6 +132,159 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    <!-- /section-courses -->
+
+
+    <!-- MEMBERSHIPS SECTION -->
+    <div id="section-memberships" style="display:none;" class="admin-container">
+        <div class="container">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                <div>
+                    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Planes de Membresía</h2>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Crea y gestiona los planes que los usuarios pueden adquirir</p>
+                </div>
+                <button class="btn-primary" onclick="openMembershipModal()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Nuevo Plan
+                </button>
+            </div>
+
+            <!-- Membership Cards -->
+            <div id="membershipsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+                <div style="display:flex;align-items:center;justify-content:center;padding:3rem;color:rgba(255,255,255,.4);">
+                    <div style="text-align:center;"><div style="font-size:2rem;margin-bottom:.75rem;">⌛</div>Cargando plans...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- USERS SECTION -->
+    <div id="section-users" style="display:none;" class="admin-container">
+        <div class="container">
+            <div style="margin-bottom:1.5rem;">
+                <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
+                <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
+            </div>
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="courses-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Plan activo</th>
+                                <th>Expira</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="6" class="loading-row"><div class="spinner"></div><p>Cargando usuarios...</p></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membership Modal -->
+    <div class="modal" id="membershipModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="membershipModalTitle">Nuevo Plan de Membresía</h2>
+                <button class="modal-close" onclick="closeMembershipModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            <form id="membershipForm" class="course-form" onsubmit="saveMembership(event)">
+                <input type="hidden" id="membershipId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="membName">Nombre del Plan *</label>
+                        <input type="text" id="membName" required placeholder="Ej: Pro, Anual, Básico">
+                    </div>
+                    <div class="form-group">
+                        <label for="membPrice">Precio (S/) *</label>
+                        <input type="number" id="membPrice" required min="0" step="0.01" placeholder="29.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="membDuration">Duración (días)</label>
+                        <select id="membDuration">
+                            <option value="7">1 semana (7 días)</option>
+                            <option value="30" selected>1 mes (30 días)</option>
+                            <option value="90">3 meses (90 días)</option>
+                            <option value="180">6 meses (180 días)</option>
+                            <option value="365">1 año (365 días)</option>
+                            <option value="0">De por vida</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="membBadge">Badge (opcional)</label>
+                        <input type="text" id="membBadge" placeholder="Ej: Más Popular, Mejor Valor">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="membDesc">Descripción</label>
+                    <textarea id="membDesc" rows="2" placeholder="Descripción breve del plan..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="membColor">Color de acento</label>
+                    <input type="color" id="membColor" value="#7C3AED" style="height:40px;cursor:pointer;">
+                </div>
+                <div class="form-group">
+                    <label>Beneficios del plan</label>
+                    <div id="featuresContainer">
+                        <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
+                            <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos" style="flex:1;">
+                            <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addFeatureRow()" style="background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-size:.875rem;margin-top:.25rem;width:100%;font-family:inherit;">
+                        + Agregar beneficio
+                    </button>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="membActive" checked>
+                        <span>Plan activo (visible para usuarios)</span>
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeMembershipModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <span id="membSubmitText">Guardar Plan</span>
+                        <div class="btn-spinner" id="membSubmitSpinner" style="display:none;"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Membership Modal -->
+    <div class="modal" id="userMembershipModal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h2>Gestionar Membresía</h2>
+                <button class="modal-close" onclick="closeUserMembershipModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            <div style="padding:0.5rem 0;">
+                <p style="margin-bottom:1rem;color:rgba(255,255,255,.6);font-size:0.875rem;">Usuario: <strong id="userModalName" style="color:#fff;"></strong></p>
+                <div class="form-group">
+                    <label>Asignar plan de membresía</label>
+                    <select id="userMembershipSelect">
+                        <option value="">-- Sin membresía --</option>
+                    </select>
+                </div>
+                <div class="form-actions" style="margin-top:1.5rem;">
+                    <button class="btn-secondary" onclick="revokeUserMembership()" style="border-color:rgba(255,75,85,.4);color:#FF6B70;">Revocar acceso</button>
+                    <button class="btn-primary" onclick="assignUserMembership()">Asignar</button>
                 </div>
             </div>
         </div>

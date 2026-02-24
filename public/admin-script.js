@@ -669,20 +669,335 @@ function showToast(message, type = 'success') {
 }
 
 // ===================================
-// Close modal on outside click
+// Admin helpers
+// ===================================
+function adminToken() {
+    return localStorage.getItem('authToken');
+}
+function adminLogout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    window.location.href = '/login';
+}
+
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken()}`
+    };
+}
+
+// ===================================
+// Tab navigation
+// ===================================
+let membershipsData = [];
+let usersData = [];
+let editingMembershipId = null;
+let editingUserId = null;
+
+function switchTab(tab) {
+    ['courses', 'memberships', 'users'].forEach(t => {
+        document.getElementById(`section-${t}`).style.display = t === tab ? '' : 'none';
+        const btn = document.getElementById(`tab-${t}`);
+        btn.style.color = t === tab ? '#fff' : 'rgba(255,255,255,.5)';
+        btn.style.borderBottom = t === tab ? '2px solid #7C3AED' : '2px solid transparent';
+    });
+    document.getElementById('btnNewCourse').style.display = tab === 'courses' ? '' : 'none';
+
+    if (tab === 'memberships') loadMemberships();
+    if (tab === 'users') loadUsers();
+}
+
+// ===================================
+// MEMBERSHIPS ADMIN
 // ===================================
 
-document.getElementById('courseModal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'courseModal') {
-        closeCourseModal();
+async function loadMemberships() {
+    try {
+        const res = await fetch(apiUrl('/api/admin/memberships'), { headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+            membershipsData = data.memberships;
+            renderMembershipsGrid(data.memberships);
+        } else {
+            showToast(data.message || 'Error al cargar planes', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
     }
-});
+}
 
-document.getElementById('contentModal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'contentModal') {
-        closeContentModal();
+function getDurationLabel(days) {
+    if (days === 0) return 'De por vida';
+    if (days === 365) return '1 año';
+    if (days === 30) return '1 mes';
+    if (days === 90) return '3 meses';
+    if (days === 180) return '6 meses';
+    if (days === 7) return '1 semana';
+    return `${days} días`;
+}
+
+function renderMembershipsGrid(plans) {
+    const grid = document.getElementById('membershipsGrid');
+    if (!plans || plans.length === 0) {
+        grid.innerHTML = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">
+            <div style="font-size:2rem;margin-bottom:.75rem;">📭</div>
+            <p>No hay planes creados. Crea el primero con el botón "Nuevo Plan".</p>
+        </div>`;
+        return;
     }
-});
+    grid.innerHTML = plans.map(p => `
+        <div style="background:rgba(20,20,35,.85);border:1px solid ${p.isActive ? 'rgba(124,58,237,.3)' : 'rgba(255,255,255,.08)'};border-radius:20px;padding:1.5rem;position:relative;transition:all .25s;">
+            ${!p.isActive ? '<div style="position:absolute;top:1rem;right:1rem;background:rgba(255,75,85,.15);border:1px solid rgba(255,75,85,.3);color:#FF6B70;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">INACTIVO</div>' : ''}
+            ${p.badge ? `<div style="position:absolute;top:1rem;right:1rem;background:${p.color || '#7C3AED'};color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .75rem;border-radius:100px;">${p.badge}</div>` : ''}
+            <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">${p.name}</div>
+            <div style="font-size:2rem;font-weight:900;color:${p.color || '#7C3AED'};margin:.5rem 0;">S/ ${p.price}</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-bottom:1rem;">${getDurationLabel(p.durationDays)}</div>
+            ${p.description ? `<div style="font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:1rem;">${p.description}</div>` : ''}
+            ${p.features && p.features.length ? `<ul style="list-style:none;margin-bottom:1rem;">${p.features.slice(0,3).map(f => `<li style="font-size:.8rem;color:rgba(255,255,255,.6);padding:.2rem 0;">✓ ${f}</li>`).join('')}${p.features.length > 3 ? `<li style="font-size:.75rem;color:rgba(255,255,255,.3);">+${p.features.length-3} más...</li>` : ''}</ul>` : ''}
+            <div style="display:flex;gap:.5rem;margin-top:auto;">
+                <button onclick="editMembership('${p._id}')" style="flex:1;padding:.6rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#A78BFA;border-radius:10px;cursor:pointer;font-size:.875rem;font-family:inherit;transition:all .2s;">✏️ Editar</button>
+                <button onclick="deleteMembership('${p._id}','${p.name}')" style="padding:.6rem .75rem;background:rgba(255,75,85,.1);border:1px solid rgba(255,75,85,.2);color:#FF6B70;border-radius:10px;cursor:pointer;font-size:.875rem;font-family:inherit;transition:all .2s;">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openMembershipModal(id) {
+    editingMembershipId = id || null;
+    document.getElementById('membershipModalTitle').textContent = id ? 'Editar Plan' : 'Nuevo Plan de Membresía';
+    document.getElementById('membershipForm').reset();
+    document.getElementById('membershipId').value = '';
+    document.getElementById('membColor').value = '#7C3AED';
+    document.getElementById('membActive').checked = true;
+    document.getElementById('featuresContainer').innerHTML = `
+        <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
+            <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos" style="flex:1;">
+            <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
+        </div>`;
+
+    if (id) {
+        const plan = membershipsData.find(p => p._id === id);
+        if (plan) {
+            document.getElementById('membershipId').value = plan._id;
+            document.getElementById('membName').value = plan.name;
+            document.getElementById('membPrice').value = plan.price;
+            document.getElementById('membDuration').value = plan.durationDays;
+            document.getElementById('membBadge').value = plan.badge || '';
+            document.getElementById('membDesc').value = plan.description || '';
+            document.getElementById('membColor').value = plan.color || '#7C3AED';
+            document.getElementById('membActive').checked = plan.isActive;
+
+            // Features
+            const container = document.getElementById('featuresContainer');
+            if (plan.features && plan.features.length) {
+                container.innerHTML = plan.features.map(f => `
+                    <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
+                        <input type="text" class="feature-input" value="${f}" style="flex:1;">
+                        <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
+                    </div>`).join('');
+            }
+        }
+    }
+    document.getElementById('membershipModal').classList.add('active');
+}
+
+function editMembership(id) { openMembershipModal(id); }
+
+function closeMembershipModal() {
+    document.getElementById('membershipModal').classList.remove('active');
+    editingMembershipId = null;
+}
+
+function addFeatureRow() {
+    const container = document.getElementById('featuresContainer');
+    const row = document.createElement('div');
+    row.className = 'feature-row';
+    row.style.cssText = 'display:flex;gap:.5rem;margin-bottom:.5rem;';
+    row.innerHTML = `
+        <input type="text" class="feature-input" placeholder="Beneficio del plan" style="flex:1;">
+        <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>`;
+    container.appendChild(row);
+}
+
+function removeFeatureRow(btn) {
+    const container = document.getElementById('featuresContainer');
+    if (container.querySelectorAll('.feature-row').length > 1) {
+        btn.parentElement.remove();
+    }
+}
+
+async function saveMembership(e) {
+    e.preventDefault();
+    const id = document.getElementById('membershipId').value;
+    const features = [...document.querySelectorAll('.feature-input')].map(i => i.value.trim()).filter(Boolean);
+
+    const payload = {
+        name: document.getElementById('membName').value,
+        price: document.getElementById('membPrice').value,
+        durationDays: document.getElementById('membDuration').value,
+        badge: document.getElementById('membBadge').value,
+        description: document.getElementById('membDesc').value,
+        color: document.getElementById('membColor').value,
+        isActive: document.getElementById('membActive').checked,
+        features
+    };
+
+    document.getElementById('membSubmitText').style.display = 'none';
+    document.getElementById('membSubmitSpinner').style.display = 'inline-block';
+
+    try {
+        const url = id ? apiUrl(`/api/admin/memberships/${id}`) : apiUrl('/api/admin/memberships');
+        const method = id ? 'PUT' : 'POST';
+        const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (data.success) {
+            showToast(id ? 'Plan actualizado' : 'Plan creado exitosamente');
+            closeMembershipModal();
+            loadMemberships();
+        } else {
+            showToast(data.message || 'Error al guardar', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        document.getElementById('membSubmitText').style.display = '';
+        document.getElementById('membSubmitSpinner').style.display = 'none';
+    }
+}
+
+async function deleteMembership(id, name) {
+    if (!confirm(`¿Eliminar el plan "${name}"?`)) return;
+    try {
+        const res = await fetch(apiUrl(`/api/admin/memberships/${id}`), { method: 'DELETE', headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Plan eliminado');
+            loadMemberships();
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+// ===================================
+// USERS ADMIN
+// ===================================
+
+async function loadUsers() {
+    try {
+        const res = await fetch(apiUrl('/api/admin/users'), { headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+            usersData = data.users;
+            renderUsersTable(data.users);
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function renderUsersTable(users) {
+    const tbody = document.getElementById('usersTableBody');
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
+        return;
+    }
+    const now = new Date();
+    tbody.innerHTML = users.map(u => {
+        const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
+        const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
+        return `
+        <tr>
+            <td><strong>${u.name}</strong></td>
+            <td style="font-size:.875rem;color:rgba(255,255,255,.6);">${u.email}</td>
+            <td>${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.15);color:#FFD700;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">ADMIN</span>' : '<span style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);font-size:.75rem;padding:.2rem .6rem;border-radius:100px;">Usuario</span>'}</td>
+            <td>${isActive ? `<span style="background:rgba(79,255,176,.1);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,.3);font-size:.85rem;">Sin membresía</span>'}</td>
+            <td style="font-size:.8rem;color:rgba(255,255,255,.5);">${isActive ? expDate : '-'}</td>
+            <td>
+                <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#A78BFA;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
+                    💎 Membresía
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function openUserMembershipModal(userId, userName) {
+    editingUserId = userId;
+    document.getElementById('userModalName').textContent = userName;
+
+    // Cargar planes
+    const res = await fetch(apiUrl('/api/admin/memberships'), { headers: authHeaders() });
+    const data = await res.json();
+    const select = document.getElementById('userMembershipSelect');
+    select.innerHTML = '<option value="">-- Sin membresía (revocar) --</option>';
+    if (data.success) {
+        data.memberships.filter(m => m.isActive).forEach(m => {
+            select.innerHTML += `<option value="${m._id}">${m.name} — S/ ${m.price} / ${getDurationLabel(m.durationDays)}</option>`;
+        });
+    }
+
+    // Pre-seleccionar membresía actual
+    const user = usersData.find(u => u._id === userId);
+    if (user && user.activeMembership) {
+        select.value = user.activeMembership;
+    }
+
+    document.getElementById('userMembershipModal').classList.add('active');
+}
+
+function closeUserMembershipModal() {
+    document.getElementById('userMembershipModal').classList.remove('active');
+    editingUserId = null;
+}
+
+async function assignUserMembership() {
+    const membershipId = document.getElementById('userMembershipSelect').value;
+    if (!membershipId) { revokeUserMembership(); return; }
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users/${editingUserId}/membership`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ membershipId })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Membresía asignada exitosamente');
+            closeUserMembershipModal();
+            loadUsers();
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+async function revokeUserMembership() {
+    if (!confirm('¿Revocar la membresía de este usuario?')) return;
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users/${editingUserId}/membership`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ action: 'revoke' })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Membresía revocada');
+            closeUserMembershipModal();
+            loadUsers();
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
 
 // ===================================
 // Initialize
@@ -690,24 +1005,46 @@ document.getElementById('contentModal')?.addEventListener('click', (e) => {
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🔧 Initializing Admin Panel...');
-    
-    await configReady; // esperar URL del backend
+    await configReady;
+
+    // Verificar autenticación de admin
+    const token = adminToken();
+    if (!token) {
+        window.location.href = '/login?redirect=/admin';
+        return;
+    }
+    // Verificar rol
+    const user = JSON.parse(localStorage.getItem('authUser') || '{}');
+    if (user.role !== 'admin') {
+        showToast('Acceso denegado. Solo administradores.', 'error');
+        setTimeout(() => window.location.href = '/', 2000);
+        return;
+    }
+    document.getElementById('adminUserName').textContent = `👤 ${user.name}`;
+
+    // Modo tab inicial
+    switchTab('courses');
     fetchCourses();
-    
-    // Setup search
     setupSearch();
-    
-    // Setup form
     document.getElementById('courseForm').addEventListener('submit', handleFormSubmit);
-    
-    // Setup keyboard shortcuts
+
     document.addEventListener('keydown', (e) => {
-        // ESC to close modal
         if (e.key === 'Escape') {
             closeCourseModal();
             closeContentModal();
+            closeMembershipModal();
+            closeUserMembershipModal();
         }
     });
-    
+
+    // Close modals on outside click
+    document.getElementById('membershipModal')?.addEventListener('click', e => {
+        if (e.target.id === 'membershipModal') closeMembershipModal();
+    });
+    document.getElementById('userMembershipModal')?.addEventListener('click', e => {
+        if (e.target.id === 'userMembershipModal') closeUserMembershipModal();
+    });
+
     console.log('✅ Admin Panel initialized!');
 });
+

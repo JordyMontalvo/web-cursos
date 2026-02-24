@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - IATIBET ZUREON</title>
+    <meta name="description" content="Crea tu cuenta en IATIBET ZUREON y accede a la mejor plataforma de cursos online">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: #0A0A0F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .auth-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .auth-bg::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(79,255,176,0.12) 0%, transparent 70%);
+            animation: float1 9s ease-in-out infinite;
+        }
+        .auth-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%);
+            animation: float2 7s ease-in-out infinite;
+        }
+        @keyframes float1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20px, 20px); } }
+        @keyframes float2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -20px); } }
+        .grid-lines {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .auth-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            padding: 1.5rem;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        .auth-card {
+            background: rgba(20, 20, 35, 0.88);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .auth-logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #7C3AED, #4FFFB0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .auth-logo-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.02em;
+        }
+        .auth-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 2rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .form-input::placeholder { color: rgba(255,255,255,0.3); }
+        .form-input:focus {
+            border-color: #7C3AED;
+            background: rgba(124,58,237,0.08);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+        }
+        .form-input.error { border-color: #FF4B55; }
+        .field-error {
+            font-size: 0.78rem;
+            color: #FF6B70;
+            margin-top: 0.35rem;
+            display: none;
+        }
+        .password-wrapper { position: relative; }
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            padding: 0;
+            transition: color 0.2s;
+        }
+        .toggle-password:hover { color: rgba(255,255,255,0.8); }
+
+        /* Password strength */
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+            overflow: hidden;
+            margin-bottom: 0.25rem;
+        }
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .strength-text {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Terms */
+        .terms-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        .terms-group input[type="checkbox"] {
+            width: 16px; height: 16px;
+            margin-top: 2px;
+            accent-color: #7C3AED;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .terms-text {
+            font-size: 0.83rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.5;
+        }
+        .terms-text a {
+            color: #7C3AED;
+            text-decoration: none;
+        }
+        .terms-text a:hover { color: #9B6FF5; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.4s;
+        }
+        .btn-submit:hover::before { left: 100%; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.4); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-submit .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+        .divider span {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+        }
+        .auth-footer a {
+            color: #7C3AED;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .auth-footer a:hover { color: #9B6FF5; }
+        .alert {
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .alert.error { background: rgba(255,75,85,0.12); border: 1px solid rgba(255,75,85,0.3); color: #FF6B70; display: flex; }
+        .alert.success { background: rgba(79,255,176,0.1); border: 1px solid rgba(79,255,176,0.3); color: #4FFFB0; display: flex; }
+        .alert.hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="auth-bg"></div>
+    <div class="grid-lines"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">⚡</div>
+                <span class="auth-logo-text">IATIBET ZUREON</span>
+            </div>
+
+            <h1 class="auth-title">Crea tu cuenta</h1>
+            <p class="auth-subtitle">Únete a miles de estudiantes que ya transformaron su vida</p>
+
+            <div class="alert hidden" id="registerAlert">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/><path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span id="registerAlertMsg"></span>
+            </div>
+
+            <form id="registerForm" novalidate>
+                <div class="form-group">
+                    <label class="form-label" for="regName">Nombre completo</label>
+                    <input type="text" id="regName" class="form-input" placeholder="Juan Pérez" autocomplete="name" required>
+                    <div class="field-error" id="nameError">Por favor ingresa tu nombre</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regEmail">Correo electrónico</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="tu@email.com" autocomplete="email" required>
+                    <div class="field-error" id="regEmailError">Por favor ingresa un email válido</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">Contraseña</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required oninput="checkStrength(this.value)">
+                        <button type="button" class="toggle-password" onclick="togglePassword('regPassword', this)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                        <span class="strength-text" id="strengthText"></span>
+                    </div>
+                    <div class="field-error" id="regPasswordError">La contraseña debe tener al menos 6 caracteres</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regConfirm">Confirmar contraseña</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="regConfirm" class="form-input" placeholder="Repite tu contraseña" autocomplete="new-password" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('regConfirm', this)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                        </button>
+                    </div>
+                    <div class="field-error" id="confirmError">Las contraseñas no coinciden</div>
+                </div>
+
+                <div class="terms-group">
+                    <input type="checkbox" id="acceptTerms">
+                    <span class="terms-text">Acepto los <a href="#">Términos de Servicio</a> y la <a href="#">Política de Privacidad</a> de IATIBET ZUREON</span>
+                </div>
+                <div class="field-error" id="termsError" style="margin-top: -0.75rem; margin-bottom: 1rem;">Debes aceptar los términos para continuar</div>
+
+                <button type="submit" class="btn-submit" id="registerBtn">
+                    Crear Cuenta
+                </button>
+            </form>
+
+            <div class="divider"><span>¿Ya tienes cuenta?</span></div>
+
+            <div class="auth-footer">
+                <a href="/login">Iniciar sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/config.js"></script>
+    <script>
+        const token = localStorage.getItem('authToken');
+        if (token) window.location.href = '/';
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isText = input.type === 'text';
+            input.type = isText ? 'password' : 'text';
+            btn.querySelector('svg').innerHTML = isText
+                ? '<path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>'
+                : '<path d="M17.94 17.94C16.23 19.24 14.19 20 12 20C5 20 1 12 1 12C2.24 9.68 4.02 7.72 6.06 6.39M9.9 4.24C10.59 4.09 11.29 4 12 4C19 4 23 12 23 12C22.44 13.12 21.73 14.17 20.89 15.09M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+        }
+
+        function checkStrength(val) {
+            const fill = document.getElementById('strengthFill');
+            const text = document.getElementById('strengthText');
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const levels = [
+                { color: '#FF4B55', label: 'Muy débil', w: '20%' },
+                { color: '#FF8C42', label: 'Débil', w: '40%' },
+                { color: '#FFD93D', label: 'Regular', w: '60%' },
+                { color: '#4FFFB0', label: 'Fuerte', w: '80%' },
+                { color: '#00E676', label: 'Muy fuerte', w: '100%' },
+            ];
+            if (!val) { fill.style.width = '0'; text.textContent = ''; return; }
+            const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+            fill.style.width = lvl.w;
+            fill.style.background = lvl.color;
+            text.textContent = lvl.label;
+            text.style.color = lvl.color;
+        }
+
+        function showAlert(msg, type = 'error') {
+            const alert = document.getElementById('registerAlert');
+            alert.className = `alert ${type}`;
+            document.getElementById('registerAlertMsg').textContent = msg;
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            const terms = document.getElementById('acceptTerms').checked;
+
+            let valid = true;
+            // Validaciones
+            const nameErr = !name || name.length < 2;
+            document.getElementById('nameError').style.display = nameErr ? 'block' : 'none';
+            document.getElementById('regName').classList.toggle('error', nameErr);
+            if (nameErr) valid = false;
+
+            const emailErr = !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            document.getElementById('regEmailError').style.display = emailErr ? 'block' : 'none';
+            document.getElementById('regEmail').classList.toggle('error', emailErr);
+            if (emailErr) valid = false;
+
+            const passErr = !password || password.length < 6;
+            document.getElementById('regPasswordError').style.display = passErr ? 'block' : 'none';
+            document.getElementById('regPassword').classList.toggle('error', passErr);
+            if (passErr) valid = false;
+
+            const confirmErr = password !== confirm;
+            document.getElementById('confirmError').style.display = confirmErr ? 'block' : 'none';
+            document.getElementById('regConfirm').classList.toggle('error', confirmErr);
+            if (confirmErr) valid = false;
+
+            document.getElementById('termsError').style.display = !terms ? 'block' : 'none';
+            if (!terms) valid = false;
+
+            if (!valid) return;
+
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+
+            try {
+                await configReady;
+                const res = await fetch(apiUrl('/api/auth/register'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('authUser', JSON.stringify(data.user));
+                    showAlert('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
+                    setTimeout(() => window.location.href = '/', 1200);
+                } else {
+                    showAlert(data.message || 'Error al crear la cuenta');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Crear Cuenta';
+                }
+            } catch (err) {
+                showAlert('Error de conexión. Intenta de nuevo.');
+                btn.disabled = false;
+                btn.innerHTML = 'Crear Cuenta';
+            }
+        });
+    </script>
+</body>
+</html>
