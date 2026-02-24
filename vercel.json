@@ -3,15 +3,34 @@
   "installCommand": "npm install",
   "framework": null,
   "rewrites": [
+    { "source": "/login",             "destination": "/login.html" },
+    { "source": "/register",          "destination": "/register.html" },
+    { "source": "/membresia",         "destination": "/membresia.html" },
     { "source": "/admin/content/:id", "destination": "/content-manager.html" },
     { "source": "/admin",             "destination": "/admin.html" },
     { "source": "/curso/:id",         "destination": "/curso.html" },
-    { "source": "/api/config",        "destination": "/api/config.js" },
-    { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=:episodeId" },
-    { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=new" },
-    { "source": "/api/courses/:id/chapters/:chapterId",                     "destination": "/api/courses?id=:id&chapterId=:chapterId" },
-    { "source": "/api/courses/:id/chapters",                                "destination": "/api/courses?id=:id&chapterId=new" },
-    { "source": "/api/courses/:id",                                         "destination": "/api/courses?id=:id" },
+
+    { "source": "/api/config",              "destination": "/api/config" },
+
+    { "source": "/api/auth/check-access",   "destination": "/api/auth" },
+    { "source": "/api/auth/register",       "destination": "/api/auth" },
+    { "source": "/api/auth/login",          "destination": "/api/auth" },
+    { "source": "/api/auth/me",             "destination": "/api/auth" },
+
+    { "source": "/api/memberships/subscribe", "destination": "/api/memberships" },
+    { "source": "/api/memberships/:id",       "destination": "/api/memberships" },
+    { "source": "/api/memberships",           "destination": "/api/memberships" },
+
+    { "source": "/api/admin/memberships/:id", "destination": "/api/admin-memberships" },
+    { "source": "/api/admin/memberships",     "destination": "/api/admin-memberships" },
+    { "source": "/api/admin/users/:id/membership", "destination": "/api/admin-users" },
+    { "source": "/api/admin/users",           "destination": "/api/admin-users" },
+
+    { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses" },
+    { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses" },
+    { "source": "/api/courses/:id/chapters/:chapterId",                     "destination": "/api/courses" },
+    { "source": "/api/courses/:id/chapters",                                "destination": "/api/courses" },
+    { "source": "/api/courses/:id",                                         "destination": "/api/courses" },
     { "source": "/api/courses",                                             "destination": "/api/courses" },
     { "source": "/api/upload",                                              "destination": "/api/upload" }
   ]

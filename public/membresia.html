@@ -726,8 +726,14 @@
 <script>
 let selectedPlanId = null;
 let plans = [];
-const user = JSON.parse(localStorage.getItem('authUser') || 'null');
 const token = localStorage.getItem('authToken');
+
+// ── Guard: redirigir al login si no hay sesión ───────────────────
+if (!token) {
+    window.location.href = '/login?redirect=/membresia';
+}
+
+const user = JSON.parse(localStorage.getItem('authUser') || 'null');
 
 // ── Countdown ────────────────────────────────────────────────────
 (function startCountdown() {

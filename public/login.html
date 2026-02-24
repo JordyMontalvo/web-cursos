@@ -381,7 +381,10 @@
     <script>
         // Redirigir si ya está logueado
         const token = localStorage.getItem('authToken');
-        if (token) window.location.href = '/';
+        if (token) {
+            const params = new URLSearchParams(window.location.search);
+            window.location.href = params.get('redirect') || '/';
+        }
 
         function togglePassword(inputId, btn) {
             const input = document.getElementById(inputId);

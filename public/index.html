@@ -151,10 +151,24 @@
 
     <script src="/config.js"></script>
     <script>
-    // Auth header dinámico
+    // ── Guard: redirigir al login si no hay sesión ────────────────
+    (function() {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+    })();
+
+    // ── Auth header dinámico ──────────────────────────────────────
     (function() {
         const user = JSON.parse(localStorage.getItem('authUser') || 'null');
         const actionsEl = document.getElementById('headerActions');
+        if (!user) {
+            // Token existe pero no user data — mostrar botones básicos
+            actionsEl.innerHTML = `<a href="/login" class="btn-link">Entrar</a><a href="/register" class="btn-primary">Crear Cuenta</a>`;
+            return;
+        }
         if (user) {
             document.getElementById('navMembresia').style.display = 'inline';
             const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
