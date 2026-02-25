@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const Course = require('./models/Course');
 const User = require('./models/User');
@@ -77,18 +78,22 @@ async function seedDatabase() {
             console.log('✅ Datos iniciales creados correctamente.');
         }
 
-        // Crear admin por defecto si no existe
-        const adminExists = await User.findOne({ role: 'admin' });
-        if (!adminExists) {
-            const admin = new User({
-                name: 'Administrador',
-                email: 'admin@iatibet.com',
-                password: 'admin123',
-                role: 'admin'
-            });
-            await admin.save();
-            console.log('👤 Admin creado: admin@iatibet.com / admin123');
-        }
+        // Crear o actualizar admin
+        const ADMIN_EMAIL    = 'admin@iatibet.com';
+        const ADMIN_PASSWORD = '123456';
+        const hashedPw = await bcrypt.hash(ADMIN_PASSWORD, 12);
+        await User.findOneAndUpdate(
+            { role: 'admin' },
+            {
+                name:     'Administrador',
+                email:    ADMIN_EMAIL,
+                password: hashedPw,
+                role:     'admin',
+                updatedAt: new Date()
+            },
+            { upsert: true, new: true }
+        );
+        console.log(`👤 Admin listo: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
 
         // Crear membresías de ejemplo si no existen
         const membCount = await Membership.countDocuments();
