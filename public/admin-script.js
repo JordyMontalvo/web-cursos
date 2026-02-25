@@ -1010,14 +1010,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Verificar autenticación de admin
     const token = adminToken();
     if (!token) {
-        window.location.href = '/login?redirect=/admin';
+        window.location.href = '/admin-login';
         return;
     }
     // Verificar rol
     const user = JSON.parse(localStorage.getItem('authUser') || '{}');
     if (user.role !== 'admin') {
-        showToast('Acceso denegado. Solo administradores.', 'error');
-        setTimeout(() => window.location.href = '/', 2000);
+        window.location.href = '/admin-login';
         return;
     }
     document.getElementById('adminUserName').textContent = `👤 ${user.name}`;
