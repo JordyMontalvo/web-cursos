@@ -436,10 +436,17 @@
                 if (data.success) {
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('authUser', JSON.stringify(data.user));
-                    showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
-                    setTimeout(() => {
-                        window.location.href = data.user.role === 'admin' ? '/admin' : '/';
-                    }, 800);
+                    
+                    if (data.user.role === 'admin') {
+                        showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
+                        setTimeout(() => window.location.href = '/admin', 800);
+                    } else if (!data.user.hasMembership) {
+                        showAlert('Tu plan está inactivo o vencido. Redirigiendo a membresías...', 'error');
+                        setTimeout(() => window.location.href = '/membresia', 1200);
+                    } else {
+                        showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
+                        setTimeout(() => window.location.href = '/', 800);
+                    }
                 } else {
                     showAlert(data.message || 'Credenciales incorrectas');
                     btn.disabled = false;

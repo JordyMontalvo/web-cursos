@@ -467,8 +467,8 @@
                 if (data.success) {
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('authUser', JSON.stringify(data.user));
-                    showAlert('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
-                    setTimeout(() => window.location.href = '/', 1200);
+                    showAlert('¡Cuenta creada exitosamente! Redirigiendo a membresías...', 'success');
+                    setTimeout(() => window.location.href = '/membresia', 1200);
                 } else {
                     showAlert(data.message || 'Error al crear la cuenta');
                     btn.disabled = false;
