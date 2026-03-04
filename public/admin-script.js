@@ -696,15 +696,22 @@ let editingMembershipId = null;
 let editingUserId = null;
 
 function switchTab(tab) {
-    ['courses', 'memberships', 'users'].forEach(t => {
-        document.getElementById(`section-${t}`).style.display = t === tab ? '' : 'none';
+    ['courses', 'memberships', 'banners', 'users'].forEach(t => {
+        const section = document.getElementById(`section-${t}`);
+        if(section) section.style.display = t === tab ? '' : 'none';
+        
         const btn = document.getElementById(`tab-${t}`);
-        btn.style.color = t === tab ? '#fff' : 'rgba(255,255,255,.5)';
-        btn.style.borderBottom = t === tab ? '2px solid #7C3AED' : '2px solid transparent';
+        if(btn) {
+            btn.style.color = t === tab ? '#fff' : 'rgba(255,255,255,.5)';
+            btn.style.borderBottom = t === tab ? '2px solid #7C3AED' : '2px solid transparent';
+        }
     });
-    document.getElementById('btnNewCourse').style.display = tab === 'courses' ? '' : 'none';
+    
+    const btnNewCourse = document.getElementById('btnNewCourse');
+    if(btnNewCourse) btnNewCourse.style.display = tab === 'courses' ? '' : 'none';
 
     if (tab === 'memberships') loadMemberships();
+    if (tab === 'banners') loadBanners();
     if (tab === 'users') loadUsers();
 }
 
@@ -1000,6 +1007,186 @@ async function revokeUserMembership() {
 }
 
 // ===================================
+// BANNERS ADMIN
+// ===================================
+let bannersData = [];
+let editingBannerId = null;
+
+async function loadBanners() {
+    try {
+        const res = await fetch(apiUrl('/api/admin/banners'), { headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+            bannersData = data.banners;
+            renderBannersTable(data.banners);
+        } else {
+            showToast(data.message || 'Error al cargar banners', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function renderBannersTable(banners) {
+    const tbody = document.getElementById('bannersTableBody');
+    if (!banners || banners.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay banners disponibles</p></td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = banners.map(b => `
+        <tr>
+            <td><img src="${b.imageUrl}" alt="Banner" style="width:120px;height:50px;object-fit:cover;border-radius:4px;border:1px solid rgba(255,255,255,.1);"></td>
+            <td><strong>${b.title || '-'}</strong></td>
+            <td>${b.subtitle || '-'}</td>
+            <td>${b.order}</td>
+            <td>${b.isActive ? '<span class="badge" style="background:rgba(79,255,176,.2);color:#4FFFB0;">Activo</span>' : '<span class="badge" style="background:rgba(255,75,85,.2);color:#FF6B70;">Inactivo</span>'}</td>
+            <td>
+                <div class="table-actions-cell">
+                    <button class="btn-icon btn-edit" onclick="editBanner('${b._id}')" title="Editar">✏️</button>
+                    <button class="btn-icon btn-delete" onclick="deleteBanner('${b._id}')" title="Eliminar">🗑️</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openBannerModal(id) {
+    editingBannerId = id || null;
+    document.getElementById('bannerModalTitle').textContent = id ? 'Editar Banner' : 'Nuevo Banner';
+    document.getElementById('bannerForm').reset();
+    document.getElementById('bannerId').value = '';
+    document.getElementById('bannerImagePreview').innerHTML = '';
+    document.getElementById('bannerImagePreview').classList.remove('active');
+    document.getElementById('bannerImageUrl').value = '';
+    document.getElementById('bannerActive').checked = true;
+
+    if (id) {
+        const banner = bannersData.find(b => b._id === id);
+        if (banner) {
+            document.getElementById('bannerId').value = banner._id;
+            document.getElementById('bannerTitle').value = banner.title || '';
+            document.getElementById('bannerSubtitle').value = banner.subtitle || '';
+            document.getElementById('bannerLinkUrl').value = banner.linkUrl || '';
+            document.getElementById('bannerOrder').value = banner.order || 1;
+            document.getElementById('bannerImageUrl').value = banner.imageUrl || '';
+            document.getElementById('bannerActive').checked = banner.isActive;
+
+            if (banner.imageUrl) {
+                const preview = document.getElementById('bannerImagePreview');
+                preview.innerHTML = `<img src="${banner.imageUrl}" alt="Preview">`;
+                preview.classList.add('active');
+            }
+        }
+    } else {
+        document.getElementById('bannerOrder').value = bannersData.length + 1;
+    }
+
+    document.getElementById('bannerModal').classList.add('active');
+}
+
+function closeBannerModal() {
+    document.getElementById('bannerModal').classList.remove('active');
+    editingBannerId = null;
+}
+
+async function previewBannerImage(input) {
+    const preview = document.getElementById('bannerImagePreview');
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            preview.classList.add('active');
+        };
+        reader.readAsDataURL(file);
+
+        showToast('Subiendo imagen de banner...', 'info');
+        const imageUrl = await uploadImage(file);
+        if (imageUrl) {
+            document.getElementById('bannerImageUrl').value = imageUrl;
+            showToast('Imagen del banner subida exitosamente');
+        }
+    }
+}
+
+async function saveBanner(e) {
+    e.preventDefault();
+    const submitBtnText = document.getElementById('bannerSubmitText');
+    const submitSpinner = document.getElementById('bannerSubmitSpinner');
+    const btn = e.target.querySelector('button[type="submit"]');
+
+    btn.disabled = true;
+    submitBtnText.style.display = 'none';
+    submitSpinner.style.display = 'inline-block';
+
+    const formData = {
+        title: document.getElementById('bannerTitle').value,
+        subtitle: document.getElementById('bannerSubtitle').value,
+        linkUrl: document.getElementById('bannerLinkUrl').value,
+        order: parseInt(document.getElementById('bannerOrder').value) || 0,
+        imageUrl: document.getElementById('bannerImageUrl').value,
+        isActive: document.getElementById('bannerActive').checked
+    };
+
+    if (!formData.imageUrl) {
+        showToast('Debes subir una imagen para el banner', 'error');
+        btn.disabled = false;
+        submitBtnText.style.display = 'inline';
+        submitSpinner.style.display = 'none';
+        return;
+    }
+
+    try {
+        const url = editingBannerId ? `/api/admin/banners/${editingBannerId}` : '/api/admin/banners';
+        const method = editingBannerId ? 'PUT' : 'POST';
+
+        const res = await fetch(apiUrl(url), {
+            method,
+            headers: authHeaders(),
+            body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(editingBannerId ? 'Banner actualizado' : 'Banner creado');
+            closeBannerModal();
+            loadBanners();
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        submitBtnText.style.display = 'inline';
+        submitSpinner.style.display = 'none';
+    }
+}
+
+async function deleteBanner(id) {
+    if (!confirm('¿Seguro que deseas eliminar este banner de forma permanente?')) return;
+    try {
+        const res = await fetch(apiUrl(`/api/admin/banners/${id}`), {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Banner eliminado');
+            loadBanners();
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function editBanner(id) {
+    openBannerModal(id);
+}
+
+// ===================================
 // Initialize
 // ===================================
 
@@ -1033,6 +1220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeContentModal();
             closeMembershipModal();
             closeUserMembershipModal();
+            closeBannerModal();
         }
     });
 
@@ -1042,6 +1230,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('userMembershipModal')?.addEventListener('click', e => {
         if (e.target.id === 'userMembershipModal') closeUserMembershipModal();
+    });
+    document.getElementById('bannerModal')?.addEventListener('click', e => {
+        if (e.target.id === 'bannerModal') closeBannerModal();
     });
 
     console.log('✅ Admin Panel initialized!');

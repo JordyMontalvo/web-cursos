@@ -11,6 +11,7 @@ const bcrypt = require('bcryptjs');
 const Course = require('./models/Course');
 const User = require('./models/User');
 const Membership = require('./models/Membership');
+const Banner = require('./models/Banner');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -131,6 +132,39 @@ async function seedDatabase() {
             ];
             await Membership.insertMany(defaultMemberships);
             console.log('💎 Membresías de ejemplo creadas.');
+        }
+
+        // Crear banners de ejemplo si no existen
+        const bannerCount = await Banner.countDocuments();
+        if (bannerCount === 0) {
+            const defaultBanners = [
+                {
+                    title: 'IATIBET ZUREON',
+                    subtitle: 'Transforma tu mente, finanzas y espíritu',
+                    imageUrl: '/images/banner1.jpg',
+                    linkUrl: '/',
+                    order: 1,
+                    isActive: true
+                },
+                {
+                    title: 'Cursos Online Premium',
+                    subtitle: 'Aprende con los mejores expertos del mundo',
+                    imageUrl: '/images/banner2.jpg',
+                    linkUrl: '/',
+                    order: 2,
+                    isActive: true
+                },
+                {
+                    title: 'Únete a nuestra comunidad',
+                    subtitle: 'Miles de estudiantes ya están transformando su vida',
+                    imageUrl: '/images/banner3.jpg',
+                    linkUrl: '/membresia',
+                    order: 3,
+                    isActive: true
+                }
+            ];
+            await Banner.insertMany(defaultBanners);
+            console.log('🖼️  Banners de ejemplo creados.');
         }
     } catch (error) {
         console.error('❌ Error sembrando base de datos:', error);
@@ -282,6 +316,87 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// ===================================
+// RUTAS DE BANNERS (PÚBLICAS)
+// ===================================
+
+// Obtener todos los banners activos
+app.get('/api/banners', async (req, res) => {
+    try {
+        const banners = await Banner.find({ isActive: true }).sort({ order: 1 });
+        res.json({ success: true, banners });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// ===================================
+// RUTAS DE BANNERS (ADMIN)
+// ===================================
+
+// Obtener todos los banners (admin)
+app.get('/api/admin/banners', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const banners = await Banner.find().sort({ order: 1 });
+        res.json({ success: true, banners });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Crear banner
+app.post('/api/admin/banners', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { title, subtitle, imageUrl, linkUrl, order, isActive } = req.body;
+        if (!imageUrl) {
+            return res.status(400).json({ success: false, message: 'La URL de imagen es requerida' });
+        }
+        const banner = new Banner({
+            title: title || '',
+            subtitle: subtitle || '',
+            imageUrl,
+            linkUrl: linkUrl || '',
+            order: Number(order) || 0,
+            isActive: isActive !== false
+        });
+        await banner.save();
+        res.json({ success: true, banner });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error creando banner', error: error.message });
+    }
+});
+
+// Actualizar banner
+app.put('/api/admin/banners/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { title, subtitle, imageUrl, linkUrl, order, isActive } = req.body;
+        const updateData = { updatedAt: new Date() };
+        if (title !== undefined) updateData.title = title;
+        if (subtitle !== undefined) updateData.subtitle = subtitle;
+        if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+        if (linkUrl !== undefined) updateData.linkUrl = linkUrl;
+        if (order !== undefined) updateData.order = Number(order);
+        if (isActive !== undefined) updateData.isActive = isActive;
+
+        const banner = await Banner.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        if (!banner) return res.status(404).json({ success: false, message: 'Banner no encontrado' });
+        res.json({ success: true, banner });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error actualizando banner', error: error.message });
+    }
+});
+
+// Eliminar banner
+app.delete('/api/admin/banners/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const banner = await Banner.findByIdAndDelete(req.params.id);
+        if (!banner) return res.status(404).json({ success: false, message: 'Banner no encontrado' });
+        res.json({ success: true, message: 'Banner eliminado' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error eliminando banner', error: error.message });
     }
 });
 

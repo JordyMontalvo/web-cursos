@@ -4,6 +4,9 @@
 let coursesData = [];
 let episodesData = [];
 let featuredCourses = [];
+let bannersData = [];
+let currentBannerIndex = 0;
+let carouselInterval = null;
 
 // Fetch courses from API
 async function fetchCourses() {
@@ -23,6 +26,110 @@ async function fetchCourses() {
         return [];
     }
 }
+
+// ===================================
+// Banner Carousel Logic
+// ===================================
+async function loadBanners() {
+    try {
+        await configReady;
+        const res = await fetch(apiUrl('/api/banners'));
+        const data = await res.json();
+        if (data.success && data.banners && data.banners.length > 0) {
+            bannersData = data.banners;
+            renderCarousel();
+        } else {
+            console.error('No banners found or error fetching');
+            document.getElementById('carouselContainer').innerHTML = '<div class="carousel-loading">No hay banners disponibles</div>';
+        }
+    } catch (err) {
+        console.error('Error loading banners', err);
+        document.getElementById('carouselContainer').innerHTML = '<div class="carousel-loading">Error cargando banners</div>';
+    }
+}
+
+function renderCarousel() {
+    const container = document.getElementById('carouselContainer');
+    const indicators = document.getElementById('carouselIndicators');
+    if (!container || !indicators) return;
+
+    container.innerHTML = '';
+    indicators.innerHTML = '';
+
+    bannersData.forEach((banner, index) => {
+        // Slide
+        const slide = document.createElement('div');
+        slide.className = 'carousel-slide';
+        slide.style.backgroundImage = `url('${banner.imageUrl}')`;
+        
+        slide.innerHTML = `
+            <div class="carousel-overlay">
+                <h2 class="carousel-title">${banner.title || ''}</h2>
+                <p class="carousel-subtitle">${banner.subtitle || ''}</p>
+                ${banner.linkUrl ? `<a href="${banner.linkUrl}" class="carousel-link">Ver más</a>` : ''}
+            </div>
+        `;
+        container.appendChild(slide);
+
+        // Indicator
+        const ind = document.createElement('div');
+        ind.className = 'carousel-indicator';
+        if (index === 0) ind.classList.add('active');
+        ind.onclick = () => goToBanner(index);
+        indicators.appendChild(ind);
+    });
+
+    currentBannerIndex = 0;
+    updateCarouselPosition();
+    startCarousel();
+}
+
+function updateCarouselPosition() {
+    const container = document.getElementById('carouselContainer');
+    if (!container) return;
+    container.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+
+    // Update indicators
+    const indicators = document.querySelectorAll('.carousel-indicator');
+    indicators.forEach((ind, idx) => {
+        ind.classList.toggle('active', idx === currentBannerIndex);
+    });
+}
+
+function nextBanner() {
+    if (bannersData.length === 0) return;
+    currentBannerIndex = (currentBannerIndex + 1) % bannersData.length;
+    updateCarouselPosition();
+    resetCarouselInterval();
+}
+
+function prevBanner() {
+    if (bannersData.length === 0) return;
+    currentBannerIndex = (currentBannerIndex - 1 + bannersData.length) % bannersData.length;
+    updateCarouselPosition();
+    resetCarouselInterval();
+}
+
+function goToBanner(index) {
+    if (index >= 0 && index < bannersData.length) {
+        currentBannerIndex = index;
+        updateCarouselPosition();
+        resetCarouselInterval();
+    }
+}
+
+function startCarousel() {
+    if (carouselInterval) clearInterval(carouselInterval);
+    carouselInterval = setInterval(nextBanner, 5000); // 5 segundos
+}
+
+function resetCarouselInterval() {
+    startCarousel();
+}
+
+// Make globally available for onclick handlers in HTML
+window.nextBanner = nextBanner;
+window.prevBanner = prevBanner;
 
 // ===================================
 // Create Course Card
@@ -298,6 +405,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Add mobile styles
     addMobileStyles();
+    
+    // Load Banner Carousel
+    await loadBanners();
     
     // Render content
     await renderCourses();
