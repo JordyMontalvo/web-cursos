@@ -183,12 +183,19 @@
                         <div onclick="localStorage.removeItem('authToken');localStorage.removeItem('authUser');location.href='/login'" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;border-radius:10px;font-size:.875rem;color:#FF6B70;cursor:pointer;">🚪 Cerrar sesión</div>
                     </div>
                 </div>`;
-            // Hover dropdown
             const badge = actionsEl.querySelector('.user-badge-idx');
             const dd = actionsEl.querySelector('.dd');
             if (badge && dd) {
-                badge.addEventListener('mouseenter', () => dd.style.display = 'block');
-                badge.addEventListener('mouseleave', () => dd.style.display = 'none');
+                badge.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                });
+                dd.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+                document.addEventListener('click', () => {
+                    dd.style.display = 'none';
+                });
             }
         }
     })();

@@ -254,7 +254,6 @@
         z-index: 200;
         box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
-    .user-badge:hover .user-dropdown { display: block; }
     .dropdown-item {
         display: flex;
         align-items: center;
@@ -384,11 +383,11 @@
             const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
             const hasMem = user.hasMembership;
             actionsEl.innerHTML = `
-                <div class="user-badge">
+                <div class="user-badge" id="dropdownBadge">
                     <div class="user-avatar">${initials}</div>
                     <span class="user-name">${user.name}</span>
                     <span class="membership-tag ${hasMem ? 'active' : ''}">${hasMem ? user.membershipPlan || 'Pro' : 'Sin plan'}</span>
-                    <div class="user-dropdown">
+                    <div class="user-dropdown" id="dropdownContent">
                         <a href="/" class="dropdown-item">🏠 Inicio</a>
                         <a href="/membresia" class="dropdown-item">💎 Membresía</a>
                         ${user.role === 'admin' ? '<a href="/admin" class="dropdown-item">⚙️ Admin</a>' : ''}
@@ -396,6 +395,18 @@
                         <div class="dropdown-item danger" onclick="logout()">🚪 Cerrar sesión</div>
                     </div>
                 </div>`;
+            setTimeout(() => {
+                const badge = document.getElementById('dropdownBadge');
+                const dd = document.getElementById('dropdownContent');
+                if (badge && dd) {
+                    badge.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                    });
+                    dd.addEventListener('click', (e) => e.stopPropagation());
+                    document.addEventListener('click', () => dd.style.display = 'none');
+                }
+            }, 0);
         }
     }
     function logout() {
