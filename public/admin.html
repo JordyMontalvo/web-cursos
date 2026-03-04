@@ -342,7 +342,7 @@
                 </div>
                 <div class="form-group">
                     <label for="bannerImage">Imagen del banner (Se recomienda ancha: ej 1920x600) *</label>
-                    <div class="file-upload-wrapper">
+                    <div class="file-upload-wrapper" style="margin-bottom:0.5rem;">
                         <input type="file" id="bannerImage" accept="image/*" onchange="previewBannerImage(this)">
                         <div class="file-upload-label">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -350,11 +350,11 @@
                                 <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <span>Haz clic para subir una imagen</span>
+                            <span>Haz clic para subir (o pega una URL abajo)</span>
                         </div>
                         <div id="bannerImagePreview" class="image-preview"></div>
                     </div>
-                    <input type="hidden" id="bannerImageUrl" required>
+                    <input type="text" id="bannerImageUrl" placeholder="Ej: https://i.imgur.com/..." style="width:100%; padding:0.8rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;" required>
                 </div>
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
@@ -464,11 +464,11 @@
                                 <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <span>Haz clic para subir una imagen</span>
+                            <span>Haz clic para subir (o pega una URL abajo)</span>
                         </div>
                         <div id="imagePreview" class="image-preview"></div>
                     </div>
-                    <input type="hidden" id="thumbnailUrl" name="thumbnail">
+                    <input type="text" id="thumbnailUrl" name="thumbnail" placeholder="O pega el link directo a la imagen, ej: https://i.imgur.com/..." style="width:100%; padding:0.8rem; margin-top:0.5rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;" required>
                 </div>
 
                 <div class="form-group checkbox-group">
