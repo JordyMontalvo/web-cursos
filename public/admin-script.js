@@ -311,22 +311,23 @@ async function previewImage(input) {
     const file = input.files[0];
     
     if (file) {
-        // Show local preview
+        // Validación de tamaño (ej: para evitar que base64 sobrepase el límite de MongoDB de 16MB)
+        if(file.size > 2 * 1024 * 1024) {
+            showToast('La imagen es demasiado grande. Máximo 2MB.', 'error');
+            input.value = '';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => {
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             preview.classList.add('active');
+            
+            // Asignar base64 directamente al campo de texto
+            document.getElementById('thumbnailUrl').value = e.target.result;
+            showToast('Imagen cargada y convertida a texto exitosamente', 'info');
         };
         reader.readAsDataURL(file);
-        
-        // Upload image
-        showToast('Subiendo imagen...', 'info');
-        const imageUrl = await uploadImage(file);
-        
-        if (imageUrl) {
-            document.getElementById('thumbnailUrl').value = imageUrl;
-            showToast('Imagen subida exitosamente');
-        }
     }
 }
 
@@ -1142,19 +1143,22 @@ async function previewBannerImage(input) {
     const preview = document.getElementById('bannerImagePreview');
     const file = input.files[0];
     if (file) {
+        if(file.size > 2 * 1024 * 1024) {
+            showToast('La imagen es demasiado grande. Máximo 2MB.', 'error');
+            input.value = '';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => {
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             preview.classList.add('active');
+
+            // Asignar base64 al URL del banner
+            document.getElementById('bannerImageUrl').value = e.target.result;
+            showToast('Imagen del banner cargada correctamente', 'info');
         };
         reader.readAsDataURL(file);
-
-        showToast('Subiendo imagen de banner...', 'info');
-        const imageUrl = await uploadImage(file);
-        if (imageUrl) {
-            document.getElementById('bannerImageUrl').value = imageUrl;
-            showToast('Imagen del banner subida exitosamente');
-        }
     }
 }
 

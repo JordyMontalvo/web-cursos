@@ -6,6 +6,7 @@
     { "source": "/login",             "destination": "/login.html" },
     { "source": "/register",          "destination": "/register.html" },
     { "source": "/membresia",         "destination": "/membresia.html" },
+    { "source": "/perfil",            "destination": "/perfil.html" },
     { "source": "/admin-login",       "destination": "/admin-login.html" },
     { "source": "/admin/content/:id", "destination": "/content-manager.html" },
     { "source": "/admin",             "destination": "/admin.html" },
