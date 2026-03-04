@@ -16,7 +16,7 @@ const Settings = require('./models/Settings');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_secret_2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
 
 // Middleware
 app.use(cors());

@@ -423,10 +423,69 @@ function addMobileStyles() {
 }
 
 // ===================================
+// Auth & Header Logic
+// ===================================
+function updateHeader() {
+    const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+    const actionsEl = document.getElementById('headerActions');
+    if (!actionsEl) return;
+
+    if (user) {
+        const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
+        const hasMem = user.hasMembership;
+        actionsEl.innerHTML = `
+            <div class="user-badge" id="dropdownBadge">
+                <div class="user-avatar">${initials}</div>
+                <span class="user-name">${user.name}</span>
+                <span class="membership-tag ${hasMem ? 'active' : ''}">${hasMem ? (user.membershipPlan || 'Pro') : 'Sin plan'}</span>
+                <div class="user-dropdown" id="dropdownContent">
+                    <a href="/" class="dropdown-item">🏠 Inicio</a>
+                    <a href="/membresia" class="dropdown-item">💎 Membresía</a>
+                    <a href="/perfil" class="dropdown-item">👤 Perfil</a>
+                    ${user.role === 'admin' ? '<a href="/admin" class="dropdown-item">⚙️ Admin</a>' : ''}
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item danger" id="btnLogout">🚪 Cerrar sesión</div>
+                </div>
+            </div>`;
+        
+        // Use timeout to ensure elements are in DOM
+        setTimeout(() => {
+            const badge = document.getElementById('dropdownBadge');
+            const dd = document.getElementById('dropdownContent');
+            const logoutBtn = document.getElementById('btnLogout');
+
+            if (badge && dd) {
+                badge.onclick = (e) => {
+                    e.stopPropagation();
+                    const isVisible = dd.style.display === 'block';
+                    dd.style.display = isVisible ? 'none' : 'block';
+                };
+                dd.onclick = (e) => e.stopPropagation();
+                document.addEventListener('click', () => {
+                    if (dd) dd.style.display = 'none';
+                });
+            }
+            if (logoutBtn) {
+                logoutBtn.onclick = logout;
+            }
+        }, 0);
+    }
+}
+
+function logout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    window.location.href = '/login';
+}
+
+// ===================================
 // Initialize App
 // ===================================
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing IATIBET ZUREON Platform...');
+    
+    // Auth & Header
+    updateHeader();
     
     // Add mobile styles
     addMobileStyles();

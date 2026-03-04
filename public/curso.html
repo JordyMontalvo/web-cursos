@@ -486,10 +486,20 @@
                 if (badge && dd) {
                     badge.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                        const isVisible = dd.style.display === 'block';
+                        // Close all other dropdowns if any, then toggle this one
+                        dd.style.display = isVisible ? 'none' : 'block';
                     });
-                    dd.addEventListener('click', (e) => e.stopPropagation());
-                    document.addEventListener('click', () => dd.style.display = 'none');
+                    
+                    // Prevent clicks inside the dropdown from closing it
+                    dd.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+
+                    // Close when clicking anywhere else
+                    document.addEventListener('click', () => {
+                        dd.style.display = 'none';
+                    });
                 }
             }, 0);
         }
