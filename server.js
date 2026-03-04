@@ -316,14 +316,47 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
         res.json({
             success: true,
             user: {
+                ...user.toObject(),
                 id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                hasMembership: user.hasMembership(),
-                membershipPlan: user.membershipPlan,
-                membershipExpiresAt: user.membershipExpiresAt
+                hasMembership: user.hasMembership()
             }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Actualizar perfil de usuario
+app.put('/api/auth/me', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+
+        const { name, lastName, phone, country, city, birthDate, currentPassword, newPassword } = req.body;
+
+        if (name) user.name = name;
+        if (lastName !== undefined) user.lastName = lastName;
+        if (phone !== undefined) user.phone = phone;
+        if (country !== undefined) user.country = country;
+        if (city !== undefined) user.city = city;
+        if (birthDate !== undefined) user.birthDate = birthDate;
+
+        if (currentPassword && newPassword) {
+            const ok = await user.comparePassword(currentPassword);
+            if (!ok) {
+                return res.status(400).json({ success: false, message: 'La contraseña actual es incorrecta' });
+            }
+            user.password = newPassword;
+        }
+
+        await user.save();
+        const updatedUser = user.toObject();
+        delete updatedUser.password;
+
+        res.json({
+            success: true,
+            message: 'Perfil actualizado exitosamente',
+            user: { ...updatedUser, id: user._id, hasMembership: user.hasMembership() }
         });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error', error: error.message });

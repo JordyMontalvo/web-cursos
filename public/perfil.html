@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario - IATIBET ZUREON</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --purple: #7C3AED;
+            --purple-light: #A78BFA;
+            --green: #4FFFB0;
+            --bg: #0A0A0F;
+            --card: rgba(18,18,30,0.9);
+            --border: rgba(255,255,255,0.08);
+        }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; padding-top: 80px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+        
+        .page-title { font-size: 2rem; font-weight: 800; margin-bottom: 2rem; }
+        
+        /* ── Top Panel ────────────────────────────────────────────── */
+        .profile-hero {
+            background: linear-gradient(135deg, rgba(88,33,182,0.6), rgba(46,16,101,0.6));
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-hero::before {
+            content: ''; position: absolute; top:-50%; left:-50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(124,58,237,0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .hero-avatar {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--green));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; font-weight: 800; color: #fff;
+            box-shadow: 0 0 0 5px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.5);
+            position: relative; z-index: 10;
+        }
+        .hero-info { flex: 1; position: relative; z-index: 10; }
+        .hero-name { font-size: 2rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .hero-email { font-size: 1.1rem; color: rgba(255,255,255,0.7); margin-bottom: 1rem; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(124,58,237,0.3); border: 1px solid rgba(124,58,237,0.5);
+            padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.85rem; font-weight: 600; color: #C4B5FD;
+        }
+        .hero-badge.active { background: rgba(79,255,176,0.15); border-color: rgba(79,255,176,0.3); color: var(--green); }
+        .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+        .edit-profile-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.75rem 1.5rem; border-radius: 12px; color: #fff; text-decoration: none;
+            font-weight: 600; transition: all 0.2s; position: relative; z-index: 10;
+        }
+        .edit-profile-btn:hover { background: rgba(255,255,255,0.2); }
+
+        /* ── Grid Layout ───────────────────────────────────────────── */
+        .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+        @media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } }
+
+        /* ── Cards ─────────────────────────────────────────────────── */
+        .card-panel {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 2rem;
+            display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .card-title { font-size: 1.25rem; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-grid.full { grid-template-columns: 1fr; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-label { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.6); }
+        .form-input {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.85rem 1rem; border-radius: 10px; color: #fff; font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .form-input:focus { border-color: var(--purple); background: rgba(124,58,237,0.05); outline: none; }
+        .form-input:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, var(--purple), #5B21B6);
+            border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 0.95rem;
+            padding: 0.9rem; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(124,58,237,0.3); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .btn-danger-outline {
+            background: transparent; border: none; color: rgba(255,107,112,0.7); font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; padding: 0.5rem 0; display: inline-flex; align-items: center; gap: 0.5rem; align-self: flex-start;
+        }
+        .btn-danger-outline:hover { color: #FF6B70; }
+
+        /* ── Membership History ────────────────────────────────────── */
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .history-table th { text-align: left; padding: 1rem 0; color: rgba(255,255,255,0.5); font-weight: 600; border-bottom: 1px solid var(--border); }
+        .history-table td { padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .history-table tr:last-child td { border-bottom: none; }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem;
+            border-radius: 100px; font-size: 0.75rem; font-weight: 700;
+        }
+        .status-badge.success { background: rgba(79,255,176,0.1); color: var(--green); }
+        
+        .btn-small-outline {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            color: rgba(255,255,255,0.8); font-size: 0.8rem; font-weight: 600; padding: 0.4rem 0.8rem;
+            cursor: pointer; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-small-outline:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast-item { display: flex; align-items: center; gap: 0.75rem; background: #1A1A2E; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1rem 1.25rem; min-width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); animation: toastIn 0.35s cubic-bezier(0.4,0,0.2,1); }
+        .toast-item.success { border-color: rgba(79,255,176,0.3); } .toast-item.error { border-color: rgba(255,107,112,0.3); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- Cabecera compartida (copia de index.html ajustada) -->
+    <header class="header" style="position:fixed;top:0;width:100%;z-index:900;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:2rem;">
+                <a href="/" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+                    <div style="width:36px;height:36px;background:linear-gradient(135deg,#7C3AED,#4FFFB0);border-radius:10px;"></div>
+                    <span style="font-size:1.1rem;font-weight:800;color:#fff;">LOGO</span>
+                </a>
+                <a href="/" style="color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:0.95rem;">Cursos</a>
+            </div>
+            <a href="/" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.875rem;display:flex;align-items:center;gap:0.4rem;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Volver
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Perfil de Usuario</h1>
+
+        <!-- Top Hero -->
+        <div class="profile-hero">
+            <div class="hero-avatar" id="heroAvatar">?</div>
+            <div class="hero-info">
+                <div class="hero-name" id="heroName">Cargando...</div>
+                <div class="hero-email" id="heroEmail">--</div>
+                <div class="hero-badge" id="heroBadge">
+                    <div class="dot"></div> <span id="heroStatusText">Verificando estado...</span>
+                </div>
+            </div>
+            <a href="#datos" class="edit-profile-btn" onclick="document.getElementById('profileName').focus()">Editar Perfil</a>
+        </div>
+
+        <div class="profile-grid">
+            
+            <!-- Left Column -->
+            <div style="display:flex;flex-direction:column;gap:2rem;">
+                
+                <!-- Datos Personales -->
+                <form class="card-panel" id="profileForm" novalidate onsubmit="updateProfile(event)">
+                    <div class="card-title">Datos Personales</div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-input" id="profileName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" class="form-input" id="profileLastName">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">País</label>
+                            <select class="form-input" id="profileCountry">
+                                <option value="">Selecciona tu país</option>
+                                <option value="Perú">Perú</option>
+                                <option value="México">México</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Chile">Chile</option>
+                                <option value="Argentina">Argentina</option>
+                                <option value="España">España</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" class="form-input" id="profileCity">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-input" id="profilePhone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-input" id="profileBirthDate">
+                        </div>
+                    </div>
+
+                    <div class="form-grid full">
+                        <div class="form-group">
+                            <label class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-input" id="profileEmail" disabled>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:0.5rem;">
+                        <button type="submit" class="btn-submit" id="btnUpdateProfile">Guardar Cambios</button>
+                    </div>
+
+                    <button type="button" class="btn-danger-outline" style="margin-top:1rem;" onclick="alert('Función no disponible por ahora.')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+                        Desactivar cuenta
+                    </button>
+                </form>
+
+            </div>
+
+            <!-- Right Column -->
+            <div style="display:flex;flex-direction:column;gap:2rem;">
+                
+                <!-- Seguridad -->
+                <form class="card-panel" id="securityForm" novalidate onsubmit="updatePassword(event)">
+                    <div class="card-title">Seguridad</div>
+                    <div class="form-grid full">
+                        <div class="form-group">
+                            <label class="form-label">Contraseña Actual</label>
+                            <input type="password" class="form-input" id="currentPassword" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nueva Contraseña</label>
+                            <input type="password" class="form-input" id="newPassword" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirmar Contraseña</label>
+                            <input type="password" class="form-input" id="confirmPassword" required minlength="6">
+                        </div>
+                    </div>
+                    <div style="margin-top:0.5rem;">
+                        <button type="submit" class="btn-submit" id="btnUpdatePassword">Actualizar Contraseña</button>
+                    </div>
+                </form>
+
+                <!-- Membresía -->
+                <div class="card-panel">
+                    <div class="card-title">
+                        Membresía
+                        <a href="/membresia" class="btn-small-outline">Gestionar Membresía</a>
+                    </div>
+                    
+                    <div style="overflow-x:auto;">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentHistory">
+                                <tr><td colspan="4" style="text-align:center;opacity:0.5;padding:2rem;">No hay pagos recientes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="text-align:right; margin-top:1rem;">
+                        <a href="#" style="color:rgba(255,255,255,0.4);font-size:0.85rem;text-decoration:none;">Ver más</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/config.js"></script>
+    <script>
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        window.location.href = '/login?redirect=/perfil';
+    }
+
+    let currentUser = null;
+
+    function showToast(msg, type = 'success') {
+        const c = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        const icons = {
+            success: '✅',
+            error: '🚨',
+            info: '💡'
+        };
+        t.className = `toast-item ${type}`;
+        t.innerHTML = `<div class="toast-icon-wrap">${icons[type]}</div><div class="toast-text">${msg}</div><button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+        c.appendChild(t);
+        setTimeout(() => { if(t.parentElement) t.remove(); }, 5000);
+    }
+
+    async function loadProfile() {
+        await configReady;
+        try {
+            const res = await fetch(apiUrl('/api/auth/me'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                currentUser = data.user;
+                // Update local storage just in case
+                localStorage.setItem('authUser', JSON.stringify({id: currentUser._id || currentUser.id, name: currentUser.name, email: currentUser.email, role: currentUser.role, hasMembership: currentUser.hasMembership}));
+                renderProfile();
+            } else {
+                showToast(data.message, 'error');
+                if (data.message === 'Token inválido') {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('authUser');
+                    window.location.href = '/login';
+                }
+            }
+        } catch (error) {
+            showToast('Error de conexión', 'error');
+        }
+    }
+
+    function renderProfile() {
+        // Hero
+        const initials = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+        document.getElementById('heroAvatar').textContent = initials;
+        const fullName = [currentUser.name, currentUser.lastName].filter(Boolean).join(' ');
+        document.getElementById('heroName').textContent = fullName;
+        document.getElementById('heroEmail').textContent = currentUser.email;
+        
+        const badge = document.getElementById('heroBadge');
+        const statusText = document.getElementById('heroStatusText');
+        if (currentUser.hasMembership) {
+            badge.classList.add('active');
+            let expText = '';
+            if (currentUser.membershipExpiresAt) {
+                const expDate = new Date(currentUser.membershipExpiresAt).toLocaleDateString();
+                expText = ` (Vence/Renueva: ${expDate})`;
+            }
+            statusText.textContent = `Membresía Activa: ${currentUser.membershipPlan || 'Plan'}${expText}`;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>Hace poco</td>
+                <td>Pago de membresía ${currentUser.membershipPlan || ''}</td>
+                <td>Completado</td>
+                <td><span class="status-badge success"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:currentColor;"></span> Pagado</span></td>
+            `;
+            document.getElementById('paymentHistory').innerHTML = '';
+            document.getElementById('paymentHistory').appendChild(tr);
+        } else {
+            badge.classList.remove('active');
+            statusText.textContent = 'Usuario Inactivo';
+        }
+
+        // Form
+        document.getElementById('profileName').value = currentUser.name || '';
+        document.getElementById('profileLastName').value = currentUser.lastName || '';
+        document.getElementById('profileCountry').value = currentUser.country || '';
+        document.getElementById('profileCity').value = currentUser.city || '';
+        document.getElementById('profilePhone').value = currentUser.phone || '';
+        if(currentUser.birthDate) {
+            document.getElementById('profileBirthDate').value = currentUser.birthDate;
+        }
+        document.getElementById('profileEmail').value = currentUser.email || '';
+    }
+
+    async function updateProfile(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnUpdateProfile');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        const payload = {
+            name: document.getElementById('profileName').value.trim(),
+            lastName: document.getElementById('profileLastName').value.trim(),
+            country: document.getElementById('profileCountry').value,
+            city: document.getElementById('profileCity').value.trim(),
+            phone: document.getElementById('profilePhone').value.trim(),
+            birthDate: document.getElementById('profileBirthDate').value
+        };
+
+        try {
+            const res = await fetch(apiUrl('/api/auth/me'), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                showToast('Perfil actualizado correctamente', 'success');
+                currentUser = data.user;
+                renderProfile();
+            } else {
+                showToast(data.message || 'Error al actualizar', 'error');
+            }
+        } catch (error) {
+            showToast('Error de conexión', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Guardar Cambios';
+        }
+    }
+
+    async function updatePassword(e) {
+        e.preventDefault();
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            showToast('Las contraseñas nuevas no coinciden', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('btnUpdatePassword');
+        btn.disabled = true;
+        btn.textContent = 'Un momento...';
+
+        try {
+            const res = await fetch(apiUrl('/api/auth/me'), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                showToast('Contraseña actualizada correctamente', 'success');
+                document.getElementById('securityForm').reset();
+            } else {
+                showToast(data.message || 'Error al actualizar la contraseña', 'error');
+            }
+        } catch (error) {
+            showToast('Error de conexión', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Actualizar Contraseña';
+        }
+    }
+
+    // Inicializar
+    loadProfile();
+
+    </script>
+</body>
+</html>
