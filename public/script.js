@@ -132,6 +132,41 @@ window.nextBanner = nextBanner;
 window.prevBanner = prevBanner;
 
 // ===================================
+// Settings / Presentation Video Logic
+// ===================================
+async function loadSettings() {
+    try {
+        await configReady;
+        const res = await fetch(apiUrl('/api/settings'));
+        const data = await res.json();
+        
+        if (data.success && data.settings && data.settings.presentationVideoUrl) {
+            const section = document.getElementById('presentationVideoSection');
+            const container = document.getElementById('presentationVideoContainer');
+            
+            if (section && container) {
+                // Determine if it's a YouTube URL to append autoplay params if needed, or just set it
+                let videoUrl = data.settings.presentationVideoUrl;
+                
+                // Extra params for YouTube to autoplay loop muted
+                if(videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                     if (!videoUrl.includes('?')) {
+                         videoUrl += '?autoplay=1&mute=1&loop=1';
+                     } else if (!videoUrl.includes('autoplay')) {
+                         videoUrl += '&autoplay=1&mute=1&loop=1';
+                     }
+                }
+                
+                container.innerHTML = `<iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>`;
+                section.style.display = 'block';
+            }
+        }
+    } catch (err) {
+        console.error('Error loading settings', err);
+    }
+}
+
+// ===================================
 // Create Course Card
 // ===================================
 function createCourseCard(course) {
@@ -405,6 +440,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Add mobile styles
     addMobileStyles();
+    
+    // Load config/settings (Presentation Video)
+    await loadSettings();
     
     // Load Banner Carousel
     await loadBanners();

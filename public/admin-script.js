@@ -711,7 +711,10 @@ function switchTab(tab) {
     if(btnNewCourse) btnNewCourse.style.display = tab === 'courses' ? '' : 'none';
 
     if (tab === 'memberships') loadMemberships();
-    if (tab === 'banners') loadBanners();
+    if (tab === 'banners') {
+        loadSettings();
+        loadBanners();
+    }
     if (tab === 'users') loadUsers();
 }
 
@@ -1003,6 +1006,51 @@ async function revokeUserMembership() {
         }
     } catch (err) {
         showToast('Error de conexión', 'error');
+    }
+}
+
+// ===================================
+// SETTINGS ADMIN
+// ===================================
+
+async function loadSettings() {
+    try {
+        const res = await fetch(apiUrl('/api/admin/settings'), { headers: authHeaders() });
+        const data = await res.json();
+        
+        if (data.success && data.settings) {
+            document.getElementById('presentationVideoUrl').value = data.settings.presentationVideoUrl || '';
+        }
+    } catch (err) {
+        console.error('Error loading settings', err);
+    }
+}
+
+async function saveSettings(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const url = document.getElementById('presentationVideoUrl').value;
+    
+    btn.disabled = true;
+    btn.innerHTML = 'Guardando...';
+    
+    try {
+        const res = await fetch(apiUrl('/api/admin/settings'), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ presentationVideoUrl: url })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Video de presentación guardado');
+        } else {
+            showToast(data.message || 'Error al guardar', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Guardar Link';
     }
 }
 

@@ -12,6 +12,7 @@ const Course = require('./models/Course');
 const User = require('./models/User');
 const Membership = require('./models/Membership');
 const Banner = require('./models/Banner');
+const Settings = require('./models/Settings');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -165,6 +166,16 @@ async function seedDatabase() {
             ];
             await Banner.insertMany(defaultBanners);
             console.log('🖼️  Banners de ejemplo creados.');
+        }
+
+        // Crear configuración inicial si no existe
+        const settingsCount = await Settings.countDocuments();
+        if (settingsCount === 0) {
+            const defaultSettings = new Settings({
+                presentationVideoUrl: ''
+            });
+            await defaultSettings.save();
+            console.log('⚙️  Configuración inicial creada.');
         }
     } catch (error) {
         console.error('❌ Error sembrando base de datos:', error);
@@ -320,8 +331,18 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
 });
 
 // ===================================
-// RUTAS DE BANNERS (PÚBLICAS)
+// RUTAS DE BANNERS Y SETTINGS (PÚBLICAS)
 // ===================================
+
+app.get('/api/settings', async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+        res.json({ success: true, settings });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
 
 // Obtener todos los banners activos
 app.get('/api/banners', async (req, res) => {
@@ -334,8 +355,38 @@ app.get('/api/banners', async (req, res) => {
 });
 
 // ===================================
-// RUTAS DE BANNERS (ADMIN)
+// RUTAS DE BANNERS Y SETTINGS (ADMIN)
 // ===================================
+
+// GET Settings
+app.get('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+        res.json({ success: true, settings });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// PUT Settings
+app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) settings = new Settings();
+
+        if (req.body.presentationVideoUrl !== undefined) {
+            settings.presentationVideoUrl = req.body.presentationVideoUrl;
+        }
+
+        settings.updatedAt = new Date();
+        await settings.save();
+        
+        res.json({ success: true, settings });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error updating settings', error: error.message });
+    }
+});
 
 // Obtener todos los banners (admin)
 app.get('/api/admin/banners', authMiddleware, adminMiddleware, async (req, res) => {
