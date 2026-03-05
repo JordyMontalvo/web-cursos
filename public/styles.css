@@ -1048,13 +1048,15 @@ body {
         display: none;
     }
     .user-dropdown {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
+        position: absolute;
+        top: calc(100% + 10px);
         right: 0;
-        width: 100%;
-        border-radius: 24px 24px 0 0;
-        padding-bottom: 2rem;
+        width: 220px;
+        position: absolute;
+        bottom: auto;
+        left: auto;
+        border-radius: 12px;
+        padding-bottom: 0.6rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
 }
