@@ -3,14 +3,24 @@
 // ===================================
 
 let allCourses = [];
+let lastFetchTime = 0;
+const CACHE_DURATION = 30000; // 30 segundos de caché
 let editingCourseId = null;
-let currentContentCourseId = null; // ID del curso cuyo contenido se está editando
+let currentContentCourseId = null; 
 
 // ===================================
 // API Functions
 // ===================================
 
-async function fetchCourses() {
+async function fetchCourses(force = false) {
+    const now = Date.now();
+    if (!force && allCourses.length > 0 && (now - lastFetchTime < CACHE_DURATION)) {
+        console.log('🚀 Usando caché de cursos');
+        renderCoursesTable(allCourses);
+        updateStats();
+        return;
+    }
+
     try {
         const response = await fetch(apiUrl('/api/courses'));
         
@@ -22,14 +32,8 @@ async function fetchCourses() {
         console.log('📦 Cursos recibidos:', data);
         
         if (data.success) {
-            // Asegurarnos de que cada curso tenga un ID válido
-            allCourses = (data.courses || []).filter(c => {
-                if (!c._id && !c.id) {
-                    console.warn('⚠️ Curso ignorado por falta de ID:', c);
-                    return false;
-                }
-                return true;
-            });
+            allCourses = (data.courses || []).filter(c => c._id || c.id);
+            lastFetchTime = Date.now();
             renderCoursesTable(allCourses);
             updateStats();
         } else {
@@ -462,7 +466,7 @@ async function editChapter(e, chapterId, currentTitle, currentDesc) {
         if (response.ok) {
             showToast('Capítulo actualizado');
             openContentManager(currentContentCourseId);
-            fetchCourses();
+            // fetchCourses(); // Eliminado redundante
         } else {
             showToast('Error al actualizar', 'error');
         }
@@ -488,7 +492,7 @@ async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl) {
         if (response.ok) {
             showToast('Episodio actualizado');
             openContentManager(currentContentCourseId);
-            fetchCourses();
+            // fetchCourses(); // Eliminado redundante
         } else {
             showToast('Error al actualizar', 'error');
         }
@@ -538,8 +542,7 @@ async function saveNewChapter() {
             
             // Recargar vista
             openContentManager(currentContentCourseId);
-            // Actualizar lista principal en segundo plano
-            fetchCourses();
+            // fetchCourses(); // Eliminado redundante
         } else {
             showToast(data.message, 'error');
         }
@@ -564,7 +567,7 @@ async function deleteChapter(e, chapterId) {
         if (data.success) {
             showToast('Capítulo eliminado');
             openContentManager(currentContentCourseId);
-            fetchCourses();
+            // fetchCourses(); // Eliminado redundante
         } else {
             showToast(data.message, 'error');
         }
@@ -598,7 +601,7 @@ async function addEpisode(chapterId) {
         if (data.success) {
             showToast('Episodio agregado');
             openContentManager(currentContentCourseId);
-            fetchCourses();
+            // fetchCourses(); // Eliminado redundante
         } else {
             showToast(data.message, 'error');
         }
@@ -622,7 +625,7 @@ async function deleteEpisode(e, chapterId, episodeId) {
         if (data.success) {
             showToast('Episodio eliminado');
             openContentManager(currentContentCourseId);
-            fetchCourses();
+            // fetchCourses(); // Eliminado redundante
         } else {
             showToast(data.message, 'error');
         }

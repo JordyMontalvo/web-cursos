@@ -131,20 +131,23 @@
 </head>
 <body>
 
-    <!-- Cabecera compartida (copia de index.html ajustada) -->
-    <header class="header" style="position:fixed;top:0;width:100%;z-index:900;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-        <div style="max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:2rem;">
-                <a href="/" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
-                    <div style="width:36px;height:36px;background:linear-gradient(135deg,#7C3AED,#4FFFB0);border-radius:10px;"></div>
-                    <span style="font-size:1.1rem;font-weight:800;color:#fff;">LOGO</span>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon"></div>
+                    <span class="logo-text">LOGO</span>
                 </a>
-                <a href="/" style="color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:0.95rem;">Cursos</a>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Cursos</a>
+                </nav>
+                <div class="header-actions" id="headerActions">
+                    <!-- Script will inject user info here -->
+                    <a href="/login" class="btn-link">Entrar</a>
+                    <a href="/register" class="btn-primary">Crear Cuenta</a>
+                </div>
             </div>
-            <a href="/" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.875rem;display:flex;align-items:center;gap:0.4rem;">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Volver
-            </a>
         </div>
     </header>
 
@@ -294,6 +297,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script src="/config.js"></script>
+    <script src="/script.js"></script>
     <script>
     const token = localStorage.getItem('authToken');
     if (!token) {
