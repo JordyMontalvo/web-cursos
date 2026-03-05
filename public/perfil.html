@@ -127,6 +127,31 @@
         .toast-item.success { border-color: rgba(79,255,176,0.3); } .toast-item.error { border-color: rgba(255,107,112,0.3); }
         @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 
+        /* ── Responsive adjustments ────────────────────────────────── */
+        @media (max-width: 768px) {
+            body { padding-top: 70px; }
+            .container { padding: 1.5rem 1rem; }
+            .page-title { font-size: 1.75rem; margin-bottom: 1.5rem; text-align: center; }
+            
+            .profile-hero { 
+                flex-direction: column; 
+                text-align: center; 
+                padding: 2rem 1.5rem; 
+                gap: 1.5rem;
+            }
+            .hero-avatar { width: 80px; height: 80px; font-size: 2.25rem; }
+            .hero-name { font-size: 1.5rem; }
+            .hero-email { font-size: 1rem; }
+            
+            .profile-grid { gap: 1.5rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .card-panel { padding: 1.5rem; }
+            .edit-profile-btn { width: 100%; text-align: center; }
+            
+            .history-table { font-size: 0.8rem; }
+            .history-table th:nth-child(3), 
+            .history-table td:nth-child(3) { display: none; } /* Hide amount on very small screens */
+        }
     </style>
 </head>
 <body>
