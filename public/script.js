@@ -387,39 +387,9 @@ function setupScrollAnimations() {
 // ===================================
 // Add CSS for mobile menu states
 // ===================================
+// Mobile styles moved to static CSS file for better performance
 function addMobileStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        @media (max-width: 768px) {
-            .nav.mobile-active,
-            .header-actions.mobile-active {
-                display: flex;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: rgba(26, 10, 46, 0.98);
-                backdrop-filter: blur(10px);
-                flex-direction: column;
-                padding: 1rem;
-                gap: 1rem;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            }
-            
-            .menu-btn.active span:nth-child(1) {
-                transform: rotate(45deg) translate(5px, 5px);
-            }
-            
-            .menu-btn.active span:nth-child(2) {
-                opacity: 0;
-            }
-            
-            .menu-btn.active span:nth-child(3) {
-                transform: rotate(-45deg) translate(7px, -7px);
-            }
-        }
-    `;
-    document.head.appendChild(style);
+    // Styles moved to styles.css
 }
 
 // ===================================

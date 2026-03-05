@@ -94,7 +94,16 @@ body {
 .header-content {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: space-between;
+  }
 }
 
 .logo {
@@ -216,6 +225,12 @@ body {
   align-items: center;
   gap: 1rem;
   margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem 0;
+  }
 }
 
 .btn-link {
@@ -347,32 +362,43 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   color: #fff;
   border: none;
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition-medium);
+  transition: all var(--transition-medium);
   z-index: 10;
+  backdrop-filter: blur(4px);
 }
 
 .carousel-control:hover {
   background: rgba(79, 255, 176, 0.8);
   color: var(--darker-purple);
+  transform: translateY(-50%) scale(1.1);
 }
 
 .carousel-control.prev {
-  left: 20px;
+  left: 15px;
 }
 
 .carousel-control.next {
-  right: 20px;
+  right: 15px;
+}
+
+@media (max-width: 768px) {
+  .carousel-control {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+  }
 }
 
 .carousel-indicators {
@@ -719,17 +745,68 @@ body {
   }
 
   .header-search {
-    order: 5;
+    order: 10; /* Move to its own line below */
     flex: 1 1 100%;
     max-width: none;
+    margin-top: 0.25rem;
   }
 
   .menu-btn {
     display: flex;
+    order: 3;
+    margin-left: 0.5rem;
   }
 
   .header-actions {
-    display: none;
+    display: flex;
+    order: 2;
+    margin-left: auto;
+    gap: 0.5rem;
+  }
+
+  .nav.mobile-active,
+  .header-actions.mobile-active {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(15, 5, 32, 0.98);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 1001;
+  }
+
+  .header-actions.mobile-active {
+    top: auto; /* Adjust if both are active to avoid overlap, or combine */
+  }
+
+  .nav.mobile-active .nav-link {
+    font-size: 1.1rem;
+    padding: 0.5rem 0;
+  }
+
+  .header-actions.mobile-active .btn-link, 
+  .header-actions.mobile-active .btn-primary {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .menu-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .menu-btn.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
   }
 
   .nav {
