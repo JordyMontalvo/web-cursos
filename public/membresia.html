@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planes de Membresía - IATIBET ZUREON</title>
-    <meta name="description" content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
+    <meta name="description"
+        content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
     <style>
         :root {
@@ -17,10 +20,20 @@
             --yellow: #FFD93D;
             --red: #FF6B70;
             --bg: #0A0A0F;
-            --card: rgba(18,18,30,0.9);
+            --card: rgba(18, 18, 30, 0.9);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
 
         /* ── Offer Banner ─────────────────────────────────────────── */
         .offer-banner {
@@ -35,13 +48,15 @@
             gap: 0.75rem;
             position: relative;
         }
+
         .offer-banner .countdown {
             display: inline-flex;
             gap: 0.4rem;
             align-items: center;
         }
+
         .countdown-block {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 6px;
             padding: 0.15rem 0.5rem;
             font-weight: 800;
@@ -50,18 +65,23 @@
             min-width: 2.4rem;
             text-align: center;
         }
-        .countdown-sep { opacity: 0.6; font-weight: 700; }
+
+        .countdown-sep {
+            opacity: 0.6;
+            font-weight: 700;
+        }
 
         /* ── Header ───────────────────────────────────────────────── */
         .memb-header {
-            background: rgba(10,10,15,0.95);
+            background: rgba(10, 10, 15, 0.95);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
         }
+
         .memb-header .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -70,13 +90,52 @@
             align-items: center;
             justify-content: space-between;
         }
-        .logo-wrap { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
-        .logo-icon-sm { width: 36px; height: 36px; background: linear-gradient(135deg, var(--purple), var(--green)); border-radius: 10px; }
-        .logo-text-sm { font-size: 1.1rem; font-weight: 800; color: #fff; }
-        .header-right { display: flex; align-items: center; gap: 1rem; }
-        .btn-back { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.875rem; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
-        .btn-back:hover { color: #fff; }
-        #headerUserBadge { display: flex; align-items: center; gap: 0.5rem; }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon-sm {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--purple), var(--green));
+            border-radius: 10px;
+        }
+
+        .logo-text-sm {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-back {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: #fff;
+        }
+
+        #headerUserBadge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
         /* ── Hero ─────────────────────────────────────────────────── */
         .hero {
@@ -85,21 +144,25 @@
             position: relative;
             overflow: hidden;
         }
+
         .hero::before {
             content: '';
             position: absolute;
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
-            top: -100px; left: 50%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.18) 0%, transparent 70%);
+            top: -100px;
+            left: 50%;
             transform: translateX(-50%);
             pointer-events: none;
         }
+
         .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            background: rgba(124,58,237,0.15);
-            border: 1px solid rgba(124,58,237,0.3);
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(124, 58, 237, 0.3);
             color: var(--purple-light);
             font-size: 0.8rem;
             font-weight: 700;
@@ -109,6 +172,7 @@
             border-radius: 100px;
             margin-bottom: 1.5rem;
         }
+
         .hero h1 {
             font-size: clamp(2.2rem, 5vw, 3.75rem);
             font-weight: 900;
@@ -118,9 +182,10 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
         .hero p {
             font-size: 1.15rem;
-            color: rgba(255,255,255,0.55);
+            color: rgba(255, 255, 255, 0.55);
             max-width: 600px;
             margin: 0 auto 2.5rem;
             line-height: 1.7;
@@ -135,37 +200,48 @@
             flex-wrap: wrap;
             margin-bottom: 2.5rem;
             font-size: 0.875rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
         }
-        .trust-item { display: flex; align-items: center; gap: 0.4rem; }
-        .trust-item svg { color: var(--green); }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .trust-item svg {
+            color: var(--green);
+        }
 
         /* ── Billing toggle ───────────────────────────────────────── */
         .billing-toggle {
             display: inline-flex;
             align-items: center;
             gap: 1rem;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 100px;
             padding: 0.4rem 0.5rem;
             margin-bottom: 3.5rem;
         }
+
         .billing-toggle span {
             font-size: 0.9rem;
             font-weight: 600;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
             padding: 0.35rem 1.25rem;
             border-radius: 100px;
             cursor: pointer;
             transition: all 0.25s;
         }
+
         .billing-toggle span.active {
             background: var(--purple);
             color: #fff;
         }
+
         .billing-toggle .save-badge {
-            background: rgba(79,255,176,0.12);
+            background: rgba(79, 255, 176, 0.12);
             color: var(--green);
             font-size: 0.72rem;
             font-weight: 700;
@@ -180,32 +256,40 @@
             margin: 0 auto;
             padding: 0 1.5rem 5rem;
         }
+
         .plans-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             align-items: start;
         }
+
         .plan-card {
-            background: rgba(16,16,28,0.9);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(16, 16, 28, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 2rem;
             position: relative;
-            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: default;
         }
+
         .plan-card:hover {
             transform: translateY(-6px);
-            border-color: rgba(124,58,237,0.4);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.2);
+            border-color: rgba(124, 58, 237, 0.4);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(124, 58, 237, 0.2);
         }
+
         .plan-card.featured {
             border-color: var(--purple);
-            background: rgba(124,58,237,0.06);
-            box-shadow: 0 0 0 1px rgba(124,58,237,0.3), 0 30px 80px rgba(124,58,237,0.12);
+            background: rgba(124, 58, 237, 0.06);
+            box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.3), 0 30px 80px rgba(124, 58, 237, 0.12);
         }
-        .plan-card.featured:hover { transform: translateY(-8px); }
+
+        .plan-card.featured:hover {
+            transform: translateY(-8px);
+        }
+
         .plan-badge {
             position: absolute;
             top: -14px;
@@ -221,8 +305,10 @@
             border-radius: 100px;
             white-space: nowrap;
         }
+
         .plan-icon {
-            width: 56px; height: 56px;
+            width: 56px;
+            height: 56px;
             border-radius: 16px;
             display: flex;
             align-items: center;
@@ -230,53 +316,94 @@
             font-size: 1.75rem;
             margin-bottom: 1.25rem;
         }
+
         .plan-name {
             font-size: 1.35rem;
             font-weight: 800;
             margin-bottom: 0.35rem;
         }
+
         .plan-desc {
             font-size: 0.875rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
             margin-bottom: 1.75rem;
             line-height: 1.6;
         }
-        .plan-price-wrap { margin-bottom: 0.5rem; }
+
+        .plan-price-wrap {
+            margin-bottom: 0.5rem;
+        }
+
         .plan-price {
             font-size: 3rem;
             font-weight: 900;
             line-height: 1;
         }
-        .plan-price-currency { font-size: 1.5rem; font-weight: 700; vertical-align: top; margin-top: 0.6rem; display: inline-block; }
-        .plan-price-period { font-size: 0.875rem; color: rgba(255,255,255,0.4); margin-top: 0.4rem; }
+
+        .plan-price-currency {
+            font-size: 1.5rem;
+            font-weight: 700;
+            vertical-align: top;
+            margin-top: 0.6rem;
+            display: inline-block;
+        }
+
+        .plan-price-period {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 0.4rem;
+        }
+
         .plan-original-price {
             font-size: 0.875rem;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255, 255, 255, 0.3);
             text-decoration: line-through;
             margin-bottom: 1.5rem;
         }
-        .plan-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 1.5rem 0; }
-        .plan-features { list-style: none; margin-bottom: 2rem; }
+
+        .plan-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.07);
+            margin: 1.5rem 0;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
         .plan-features li {
             display: flex;
             align-items: flex-start;
             gap: 0.65rem;
             font-size: 0.9rem;
-            color: rgba(255,255,255,0.75);
+            color: rgba(255, 255, 255, 0.75);
             padding: 0.45rem 0;
             line-height: 1.5;
         }
+
         .plan-features li .check {
             flex-shrink: 0;
-            width: 20px; height: 20px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            background: rgba(79,255,176,0.12);
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(79, 255, 176, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--green);
             font-size: 0.7rem;
         }
-        .plan-features li.disabled { color: rgba(255,255,255,0.25); }
-        .plan-features li.disabled .check { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); }
+
+        .plan-features li.disabled {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .plan-features li.disabled .check {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.2);
+        }
+
         .btn-plan {
             width: 100%;
             padding: 0.95rem;
@@ -292,24 +419,45 @@
             justify-content: center;
             gap: 0.5rem;
         }
+
         .btn-plan-primary {
             background: linear-gradient(135deg, var(--purple), #5B21B6);
             color: #fff;
         }
-        .btn-plan-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.45); }
+
+        .btn-plan-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.45);
+        }
+
         .btn-plan-outline {
             background: transparent;
             color: var(--purple-light);
-            border: 1px solid rgba(124,58,237,0.4);
+            border: 1px solid rgba(124, 58, 237, 0.4);
         }
-        .btn-plan-outline:hover { background: rgba(124,58,237,0.1); border-color: var(--purple-light); }
-        .btn-plan:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .plan-note { text-align: center; font-size: 0.78rem; color: rgba(255,255,255,0.3); margin-top: 0.75rem; }
+
+        .btn-plan-outline:hover {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: var(--purple-light);
+        }
+
+        .btn-plan:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .plan-note {
+            text-align: center;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 0.75rem;
+        }
 
         /* ── Current plan banner ──────────────────────────────────── */
         .current-plan-banner {
-            background: rgba(79,255,176,0.07);
-            border: 1px solid rgba(79,255,176,0.2);
+            background: rgba(79, 255, 176, 0.07);
+            border: 1px solid rgba(79, 255, 176, 0.2);
             border-radius: 14px;
             padding: 1rem 1.25rem;
             display: flex;
@@ -321,27 +469,33 @@
             margin-right: auto;
             display: none;
         }
-        .current-plan-banner.visible { display: flex; }
+
+        .current-plan-banner.visible {
+            display: flex;
+        }
 
         /* ── Features section ─────────────────────────────────────── */
         .features-section {
-            background: rgba(16,16,28,0.6);
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(16, 16, 28, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             padding: 5rem 1.5rem;
         }
+
         .section-title {
             text-align: center;
             font-size: clamp(1.75rem, 3vw, 2.5rem);
             font-weight: 900;
             margin-bottom: 0.75rem;
         }
+
         .section-subtitle {
             text-align: center;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
             font-size: 1rem;
             margin-bottom: 3.5rem;
         }
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -349,20 +503,36 @@
             max-width: 1100px;
             margin: 0 auto;
         }
+
         .feature-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 20px;
             padding: 1.75rem;
             transition: all 0.25s;
         }
-        .feature-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-3px); }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-3px);
+        }
+
         .feature-icon {
             font-size: 2rem;
             margin-bottom: 1rem;
         }
-        .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .feature-card p { font-size: 0.875rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+        .feature-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
+        }
 
         /* ── FAQ ─────────────────────────────────────────────────── */
         .faq-section {
@@ -370,9 +540,11 @@
             margin: 0 auto;
             padding: 5rem 1.5rem;
         }
+
         .faq-item {
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         }
+
         .faq-question {
             width: 100%;
             background: none;
@@ -389,47 +561,82 @@
             justify-content: space-between;
             gap: 1rem;
         }
-        .faq-arrow { flex-shrink: 0; transition: transform 0.25s; }
-        .faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+        .faq-arrow {
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+
+        .faq-item.open .faq-arrow {
+            transform: rotate(180deg);
+        }
+
         .faq-answer {
             font-size: 0.9rem;
-            color: rgba(255,255,255,0.55);
+            color: rgba(255, 255, 255, 0.55);
             line-height: 1.7;
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.35s ease, padding 0.25s;
         }
-        .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 1.25rem; }
+
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding-bottom: 1.25rem;
+        }
 
         /* ── Guarantee ───────────────────────────────────────────── */
         .guarantee-section {
-            background: rgba(124,58,237,0.06);
-            border: 1px solid rgba(124,58,237,0.15);
+            background: rgba(124, 58, 237, 0.06);
+            border: 1px solid rgba(124, 58, 237, 0.15);
             border-radius: 24px;
             padding: 3rem 2rem;
             text-align: center;
             max-width: 640px;
             margin: 0 auto 5rem;
         }
-        .guarantee-icon { font-size: 3rem; margin-bottom: 1rem; }
-        .guarantee-section h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem; }
-        .guarantee-section p { color: rgba(255,255,255,0.55); font-size: 0.95rem; line-height: 1.7; }
+
+        .guarantee-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .guarantee-section h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .guarantee-section p {
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
 
         /* ── Confirm Modal ───────────────────────────────────────── */
         .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.7);
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 1.5rem;
-            opacity: 0; pointer-events: none;
+            opacity: 0;
+            pointer-events: none;
             transition: opacity 0.25s;
         }
-        .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
         .confirm-modal {
             background: #13131F;
-            border: 1px solid rgba(124,58,237,0.3);
+            border: 1px solid rgba(124, 58, 237, 0.3);
             border-radius: 24px;
             padding: 2.5rem;
             max-width: 440px;
@@ -437,11 +644,20 @@
             transform: scale(0.95) translateY(10px);
             transition: transform 0.25s;
         }
-        .modal-overlay.open .confirm-modal { transform: scale(1) translateY(0); }
-        .confirm-modal h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+
+        .modal-overlay.open .confirm-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .confirm-modal h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
         .confirm-modal .plan-summary {
-            background: rgba(124,58,237,0.08);
-            border: 1px solid rgba(124,58,237,0.2);
+            background: rgba(124, 58, 237, 0.08);
+            border: 1px solid rgba(124, 58, 237, 0.2);
             border-radius: 14px;
             padding: 1.25rem;
             margin: 1.25rem 0;
@@ -449,15 +665,61 @@
             justify-content: space-between;
             align-items: center;
         }
-        .confirm-modal .plan-summary-name { font-weight: 700; font-size: 1.1rem; }
-        .confirm-modal .plan-summary-price { font-size: 1.5rem; font-weight: 900; color: var(--purple-light); }
-        .confirm-modal p { color: rgba(255,255,255,0.5); font-size: 0.875rem; line-height: 1.6; margin-bottom: 1.5rem; }
-        .modal-actions { display: flex; gap: 0.75rem; }
-        .modal-actions button { flex: 1; padding: 0.875rem; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; border: none; transition: all 0.2s; }
-        .btn-confirm { background: linear-gradient(135deg, var(--purple), #5B21B6); color: #fff; }
-        .btn-confirm:hover { box-shadow: 0 8px 25px rgba(124,58,237,0.45); }
-        .btn-cancel-modal { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1) !important; }
-        .btn-cancel-modal:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        .confirm-modal .plan-summary-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .confirm-modal .plan-summary-price {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--purple-light);
+        }
+
+        .confirm-modal p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 0.875rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, var(--purple), #5B21B6);
+            color: #fff;
+        }
+
+        .btn-confirm:hover {
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45);
+        }
+
+        .btn-cancel-modal {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .btn-cancel-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
 
         /* ── Toast ───────────────────────────────────────────────── */
         .toast-container {
@@ -469,375 +731,474 @@
             flex-direction: column;
             gap: 0.75rem;
         }
+
         .toast-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             background: #1A1A2E;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             padding: 1rem 1.25rem;
             min-width: 280px;
             max-width: 380px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            animation: toastIn 0.35s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .toast-item.success { border-color: rgba(79,255,176,0.3); }
-        .toast-item.error { border-color: rgba(255,107,112,0.3); }
-        .toast-item.info { border-color: rgba(124,58,237,0.35); }
-        .toast-icon-wrap { font-size: 1.25rem; flex-shrink: 0; }
-        .toast-text { font-size: 0.9rem; font-weight: 500; flex: 1; }
-        .toast-close { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; padding: 0.2rem; font-size: 1rem; }
+
+        .toast-item.success {
+            border-color: rgba(79, 255, 176, 0.3);
+        }
+
+        .toast-item.error {
+            border-color: rgba(255, 107, 112, 0.3);
+        }
+
+        .toast-item.info {
+            border-color: rgba(124, 58, 237, 0.35);
+        }
+
+        .toast-icon-wrap {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .toast-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            padding: 0.2rem;
+            font-size: 1rem;
+        }
+
         @keyframes toastIn {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         /* ── Loading skeleton ────────────────────────────────────── */
-        .skel { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: skel 1.5s infinite; border-radius: 8px; }
-        @keyframes skel { to { background-position: -200% 0; } }
+        .skel {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.05) 75%);
+            background-size: 200% 100%;
+            animation: skel 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes skel {
+            to {
+                background-position: -200% 0;
+            }
+        }
 
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 640px) {
-            .plans-grid { grid-template-columns: 1fr; }
-            .hero { padding: 3.5rem 1rem 2rem; }
-            .billing-toggle { flex-wrap: wrap; justify-content: center; }
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 3.5rem 1rem 2rem;
+            }
+
+            .billing-toggle {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<!-- Offer Banner -->
-<div class="offer-banner" id="offerBanner">
-    🔥 Oferta especial — ahorra hasta 40% · Termina en:
-    <div class="countdown">
-        <span class="countdown-block" id="cdH">00</span>
-        <span class="countdown-sep">:</span>
-        <span class="countdown-block" id="cdM">00</span>
-        <span class="countdown-sep">:</span>
-        <span class="countdown-block" id="cdS">00</span>
+    <!-- Offer Banner -->
+    <div class="offer-banner" id="offerBanner">
+        🔥 Oferta especial — ahorra hasta 40% · Termina en:
+        <div class="countdown">
+            <span class="countdown-block" id="cdH">00</span>
+            <span class="countdown-sep">:</span>
+            <span class="countdown-block" id="cdM">00</span>
+            <span class="countdown-sep">:</span>
+            <span class="countdown-block" id="cdS">00</span>
+        </div>
     </div>
-</div>
 
-<!-- Header -->
-<header class="memb-header">
-    <div class="container">
-        <a href="/" class="logo-wrap">
-            <div class="logo-icon-sm"></div>
-            <span class="logo-text-sm">IATIBET ZUREON</span>
-        </a>
-        <div class="header-right">
-            <div id="headerUserBadge"></div>
-            <a href="/" class="btn-back">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Volver
+    <!-- Header -->
+    <header class="memb-header">
+        <div class="container">
+            <a href="/" class="logo-wrap">
+                <div class="logo-icon-sm"></div>
+                <span class="logo-text-sm">IATIBET ZUREON</span>
             </a>
-        </div>
-    </div>
-</header>
-
-<!-- Current plan banner (visible after login with active membership) -->
-<div class="current-plan-banner" id="currentPlanBanner">
-    <span style="font-size:1.5rem;">✅</span>
-    <div>
-        <div style="font-weight:700;font-size:0.95rem;">¡Ya tienes una membresía activa!</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);" id="currentPlanInfo"></div>
-    </div>
-    <a href="/" style="margin-left:auto;background:rgba(79,255,176,0.15);border:1px solid rgba(79,255,176,0.3);color:#4FFFB0;padding:0.5rem 1rem;border-radius:10px;font-size:0.85rem;font-weight:700;text-decoration:none;">Ir a cursos →</a>
-</div>
-
-<!-- HERO -->
-<section class="hero">
-    <div class="hero-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-        Planes de Membresía
-    </div>
-    <h1>Aprende sin límites,<br>crece sin barreras</h1>
-    <p>Acceso completo a todos los cursos de la plataforma. Cancela cuando quieras. Sin contratos.</p>
-
-    <!-- Trust bar -->
-    <div class="trust-bar">
-        <div class="trust-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Cancela cuando quieras
-        </div>
-        <div class="trust-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Certificados incluidos
-        </div>
-        <div class="trust-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Acceso 24/7
-        </div>
-        <div class="trust-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Garantía 7 días
-        </div>
-    </div>
-</section>
-
-<!-- PLANS -->
-<section class="plans-section">
-    <div id="plansGrid" class="plans-grid">
-        <!-- Skeleton loader -->
-        <div class="plan-card">
-            <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
-            <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
-            <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
-            <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
-            <div class="skel" style="height:48px;"></div>
-        </div>
-        <div class="plan-card">
-            <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
-            <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
-            <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
-            <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
-            <div class="skel" style="height:48px;"></div>
-        </div>
-        <div class="plan-card">
-            <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
-            <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
-            <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
-            <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
-            <div class="skel" style="height:48px;"></div>
-        </div>
-    </div>
-</section>
-
-<!-- FEATURES SECTION -->
-<section class="features-section">
-    <div style="max-width:1100px;margin:0 auto;">
-        <h2 class="section-title">Todo lo que obtienes con tu membresía</h2>
-        <p class="section-subtitle">Diseñado para que aprendas más rápido y avances en tu carrera</p>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🎓</div>
-                <h3>Cursos ilimitados</h3>
-                <p>Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📱</div>
-                <h3>Aprende donde quieras</h3>
-                <p>Acceso desde cualquier dispositivo. PC, tablet o celular. Siempre disponible 24/7.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🏆</div>
-                <h3>Certificados verificados</h3>
-                <p>Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔔</div>
-                <h3>Notificaciones de cursos</h3>
-                <p>Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">💬</div>
-                <h3>Comunidad exclusiva</h3>
-                <p>Únete a nuestra comunidad privada de miembros. Resuelve dudas y conecta con otros alumnos.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>Contenido actualizado</h3>
-                <p>Los cursos se actualizan constantemente con el contenido más reciente de cada industria.</p>
+            <div class="header-right">
+                <div id="headerUserBadge"></div>
+                <a href="/" class="btn-back">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    Volver
+                </a>
             </div>
         </div>
+    </header>
+
+    <!-- Current plan banner (visible after login with active membership) -->
+    <div class="current-plan-banner" id="currentPlanBanner">
+        <span style="font-size:1.5rem;">✅</span>
+        <div>
+            <div style="font-weight:700;font-size:0.95rem;">¡Ya tienes una membresía activa!</div>
+            <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);" id="currentPlanInfo"></div>
+        </div>
+        <a href="/"
+            style="margin-left:auto;background:rgba(79,255,176,0.15);border:1px solid rgba(79,255,176,0.3);color:#4FFFB0;padding:0.5rem 1rem;border-radius:10px;font-size:0.85rem;font-weight:700;text-decoration:none;">Ir
+            a cursos →</a>
     </div>
-</section>
 
-<!-- FAQ SECTION -->
-<section class="faq-section">
-    <h2 class="section-title" style="margin-bottom:0.75rem;">Preguntas frecuentes</h2>
-    <p class="section-subtitle">Todo lo que necesitas saber antes de suscribirte</p>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+            </svg>
+            Planes de Membresía
+        </div>
+        <h1>Aprende sin límites,<br>crece sin barreras</h1>
+        <p>Acceso completo a todos los cursos de la plataforma. Cancela cuando quieras. Sin contratos.</p>
 
-    <div id="faqList">
-        <div class="faq-item">
-            <button class="faq-question" onclick="toggleFaq(this)">
-                ¿Puedo cancelar mi membresía en cualquier momento?
-                <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <div class="faq-answer">Sí, puedes cancelar en cualquier momento desde tu perfil. Mantendrás el acceso hasta que venza tu periodo activo. No hay contratos ni penalidades.</div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" onclick="toggleFaq(this)">
-                ¿Cómo funciona la garantía de 7 días?
-                <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <div class="faq-answer">Si dentro de los primeros 7 días no estás satisfecho con tu membresía, te devolvemos el dinero sin preguntas. Contacta a nuestro equipo de soporte para gestionar tu reembolso.</div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" onclick="toggleFaq(this)">
-                ¿Cuántos dispositivos puedo usar simultáneamente?
-                <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <div class="faq-answer">Puedes usar tu membresía en hasta 3 dispositivos al mismo tiempo. PC, tablet y celular. El acceso es personal e intransferible.</div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" onclick="toggleFaq(this)">
-                ¿Hay algún costo adicional por cursos nuevos?
-                <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <div class="faq-answer">No. Tu membresía incluye acceso a todos los cursos presentes y futuros de la plataforma sin costo adicional. Siempre al mismo precio.</div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" onclick="toggleFaq(this)">
-                ¿Cómo puedo pagar mi membresía?
-                <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <div class="faq-answer">Aceptamos Yape, Plin, transferencia bancaria y tarjetas de crédito/débito. El pago es procesado de forma segura. Una vez confirmado, el acceso se activa automáticamente.</div>
-        </div>
-    </div>
-</section>
-
-<!-- GUARANTEE -->
-<section style="padding: 0 1.5rem; margin-bottom: 5rem;">
-    <div class="guarantee-section">
-        <div class="guarantee-icon">🛡️</div>
-        <h3>Garantía de satisfacción de 7 días</h3>
-        <p>Prueba nuestra plataforma sin riesgo. Si dentro de los primeros 7 días no estás completamente satisfecho, te devolvemos el 100% de tu dinero. Sin preguntas, sin complicaciones.</p>
-    </div>
-</section>
-
-<!-- CONFIRM MODAL -->
-<div class="modal-overlay" id="confirmModal">
-    <div class="confirm-modal">
-        <h3>Confirmar suscripción</h3>
-        <div class="plan-summary">
-            <div>
-                <div class="plan-summary-name" id="modalPlanName">-</div>
-                <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);" id="modalPlanDuration">-</div>
+        <!-- Trust bar -->
+        <div class="trust-bar">
+            <div class="trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Cancela cuando quieras
             </div>
-            <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
+            <div class="trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Certificados incluidos
+            </div>
+            <div class="trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Acceso 24/7
+            </div>
+            <div class="trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Garantía 7 días
+            </div>
         </div>
-        <p id="modalPlanNote">Al confirmar, activarás tu membresía de inmediato. Recuerda que tienes 7 días de garantía.</p>
-        <div class="modal-actions">
-            <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
-            <button class="btn-confirm" id="btnConfirm" onclick="confirmPurchase()">
-                <span id="confirmBtnText">✓ Confirmar y activar</span>
-                <span id="confirmBtnSpinner" style="display:none;">Procesando...</span>
-            </button>
+    </section>
+
+    <!-- PLANS -->
+    <section class="plans-section">
+        <div id="plansGrid" class="plans-grid">
+            <!-- Skeleton loader -->
+            <div class="plan-card">
+                <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
+                <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
+                <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
+                <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
+                <div class="skel" style="height:48px;"></div>
+            </div>
+            <div class="plan-card">
+                <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
+                <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
+                <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
+                <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
+                <div class="skel" style="height:48px;"></div>
+            </div>
+            <div class="plan-card">
+                <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
+                <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
+                <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
+                <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
+                <div class="skel" style="height:48px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section">
+        <div style="max-width:1100px;margin:0 auto;">
+            <h2 class="section-title">Todo lo que obtienes con tu membresía</h2>
+            <p class="section-subtitle">Diseñado para que aprendas más rápido y avances en tu carrera</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>Cursos ilimitados</h3>
+                    <p>Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Aprende donde quieras</h3>
+                    <p>Acceso desde cualquier dispositivo. PC, tablet o celular. Siempre disponible 24/7.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Certificados verificados</h3>
+                    <p>Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Notificaciones de cursos</h3>
+                    <p>Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Comunidad exclusiva</h3>
+                    <p>Únete a nuestra comunidad privada de miembros. Resuelve dudas y conecta con otros alumnos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Contenido actualizado</h3>
+                    <p>Los cursos se actualizan constantemente con el contenido más reciente de cada industria.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="faq-section">
+        <h2 class="section-title" style="margin-bottom:0.75rem;">Preguntas frecuentes</h2>
+        <p class="section-subtitle">Todo lo que necesitas saber antes de suscribirte</p>
+
+        <div id="faqList">
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    ¿Puedo cancelar mi membresía en cualquier momento?
+                    <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="faq-answer">Sí, puedes cancelar en cualquier momento desde tu perfil. Mantendrás el acceso
+                    hasta que venza tu periodo activo. No hay contratos ni penalidades.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    ¿Cómo funciona la garantía de 7 días?
+                    <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="faq-answer">Si dentro de los primeros 7 días no estás satisfecho con tu membresía, te
+                    devolvemos el dinero sin preguntas. Contacta a nuestro equipo de soporte para gestionar tu
+                    reembolso.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    ¿Cuántos dispositivos puedo usar simultáneamente?
+                    <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="faq-answer">Puedes usar tu membresía en hasta 3 dispositivos al mismo tiempo. PC, tablet y
+                    celular. El acceso es personal e intransferible.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    ¿Hay algún costo adicional por cursos nuevos?
+                    <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="faq-answer">No. Tu membresía incluye acceso a todos los cursos presentes y futuros de la
+                    plataforma sin costo adicional. Siempre al mismo precio.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    ¿Cómo puedo pagar mi membresía?
+                    <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="faq-answer">Aceptamos Yape, Plin, transferencia bancaria y tarjetas de crédito/débito. El
+                    pago es procesado de forma segura. Una vez confirmado, el acceso se activa automáticamente.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GUARANTEE -->
+    <section style="padding: 0 1.5rem; margin-bottom: 5rem;">
+        <div class="guarantee-section">
+            <div class="guarantee-icon">🛡️</div>
+            <h3>Garantía de satisfacción de 7 días</h3>
+            <p>Prueba nuestra plataforma sin riesgo. Si dentro de los primeros 7 días no estás completamente satisfecho,
+                te devolvemos el 100% de tu dinero. Sin preguntas, sin complicaciones.</p>
+        </div>
+    </section>
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="confirm-modal">
+            <h3>Confirmar suscripción</h3>
+            <div class="plan-summary">
+                <div>
+                    <div class="plan-summary-name" id="modalPlanName">-</div>
+                    <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);" id="modalPlanDuration">-</div>
+                </div>
+                <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
+            </div>
+            <p id="modalPlanNote">Al confirmar, activarás tu membresía de inmediato. Recuerda que tienes 7 días de
+                garantía.</p>
+            <div class="modal-actions">
+                <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
+                <button class="btn-confirm" id="btnConfirm" onclick="confirmPurchase()">
+                    <span id="confirmBtnText">✓ Confirmar y activar</span>
+                    <span id="confirmBtnSpinner" style="display:none;">Procesando...</span>
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- TOAST CONTAINER -->
-<div class="toast-container" id="toastContainer"></div>
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
 
-<script src="/config.js"></script>
-<script>
-let selectedPlanId = null;
-let plans = [];
-const token = localStorage.getItem('authToken');
+    <script src="/config.js"></script>
+    <script src="/script.js"></script>
+    <script>
+        let selectedPlanId = null;
+        let plans = [];
+        const token = localStorage.getItem('authToken');
 
-// ── Guard: redirigir al login si no hay sesión ───────────────────
-if (!token) {
-    window.location.href = '/login?redirect=/membresia';
-}
-
-const user = JSON.parse(localStorage.getItem('authUser') || 'null');
-
-// ── Countdown ────────────────────────────────────────────────────
-(function startCountdown() {
-    const key = 'offerEnd';
-    let end = localStorage.getItem(key);
-    if (!end || Date.now() > Number(end)) {
-        end = Date.now() + (3 * 60 * 60 + 47 * 60 + 33) * 1000;
-        localStorage.setItem(key, end);
-    }
-    function tick() {
-        const left = Math.max(0, Number(end) - Date.now());
-        const h = Math.floor(left / 3600000).toString().padStart(2,'0');
-        const m = Math.floor((left % 3600000) / 60000).toString().padStart(2,'0');
-        const s = Math.floor((left % 60000) / 1000).toString().padStart(2,'0');
-        document.getElementById('cdH').textContent = h;
-        document.getElementById('cdM').textContent = m;
-        document.getElementById('cdS').textContent = s;
-        if (left <= 0) {
-            localStorage.removeItem(key);
-            document.getElementById('offerBanner').style.display = 'none';
+        // ── Guard: redirigir al login si no hay sesión ───────────────────
+        if (!token) {
+            window.location.href = '/login?redirect=/membresia';
         }
-    }
-    tick();
-    setInterval(tick, 1000);
-})();
 
-// ── Header user badge ────────────────────────────────────────────
-function renderHeader() {
-    const el = document.getElementById('headerUserBadge');
-    if (!user) {
-        el.innerHTML = `<a href="/login" style="background:var(--purple);color:#fff;padding:.5rem 1.25rem;border-radius:100px;font-size:.875rem;font-weight:700;text-decoration:none;">Iniciar sesión</a>`;
-        return;
-    }
-    const init = user.name ? user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '?';
-    el.innerHTML = `<a href="/perfil" style="display:flex;align-items:center;gap:.5rem;text-decoration:none;color:#fff;">
+        const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+
+        // ── Countdown ────────────────────────────────────────────────────
+        (function startCountdown() {
+            const key = 'offerEnd';
+            let end = localStorage.getItem(key);
+            if (!end || Date.now() > Number(end)) {
+                end = Date.now() + (3 * 60 * 60 + 47 * 60 + 33) * 1000;
+                localStorage.setItem(key, end);
+            }
+            function tick() {
+                const left = Math.max(0, Number(end) - Date.now());
+                const h = Math.floor(left / 3600000).toString().padStart(2, '0');
+                const m = Math.floor((left % 3600000) / 60000).toString().padStart(2, '0');
+                const s = Math.floor((left % 60000) / 1000).toString().padStart(2, '0');
+                document.getElementById('cdH').textContent = h;
+                document.getElementById('cdM').textContent = m;
+                document.getElementById('cdS').textContent = s;
+                if (left <= 0) {
+                    localStorage.removeItem(key);
+                    document.getElementById('offerBanner').style.display = 'none';
+                }
+            }
+            tick();
+            setInterval(tick, 1000);
+        })();
+
+        // ── Header user badge ────────────────────────────────────────────
+        function renderHeader() {
+            const el = document.getElementById('headerUserBadge');
+            if (!user) {
+                el.innerHTML = `<a href="/login" style="background:var(--purple);color:#fff;padding:.5rem 1.25rem;border-radius:100px;font-size:.875rem;font-weight:700;text-decoration:none;">Iniciar sesión</a>`;
+                return;
+            }
+            const init = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+            el.innerHTML = `<a href="/perfil" style="display:flex;align-items:center;gap:.5rem;text-decoration:none;color:#fff;">
         <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#4FFFB0);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;">${init}</div>
         <span style="font-size:.875rem;font-weight:600;">${user.name}</span>
     </a>`;
-}
+        }
 
-// ── Load plans ───────────────────────────────────────────────────
-async function loadPlans() {
-    await configReady;
-    try {
-        const res = await fetch(apiUrl('/api/memberships'));
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message);
-        plans = data.memberships || [];
-        renderPlans(plans);
-        checkCurrentPlan();
-    } catch (err) {
-        document.getElementById('plansGrid').innerHTML = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">Error al cargar los planes. Intenta de nuevo.</div>`;
-    }
-}
+        // ── Load plans ───────────────────────────────────────────────────
+        async function loadPlans() {
+            await configReady;
+            try {
+                const res = await fetch(apiUrl('/api/memberships'));
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+                plans = data.memberships || [];
+                renderPlans(plans);
+                checkCurrentPlan();
+            } catch (err) {
+                document.getElementById('plansGrid').innerHTML = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">Error al cargar los planes. Intenta de nuevo.</div>`;
+            }
+        }
 
-function getDurationLabel(days) {
-    if (!days || days === 0) return 'De por vida';
-    if (days === 365) return 'por año';
-    if (days === 30) return 'por mes';
-    if (days === 90) return 'por 3 meses';
-    if (days === 180) return 'por 6 meses';
-    if (days === 7) return 'por semana';
-    return `por ${days} días`;
-}
-function getDurationLabelFull(days) {
-    if (!days || days === 0) return 'Acceso de por vida';
-    if (days === 365) return '1 año de acceso';
-    if (days === 30) return '1 mes de acceso';
-    if (days === 90) return '3 meses de acceso';
-    if (days === 180) return '6 meses de acceso';
-    if (days === 7) return '7 días de acceso';
-    return `${days} días de acceso`;
-}
+        function getDurationLabel(days) {
+            if (!days || days === 0) return 'De por vida';
+            if (days === 365) return 'por año';
+            if (days === 30) return 'por mes';
+            if (days === 90) return 'por 3 meses';
+            if (days === 180) return 'por 6 meses';
+            if (days === 7) return 'por semana';
+            return `por ${days} días`;
+        }
+        function getDurationLabelFull(days) {
+            if (!days || days === 0) return 'Acceso de por vida';
+            if (days === 365) return '1 año de acceso';
+            if (days === 30) return '1 mes de acceso';
+            if (days === 90) return '3 meses de acceso';
+            if (days === 180) return '6 meses de acceso';
+            if (days === 7) return '7 días de acceso';
+            return `${days} días de acceso`;
+        }
 
-const ICONS = ['🚀','💎','⚡','🎯','🏆','🔥'];
-const ICON_BG = ['rgba(124,58,237,0.15)','rgba(79,255,176,0.1)','rgba(255,215,0,0.1)','rgba(255,107,112,0.1)','rgba(79,255,176,0.1)','rgba(255,107,112,0.1)'];
+        const ICONS = ['🚀', '💎', '⚡', '🎯', '🏆', '🔥'];
+        const ICON_BG = ['rgba(124,58,237,0.15)', 'rgba(79,255,176,0.1)', 'rgba(255,215,0,0.1)', 'rgba(255,107,112,0.1)', 'rgba(79,255,176,0.1)', 'rgba(255,107,112,0.1)'];
 
-function renderPlans(plans) {
-    if (!plans.length) {
-        document.getElementById('plansGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:rgba(255,255,255,.4);">No hay planes disponibles por el momento.</div>`;
-        return;
-    }
+        function renderPlans(plans) {
+            if (!plans.length) {
+                document.getElementById('plansGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:rgba(255,255,255,.4);">No hay planes disponibles por el momento.</div>`;
+                return;
+            }
 
-    // Check if user has an active session
-    const fromCourse = new URLSearchParams(window.location.search).get('from');
-    const courseName = new URLSearchParams(window.location.search).get('course');
+            // Check if user has an active session
+            const fromCourse = new URLSearchParams(window.location.search).get('from');
+            const courseName = new URLSearchParams(window.location.search).get('course');
 
-    // Sort by price
-    const sorted = [...plans].sort((a,b) => a.price - b.price);
+            // Sort by price
+            const sorted = [...plans].sort((a, b) => a.price - b.price);
 
-    document.getElementById('plansGrid').innerHTML = sorted.map((plan, i) => {
-        const isFeatured = plan.badge && (plan.badge.toLowerCase().includes('popular') || plan.badge.toLowerCase().includes('pro'));
-        const color = plan.color || '#7C3AED';
-        const icon = ICONS[i % ICONS.length];
-        const iconBg = ICON_BG[i % ICON_BG.length];
-        const btnClass = isFeatured ? 'btn-plan-primary' : 'btn-plan-outline';
+            document.getElementById('plansGrid').innerHTML = sorted.map((plan, i) => {
+                const isFeatured = plan.badge && (plan.badge.toLowerCase().includes('popular') || plan.badge.toLowerCase().includes('pro'));
+                const color = plan.color || '#7C3AED';
+                const icon = ICONS[i % ICONS.length];
+                const iconBg = ICON_BG[i % ICON_BG.length];
+                const btnClass = isFeatured ? 'btn-plan-primary' : 'btn-plan-outline';
 
-        const featuresHtml = (plan.features || []).map(f =>
-            `<li><span class="check">✓</span>${f}</li>`
-        ).join('') || `<li><span class="check">✓</span>Acceso completo a la plataforma</li>
+                const featuresHtml = (plan.features || []).map(f =>
+                    `<li><span class="check">✓</span>${f}</li>`
+                ).join('') || `<li><span class="check">✓</span>Acceso completo a la plataforma</li>
          <li><span class="check">✓</span>Todos los cursos incluidos</li>
          <li><span class="check">✓</span>Certificados de logro</li>`;
 
-        return `
+                return `
         <div class="plan-card ${isFeatured ? 'featured' : ''}">
             ${plan.badge ? `<div class="plan-badge" style="background:linear-gradient(90deg,${color},${color}cc);">${plan.badge}</div>` : ''}
             <div class="plan-icon" style="background:${iconBg};">${icon}</div>
@@ -857,113 +1218,115 @@ function renderPlans(plans) {
             </button>
             <div class="plan-note">Sin contratos · Cancela fácilmente</div>
         </div>`;
-    }).join('');
-}
-
-function checkCurrentPlan() {
-    if (!user || !user.hasMembership) return;
-    const banner = document.getElementById('currentPlanBanner');
-    banner.classList.add('visible');
-    document.getElementById('currentPlanInfo').textContent = `Plan ${user.membershipPlan || 'activo'} · Acceso completo a todos los cursos`;
-}
-
-// ── Plan selection ───────────────────────────────────────────────
-function selectPlan(id, name, price, durationDays) {
-    if (!token) {
-        showToast('info', '🔐', 'Inicia sesión para suscribirte', 'Serás redirigido al login...');
-        setTimeout(() => { window.location.href = `/login?redirect=/membresia`; }, 1800);
-        return;
-    }
-    selectedPlanId = id;
-    document.getElementById('modalPlanName').textContent = name;
-    document.getElementById('modalPlanPrice').textContent = `S/ ${price}`;
-    document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
-    document.getElementById('confirmModal').classList.add('open');
-}
-
-function closeModal() {
-    document.getElementById('confirmModal').classList.remove('open');
-    selectedPlanId = null;
-}
-
-async function confirmPurchase() {
-    if (!selectedPlanId) return;
-    const btnText = document.getElementById('confirmBtnText');
-    const btnSpin = document.getElementById('confirmBtnSpinner');
-    const btn = document.getElementById('btnConfirm');
-    btnText.style.display = 'none';
-    btnSpin.style.display = '';
-    btn.disabled = true;
-
-    try {
-        const res = await fetch(apiUrl('/api/memberships/subscribe'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ membershipId: selectedPlanId })
-        });
-        const data = await res.json();
-        if (data.success) {
-            // Update localStorage
-            const updUser = { ...user, hasMembership: true, membershipPlan: data.membership?.name || '', activeMembership: selectedPlanId };
-            localStorage.setItem('authUser', JSON.stringify(updUser));
-            closeModal();
-            showToast('success', '🎉', '¡Membresía activada!', 'Ya tienes acceso a todos los cursos.');
-            setTimeout(() => {
-                const from = new URLSearchParams(window.location.search).get('from');
-                window.location.href = from ? `/curso/${from}` : '/';
-            }, 2500);
-        } else {
-            showToast('error', '❌', 'Error al procesar', data.message || 'Intenta de nuevo');
+            }).join('');
         }
-    } catch (err) {
-        showToast('error', '❌', 'Error de conexión', 'Verifica tu conexión e intenta de nuevo');
-    } finally {
-        btnText.style.display = '';
-        btnSpin.style.display = 'none';
-        btn.disabled = false;
-    }
-}
 
-// ── FAQ toggle ───────────────────────────────────────────────────
-function toggleFaq(btn) {
-    const item = btn.parentElement;
-    const wasOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-    if (!wasOpen) item.classList.add('open');
-}
+        function checkCurrentPlan() {
+            if (!user || !user.hasMembership) return;
+            const banner = document.getElementById('currentPlanBanner');
+            banner.classList.add('visible');
+            document.getElementById('currentPlanInfo').textContent = `Plan ${user.membershipPlan || 'activo'} · Acceso completo a todos los cursos`;
+        }
 
-// ── Toast ────────────────────────────────────────────────────────
-function showToast(type, icon, title, msg, duration = 4000) {
-    const container = document.getElementById('toastContainer');
-    const id = 'toast-' + Date.now();
-    const el = document.createElement('div');
-    el.className = `toast-item ${type}`;
-    el.id = id;
-    el.innerHTML = `
+        // ── Plan selection ───────────────────────────────────────────────
+        function selectPlan(id, name, price, durationDays) {
+            if (!token) {
+                showToast('info', '🔐', 'Inicia sesión para suscribirte', 'Serás redirigido al login...');
+                setTimeout(() => { window.location.href = `/login?redirect=/membresia`; }, 1800);
+                return;
+            }
+            selectedPlanId = id;
+            document.getElementById('modalPlanName').textContent = name;
+            document.getElementById('modalPlanPrice').textContent = `S/ ${price}`;
+            document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
+            document.getElementById('confirmModal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('open');
+            selectedPlanId = null;
+        }
+
+        async function confirmPurchase() {
+            if (!selectedPlanId) return;
+            const btnText = document.getElementById('confirmBtnText');
+            const btnSpin = document.getElementById('confirmBtnSpinner');
+            const btn = document.getElementById('btnConfirm');
+            btnText.style.display = 'none';
+            btnSpin.style.display = '';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(apiUrl('/api/memberships/subscribe'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ membershipId: selectedPlanId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // Update localStorage
+                    const updUser = { ...user, hasMembership: true, membershipPlan: data.membership?.name || '', activeMembership: selectedPlanId };
+                    localStorage.setItem('authUser', JSON.stringify(updUser));
+                    closeModal();
+                    showToast('success', '🎉', '¡Membresía activada!', 'Ya tienes acceso a todos los cursos.');
+                    setTimeout(() => {
+                        const from = new URLSearchParams(window.location.search).get('from');
+                        window.location.href = from ? `/curso/${from}` : '/';
+                    }, 2500);
+                } else {
+                    showToast('error', '❌', 'Error al procesar', data.message || 'Intenta de nuevo');
+                }
+            } catch (err) {
+                showToast('error', '❌', 'Error de conexión', 'Verifica tu conexión e intenta de nuevo');
+            } finally {
+                btnText.style.display = '';
+                btnSpin.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // ── FAQ toggle ───────────────────────────────────────────────────
+        function toggleFaq(btn) {
+            const item = btn.parentElement;
+            const wasOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+            if (!wasOpen) item.classList.add('open');
+        }
+
+        // ── Toast ────────────────────────────────────────────────────────
+        function showToast(type, icon, title, msg, duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const id = 'toast-' + Date.now();
+            const el = document.createElement('div');
+            el.className = `toast-item ${type}`;
+            el.id = id;
+            el.innerHTML = `
         <div class="toast-icon-wrap">${icon}</div>
         <div class="toast-text"><strong>${title}</strong><br><span style="font-weight:400;opacity:.7;">${msg}</span></div>
         <button class="toast-close" onclick="document.getElementById('${id}').remove()">✕</button>`;
-    container.appendChild(el);
-    setTimeout(() => { const t = document.getElementById(id); if(t) t.remove(); }, duration);
-}
+            container.appendChild(el);
+            setTimeout(() => { const t = document.getElementById(id); if (t) t.remove(); }, duration);
+        }
 
-// ── Close modal on outside click ─────────────────────────────────
-document.getElementById('confirmModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('confirmModal')) closeModal();
-});
+        // ── Close modal on outside click ─────────────────────────────────
+        document.getElementById('confirmModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('confirmModal')) closeModal();
+        });
 
-// ── Init ─────────────────────────────────────────────────────────
-renderHeader();
-loadPlans();
+        // ── Init ─────────────────────────────────────────────────────────
+        renderHeader();
+        loadPlans();
+        // loadSettings() is called inside script.js on DOMContentLoaded
 
-// Show notification if coming from a blocked course
-const fromCourse = new URLSearchParams(window.location.search).get('from');
-if (fromCourse) {
-    const courseName = decodeURIComponent(new URLSearchParams(window.location.search).get('course') || '');
-    setTimeout(() => {
-        showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Este curso requiere una membresía activa');
-    }, 500);
-}
-</script>
+        // Show notification if coming from a blocked course
+        const fromCourse = new URLSearchParams(window.location.search).get('from');
+        if (fromCourse) {
+            const courseName = decodeURIComponent(new URLSearchParams(window.location.search).get('course') || '');
+            setTimeout(() => {
+                showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Este curso requiere una membresía activa');
+            }, 500);
+        }
+    </script>
 </body>
+
 </html>

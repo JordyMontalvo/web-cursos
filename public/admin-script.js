@@ -6,7 +6,7 @@ let allCourses = [];
 let lastFetchTime = 0;
 const CACHE_DURATION = 30000; // 30 segundos de caché
 let editingCourseId = null;
-let currentContentCourseId = null; 
+let currentContentCourseId = null;
 
 // ===================================
 // API Functions
@@ -23,14 +23,14 @@ async function fetchCourses(force = false) {
 
     try {
         const response = await fetch(apiUrl('/api/courses'));
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
         console.log('📦 Cursos recibidos:', data);
-        
+
         if (data.success) {
             allCourses = (data.courses || []).filter(c => c._id || c.id);
             lastFetchTime = Date.now();
@@ -52,9 +52,9 @@ async function createCourse(courseData) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(courseData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast('Curso creado exitosamente');
             fetchCourses();
@@ -75,9 +75,9 @@ async function updateCourse(id, courseData) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(courseData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast('Curso actualizado exitosamente');
             fetchCourses();
@@ -95,14 +95,14 @@ async function deleteCourse(id, courseName) {
     if (!confirm(`¿Estás seguro de eliminar el curso "${courseName}"?`)) {
         return;
     }
-    
+
     try {
         const response = await fetch(apiUrl(`/api/courses/${id}`), {
             method: 'DELETE'
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast('Curso eliminado exitosamente');
             fetchCourses();
@@ -118,15 +118,15 @@ async function deleteCourse(id, courseName) {
 async function uploadImage(file) {
     const formData = new FormData();
     formData.append('image', file);
-    
+
     try {
         const response = await fetch(apiUrl('/api/upload'), {
             method: 'POST',
             body: formData
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             return data.imageUrl;
         } else {
@@ -146,7 +146,7 @@ async function uploadImage(file) {
 
 function renderCoursesTable(courses) {
     const tbody = document.getElementById('coursesTableBody');
-    
+
     if (!courses || courses.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -157,11 +157,11 @@ function renderCoursesTable(courses) {
         `;
         return;
     }
-    
+
     tbody.innerHTML = courses.map(course => {
         // Asegurar que tenemos un ID válido
         const courseId = course._id || course.id;
-        
+
         if (!courseId) {
             console.error('Curso sin ID encontrado:', course);
             return '';
@@ -178,9 +178,9 @@ function renderCoursesTable(courses) {
             <td>${course.totalChapters || (course.chapters ? course.chapters.length : 0)}</td>
             <td>${course.totalEpisodes || 0}</td>
             <td>
-                ${course.featured 
-                    ? '<span class="featured-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1L7.545 4.13L11 4.635L8.5 7.07L9.09 10.51L6 8.885L2.91 10.51L3.5 7.07L1 4.635L4.455 4.13L6 1Z" fill="currentColor"/></svg> Destacado</span>' 
-                    : '<span class="not-featured">No</span>'}
+                ${course.featured
+                ? '<span class="featured-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1L7.545 4.13L11 4.635L8.5 7.07L9.09 10.51L6 8.885L2.91 10.51L3.5 7.07L1 4.635L4.455 4.13L6 1Z" fill="currentColor"/></svg> Destacado</span>'
+                : '<span class="not-featured">No</span>'}
             </td>
             <td>
                 <div class="table-actions-cell">
@@ -211,7 +211,7 @@ function updateStats() {
     const totalCourses = allCourses.length;
     const featuredCourses = allCourses.filter(c => c.featured).length;
     const categories = [...new Set(allCourses.map(c => c.category))].length;
-    
+
     document.getElementById('totalCourses').textContent = totalCourses;
     document.getElementById('featuredCourses').textContent = featuredCourses;
     document.getElementById('totalCategories').textContent = categories;
@@ -233,13 +233,13 @@ function openAddCourseModal() {
 function editCourse(id) {
     const course = allCourses.find(c => (c._id === id || c.id === id || c.id == id));
     if (!course) return;
-    
+
     // Usar el ID correcto que tenga el objeto
     const courseId = course._id || course.id;
     editingCourseId = courseId;
 
     document.getElementById('modalTitle').textContent = 'Editar Curso';
-    
+
     // Fill form
     document.getElementById('courseId').value = courseId;
     document.getElementById('courseName').value = course.name;
@@ -250,7 +250,7 @@ function editCourse(id) {
     document.getElementById('courseVideoUrl').value = course.videoUrl || '';
     document.getElementById('thumbnailUrl').value = course.thumbnail || '';
     document.getElementById('courseFeatured').checked = course.featured;
-    
+
     // Show thumbnail preview
     const preview = document.getElementById('imagePreview');
     if (course.thumbnail) {
@@ -260,7 +260,7 @@ function editCourse(id) {
         preview.innerHTML = '';
         preview.classList.remove('active');
     }
-    
+
     document.getElementById('courseModal').classList.add('active');
 }
 
@@ -276,16 +276,16 @@ function closeCourseModal() {
 
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
+
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const submitBtnText = document.getElementById('submitBtnText');
     const submitSpinner = document.getElementById('submitSpinner');
-    
+
     // Show loading state
     submitBtn.disabled = true;
     submitBtnText.style.display = 'none';
     submitSpinner.style.display = 'inline-block';
-    
+
     const formData = {
         name: document.getElementById('courseName').value,
         category: document.getElementById('courseCategory').value,
@@ -295,7 +295,7 @@ async function handleFormSubmit(e) {
         thumbnail: document.getElementById('thumbnailUrl').value || '/uploads/default-course.jpg',
         featured: document.getElementById('courseFeatured').checked
     };
-    
+
     try {
         if (editingCourseId) {
             await updateCourse(editingCourseId, formData);
@@ -313,10 +313,10 @@ async function handleFormSubmit(e) {
 async function previewImage(input) {
     const preview = document.getElementById('imagePreview');
     const file = input.files[0];
-    
+
     if (file) {
         // Validación de tamaño (ej: para evitar que base64 sobrepase el límite de MongoDB de 16MB)
-        if(file.size > 2 * 1024 * 1024) {
+        if (file.size > 2 * 1024 * 1024) {
             showToast('La imagen es demasiado grande. Máximo 2MB.', 'error');
             input.value = '';
             return;
@@ -326,7 +326,7 @@ async function previewImage(input) {
         reader.onload = (e) => {
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             preview.classList.add('active');
-            
+
             // Asignar base64 directamente al campo de texto
             document.getElementById('thumbnailUrl').value = e.target.result;
             showToast('Imagen cargada y convertida a texto exitosamente', 'info');
@@ -351,7 +351,7 @@ async function openContentManager(courseId) {
     try {
         console.log('Fetching content for course:', courseId);
         const response = await fetch(apiUrl(`/api/courses/${courseId}`));
-        
+
         if (!response.ok) {
             const textText = await response.text();
             console.error('API Error:', response.status, textText);
@@ -359,14 +359,14 @@ async function openContentManager(courseId) {
         }
 
         const data = await response.json();
-        
+
         if (data.success) {
             currentContentCourseId = courseId;
             const course = data.course;
-            
+
             document.getElementById('contentCourseName').textContent = course.name;
             renderChapters(course);
-            
+
             document.getElementById('contentModal').classList.add('active');
         } else {
             showToast(data.message || 'Error al cargar curso', 'error');
@@ -385,13 +385,13 @@ function closeContentModal() {
 
 function renderChapters(course) {
     const container = document.getElementById('chaptersList');
-    
+
     if (!course.chapters || course.chapters.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">No hay capítulos creados aún.</p>';
         return;
     }
-    
-// ... (renderChapters function)
+
+    // ... (renderChapters function)
     container.innerHTML = course.chapters.map((chapter, index) => `
         <div class="chapter-item ${index === 0 ? 'active' : ''}" id="chapter-${chapter._id}">
             <div class="chapter-header" onclick="toggleChapter(event, '${chapter._id}')">
@@ -413,8 +413,8 @@ function renderChapters(course) {
                 </div>
             </div>
             <div class="episodes-list">
-                ${chapter.episodes && chapter.episodes.length > 0 
-                    ? chapter.episodes.map((episode, epIndex) => `
+                ${chapter.episodes && chapter.episodes.length > 0
+            ? chapter.episodes.map((episode, epIndex) => `
                         <div class="episode-item">
                             <div class="episode-info">
                                 <strong>Ep. ${epIndex + 1}:</strong> ${episode.title}
@@ -433,9 +433,9 @@ function renderChapters(course) {
                                 </button>
                             </div>
                         </div>
-                    `).join('') 
-                    : '<p style="font-size: 0.85rem; color: #999; padding: 0.5rem; text-align: center;">No hay episodios.</p>'
-                }
+                    `).join('')
+            : '<p style="font-size: 0.85rem; color: #999; padding: 0.5rem; text-align: center;">No hay episodios.</p>'
+        }
                 
                 <div class="add-episode-form" style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #eee;">
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -470,7 +470,7 @@ async function editChapter(e, chapterId, currentTitle, currentDesc) {
         } else {
             showToast('Error al actualizar', 'error');
         }
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         showToast('Error de conexión', 'error');
     }
@@ -496,7 +496,7 @@ async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl) {
         } else {
             showToast('Error al actualizar', 'error');
         }
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         showToast('Error de conexión', 'error');
     }
@@ -505,7 +505,7 @@ async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl) {
 function toggleChapter(e, chapterId) {
     // Si se hace click en acciones, no hacer nada
     if (e.target.closest('.chapter-actions') || e.target.closest('.add-episode-form') || e.target.closest('.episode-actions')) return;
-    
+
     // Toggle active
     const item = document.getElementById(`chapter-${chapterId}`);
     if (item) item.classList.toggle('active');
@@ -519,27 +519,27 @@ function openAddChapterInput() {
 async function saveNewChapter() {
     const title = document.getElementById('newChapterTitle').value;
     const description = document.getElementById('newChapterDesc').value;
-    
+
     if (!title) {
         showToast('El título del capítulo es obligatorio', 'error');
         return;
     }
-    
+
     try {
         const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, description })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast('Capítulo agregado');
             document.getElementById('newChapterTitle').value = '';
             document.getElementById('newChapterDesc').value = '';
             document.getElementById('newChapterInput').style.display = 'none';
-            
+
             // Recargar vista
             openContentManager(currentContentCourseId);
             // fetchCourses(); // Eliminado redundante
@@ -554,16 +554,16 @@ async function saveNewChapter() {
 
 async function deleteChapter(e, chapterId) {
     if (e) e.stopPropagation();
-    
+
     if (!confirm('¿Seguro que quieres eliminar este capítulo y sus episodios?')) return;
-    
+
     try {
         const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}`), {
             method: 'DELETE'
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast('Capítulo eliminado');
             openContentManager(currentContentCourseId);
@@ -580,24 +580,24 @@ async function deleteChapter(e, chapterId) {
 async function addEpisode(chapterId) {
     const titleInput = document.getElementById(`ep-title-${chapterId}`);
     const urlInput = document.getElementById(`ep-url-${chapterId}`);
-    
+
     const title = titleInput.value;
     const videoUrl = urlInput.value;
-    
+
     if (!title || !videoUrl) {
         showToast('Título y URL son obligatorios', 'error');
         return;
     }
-    
+
     try {
         const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, videoUrl })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast('Episodio agregado');
             openContentManager(currentContentCourseId);
@@ -614,14 +614,14 @@ async function addEpisode(chapterId) {
 async function deleteEpisode(e, chapterId, episodeId) {
     if (e) e.stopPropagation();
     if (!confirm('¿Eliminar este episodio?')) return;
-    
+
     try {
         const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/${episodeId}`), {
             method: 'DELETE'
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast('Episodio eliminado');
             openContentManager(currentContentCourseId);
@@ -641,16 +641,16 @@ async function deleteEpisode(e, chapterId, episodeId) {
 
 function setupSearch() {
     const searchInput = document.getElementById('searchTable');
-    
+
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        
-        const filtered = allCourses.filter(course => 
+
+        const filtered = allCourses.filter(course =>
             course.name.toLowerCase().includes(searchTerm) ||
             course.category.toLowerCase().includes(searchTerm) ||
             (course._id && course._id.toString().includes(searchTerm))
         );
-        
+
         renderCoursesTable(filtered);
     });
 }
@@ -662,11 +662,11 @@ function setupSearch() {
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toastMessage');
-    
+
     toastMessage.textContent = message;
     toast.className = `toast ${type}`;
     toast.classList.add('show');
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
@@ -700,24 +700,24 @@ let editingMembershipId = null;
 let editingUserId = null;
 
 function switchTab(tab) {
-    ['courses', 'memberships', 'banners', 'users'].forEach(t => {
+    ['courses', 'memberships', 'banners', 'users', 'logo'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
-        if(section) section.style.display = t === tab ? '' : 'none';
-        
+        if (section) section.style.display = t === tab ? '' : 'none';
+
         const btn = document.getElementById(`tab-${t}`);
-        if(btn) {
+        if (btn) {
             btn.style.color = t === tab ? '#fff' : 'rgba(255,255,255,.5)';
             btn.style.borderBottom = t === tab ? '2px solid #7C3AED' : '2px solid transparent';
         }
     });
-    
+
     const btnNewCourse = document.getElementById('btnNewCourse');
-    if(btnNewCourse) btnNewCourse.style.display = tab === 'courses' ? '' : 'none';
+    if (btnNewCourse) btnNewCourse.style.display = tab === 'courses' ? '' : 'none';
 
     if (tab === 'memberships') loadMemberships();
-    if (tab === 'banners') {
+    if (tab === 'banners' || tab === 'logo') {
         loadSettings();
-        loadBanners();
+        if (tab === 'banners') loadBanners();
     }
     if (tab === 'users') loadUsers();
 }
@@ -768,7 +768,7 @@ function renderMembershipsGrid(plans) {
             <div style="font-size:2rem;font-weight:900;color:${p.color || '#7C3AED'};margin:.5rem 0;">S/ ${p.price}</div>
             <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-bottom:1rem;">${getDurationLabel(p.durationDays)}</div>
             ${p.description ? `<div style="font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:1rem;">${p.description}</div>` : ''}
-            ${p.features && p.features.length ? `<ul style="list-style:none;margin-bottom:1rem;">${p.features.slice(0,3).map(f => `<li style="font-size:.8rem;color:rgba(255,255,255,.6);padding:.2rem 0;">✓ ${f}</li>`).join('')}${p.features.length > 3 ? `<li style="font-size:.75rem;color:rgba(255,255,255,.3);">+${p.features.length-3} más...</li>` : ''}</ul>` : ''}
+            ${p.features && p.features.length ? `<ul style="list-style:none;margin-bottom:1rem;">${p.features.slice(0, 3).map(f => `<li style="font-size:.8rem;color:rgba(255,255,255,.6);padding:.2rem 0;">✓ ${f}</li>`).join('')}${p.features.length > 3 ? `<li style="font-size:.75rem;color:rgba(255,255,255,.3);">+${p.features.length - 3} más...</li>` : ''}</ul>` : ''}
             <div style="display:flex;gap:.5rem;margin-top:auto;">
                 <button onclick="editMembership('${p._id}')" style="flex:1;padding:.6rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#A78BFA;border-radius:10px;cursor:pointer;font-size:.875rem;font-family:inherit;transition:all .2s;">✏️ Editar</button>
                 <button onclick="deleteMembership('${p._id}','${p.name}')" style="padding:.6rem .75rem;background:rgba(255,75,85,.1);border:1px solid rgba(255,75,85,.2);color:#FF6B70;border-radius:10px;cursor:pointer;font-size:.875rem;font-family:inherit;transition:all .2s;">🗑️</button>
@@ -1021,9 +1021,42 @@ async function loadSettings() {
     try {
         const res = await fetch(apiUrl('/api/admin/settings'), { headers: authHeaders() });
         const data = await res.json();
-        
+
         if (data.success && data.settings) {
-            document.getElementById('presentationVideoUrl').value = data.settings.presentationVideoUrl || '';
+            const s = data.settings;
+            // Banner section
+            if (document.getElementById('presentationVideoUrl')) {
+                document.getElementById('presentationVideoUrl').value = s.presentationVideoUrl || '';
+            }
+
+            // Logo section
+            if (document.getElementById('configCompanyName')) {
+                document.getElementById('configCompanyName').value = s.companyName || 'IATIBET ZUREON';
+                document.getElementById('configLogoUrl').value = s.logoUrl || '';
+
+                const preview = document.getElementById('configLogoPreview');
+                if (preview) {
+                    if (s.logoUrl) {
+                        preview.style.backgroundImage = `url('${s.logoUrl}')`;
+                    } else {
+                        preview.style.backgroundImage = '';
+                    }
+                }
+            }
+
+            // Sincronizar Header (Nombre y Logo)
+            if (s.companyName) {
+                const headerLogoText = document.querySelector('.header .logo-text');
+                if (headerLogoText) headerLogoText.textContent = s.companyName;
+            }
+            if (s.logoUrl) {
+                const headerLogoIcon = document.querySelector('.header .logo-icon');
+                if (headerLogoIcon) {
+                    headerLogoIcon.style.backgroundImage = `url('${s.logoUrl}')`;
+                    headerLogoIcon.style.backgroundSize = 'cover';
+                    headerLogoIcon.style.backgroundPosition = 'center';
+                }
+            }
         }
     } catch (err) {
         console.error('Error loading settings', err);
@@ -1034,10 +1067,10 @@ async function saveSettings(e) {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
     const url = document.getElementById('presentationVideoUrl').value;
-    
+
     btn.disabled = true;
     btn.innerHTML = 'Guardando...';
-    
+
     try {
         const res = await fetch(apiUrl('/api/admin/settings'), {
             method: 'PUT',
@@ -1055,6 +1088,82 @@ async function saveSettings(e) {
     } finally {
         btn.disabled = false;
         btn.innerHTML = 'Guardar Link';
+    }
+}
+
+// ===================================
+// LOGO ADMIN
+// ===================================
+
+async function previewConfigLogo(input) {
+    const preview = document.getElementById('configLogoPreview');
+    const file = input.files[0];
+    if (file) {
+        if (file.size > 1 * 1024 * 1024) { // 1MB para el logo
+            showToast('La imagen es demasiado grande. Máximo 1MB.', 'error');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.style.backgroundImage = `url('${e.target.result}')`;
+            document.getElementById('configLogoUrl').value = e.target.result;
+            showToast('Logo cargado correctamente', 'info');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function saveLogoSettings(e) {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const submitText = document.getElementById('logoSubmitText');
+    const submitSpinner = document.getElementById('logoSubmitSpinner');
+
+    submitBtn.disabled = true;
+    submitText.style.display = 'none';
+    submitSpinner.style.display = 'inline-block';
+
+    const payload = {
+        companyName: document.getElementById('configCompanyName').value,
+        logoUrl: document.getElementById('configLogoUrl').value
+    };
+
+    try {
+        const res = await fetch(apiUrl('/api/admin/settings'), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        // Manejar errores de tamaño u otros errores del servidor
+        if (res.status === 413) {
+            showToast('La imagen es demasiado grande para el servidor.', 'error');
+            return;
+        }
+
+        let data;
+        try {
+            data = await res.json();
+        } catch (e) {
+            showToast(`Error del servidor (${res.status}). Intenta con un logo más pequeño.`, 'error');
+            return;
+        }
+
+        if (data.success) {
+            showToast('Configuración de marca guardada');
+            loadSettings();
+        } else {
+            showToast(data.message || 'Error al guardar', 'error');
+        }
+    } catch (err) {
+        console.error('Error saving logo settings:', err);
+        showToast('Error de conexión al servidor.', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitText.style.display = 'inline';
+        submitSpinner.style.display = 'none';
     }
 }
 
@@ -1146,7 +1255,7 @@ async function previewBannerImage(input) {
     const preview = document.getElementById('bannerImagePreview');
     const file = input.files[0];
     if (file) {
-        if(file.size > 2 * 1024 * 1024) {
+        if (file.size > 2 * 1024 * 1024) {
             showToast('La imagen es demasiado grande. Máximo 2MB.', 'error');
             input.value = '';
             return;

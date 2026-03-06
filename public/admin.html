@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -20,17 +22,18 @@
                     <div class="logo-icon"></div>
                     <span class="logo-text">ADMIN PANEL</span>
                 </div>
-                
+
                 <nav class="nav">
                     <a href="/" class="nav-link">Ver Sitio</a>
                     <a href="/admin" class="nav-link active">Administración</a>
                 </nav>
-                
+
                 <div class="header-actions" id="adminHeaderActions">
-                    <span id="adminUserName" style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin-right:0.5rem;"></span>
+                    <span id="adminUserName"
+                        style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin-right:0.5rem;"></span>
                     <button class="btn-primary" onclick="openAddCourseModal()" id="btnNewCourse">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right: 0.5rem;">
-                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                         </svg>
                         Nuevo Curso
                     </button>
@@ -49,115 +52,141 @@
             </div>
 
             <!-- Tabs -->
-            <div style="display:flex;gap:.5rem;margin-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:0;">
-                <button class="admin-tab active" id="tab-courses" onclick="switchTab('courses')" style="padding:.75rem 1.5rem;background:none;border:none;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid #7C3AED;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">📚 Cursos</button>
-                <button class="admin-tab" id="tab-memberships" onclick="switchTab('memberships')" style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">💎 Membresías</button>
-                <button class="admin-tab" id="tab-banners" onclick="switchTab('banners')" style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">🖼️ Banners</button>
-                <button class="admin-tab" id="tab-users" onclick="switchTab('users')" style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">👥 Usuarios</button>
+            <div
+                style="display:flex;gap:.5rem;margin-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:0;">
+                <button class="admin-tab active" id="tab-courses" onclick="switchTab('courses')"
+                    style="padding:.75rem 1.5rem;background:none;border:none;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid #7C3AED;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">📚
+                    Cursos</button>
+                <button class="admin-tab" id="tab-memberships" onclick="switchTab('memberships')"
+                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">💎
+                    Membresías</button>
+                <button class="admin-tab" id="tab-banners" onclick="switchTab('banners')"
+                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">🖼️
+                    Banners</button>
+                <button class="admin-tab" id="tab-users" onclick="switchTab('users')"
+                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">👥
+                    Usuarios</button>
+                <button class="admin-tab" id="tab-logo" onclick="switchTab('logo')"
+                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">🎨
+                    Logo</button>
             </div>
 
             <!-- COURSES SECTION -->
             <div id="section-courses">
 
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #4FFFB0 0%, #3DE89A 100%);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4FFFB0 0%, #3DE89A 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalCourses">0</div>
+                            <div class="stat-label">Total Cursos</div>
+                        </div>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="totalCourses">0</div>
-                        <div class="stat-label">Total Cursos</div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FFD93D 0%, #FFC700 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="featuredCourses">0</div>
+                            <div class="stat-label">Destacados</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FF6B9D 0%, #FF1744 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor"
+                                    stroke-width="2" />
+                                <path d="M3 9H21" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalCategories">0</div>
+                            <div class="stat-label">Categorías</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #FFD93D 0%, #FFC700 100%);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                <!-- Courses Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Lista de Cursos</h2>
+                        <div class="table-actions">
+                            <input type="search" placeholder="Buscar curso..." class="search-table" id="searchTable">
+                        </div>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="featuredCourses">0</div>
-                        <div class="stat-label">Destacados</div>
-                    </div>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #FF6B9D 0%, #FF1744 100%);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-                            <path d="M3 9H21" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="totalCategories">0</div>
-                        <div class="stat-label">Categorías</div>
+                    <div class="table-wrapper">
+                        <table class="courses-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Portada</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Capítulos</th>
+                                    <th>Episodios</th>
+                                    <th>Destacado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesTableBody">
+                                <tr>
+                                    <td colspan="8" class="loading-row">
+                                        <div class="spinner"></div>
+                                        <p>Cargando cursos...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-
-            <!-- Courses Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h2>Lista de Cursos</h2>
-                    <div class="table-actions">
-                        <input type="search" placeholder="Buscar curso..." class="search-table" id="searchTable">
-                    </div>
-                </div>
-
-                <div class="table-wrapper">
-                    <table class="courses-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Portada</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th>
-                                <th>Capítulos</th>
-                                <th>Episodios</th>
-                                <th>Destacado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="coursesTableBody">
-                            <tr>
-                                <td colspan="8" class="loading-row">
-                                    <div class="spinner"></div>
-                                    <p>Cargando cursos...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
             </div>
             <!-- /section-courses -->
 
             <!-- MEMBERSHIPS SECTION -->
             <div id="section-memberships" style="display:none;">
 
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-                <div>
-                    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Planes de Membresía</h2>
-                    <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Crea y gestiona los planes que los usuarios pueden adquirir</p>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                    <div>
+                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Planes de Membresía</h2>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Crea y gestiona los planes que los
+                            usuarios pueden adquirir</p>
+                    </div>
+                    <button class="btn-primary" onclick="openMembershipModal()">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
+                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        Nuevo Plan
+                    </button>
                 </div>
-                <button class="btn-primary" onclick="openMembershipModal()">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Nuevo Plan
-                </button>
-            </div>
 
-            <!-- Membership Cards -->
-            <div id="membershipsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
-                <div style="display:flex;align-items:center;justify-content:center;padding:3rem;color:rgba(255,255,255,.4);">
-                    <div style="text-align:center;"><div style="font-size:2rem;margin-bottom:.75rem;">⌛</div>Cargando plans...</div>
+                <!-- Membership Cards -->
+                <div id="membershipsGrid"
+                    style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+                    <div
+                        style="display:flex;align-items:center;justify-content:center;padding:3rem;color:rgba(255,255,255,.4);">
+                        <div style="text-align:center;">
+                            <div style="font-size:2rem;margin-bottom:.75rem;">⌛</div>Cargando plans...
+                        </div>
+                    </div>
                 </div>
-            </div>
             </div>
             <!-- /section-memberships -->
 
@@ -166,19 +195,26 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
                     <div>
                         <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Banners Carrusel</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona las imágenes promocionales de la página principal</p>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona las imágenes promocionales
+                            de la página principal</p>
                     </div>
                     <button class="btn-primary" onclick="openBannerModal()">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
+                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
                         Nuevo Banner
                     </button>
                 </div>
 
-                <div style="background:rgba(20,20,35,.85);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.5rem;margin-bottom:2rem;">
+                <div
+                    style="background:rgba(20,20,35,.85);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.5rem;margin-bottom:2rem;">
                     <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">🎥 Video de Presentación</h3>
-                    <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1rem;">Ingresa el enlace del video (Ej. YouTube) que aparecerá debajo del carrusel en la página principal.</p>
+                    <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1rem;">Ingresa el enlace del
+                        video (Ej. YouTube) que aparecerá debajo del carrusel en la página principal.</p>
                     <form id="settingsForm" onsubmit="saveSettings(event)" style="display:flex;gap:1rem;">
-                        <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..." style="flex:1;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;" required>
+                        <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..."
+                            style="flex:1;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;"
+                            required>
                         <button type="submit" class="btn-primary" style="white-space:nowrap;">Guardar Link</button>
                     </form>
                 </div>
@@ -197,7 +233,12 @@
                                 </tr>
                             </thead>
                             <tbody id="bannersTableBody">
-                                <tr><td colspan="6" class="loading-row"><div class="spinner"></div><p>Cargando banners...</p></td></tr>
+                                <tr>
+                                    <td colspan="6" class="loading-row">
+                                        <div class="spinner"></div>
+                                        <p>Cargando banners...</p>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -208,31 +249,94 @@
             <!-- USERS SECTION -->
             <div id="section-users" style="display:none;">
 
-            <div style="margin-bottom:1.5rem;">
-                <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
-                <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
-            </div>
-            <div class="table-container">
-                <div class="table-wrapper">
-                    <table class="courses-table">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Plan activo</th>
-                                <th>Expira</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <tr><td colspan="6" class="loading-row"><div class="spinner"></div><p>Cargando usuarios...</p></td></tr>
-                        </tbody>
-                    </table>
+                <div style="margin-bottom:1.5rem;">
+                    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías
+                        activas</p>
+                </div>
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table class="courses-table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Plan activo</th>
+                                    <th>Expira</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="6" class="loading-row">
+                                        <div class="spinner"></div>
+                                        <p>Cargando usuarios...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            </div>
             <!-- /section-users -->
+
+            <!-- LOGO SECTION -->
+            <div id="section-logo" style="display:none;">
+                <div style="margin-bottom:1.5rem;">
+                    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Personalización de Marca</h2>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Modifica el nombre y logo que aparecen en
+                        la parte superior del sitio</p>
+                </div>
+
+                <div
+                    style="background:rgba(20,20,35,.85);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2rem;max-width:800px;">
+                    <form id="logoConfigForm" onsubmit="saveLogoSettings(event)" class="course-form">
+                        <div class="form-group">
+                            <label for="configCompanyName">Nombre de la Empresa</label>
+                            <input type="text" id="configCompanyName" placeholder="Ej: IATIBET ZUREON"
+                                style="width:100%; padding:0.75rem 1rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;"
+                                required>
+                        </div>
+
+                        <div class="form-group" style="margin-top:1.5rem;">
+                            <label for="configLogoImage">Logo de la Empresa (Circular o Cuadrado sugerido)</label>
+                            <div class="file-upload-wrapper" style="margin-bottom:0.5rem;">
+                                <input type="file" id="configLogoImage" accept="image/*"
+                                    onchange="previewConfigLogo(this)">
+                                <div class="file-upload-label">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    <span>Haz clic para subir (o pega una URL abajo)</span>
+                                </div>
+                                <div id="configLogoPreview" class="image-preview"
+                                    style="width:100px; height:100px; border-radius:50%; margin: 1rem auto; background-size: cover; background-position: center; border: 2px solid var(--primary-purple);">
+                                </div>
+                            </div>
+                            <input type="text" id="configLogoUrl" placeholder="Ej: /images/logo.png"
+                                style="width:100%; padding:0.75rem 1rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;"
+                                required>
+                        </div>
+
+                        <div class="form-actions"
+                            style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.05);">
+                            <button type="submit" class="btn-primary" style="padding: 0.75rem 2rem;">
+                                <span id="logoSubmitText">Guardar Cambios</span>
+                                <div class="btn-spinner" id="logoSubmitSpinner" style="display:none;"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- /section-logo -->
 
         </div><!-- /container -->
     </div><!-- /admin-container -->
@@ -244,7 +348,9 @@
             <div class="modal-header">
                 <h2 id="membershipModalTitle">Nuevo Plan de Membresía</h2>
                 <button class="modal-close" onclick="closeMembershipModal()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
                 </button>
             </div>
             <form id="membershipForm" class="course-form" onsubmit="saveMembership(event)">
@@ -286,11 +392,14 @@
                     <label>Beneficios del plan</label>
                     <div id="featuresContainer">
                         <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
-                            <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos" style="flex:1;">
-                            <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
+                            <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos"
+                                style="flex:1;">
+                            <button type="button" onclick="removeFeatureRow(this)"
+                                style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
                         </div>
                     </div>
-                    <button type="button" onclick="addFeatureRow()" style="background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-size:.875rem;margin-top:.25rem;width:100%;font-family:inherit;">
+                    <button type="button" onclick="addFeatureRow()"
+                        style="background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-size:.875rem;margin-top:.25rem;width:100%;font-family:inherit;">
                         + Agregar beneficio
                     </button>
                 </div>
@@ -317,7 +426,9 @@
             <div class="modal-header">
                 <h2 id="bannerModalTitle">Nuevo Banner</h2>
                 <button class="modal-close" onclick="closeBannerModal()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
                 </button>
             </div>
             <form id="bannerForm" class="course-form" onsubmit="saveBanner(event)">
@@ -346,15 +457,22 @@
                         <input type="file" id="bannerImage" accept="image/*" onchange="previewBannerImage(this)">
                         <div class="file-upload-label">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path
+                                    d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                             <span>Haz clic para subir (o pega una URL abajo)</span>
                         </div>
                         <div id="bannerImagePreview" class="image-preview"></div>
                     </div>
-                    <input type="text" id="bannerImageUrl" placeholder="Ej: https://i.imgur.com/..." style="width:100%; padding:0.8rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;" required>
+                    <input type="text" id="bannerImageUrl" placeholder="Ej: https://i.imgur.com/..."
+                        style="width:100%; padding:0.8rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;"
+                        required>
                 </div>
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
@@ -379,11 +497,14 @@
             <div class="modal-header">
                 <h2>Gestionar Membresía</h2>
                 <button class="modal-close" onclick="closeUserMembershipModal()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
                 </button>
             </div>
             <div style="padding:0.5rem 0;">
-                <p style="margin-bottom:1rem;color:rgba(255,255,255,.6);font-size:0.875rem;">Usuario: <strong id="userModalName" style="color:#fff;"></strong></p>
+                <p style="margin-bottom:1rem;color:rgba(255,255,255,.6);font-size:0.875rem;">Usuario: <strong
+                        id="userModalName" style="color:#fff;"></strong></p>
                 <div class="form-group">
                     <label>Asignar plan de membresía</label>
                     <select id="userMembershipSelect">
@@ -391,7 +512,8 @@
                     </select>
                 </div>
                 <div class="form-actions" style="margin-top:1.5rem;">
-                    <button class="btn-secondary" onclick="revokeUserMembership()" style="border-color:rgba(255,75,85,.4);color:#FF6B70;">Revocar acceso</button>
+                    <button class="btn-secondary" onclick="revokeUserMembership()"
+                        style="border-color:rgba(255,75,85,.4);color:#FF6B70;">Revocar acceso</button>
                     <button class="btn-primary" onclick="assignUserMembership()">Asignar</button>
                 </div>
             </div>
@@ -405,7 +527,7 @@
                 <h2 id="modalTitle">Nuevo Curso</h2>
                 <button class="modal-close" onclick="closeCourseModal()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
                 </button>
             </div>
@@ -416,7 +538,8 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="courseName">Nombre del Curso *</label>
-                        <input type="text" id="courseName" name="name" required placeholder="Ej: Inteligencia Artificial IA">
+                        <input type="text" id="courseName" name="name" required
+                            placeholder="Ej: Inteligencia Artificial IA">
                     </div>
 
                     <div class="form-group">
@@ -445,12 +568,14 @@
 
                 <div class="form-group">
                     <label for="courseDescription">Descripción</label>
-                    <textarea id="courseDescription" name="description" rows="3" placeholder="Descripción breve del curso..."></textarea>
+                    <textarea id="courseDescription" name="description" rows="3"
+                        placeholder="Descripción breve del curso..."></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="courseVideoUrl">URL del Video (YouTube, Vimeo, etc.)</label>
-                    <input type="url" id="courseVideoUrl" name="videoUrl" placeholder="https://www.youtube.com/embed/...">
+                    <input type="url" id="courseVideoUrl" name="videoUrl"
+                        placeholder="https://www.youtube.com/embed/...">
                     <small>Puedes usar URLs embed de YouTube, Vimeo u otros servicios</small>
                 </div>
 
@@ -460,15 +585,23 @@
                         <input type="file" id="courseThumbnail" accept="image/*" onchange="previewImage(this)">
                         <div class="file-upload-label">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path
+                                    d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                             <span>Haz clic para subir (o pega una URL abajo)</span>
                         </div>
                         <div id="imagePreview" class="image-preview"></div>
                     </div>
-                    <input type="text" id="thumbnailUrl" name="thumbnail" placeholder="O pega el link directo a la imagen, ej: https://i.imgur.com/..." style="width:100%; padding:0.8rem; margin-top:0.5rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;" required>
+                    <input type="text" id="thumbnailUrl" name="thumbnail"
+                        placeholder="O pega el link directo a la imagen, ej: https://i.imgur.com/..."
+                        style="width:100%; padding:0.8rem; margin-top:0.5rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff;"
+                        required>
                 </div>
 
                 <div class="form-group checkbox-group">
@@ -496,7 +629,7 @@
                 <h2 id="contentModalTitle">Gestionar Contenido</h2>
                 <button class="modal-close" onclick="closeContentModal()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
                 </button>
             </div>
@@ -513,8 +646,9 @@
                 <button class="add-chapter-btn" onclick="openAddChapterInput()">
                     + Agregar Nuevo Capítulo
                 </button>
-                
-                <div id="newChapterInput" style="display: none; margin-top: 1rem; border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
+
+                <div id="newChapterInput"
+                    style="display: none; margin-top: 1rem; border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
                     <div class="form-group">
                         <label>Título del Capítulo</label>
                         <input type="text" id="newChapterTitle" placeholder="Ej: Introducción">
@@ -523,9 +657,11 @@
                         <label>Descripción (Opcional)</label>
                         <input type="text" id="newChapterDesc" placeholder="Breve descripción">
                     </div>
-                    <div class="form-actions" style="margin-top: 1rem; padding-top: 0; border: none; justify-content: flex-start;">
+                    <div class="form-actions"
+                        style="margin-top: 1rem; padding-top: 0; border: none; justify-content: flex-start;">
                         <button class="btn-primary btn-small" onclick="saveNewChapter()">Guardar</button>
-                        <button class="btn-secondary btn-small" onclick="document.getElementById('newChapterInput').style.display='none'">Cancelar</button>
+                        <button class="btn-secondary btn-small"
+                            onclick="document.getElementById('newChapterInput').style.display='none'">Cancelar</button>
                     </div>
                 </div>
             </div>
@@ -536,7 +672,9 @@
     <div class="toast" id="toast">
         <div class="toast-content">
             <svg class="toast-icon" id="toastIcon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z" fill="currentColor"/>
+                <path
+                    d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"
+                    fill="currentColor" />
             </svg>
             <span id="toastMessage">Operación exitosa</span>
         </div>
@@ -545,4 +683,5 @@
     <script src="/config.js"></script>
     <script src="/admin-script.js"></script>
 </body>
+
 </html>

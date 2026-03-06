@@ -14,7 +14,7 @@ async function fetchCourses() {
         await configReady;
         const response = await fetch(apiUrl('/api/courses'));
         const data = await response.json();
-        
+
         if (data.success) {
             coursesData = data.courses;
             featuredCourses = data.courses.filter(c => c.featured);
@@ -61,7 +61,7 @@ function renderCarousel() {
         const slide = document.createElement('div');
         slide.className = 'carousel-slide';
         slide.style.backgroundImage = `url('${banner.imageUrl}')`;
-        
+
         slide.innerHTML = `
             <div class="carousel-overlay">
                 <h2 class="carousel-title">${banner.title || ''}</h2>
@@ -139,26 +139,48 @@ async function loadSettings() {
         await configReady;
         const res = await fetch(apiUrl('/api/settings'));
         const data = await res.json();
-        
-        if (data.success && data.settings && data.settings.presentationVideoUrl) {
-            const section = document.getElementById('presentationVideoSection');
-            const container = document.getElementById('presentationVideoContainer');
-            
-            if (section && container) {
-                // Determine if it's a YouTube URL to append autoplay params if needed, or just set it
-                let videoUrl = data.settings.presentationVideoUrl;
-                
-                // Extra params for YouTube to autoplay loop muted
-                if(videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-                     if (!videoUrl.includes('?')) {
-                         videoUrl += '?autoplay=1&mute=1&loop=1';
-                     } else if (!videoUrl.includes('autoplay')) {
-                         videoUrl += '&autoplay=1&mute=1&loop=1';
-                     }
+
+        if (data.success && data.settings) {
+            const s = data.settings;
+
+            // Personalización de Marca (Logo y Nombre)
+            if (s.companyName) {
+                const logoTexts = document.querySelectorAll('.logo-text, .logo-text-sm');
+                logoTexts.forEach(el => el.textContent = s.companyName);
+                if (document.title.includes('IATIBET ZUREON')) {
+                    document.title = document.title.replace('IATIBET ZUREON', s.companyName);
                 }
-                
-                container.innerHTML = `<iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>`;
-                section.style.display = 'block';
+            }
+
+            if (s.logoUrl) {
+                const logoIcons = document.querySelectorAll('.logo-icon, .logo-icon-sm');
+                logoIcons.forEach(el => {
+                    el.style.backgroundImage = `url('${s.logoUrl}')`;
+                    el.style.backgroundSize = 'cover';
+                    el.style.backgroundPosition = 'center';
+                    el.style.border = 'none'; // Eliminar icono por defecto
+                });
+            }
+
+            // Video de Presentación
+            if (s.presentationVideoUrl) {
+                const section = document.getElementById('presentationVideoSection');
+                const container = document.getElementById('presentationVideoContainer');
+
+                if (section && container) {
+                    let videoUrl = s.presentationVideoUrl;
+
+                    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                        if (!videoUrl.includes('?')) {
+                            videoUrl += '?autoplay=1&mute=1&loop=1';
+                        } else if (!videoUrl.includes('autoplay')) {
+                            videoUrl += '&autoplay=1&mute=1&loop=1';
+                        }
+                    }
+
+                    container.innerHTML = `<iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>`;
+                    section.style.display = 'block';
+                }
             }
         }
     } catch (err) {
@@ -174,7 +196,7 @@ function createCourseCard(course) {
     const courseId = course._id || course.id;
     card.href = `/curso/${courseId}`;
     card.className = 'course-card';
-    
+
     card.innerHTML = `
         <div class="course-card-bg" style="background-image: url('${course.thumbnail || '/uploads/default-course.jpg'}')"></div>
         <div class="course-card-overlay"></div>
@@ -196,7 +218,7 @@ function createCourseCard(course) {
             </button>
         </div>
     `;
-    
+
     return card;
 }
 
@@ -207,17 +229,17 @@ async function renderCourses() {
     if (coursesData.length === 0) {
         await fetchCourses();
     }
-    
+
     const coursesGrid = document.getElementById('coursesGrid');
     const popularGrid = document.getElementById('popularGrid');
-    
+
     if (coursesGrid) {
         coursesGrid.innerHTML = '';
         coursesData.slice(0, 8).forEach(course => {
             coursesGrid.appendChild(createCourseCard(course));
         });
     }
-    
+
     if (popularGrid) {
         popularGrid.innerHTML = '';
         (featuredCourses.length > 0 ? featuredCourses : coursesData).slice(0, 8).forEach(course => {
@@ -231,7 +253,7 @@ async function renderCourses() {
 // ===================================
 function renderEpisodes() {
     const episodesGrid = document.getElementById('episodesGrid');
-    
+
     if (episodesGrid) {
         episodesGrid.innerHTML = '';
         episodesData.forEach(episode => {
@@ -246,7 +268,7 @@ function renderEpisodes() {
 function setupFilters() {
     const filterSelects = document.querySelectorAll('.filter-select');
     const resetBtn = document.querySelector('.btn-reset');
-    
+
     filterSelects.forEach(select => {
         select.addEventListener('change', (e) => {
             console.log('Filter changed:', e.target.value);
@@ -255,7 +277,7 @@ function setupFilters() {
             renderCourses();
         });
     });
-    
+
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
             filterSelects.forEach(select => {
@@ -273,11 +295,11 @@ function setupMobileMenu() {
     const menuBtn = document.querySelector('.menu-btn');
     const nav = document.querySelector('.nav');
     const headerActions = document.querySelector('.header-actions');
-    
+
     if (menuBtn) {
         menuBtn.addEventListener('click', () => {
             menuBtn.classList.toggle('active');
-            
+
             if (nav) nav.classList.toggle('mobile-active');
             if (headerActions) headerActions.classList.toggle('mobile-active');
         });
@@ -289,20 +311,20 @@ function setupMobileMenu() {
 // ===================================
 function setupSearch() {
     const searchInput = document.querySelector('.search-input');
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
             console.log('Searching for:', searchTerm);
-            
+
             // Here you would implement actual search logic
             // For demo purposes, we'll just filter the displayed courses
             if (searchTerm.length > 0) {
-                const filteredCourses = coursesData.filter(course => 
+                const filteredCourses = coursesData.filter(course =>
                     course.name.toLowerCase().includes(searchTerm) ||
                     course.category.toLowerCase().includes(searchTerm)
                 );
-                
+
                 const coursesGrid = document.getElementById('coursesGrid');
                 if (coursesGrid) {
                     coursesGrid.innerHTML = '';
@@ -323,14 +345,14 @@ function setupSearch() {
 function setupCourseNavigation() {
     const prevBtn = document.querySelector('.btn-prev');
     const nextBtn = document.querySelector('.btn-next');
-    
+
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
             console.log('Previous episode');
             // Implement navigation logic
         });
     }
-    
+
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
             console.log('Next episode');
@@ -365,7 +387,7 @@ function setupScrollAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -374,7 +396,7 @@ function setupScrollAnimations() {
             }
         });
     }, observerOptions);
-    
+
     // Observe all course cards
     document.querySelectorAll('.course-card').forEach(card => {
         card.style.opacity = '0';
@@ -401,7 +423,7 @@ function updateHeader() {
     if (!actionsEl) return;
 
     if (user) {
-        const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
+        const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
         const hasMem = user.hasMembership;
         actionsEl.innerHTML = `
             <div class="user-badge" id="dropdownBadge">
@@ -417,7 +439,7 @@ function updateHeader() {
                     <div class="dropdown-item danger" id="btnLogout">🚪 Cerrar sesión</div>
                 </div>
             </div>`;
-        
+
         // Use timeout to ensure elements are in DOM
         setTimeout(() => {
             const badge = document.getElementById('dropdownBadge');
@@ -453,35 +475,35 @@ function logout() {
 // ===================================
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing IATIBET ZUREON Platform...');
-    
+
     // Auth & Header
     updateHeader();
-    
+
     // Add mobile styles
     addMobileStyles();
-    
+
     // Load config/settings (Presentation Video)
     await loadSettings();
-    
+
     // Load Banner Carousel
     await loadBanners();
-    
+
     // Render content
     await renderCourses();
     renderEpisodes();
-    
+
     // Setup interactivity
     setupFilters();
     setupMobileMenu();
     setupSearch();
     setupCourseNavigation();
     setupSmoothScroll();
-    
+
     // Add scroll animations after a short delay
     setTimeout(() => {
         setupScrollAnimations();
     }, 100);
-    
+
     console.log('✅ Platform initialized successfully!');
 });
 
@@ -494,13 +516,13 @@ document.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        
+
         if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             const rotateX = (y - centerY) / 20;
             const rotateY = (centerX - x) / 20;
-            
+
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
         } else {
             card.style.transform = '';

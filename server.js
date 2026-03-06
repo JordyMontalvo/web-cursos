@@ -20,8 +20,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // Conexión a MongoDB
 const REMOTA_URI = 'mongodb://admin:ADMIN_sifrah@ec2-18-220-240-71.us-east-2.compute.amazonaws.com:27017/cursos_db?authSource=admin';
@@ -81,16 +81,16 @@ async function seedDatabase() {
         }
 
         // Crear o actualizar admin
-        const ADMIN_EMAIL    = 'admin@iatibet.com';
+        const ADMIN_EMAIL = 'admin@iatibet.com';
         const ADMIN_PASSWORD = '123456';
         const hashedPw = await bcrypt.hash(ADMIN_PASSWORD, 12);
         await User.findOneAndUpdate(
             { role: 'admin' },
             {
-                name:     'Administrador',
-                email:    ADMIN_EMAIL,
+                name: 'Administrador',
+                email: ADMIN_EMAIL,
                 password: hashedPw,
-                role:     'admin',
+                role: 'admin',
                 updatedAt: new Date()
             },
             { upsert: true, new: true }
@@ -172,7 +172,9 @@ async function seedDatabase() {
         const settingsCount = await Settings.countDocuments();
         if (settingsCount === 0) {
             const defaultSettings = new Settings({
-                presentationVideoUrl: ''
+                presentationVideoUrl: '',
+                companyName: 'IATIBET ZUREON',
+                logoUrl: ''
             });
             await defaultSettings.save();
             console.log('⚙️  Configuración inicial creada.');
@@ -411,10 +413,16 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
         if (req.body.presentationVideoUrl !== undefined) {
             settings.presentationVideoUrl = req.body.presentationVideoUrl;
         }
+        if (req.body.companyName !== undefined) {
+            settings.companyName = req.body.companyName;
+        }
+        if (req.body.logoUrl !== undefined) {
+            settings.logoUrl = req.body.logoUrl;
+        }
 
         settings.updatedAt = new Date();
         await settings.save();
-        
+
         res.json({ success: true, settings });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error updating settings', error: error.message });
