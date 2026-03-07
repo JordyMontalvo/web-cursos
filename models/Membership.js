@@ -15,6 +15,11 @@ const membershipSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
+    currency: {
+        type: String,
+        enum: ['PEN', 'USD'],
+        default: 'PEN'
+    },
     // Duración en días (30 = mensual, 365 = anual, 0 = de por vida)
     durationDays: {
         type: Number,
@@ -55,13 +60,13 @@ const membershipSchema = new mongoose.Schema({
     }
 });
 
-membershipSchema.pre('save', function() {
+membershipSchema.pre('save', function () {
     this.updatedAt = Date.now();
 });
 
 
 // Helper para descripción de duración
-membershipSchema.virtual('durationLabel').get(function() {
+membershipSchema.virtual('durationLabel').get(function () {
     if (this.durationDays === 0) return 'De por vida';
     if (this.durationDays === 365) return '1 año';
     if (this.durationDays === 30) return '1 mes';

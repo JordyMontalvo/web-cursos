@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
@@ -21,12 +27,14 @@
             overflow: hidden;
             position: relative;
         }
+
         .auth-bg {
             position: fixed;
             inset: 0;
             z-index: 0;
             overflow: hidden;
         }
+
         .auth-bg::before {
             content: '';
             position: absolute;
@@ -34,9 +42,10 @@
             right: -20%;
             width: 700px;
             height: 700px;
-            background: radial-gradient(circle, rgba(79,255,176,0.12) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(79, 255, 176, 0.12) 0%, transparent 70%);
             animation: float1 9s ease-in-out infinite;
         }
+
         .auth-bg::after {
             content: '';
             position: absolute;
@@ -44,20 +53,44 @@
             left: -10%;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
             animation: float2 7s ease-in-out infinite;
         }
-        @keyframes float1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20px, 20px); } }
-        @keyframes float2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -20px); } }
+
+        @keyframes float1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-20px, 20px);
+            }
+        }
+
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(20px, -20px);
+            }
+        }
+
         .grid-lines {
             position: fixed;
             inset: 0;
             z-index: 0;
             background-image:
-                linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+                linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
             background-size: 60px 60px;
         }
+
         .auth-wrapper {
             position: relative;
             z-index: 10;
@@ -67,20 +100,23 @@
             max-height: 100vh;
             overflow-y: auto;
         }
+
         .auth-card {
             background: rgba(20, 20, 35, 0.88);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(124,58,237,0.2);
+            border: 1px solid rgba(124, 58, 237, 0.2);
             border-radius: 24px;
             padding: 2.5rem;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
+
         .auth-logo {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             margin-bottom: 2rem;
         }
+
         .auth-logo-icon {
             width: 44px;
             height: 44px;
@@ -91,42 +127,56 @@
             justify-content: center;
             font-size: 1.3rem;
         }
+
         .auth-logo-text {
             font-size: 1.1rem;
             font-weight: 700;
             color: #fff;
             letter-spacing: 0.02em;
         }
+
         .auth-title {
             font-size: 1.75rem;
             font-weight: 800;
             color: #fff;
             margin-bottom: 0.5rem;
         }
+
         .auth-subtitle {
             font-size: 0.9rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
             margin-bottom: 2rem;
         }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
         }
-        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
-        .form-group { margin-bottom: 1.25rem; }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
         .form-label {
             display: block;
             font-size: 0.875rem;
             font-weight: 500;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             margin-bottom: 0.5rem;
         }
+
         .form-input {
             width: 100%;
             padding: 0.875rem 1rem;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             color: #fff;
             font-size: 0.95rem;
@@ -134,20 +184,32 @@
             transition: all 0.2s;
             outline: none;
         }
-        .form-input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
         .form-input:focus {
             border-color: #7C3AED;
-            background: rgba(124,58,237,0.08);
-            box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+            background: rgba(124, 58, 237, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
         }
-        .form-input.error { border-color: #FF4B55; }
+
+        .form-input.error {
+            border-color: #FF4B55;
+        }
+
         .field-error {
             font-size: 0.78rem;
             color: #FF6B70;
             margin-top: 0.35rem;
             display: none;
         }
-        .password-wrapper { position: relative; }
+
+        .password-wrapper {
+            position: relative;
+        }
+
         .toggle-password {
             position: absolute;
             right: 1rem;
@@ -156,34 +218,40 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
             display: flex;
             align-items: center;
             padding: 0;
             transition: color 0.2s;
         }
-        .toggle-password:hover { color: rgba(255,255,255,0.8); }
+
+        .toggle-password:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
 
         /* Password strength */
         .password-strength {
             margin-top: 0.5rem;
         }
+
         .strength-bar {
             height: 4px;
             border-radius: 2px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             overflow: hidden;
             margin-bottom: 0.25rem;
         }
+
         .strength-fill {
             height: 100%;
             width: 0%;
             border-radius: 2px;
             transition: all 0.3s;
         }
+
         .strength-text {
             font-size: 0.75rem;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
         }
 
         /* Terms */
@@ -193,23 +261,30 @@
             gap: 0.75rem;
             margin-bottom: 1.25rem;
         }
+
         .terms-group input[type="checkbox"] {
-            width: 16px; height: 16px;
+            width: 16px;
+            height: 16px;
             margin-top: 2px;
             accent-color: #7C3AED;
             cursor: pointer;
             flex-shrink: 0;
         }
+
         .terms-text {
             font-size: 0.83rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
             line-height: 1.5;
         }
+
         .terms-text a {
             color: #7C3AED;
             text-decoration: none;
         }
-        .terms-text a:hover { color: #9B6FF5; }
+
+        .terms-text a:hover {
+            color: #9B6FF5;
+        }
 
         .btn-submit {
             width: 100%;
@@ -226,21 +301,41 @@
             position: relative;
             overflow: hidden;
         }
+
         .btn-submit::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
             transition: left 0.4s;
         }
-        .btn-submit:hover::before { left: 100%; }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.4); }
-        .btn-submit:active { transform: translateY(0); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-submit .spinner {
-            width: 20px; height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -248,7 +343,12 @@
             margin-right: 0.5rem;
             vertical-align: middle;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         .divider {
             display: flex;
@@ -256,29 +356,38 @@
             gap: 1rem;
             margin: 1.5rem 0;
         }
-        .divider::before, .divider::after {
+
+        .divider::before,
+        .divider::after {
             content: '';
             flex: 1;
             height: 1px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
+
         .divider span {
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255, 255, 255, 0.3);
         }
+
         .auth-footer {
             text-align: center;
             margin-top: 1.5rem;
             font-size: 0.9rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
         }
+
         .auth-footer a {
             color: #7C3AED;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.2s;
         }
-        .auth-footer a:hover { color: #9B6FF5; }
+
+        .auth-footer a:hover {
+            color: #9B6FF5;
+        }
+
         .alert {
             padding: 0.875rem 1rem;
             border-radius: 10px;
@@ -288,11 +397,27 @@
             align-items: center;
             gap: 0.5rem;
         }
-        .alert.error { background: rgba(255,75,85,0.12); border: 1px solid rgba(255,75,85,0.3); color: #FF6B70; display: flex; }
-        .alert.success { background: rgba(79,255,176,0.1); border: 1px solid rgba(79,255,176,0.3); color: #4FFFB0; display: flex; }
-        .alert.hidden { display: none !important; }
+
+        .alert.error {
+            background: rgba(255, 75, 85, 0.12);
+            border: 1px solid rgba(255, 75, 85, 0.3);
+            color: #FF6B70;
+            display: flex;
+        }
+
+        .alert.success {
+            background: rgba(79, 255, 176, 0.1);
+            border: 1px solid rgba(79, 255, 176, 0.3);
+            color: #4FFFB0;
+            display: flex;
+        }
+
+        .alert.hidden {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body>
     <div class="auth-bg"></div>
     <div class="grid-lines"></div>
@@ -308,33 +433,48 @@
             <p class="auth-subtitle">Únete a miles de estudiantes que ya transformaron su vida</p>
 
             <div class="alert hidden" id="registerAlert">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/><path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                        stroke="currentColor" stroke-width="2" />
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
                 <span id="registerAlertMsg"></span>
             </div>
 
             <form id="registerForm" novalidate>
                 <div class="form-group">
                     <label class="form-label" for="regName">Nombre completo</label>
-                    <input type="text" id="regName" class="form-input" placeholder="Juan Pérez" autocomplete="name" required>
+                    <input type="text" id="regName" class="form-input" placeholder="Juan Pérez" autocomplete="name"
+                        required>
                     <div class="field-error" id="nameError">Por favor ingresa tu nombre</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="regEmail">Correo electrónico</label>
-                    <input type="email" id="regEmail" class="form-input" placeholder="tu@email.com" autocomplete="email" required>
+                    <input type="email" id="regEmail" class="form-input" placeholder="tu@email.com" autocomplete="email"
+                        required>
                     <div class="field-error" id="regEmailError">Por favor ingresa un email válido</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="regPassword">Contraseña</label>
                     <div class="password-wrapper">
-                        <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required oninput="checkStrength(this.value)">
+                        <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres"
+                            autocomplete="new-password" required oninput="checkStrength(this.value)">
                         <button type="button" class="toggle-password" onclick="togglePassword('regPassword', this)">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                            </svg>
                         </button>
                     </div>
                     <div class="password-strength">
-                        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
                         <span class="strength-text" id="strengthText"></span>
                     </div>
                     <div class="field-error" id="regPasswordError">La contraseña debe tener al menos 6 caracteres</div>
@@ -343,9 +483,14 @@
                 <div class="form-group">
                     <label class="form-label" for="regConfirm">Confirmar contraseña</label>
                     <div class="password-wrapper">
-                        <input type="password" id="regConfirm" class="form-input" placeholder="Repite tu contraseña" autocomplete="new-password" required>
+                        <input type="password" id="regConfirm" class="form-input" placeholder="Repite tu contraseña"
+                            autocomplete="new-password" required>
                         <button type="button" class="toggle-password" onclick="togglePassword('regConfirm', this)">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                            </svg>
                         </button>
                     </div>
                     <div class="field-error" id="confirmError">Las contraseñas no coinciden</div>
@@ -353,9 +498,11 @@
 
                 <div class="terms-group">
                     <input type="checkbox" id="acceptTerms">
-                    <span class="terms-text">Acepto los <a href="#">Términos de Servicio</a> y la <a href="#">Política de Privacidad</a> de IATIBET ZUREON</span>
+                    <span class="terms-text">Acepto los <a href="#">Términos de Servicio</a> y la <a href="#">Política
+                            de Privacidad</a> de IATIBET ZUREON</span>
                 </div>
-                <div class="field-error" id="termsError" style="margin-top: -0.75rem; margin-bottom: 1rem;">Debes aceptar los términos para continuar</div>
+                <div class="field-error" id="termsError" style="margin-top: -0.75rem; margin-bottom: 1rem;">Debes
+                    aceptar los términos para continuar</div>
 
                 <button type="submit" class="btn-submit" id="registerBtn">
                     Crear Cuenta
@@ -482,4 +629,5 @@
         });
     </script>
 </body>
+
 </html>

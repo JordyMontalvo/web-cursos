@@ -1206,7 +1206,7 @@
             <div class="plan-desc">${plan.description || 'Acceso completo a nuestra plataforma de aprendizaje'}</div>
             <div class="plan-price-wrap">
                 <div class="plan-price">
-                    <span class="plan-price-currency" style="color:${color};">S/</span>
+                    <span class="plan-price-currency" style="color:${color};">${plan.currency === 'USD' ? '$' : 'S/'}</span>
                     <span style="color:${isFeatured ? color : '#fff'};">${plan.price}</span>
                 </div>
                 <div class="plan-price-period">${getDurationLabel(plan.durationDays)}</div>
@@ -1229,15 +1229,20 @@
         }
 
         // ── Plan selection ───────────────────────────────────────────────
-        function selectPlan(id, name, price, durationDays) {
+        async function selectPlan(id, name, price, durationDays) {
             if (!token) {
                 showToast('info', '🔐', 'Inicia sesión para suscribirte', 'Serás redirigido al login...');
                 setTimeout(() => { window.location.href = `/login?redirect=/membresia`; }, 1800);
                 return;
             }
             selectedPlanId = id;
+            const res = await fetch(apiUrl('/api/memberships')); // Refetch or use cached plans
+            const data = await res.json();
+            const plan = data.memberships.find(p => p._id === id);
+            const sym = (plan && plan.currency === 'USD') ? '$' : 'S/';
+
             document.getElementById('modalPlanName').textContent = name;
-            document.getElementById('modalPlanPrice').textContent = `S/ ${price}`;
+            document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
             document.getElementById('confirmModal').classList.add('open');
         }

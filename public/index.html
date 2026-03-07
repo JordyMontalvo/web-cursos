@@ -1,181 +1,161 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IATIBET ZUREON - Plataforma de Cursos Online</title>
-    <meta
-      name="description"
-      content="Un espacio para transformar tu mente, finanzas y espíritu"
-    />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <!-- Header -->
-    <header class="header">
-      <div class="container">
-        <div class="header-content">
-          <div class="logo">
-            <div class="logo-icon"></div>
-            <span class="logo-text">LOGO</span>
-          </div>
 
-          <nav class="nav">
-            <a href="/" class="nav-link">Cursos</a>
-            <a href="/membresia" class="nav-link" id="navMembresia" style="display:none;">Mi Membresía</a>
-          </nav>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IATIBET ZUREON - Plataforma de Cursos Online</title>
+  <meta name="description" content="Un espacio para transformar tu mente, finanzas y espíritu" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
 
-          <div class="header-search">
-            <input
-              type="search"
-              placeholder="Búsqueda..."
-              class="search-input"
-            />
-            <svg
-              class="search-icon"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M19 19L14.65 14.65"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </div>
-
-          <button class="menu-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-
-          <div class="header-actions" id="headerActions">
-            <a href="/login" class="btn-link">Entrar</a>
-            <a href="/register" class="btn-primary">Crear Cuenta</a>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Banner Carousel Section -->
-    <section class="banner-carousel">
-      <div class="carousel-container" id="carouselContainer">
-        <!-- Banners will be injected here via JavaScript -->
-        <div class="carousel-loading">Cargando banners...</div>
-      </div>
-      <div class="carousel-indicators" id="carouselIndicators">
-        <!-- Indicators will be injected here -->
-      </div>
-      <button class="carousel-control prev" onclick="prevBanner()">&#10094;</button>
-      <button class="carousel-control next" onclick="nextBanner()">&#10095;</button>
-    </section>
-
-    <!-- Presentation Video Section -->
-    <section class="presentation-video-section" id="presentationVideoSection" style="display:none; padding: 2rem 0; text-align: center; background: #0A0A15;">
-      <div class="container">
-        <div class="video-wrapper" style="max-width: 800px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-          <!-- Iframe embedded via JS -->
-          <div id="presentationVideoContainer" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-             <!-- Iframe goes here -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Cursos Online Section -->
-    <section class="courses-section">
-      <div class="container">
-        <h2 class="section-title">Cursos Online</h2>
-
-        <div class="filters">
-          <select class="filter-select">
-            <option>Seleccionar el Curso</option>
-            <option>Inteligencia Artificial</option>
-            <option>Finanzas</option>
-            <option>Marketing Digital</option>
-          </select>
-
-          <select class="filter-select">
-            <option>Especialización</option>
-            <option>Básico</option>
-            <option>Intermedio</option>
-            <option>Avanzado</option>
-          </select>
-
-          <select class="filter-select">
-            <option>Cursos</option>
-            <option>Todos</option>
-            <option>Gratis</option>
-            <option>Premium</option>
-          </select>
-
-          <button class="btn-reset">Restablecer Filtros</button>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon"></div>
+          <span class="logo-text">LOGO</span>
         </div>
 
-        <div class="courses-grid" id="coursesGrid">
-          <!-- Course cards will be dynamically generated -->
+        <nav class="nav">
+          <a href="/" class="nav-link">Cursos</a>
+          <a href="/membresia" class="nav-link" id="navMembresia" style="display:none;">Mi Membresía</a>
+        </nav>
+
+        <div class="header-search">
+          <input type="search" placeholder="Búsqueda..." class="search-input" />
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path
+              d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M19 19L14.65 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+
+        <button class="menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="header-actions" id="headerActions">
+          <a href="/login" class="btn-link">Entrar</a>
+          <a href="/register" class="btn-primary">Crear Cuenta</a>
         </div>
       </div>
-    </section>
+    </div>
+  </header>
 
-    <!-- Los más Vistos Section -->
-    <section class="popular-section">
-      <div class="container">
-        <h2 class="section-title">Los más Vistos</h2>
+  <!-- Banner Carousel Section -->
+  <section class="banner-carousel">
+    <div class="carousel-container" id="carouselContainer">
+      <!-- Banners will be injected here via JavaScript -->
+      <div class="carousel-loading">Cargando banners...</div>
+    </div>
+    <div class="carousel-indicators" id="carouselIndicators">
+      <!-- Indicators will be injected here -->
+    </div>
+    <button class="carousel-control prev" onclick="prevBanner()">&#10094;</button>
+    <button class="carousel-control next" onclick="nextBanner()">&#10095;</button>
+  </section>
 
-        <div class="courses-grid" id="popularGrid">
-          <!-- Popular course cards will be dynamically generated -->
+  <!-- Presentation Video Section -->
+  <section class="presentation-video-section" id="presentationVideoSection"
+    style="display:none; padding: 2rem 0; text-align: center; background: #0A0A15;">
+    <div class="container">
+      <div class="video-wrapper"
+        style="max-width: 800px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <!-- Iframe embedded via JS -->
+        <div id="presentationVideoContainer"
+          style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+          <!-- Iframe goes here -->
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <script src="/config.js"></script>
-    <script>
+  <!-- Cursos Online Section -->
+  <section class="courses-section">
+    <div class="container">
+      <h2 class="section-title">Cursos Online</h2>
+
+      <div class="filters">
+        <select class="filter-select">
+          <option>Seleccionar el Curso</option>
+          <option>Inteligencia Artificial</option>
+          <option>Finanzas</option>
+          <option>Marketing Digital</option>
+        </select>
+
+        <select class="filter-select">
+          <option>Especialización</option>
+          <option>Básico</option>
+          <option>Intermedio</option>
+          <option>Avanzado</option>
+        </select>
+
+        <select class="filter-select">
+          <option>Cursos</option>
+          <option>Todos</option>
+          <option>Gratis</option>
+          <option>Premium</option>
+        </select>
+
+        <button class="btn-reset">Restablecer Filtros</button>
+      </div>
+
+      <div class="courses-grid" id="coursesGrid">
+        <!-- Course cards will be dynamically generated -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Los más Vistos Section -->
+  <section class="popular-section">
+    <div class="container">
+      <h2 class="section-title">Los más Vistos</h2>
+
+      <div class="courses-grid" id="popularGrid">
+        <!-- Popular course cards will be dynamically generated -->
+      </div>
+    </div>
+  </section>
+
+  <script src="/config.js"></script>
+  <script>
     // ── Guard: redirigir al login si no hay sesión ────────────────
-    (function() {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            window.location.href = '/login';
-            return;
-        }
+    (function () {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
     })();
 
     // ── Auth header dinámico ──────────────────────────────────────
-    (function() {
-        const user = JSON.parse(localStorage.getItem('authUser') || 'null');
-        const actionsEl = document.getElementById('headerActions');
-        if (!user) {
-            // Token existe pero no user data — mostrar botones básicos
-            actionsEl.innerHTML = `<a href="/login" class="btn-link">Entrar</a><a href="/register" class="btn-primary">Crear Cuenta</a>`;
-            return;
-        }
-        if (user) {
-            document.getElementById('navMembresia').style.display = 'inline';
-            const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
-            const hasMem = user.hasMembership;
-            actionsEl.innerHTML = `
+    (function () {
+      const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+      const actionsEl = document.getElementById('headerActions');
+      if (!user) {
+        // Token existe pero no user data — mostrar botones básicos
+        actionsEl.innerHTML = `<a href="/login" class="btn-link">Entrar</a><a href="/register" class="btn-primary">Crear Cuenta</a>`;
+        return;
+      }
+      if (user) {
+        document.getElementById('navMembresia').style.display = 'inline';
+        const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+        const hasMem = user.hasMembership;
+        actionsEl.innerHTML = `
                 <div style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:.4rem 1rem .4rem .5rem;cursor:pointer;position:relative;" class="user-badge-idx">
                     <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#4FFFB0);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;">${initials}</div>
                     <span style="font-size:.875rem;font-weight:500;color:#fff;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.name}</span>
-                    <span style="font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:100px;background:${hasMem ? 'rgba(79,255,176,.1)':'rgba(124,58,237,.2)'};color:${hasMem ? '#4FFFB0':'#A78BFA'};">${hasMem ? (user.membershipPlan||'Pro') : 'Sin plan'}</span>
+                    <span style="font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:100px;background:${hasMem ? 'rgba(79,255,176,.1)' : 'rgba(124,58,237,.2)'};color:${hasMem ? '#4FFFB0' : '#A78BFA'};">${hasMem ? (user.membershipPlan || 'Pro') : 'Sin plan'}</span>
                     <div style="position:absolute;top:calc(100% + .5rem);right:0;background:#18182A;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.5rem;min-width:180px;display:none;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.4);" class="dd">
                         <a href="/membresia" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;border-radius:10px;font-size:.875rem;color:rgba(255,255,255,.7);text-decoration:none;transition:background .15s;">💎 Membresía</a>
                         <a href="/perfil" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;border-radius:10px;font-size:.875rem;color:rgba(255,255,255,.7);text-decoration:none;transition:background .15s;">👤 Perfil</a>
@@ -184,23 +164,24 @@
                         <div onclick="localStorage.removeItem('authToken');localStorage.removeItem('authUser');location.href='/login'" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;border-radius:10px;font-size:.875rem;color:#FF6B70;cursor:pointer;">🚪 Cerrar sesión</div>
                     </div>
                 </div>`;
-            const badge = actionsEl.querySelector('.user-badge-idx');
-            const dd = actionsEl.querySelector('.dd');
-            if (badge && dd) {
-                badge.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
-                });
-                dd.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-                document.addEventListener('click', () => {
-                    dd.style.display = 'none';
-                });
-            }
+        const badge = actionsEl.querySelector('.user-badge-idx');
+        const dd = actionsEl.querySelector('.dd');
+        if (badge && dd) {
+          badge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+          });
+          dd.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+          document.addEventListener('click', () => {
+            dd.style.display = 'none';
+          });
         }
+      }
     })();
-    </script>
-    <script src="script.js"></script>
-  </body>
+  </script>
+  <script src="script.js"></script>
+</body>
+
 </html>

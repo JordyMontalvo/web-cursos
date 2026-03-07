@@ -765,7 +765,7 @@ function renderMembershipsGrid(plans) {
             ${!p.isActive ? '<div style="position:absolute;top:1rem;right:1rem;background:rgba(255,75,85,.15);border:1px solid rgba(255,75,85,.3);color:#FF6B70;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">INACTIVO</div>' : ''}
             ${p.badge ? `<div style="position:absolute;top:1rem;right:1rem;background:${p.color || '#7C3AED'};color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .75rem;border-radius:100px;">${p.badge}</div>` : ''}
             <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">${p.name}</div>
-            <div style="font-size:2rem;font-weight:900;color:${p.color || '#7C3AED'};margin:.5rem 0;">S/ ${p.price}</div>
+            <div style="font-size:2rem;font-weight:900;color:${p.color || '#7C3AED'};margin:.5rem 0;">${p.currency === 'USD' ? '$' : 'S/'} ${p.price}</div>
             <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-bottom:1rem;">${getDurationLabel(p.durationDays)}</div>
             ${p.description ? `<div style="font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:1rem;">${p.description}</div>` : ''}
             ${p.features && p.features.length ? `<ul style="list-style:none;margin-bottom:1rem;">${p.features.slice(0, 3).map(f => `<li style="font-size:.8rem;color:rgba(255,255,255,.6);padding:.2rem 0;">✓ ${f}</li>`).join('')}${p.features.length > 3 ? `<li style="font-size:.75rem;color:rgba(255,255,255,.3);">+${p.features.length - 3} más...</li>` : ''}</ul>` : ''}
@@ -796,6 +796,7 @@ function openMembershipModal(id) {
             document.getElementById('membershipId').value = plan._id;
             document.getElementById('membName').value = plan.name;
             document.getElementById('membPrice').value = plan.price;
+            document.getElementById('membCurrency').value = plan.currency || 'PEN';
             document.getElementById('membDuration').value = plan.durationDays;
             document.getElementById('membBadge').value = plan.badge || '';
             document.getElementById('membDesc').value = plan.description || '';
@@ -849,6 +850,7 @@ async function saveMembership(e) {
     const payload = {
         name: document.getElementById('membName').value,
         price: document.getElementById('membPrice').value,
+        currency: document.getElementById('membCurrency').value,
         durationDays: document.getElementById('membDuration').value,
         badge: document.getElementById('membBadge').value,
         description: document.getElementById('membDesc').value,
@@ -952,7 +954,8 @@ async function openUserMembershipModal(userId, userName) {
     select.innerHTML = '<option value="">-- Sin membresía (revocar) --</option>';
     if (data.success) {
         data.memberships.filter(m => m.isActive).forEach(m => {
-            select.innerHTML += `<option value="${m._id}">${m.name} — S/ ${m.price} / ${getDurationLabel(m.durationDays)}</option>`;
+            const sym = m.currency === 'USD' ? '$' : 'S/';
+            select.innerHTML += `<option value="${m._id}">${m.name} — ${sym} ${m.price} / ${getDurationLabel(m.durationDays)}</option>`;
         });
     }
 

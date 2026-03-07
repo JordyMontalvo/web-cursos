@@ -572,12 +572,13 @@ app.get('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, r
 // Crear plan
 app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, durationDays, badge, color, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, features, isActive, order } = req.body;
         if (!name || price === undefined || price === null) {
             return res.status(400).json({ success: false, message: 'Nombre y precio son requeridos' });
         }
         const membership = new Membership({
             name, description, price: Number(price),
+            currency: currency || 'PEN',
             durationDays: Number(durationDays) || 30,
             badge, color, features: Array.isArray(features) ? features : [],
             isActive: isActive !== false,
@@ -593,11 +594,12 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
 // Actualizar plan
 app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, durationDays, badge, color, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, features, isActive, order } = req.body;
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (description !== undefined) updateData.description = description;
         if (price !== undefined) updateData.price = Number(price);
+        if (currency !== undefined) updateData.currency = currency;
         if (durationDays !== undefined) updateData.durationDays = Number(durationDays);
         if (badge !== undefined) updateData.badge = badge;
         if (color !== undefined) updateData.color = color;
@@ -676,16 +678,22 @@ app.get('/api/auth/check-access', authMiddleware, async (req, res) => {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
 
-        const hasAccess = user.hasMembership() || user.role === 'admin';
+        const hasMembership = user.hasMembership();
+        const isAdmin = user.role === 'admin';
+        const hasAccess = hasMembership || isAdmin;
+
+        console.log(`[AccessCheck] User: ${user.email}, Role: ${user.role}, HasMembership: ${hasMembership}, HasAccess: ${hasAccess}`);
+
         res.json({
             success: true,
             hasAccess,
-            hasMembership: user.hasMembership(),
+            hasMembership,
             membershipPlan: user.membershipPlan,
             membershipExpiresAt: user.membershipExpiresAt,
             role: user.role
         });
     } catch (error) {
+        console.error('[AccessCheck] Error:', error);
         res.status(500).json({ success: false, message: 'Error', error: error.message });
     }
 });
