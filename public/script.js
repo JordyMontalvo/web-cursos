@@ -134,6 +134,39 @@ window.prevBanner = prevBanner;
 // ===================================
 // Settings / Presentation Video Logic
 // ===================================
+
+/**
+ * Convierte una URL estándar de YouTube o Vimeo a su versión para iframe (embed)
+ */
+function getEmbedUrl(url) {
+    if (!url) return '';
+
+    // YouTube
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        let videoId = '';
+        if (url.includes('v=')) {
+            videoId = url.split('v=')[1].split('&')[0];
+        } else if (url.includes('youtu.be/')) {
+            videoId = url.split('youtu.be/')[1].split('?')[0];
+        } else if (url.includes('embed/')) {
+            return url; // Ya es embed
+        }
+
+        if (videoId) {
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+        }
+    }
+
+    // Vimeo
+    if (url.includes('vimeo.com')) {
+        const vimeoId = url.split('/').pop().split('?')[0];
+        if (vimeoId && !isNaN(vimeoId)) {
+            return `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1`;
+        }
+    }
+
+    return url;
+}
 async function loadSettings() {
     try {
         await configReady;
@@ -168,15 +201,7 @@ async function loadSettings() {
                 const container = document.getElementById('presentationVideoContainer');
 
                 if (section && container) {
-                    let videoUrl = s.presentationVideoUrl;
-
-                    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-                        if (!videoUrl.includes('?')) {
-                            videoUrl += '?autoplay=1&mute=1&loop=1';
-                        } else if (!videoUrl.includes('autoplay')) {
-                            videoUrl += '&autoplay=1&mute=1&loop=1';
-                        }
-                    }
+                    const videoUrl = getEmbedUrl(s.presentationVideoUrl);
 
                     container.innerHTML = `<iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>`;
                     section.style.display = 'block';
