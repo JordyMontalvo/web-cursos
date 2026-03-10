@@ -859,14 +859,26 @@ async function saveMembership(e) {
         features
     };
 
+    console.log('📦 Saving Membership:', { id, payload });
+
     document.getElementById('membSubmitText').style.display = 'none';
     document.getElementById('membSubmitSpinner').style.display = 'inline-block';
 
     try {
         const url = id ? apiUrl(`/api/admin/memberships/${id}`) : apiUrl('/api/admin/memberships');
         const method = id ? 'PUT' : 'POST';
-        const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
+
+        console.log(`🚀 Sending ${method} request to: ${url}`);
+
+        const res = await fetch(url, {
+            method,
+            headers: authHeaders(),
+            body: JSON.stringify(payload)
+        });
+
         const data = await res.json();
+        console.log('📥 Server Response:', data);
+
         if (data.success) {
             showToast(id ? 'Plan actualizado' : 'Plan creado exitosamente');
             closeMembershipModal();
@@ -875,6 +887,7 @@ async function saveMembership(e) {
             showToast(data.message || 'Error al guardar', 'error');
         }
     } catch (err) {
+        console.error('❌ Error saving membership:', err);
         showToast('Error de conexión', 'error');
     } finally {
         document.getElementById('membSubmitText').style.display = '';

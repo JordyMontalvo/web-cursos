@@ -52,10 +52,19 @@ module.exports = async (req, res) => {
 
     const url = req.url.split('?')[0];
     const parts = url.split('/').filter(Boolean);
-    // Use req.query.id (populated by Vercel rewrites) or extract from URL
-    const id = req.query.id || (parts.length >= 4 ? parts[3] : null);
 
-    // console.log(`[AdminMemberships] Method: ${req.method}, URL: ${req.url}, ID: ${id}`);
+    // Improved ID extraction
+    let id = req.query.id;
+    if (!id) {
+        // Try to find the ID in the URL parts (expected at the end: /api/admin/memberships/ID)
+        // If the route is /api/admin-memberships, parts might be ['api', 'admin-memberships', 'ID']
+        // If the route is /api/admin/memberships, parts might be ['api', 'admin', 'memberships', 'ID']
+        id = parts[parts.length - 1];
+        // Validate it looks like a MongoID if possible, or at least isn't 'memberships'
+        if (id === 'memberships' || id === 'admin-memberships') id = null;
+    }
+
+    console.log(`[AdminMemberships] ${req.method} ${req.url} | ID extracted: ${id}`);
 
     // GET /api/admin/memberships
     if (req.method === 'GET') {
@@ -94,9 +103,12 @@ module.exports = async (req, res) => {
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);
 
-        // console.log('[AdminMemberships] Updating ID:', id, 'Data:', JSON.stringify(updateData));
+        console.log(`[AdminMemberships] Updating Membership ${id} with:`, JSON.stringify(updateData));
         const m = await Membership.findByIdAndUpdate(id, updateData, { new: true });
-        if (!m) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+        if (!m) {
+            console.error(`[AdminMemberships] Plan not found for ID: ${id}`);
+            return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+        }
         return res.json({ success: true, membership: m });
     }
 

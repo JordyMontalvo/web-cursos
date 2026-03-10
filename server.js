@@ -595,7 +595,11 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
 app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const { name, description, price, currency, durationDays, badge, color, features, isActive, order } = req.body;
-        const updateData = {};
+        const id = req.params.id;
+        const updateData = { updatedAt: Date.now() };
+
+        console.log(`[AdminServer] PUT /api/admin/memberships/${id} | Payload:`, JSON.stringify(req.body));
+
         if (name !== undefined) updateData.name = name;
         if (description !== undefined) updateData.description = description;
         if (price !== undefined) updateData.price = Number(price);
@@ -607,10 +611,16 @@ app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (re
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);
 
-        const membership = await Membership.findByIdAndUpdate(req.params.id, updateData, { new: true });
-        if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+        const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });
+        if (!membership) {
+            console.error(`[AdminServer] Membership not found: ${id}`);
+            return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+        }
+
+        console.log(`[AdminServer] Updated Membership: ${membership.name} (${membership.currency} ${membership.price})`);
         res.json({ success: true, membership });
     } catch (error) {
+        console.error('[AdminServer] Error updating plan:', error);
         res.status(500).json({ success: false, message: 'Error actualizando plan', error: error.message });
     }
 });
