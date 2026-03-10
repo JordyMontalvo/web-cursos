@@ -21,7 +21,7 @@ try { User = mongoose.model('User'); } catch {
 let Membership;
 try { Membership = mongoose.model('Membership'); } catch {
     const schema = new mongoose.Schema({
-        name: String, price: Number, durationDays: Number
+        name: String, price: Number, currency: String, durationDays: Number
     });
     Membership = mongoose.model('Membership', schema);
 }

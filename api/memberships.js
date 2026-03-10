@@ -11,6 +11,7 @@ try { Membership = mongoose.model('Membership'); } catch {
         name: { type: String, required: true, trim: true },
         description: { type: String, default: '' },
         price: { type: Number, required: true, min: 0 },
+        currency: { type: String, enum: ['PEN', 'USD'], default: 'PEN' },
         durationDays: { type: Number, required: true, default: 30 },
         badge: { type: String, default: '' },
         color: { type: String, default: '#7C3AED' },
