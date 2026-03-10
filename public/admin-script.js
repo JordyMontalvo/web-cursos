@@ -943,12 +943,12 @@ function renderUsersTable(users) {
         return `
         <tr>
             <td><strong>${u.name}</strong></td>
-            <td style="font-size:.875rem;color:rgba(255,255,255,.6);">${u.email}</td>
-            <td>${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.15);color:#FFD700;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">ADMIN</span>' : '<span style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);font-size:.75rem;padding:.2rem .6rem;border-radius:100px;">Usuario</span>'}</td>
-            <td>${isActive ? `<span style="background:rgba(79,255,176,.1);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,.3);font-size:.85rem;">Sin membresía</span>'}</td>
-            <td style="font-size:.8rem;color:rgba(255,255,255,.5);">${isActive ? expDate : '-'}</td>
+            <td style="font-size:.875rem;color:#1a1a1a;">${u.email}</td>
+            <td>${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.15);color:#FFD700;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">ADMIN</span>' : '<span style="background:rgba(0,0,0,0.05);color:#1a1a1a;font-size:.75rem;padding:.2rem .6rem;border-radius:100px;">Usuario</span>'}</td>
+            <td>${isActive ? `<span style="background:rgba(79,255,176,.1);color:#1a1a1a;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:#666;font-size:.85rem;">Sin membresía</span>'}</td>
+            <td style="font-size:.8rem;color:#1a1a1a;">${isActive ? expDate : '-'}</td>
             <td>
-                <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#A78BFA;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
+                <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
                     💎 Membresía
                 </button>
             </td>
@@ -1040,6 +1040,10 @@ async function loadSettings() {
 
         if (data.success && data.settings) {
             const s = data.settings;
+            // Guardar en localStorage para persistencia inmediata al refrescar
+            localStorage.setItem('branding_companyName', s.companyName || '');
+            localStorage.setItem('branding_logoUrl', s.logoUrl || '');
+
             // Banner section
             if (document.getElementById('presentationVideoUrl')) {
                 document.getElementById('presentationVideoUrl').value = s.presentationVideoUrl || '';
@@ -1073,6 +1077,10 @@ async function loadSettings() {
                     headerLogoIcon.style.backgroundPosition = 'center';
                 }
             }
+
+            // Eliminar estilos temporales de marca temprana
+            const earlyStyle = document.getElementById('early-branding-style');
+            if (earlyStyle) earlyStyle.remove();
         }
     } catch (err) {
         console.error('Error loading settings', err);

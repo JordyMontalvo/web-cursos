@@ -175,6 +175,9 @@ async function loadSettings() {
 
         if (data.success && data.settings) {
             const s = data.settings;
+            // Guardar en localStorage para persistencia inmediata al refrescar
+            localStorage.setItem('branding_companyName', s.companyName || '');
+            localStorage.setItem('branding_logoUrl', s.logoUrl || '');
 
             // Personalización de Marca (Logo y Nombre)
             if (s.companyName) {
@@ -194,6 +197,10 @@ async function loadSettings() {
                     el.style.border = 'none'; // Eliminar icono por defecto
                 });
             }
+
+            // Eliminar estilos temporales de marca temprana
+            const earlyStyle = document.getElementById('early-branding-style');
+            if (earlyStyle) earlyStyle.remove();
 
             // Video de Presentación
             if (s.presentationVideoUrl) {

@@ -11,6 +11,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+    <script>
+        (function () {
+            const name = localStorage.getItem('branding_companyName');
+            const logo = localStorage.getItem('branding_logoUrl');
+            if (name || logo) {
+                const style = document.createElement('style');
+                style.id = 'early-branding-style';
+                let css = '';
+                if (name) {
+                    css += `.logo-text, .logo-text-sm { visibility: hidden; position: relative; } `;
+                    css += `.logo-text::after, .logo-text-sm::after { content: "${name}"; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; height: 100%; } `;
+                }
+                if (logo) {
+                    css += `.logo-icon, .logo-icon-sm { background-image: url("${logo}") !important; background-size: cover !important; background-position: center !important; border: none !important; }`;
+                }
+                style.innerHTML = css;
+                document.head.appendChild(style);
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="/styles.css">
     <style>
         :root {
