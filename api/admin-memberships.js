@@ -52,9 +52,10 @@ module.exports = async (req, res) => {
 
     const url = req.url.split('?')[0];
     const parts = url.split('/').filter(Boolean);
-    // URL pattern: /api/admin/memberships/:id
-    // parts: ['api', 'admin', 'memberships', ':id']
-    const id = parts.length >= 4 ? parts[3] : null;
+    // Use req.query.id (populated by Vercel rewrites) or extract from URL
+    const id = req.query.id || (parts.length >= 4 ? parts[3] : null);
+
+    // console.log(`[AdminMemberships] Method: ${req.method}, URL: ${req.url}, ID: ${id}`);
 
     // GET /api/admin/memberships
     if (req.method === 'GET') {
@@ -93,6 +94,7 @@ module.exports = async (req, res) => {
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);
 
+        // console.log('[AdminMemberships] Updating ID:', id, 'Data:', JSON.stringify(updateData));
         const m = await Membership.findByIdAndUpdate(id, updateData, { new: true });
         if (!m) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
         return res.json({ success: true, membership: m });

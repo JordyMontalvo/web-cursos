@@ -6,7 +6,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
 
 // ── Membership model ─────────────────────────────────────────────
 let Membership;
-try { Membership = mongoose.model('Membership'); } catch {
+if (mongoose.models.Membership) {
+    Membership = mongoose.model('Membership');
+} else {
     const schema = new mongoose.Schema({
         name: { type: String, required: true, trim: true },
         description: { type: String, default: '' },

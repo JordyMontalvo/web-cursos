@@ -5,7 +5,9 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
 
 let User;
-try { User = mongoose.model('User'); } catch {
+if (mongoose.models.User) {
+    User = mongoose.model('User');
+} else {
     const schema = new mongoose.Schema({
         name: String, email: String, password: String,
         role: { type: String, default: 'user' },
@@ -19,7 +21,9 @@ try { User = mongoose.model('User'); } catch {
 }
 
 let Membership;
-try { Membership = mongoose.model('Membership'); } catch {
+if (mongoose.models.Membership) {
+    Membership = mongoose.model('Membership');
+} else {
     const schema = new mongoose.Schema({
         name: String, price: Number, currency: String, durationDays: Number
     });
