@@ -359,8 +359,13 @@
 
 .form-group label {
     font-weight: 600;
-    color: #f0fdf9;
+    color: #000000;
     font-size: 0.9rem;
+}
+
+#logoConfigForm .form-group label,
+#settingsForm .form-group label {
+    color: #ffffff;
 }
 
 .form-group input[type="text"],
