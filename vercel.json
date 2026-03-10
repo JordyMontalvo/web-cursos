@@ -13,26 +13,25 @@
     { "source": "/curso/:id",         "destination": "/curso.html" },
 
     { "source": "/api/config",              "destination": "/api/config" },
-
     { "source": "/api/auth/check-access",   "destination": "/api/auth" },
     { "source": "/api/auth/register",       "destination": "/api/auth" },
     { "source": "/api/auth/login",          "destination": "/api/auth" },
     { "source": "/api/auth/me",             "destination": "/api/auth" },
 
     { "source": "/api/memberships/subscribe", "destination": "/api/memberships" },
-    { "source": "/api/memberships/:id",       "destination": "/api/memberships" },
+    { "source": "/api/memberships/:id",       "destination": "/api/memberships?id=:id" },
     { "source": "/api/memberships",           "destination": "/api/memberships" },
 
-    { "source": "/api/admin/memberships/:id", "destination": "/api/admin-memberships" },
+    { "source": "/api/admin/memberships/:id", "destination": "/api/admin-memberships?id=:id" },
     { "source": "/api/admin/memberships",     "destination": "/api/admin-memberships" },
-    { "source": "/api/admin/users/:id/membership", "destination": "/api/admin-users" },
+    { "source": "/api/admin/users/:id/membership", "destination": "/api/admin-users?id=:id&membership=true" },
     { "source": "/api/admin/users",           "destination": "/api/admin-users" },
 
-    { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses" },
-    { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses" },
-    { "source": "/api/courses/:id/chapters/:chapterId",                     "destination": "/api/courses" },
-    { "source": "/api/courses/:id/chapters",                                "destination": "/api/courses" },
-    { "source": "/api/courses/:id",                                         "destination": "/api/courses" },
+    { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=:episodeId" },
+    { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses?id=:id&chapterId=:chapterId" },
+    { "source": "/api/courses/:id/chapters/:chapterId",                     "destination": "/api/courses?id=:id&chapterId=:chapterId" },
+    { "source": "/api/courses/:id/chapters",                                "destination": "/api/courses?id=:id" },
+    { "source": "/api/courses/:id",                                         "destination": "/api/courses?id=:id" },
     { "source": "/api/courses",                                             "destination": "/api/courses" },
     { "source": "/api/upload",                                              "destination": "/api/upload" }
   ]

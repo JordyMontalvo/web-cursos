@@ -59,10 +59,9 @@ module.exports = async (req, res) => {
 
     const url = req.url.split('?')[0];
     const parts = url.split('/').filter(Boolean);
-    // /api/admin/users/:id/membership  → parts: [api, admin, users, :id, membership]
-    // /api/admin/users                  → parts: [api, admin, users]
-    const userId = parts.length >= 4 ? parts[3] : null;
-    const isMembershipAction = parts[parts.length - 1] === 'membership';
+    // Use req.query.id (populated by Vercel rewrites) or extract from URL
+    const userId = req.query.id || (parts.length >= 4 ? parts[3] : null);
+    const isMembershipAction = req.query.membership === 'true' || parts[parts.length - 1] === 'membership';
 
     // GET /api/admin/users
     if (req.method === 'GET') {
