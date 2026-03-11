@@ -1,0 +1,30 @@
+# Cursor Rules - IATIBET ZUREON platform
+
+# Project Context
+This is a web platform for online courses called "IATIBET ZUREON". It features a course catalog, membership system, banners, and an admin panel.
+
+## Project Structure
+- **/public/**: Frontend assets (HTML, CSS, JS).
+  - `index.html`: Home page.
+  - `admin.html`: Admin dashboard.
+  - `admin-script.js`: Core logic for the admin panel.
+  - `config.js`: API configuration and environment detection.
+- **/api/**: Vercel Serverless Functions (Production API).
+- **/backend/api/**: Alternate/Mirror version of serverless functions.
+- **/models/**: Mongoose models used by the Express server.
+- **server.js**: Express server for local development and shared API logic.
+
+## Key Information
+- **Database**: MongoDB. Connection strings are in `server.js`.
+- **Authentication**: JWT-based. Tokens are stored in `localStorage`.
+- **Currency Support**: Supports 'PEN' (S/) and 'USD' ($). 
+- **Media**: Uses base64 for image uploads (stored in MongoDB) or direct file uploads to `/uploads`.
+
+## Maintenance Rules
+1. **Schema Consistency**: When updating the `Membership` or `Course` schema, ensure changes are reflected in:
+   - `models/`
+   - `server.js` handlers
+   - `api/*.js` (Serverless functions)
+   - `backend/api/*.js`
+2. **Admin Panel**: The admin panel is built with vanilla JS in `admin-script.js`. Avoid introducing complex frameworks unless requested.
+3. **CORS**: Always set CORS headers in serverless functions using `setCORS(res)` or similar helpers.
