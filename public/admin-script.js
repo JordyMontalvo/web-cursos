@@ -698,6 +698,8 @@ let membershipsData = [];
 let usersData = [];
 let editingMembershipId = null;
 let editingUserId = null;
+let settingsLoaded = false;
+let lastSavedSettings = null; // Guarda los últimos valores salvados localmente
 
 function switchTab(tab) {
     ['courses', 'memberships', 'banners', 'users', 'logo'].forEach(t => {
@@ -716,7 +718,13 @@ function switchTab(tab) {
 
     if (tab === 'memberships') loadMemberships();
     if (tab === 'banners' || tab === 'logo') {
-        loadSettings();
+        // Solo cargamos settings la primera vez, luego se preserva el estado local
+        if (!settingsLoaded) loadSettings();
+        else if (lastSavedSettings && tab === 'logo') {
+            // Usar los valores guardados localmente si existen
+            document.getElementById('configCompanyName').value = lastSavedSettings.companyName || '';
+            document.getElementById('configLogoUrl').value = lastSavedSettings.logoUrl || '';
+        }
         if (tab === 'banners') loadBanners();
     }
     if (tab === 'users') loadUsers();
@@ -1040,39 +1048,41 @@ async function loadSettings() {
 
         if (data.success && data.settings) {
             const s = data.settings;
-            // Guardar en localStorage para persistencia inmediata al refrescar
-            localStorage.setItem('branding_companyName', s.companyName || '');
-            localStorage.setItem('branding_logoUrl', s.logoUrl || '');
 
-            // Banner section
+            // Si el usuario ya guardó localmente, usar esos valores para el formulario
+            // (evita que la BD desactualizada sobreescriba lo que el usuario acaba de cambiar)
+            const effectiveName = lastSavedSettings ? lastSavedSettings.companyName : s.companyName;
+            const effectiveLogo = lastSavedSettings ? lastSavedSettings.logoUrl : s.logoUrl;
+
+            // Guardar en localStorage para persistencia al refrescar
+            localStorage.setItem('branding_companyName', effectiveName || '');
+            localStorage.setItem('branding_logoUrl', effectiveLogo || '');
+
+            // Banner section (presentationVideoUrl siempre viene de la BD)
             if (document.getElementById('presentationVideoUrl')) {
                 document.getElementById('presentationVideoUrl').value = s.presentationVideoUrl || '';
             }
 
             // Logo section
             if (document.getElementById('configCompanyName')) {
-                document.getElementById('configCompanyName').value = s.companyName || 'IATIBET ZUREON';
-                document.getElementById('configLogoUrl').value = s.logoUrl || '';
+                document.getElementById('configCompanyName').value = effectiveName || 'IATIBET ZUREON';
+                document.getElementById('configLogoUrl').value = effectiveLogo || '';
 
                 const preview = document.getElementById('configLogoPreview');
                 if (preview) {
-                    if (s.logoUrl) {
-                        preview.style.backgroundImage = `url('${s.logoUrl}')`;
-                    } else {
-                        preview.style.backgroundImage = '';
-                    }
+                    preview.style.backgroundImage = effectiveLogo ? `url('${effectiveLogo}')` : '';
                 }
             }
 
-            // Sincronizar Header (Nombre y Logo)
-            if (s.companyName) {
+            // Sincronizar Header
+            if (effectiveName) {
                 const headerLogoText = document.querySelector('.header .logo-text');
-                if (headerLogoText) headerLogoText.textContent = s.companyName;
+                if (headerLogoText) headerLogoText.textContent = effectiveName;
             }
-            if (s.logoUrl) {
+            if (effectiveLogo) {
                 const headerLogoIcon = document.querySelector('.header .logo-icon');
                 if (headerLogoIcon) {
-                    headerLogoIcon.style.backgroundImage = `url('${s.logoUrl}')`;
+                    headerLogoIcon.style.backgroundImage = `url('${effectiveLogo}')`;
                     headerLogoIcon.style.backgroundSize = 'cover';
                     headerLogoIcon.style.backgroundPosition = 'center';
                 }
@@ -1081,6 +1091,8 @@ async function loadSettings() {
             // Eliminar estilos temporales de marca temprana
             const earlyStyle = document.getElementById('early-branding-style');
             if (earlyStyle) earlyStyle.remove();
+
+            settingsLoaded = true;
         }
     } catch (err) {
         console.error('Error loading settings', err);
@@ -1178,7 +1190,8 @@ async function saveLogoSettings(e) {
         if (data.success) {
             showToast('Configuración de marca guardada correctamente');
 
-            // Actualizar la UI directamente con los valores guardados (sin releer de la BD)
+            // Guardar localmente para que cambios de pestaña no reviertan el formulario
+            lastSavedSettings = { companyName, logoUrl };
             localStorage.setItem('branding_companyName', companyName);
             localStorage.setItem('branding_logoUrl', logoUrl);
 
