@@ -9,7 +9,13 @@ if (mongoose.models.User) {
     User = mongoose.model('User');
 } else {
     const schema = new mongoose.Schema({
-        name: String, email: String, password: String,
+        name: String, 
+        lastName: String,
+        email: String, 
+        password: String,
+        phone: String,
+        country: String,
+        birthDate: String,
         role: { type: String, default: 'user' },
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },

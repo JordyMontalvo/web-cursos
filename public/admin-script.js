@@ -946,7 +946,7 @@ function renderUsersTable(users) {
     const paginationContainer = document.getElementById('usersPagination');
     
     if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -962,7 +962,7 @@ function renderUsersTable(users) {
 
     if (filteredUsers.length === 0) {
         const msg = currentUserFilter === 'active' ? 'No hay usuarios activos' : 'No hay usuarios inactivos';
-        tbody.innerHTML = `<tr><td colspan="6" class="loading-row"><p>${msg}</p></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="loading-row"><p>${msg}</p></td></tr>`;
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -986,8 +986,11 @@ function renderUsersTable(users) {
         <tr>
             <td><strong>${u.name}</strong> ${u.lastName || ''}</td>
             <td style="font-size:.875rem;color:#1a1a1a;">${u.email}</td>
+            <td style="font-size:.875rem;color:#1a1a1a;">${u.phone || '-'}</td>
+            <td style="font-size:.875rem;color:#1a1a1a;">${u.country || '-'}</td>
             <td>${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.15);color:#FFD700;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">ADMIN</span>' : '<span style="background:rgba(0,0,0,0.05);color:#1a1a1a;font-size:.75rem;padding:.2rem .6rem;border-radius:100px;">Usuario</span>'}</td>
             <td>${isActive ? `<span style="background:rgba(79,255,176,.1);color:#1a1a1a;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:#666;font-size:.85rem;">Sin membresía</span>'}</td>
+            <td style="font-size:.8rem;color:#1a1a1a;">${u.birthDate || '-'}</td>
             <td style="font-size:.8rem;color:#1a1a1a;">${isActive ? expDate : '-'}</td>
             <td>
                 <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
