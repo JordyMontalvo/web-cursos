@@ -662,7 +662,14 @@
                 if (data.success) {
                     currentUser = data.user;
                     // Update local storage just in case
-                    localStorage.setItem('authUser', JSON.stringify({ id: currentUser._id || currentUser.id, name: currentUser.name, email: currentUser.email, role: currentUser.role, hasMembership: currentUser.hasMembership }));
+                    localStorage.setItem('authUser', JSON.stringify({ 
+                        id: currentUser._id || currentUser.id, 
+                        name: currentUser.name, 
+                        email: currentUser.email, 
+                        phone: currentUser.phone || '',
+                        role: currentUser.role, 
+                        hasMembership: currentUser.hasMembership 
+                    }));
                     renderProfile();
                 } else {
                     showToast(data.message, 'error');
