@@ -8,17 +8,17 @@ let API_BASE = '';
 
 // Promesa que resuelve cuando la config está lista
 const configReady = (async () => {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        API_BASE = '';
-        return;
-    }
+    // FORZAMOS RUTAS RELATIVAS:
+    // Esto garantiza que en Vercel se usen las Funciones Serverless del proyecto
+    // y no se redirija a un servidor externo (EC2) que pueda estar desactualizado.
+    API_BASE = '';
+    
+    // Opcional: seguimos cargando el config por si se usa para otros fines,
+    // pero ya no sobreescribimos API_BASE.
     try {
-        const res = await fetch('/api/config');
-        const data = await res.json();
-        API_BASE = (data.apiUrl || '').replace(/\/$/, ''); // quitar trailing slash
+        await fetch('/api/config');
     } catch (e) {
-        console.warn('[config] No se pudo cargar BACKEND_URL, usando rutas relativas');
-        API_BASE = '';
+        // Ignorar errores
     }
 })();
 
