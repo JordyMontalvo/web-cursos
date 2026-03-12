@@ -33,46 +33,98 @@ function verifyAdmin(req) {
     } catch { return null; }
 }
 
+/**
+ * Parsea el body de la request de forma robusta.
+ * En Vercel, req.body puede venir ya parseado (JSON), como string, o como Buffer.
+ */
+async function parseBody(req) {
+    // Caso 1: ya está parseado (objeto)
+    if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+        return req.body;
+    }
+    // Caso 2: es un string JSON
+    if (typeof req.body === 'string') {
+        try { return JSON.parse(req.body); } catch { return {}; }
+    }
+    // Caso 3: no hay body o es Buffer — leer del stream
+    return new Promise((resolve) => {
+        let data = '';
+        req.on('data', chunk => { data += chunk.toString(); });
+        req.on('end', () => {
+            try { resolve(JSON.parse(data)); } catch { resolve({}); }
+        });
+        req.on('error', () => resolve({}));
+    });
+}
+
 module.exports = async (req, res) => {
     setCORS(res);
-    console.log(`[AdminSettings] ${req.method} ${req.url}`);
-    
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const admin = verifyAdmin(req);
     if (!admin) {
-        console.warn('[AdminSettings] Acceso denegado: Token inválido o no proporcionado');
         return res.status(403).json({ success: false, message: 'Acceso denegado' });
     }
 
-    try { await connectDB(); } catch (err) {
-        console.error('[AdminSettings] Error connecting to DB:', err);
-        return res.status(500).json({ success: false, message: 'DB error' });
+    try {
+        await connectDB();
+    } catch (err) {
+        console.error('[AdminSettings] DB connection error:', err.message);
+        return res.status(500).json({ success: false, message: 'Error de conexión a la base de datos', error: err.message });
     }
 
     // GET /api/admin/settings
     if (req.method === 'GET') {
-        let settings = await Settings.findOne();
-        if (!settings) settings = await Settings.create({});
-        return res.json({ success: true, settings });
+        try {
+            let settings = await Settings.findOne();
+            if (!settings) settings = await Settings.create({});
+            return res.json({ success: true, settings });
+        } catch (err) {
+            console.error('[AdminSettings] GET error:', err.message);
+            return res.status(500).json({ success: false, message: 'Error al obtener configuración', error: err.message });
+        }
     }
 
     // PUT /api/admin/settings
     if (req.method === 'PUT') {
-        const { presentationVideoUrl, companyName, logoUrl } = req.body;
-        console.log('[AdminSettings] Updating settings with:', { presentationVideoUrl, companyName, logoUrlSpecified: !!logoUrl });
-        
-        let settings = await Settings.findOne();
-        if (!settings) settings = new Settings();
+        try {
+            const body = await parseBody(req);
+            const { presentationVideoUrl, companyName, logoUrl } = body;
 
-        if (presentationVideoUrl !== undefined) settings.presentationVideoUrl = presentationVideoUrl;
-        if (companyName !== undefined) settings.companyName = companyName;
-        if (logoUrl !== undefined) settings.logoUrl = logoUrl;
+            console.log('[AdminSettings] PUT body keys:', Object.keys(body));
+            console.log('[AdminSettings] companyName:', companyName);
 
-        settings.updatedAt = new Date();
-        await settings.save();
-        console.log('[AdminSettings] Settings updated successfully');
-        return res.json({ success: true, settings });
+            let settings = await Settings.findOne();
+            if (!settings) {
+                settings = new Settings();
+            }
+
+            if (presentationVideoUrl !== undefined) settings.presentationVideoUrl = presentationVideoUrl;
+            if (companyName !== undefined) settings.companyName = companyName;
+            if (logoUrl !== undefined) settings.logoUrl = logoUrl;
+
+            settings.updatedAt = new Date();
+
+            // Usar findOneAndUpdate para mayor confiabilidad en entornos serverless
+            const updated = await Settings.findOneAndUpdate(
+                { _id: settings._id || undefined },
+                {
+                    $set: {
+                        ...(companyName !== undefined && { companyName }),
+                        ...(logoUrl !== undefined && { logoUrl }),
+                        ...(presentationVideoUrl !== undefined && { presentationVideoUrl }),
+                        updatedAt: new Date()
+                    }
+                },
+                { upsert: true, new: true }
+            );
+
+            console.log('[AdminSettings] Saved companyName:', updated.companyName);
+            return res.json({ success: true, settings: updated });
+        } catch (err) {
+            console.error('[AdminSettings] PUT error:', err.message);
+            return res.status(500).json({ success: false, message: 'Error al guardar configuración', error: err.message });
+        }
     }
 
     return res.status(405).json({ success: false, message: 'Método no permitido' });

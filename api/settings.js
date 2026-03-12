@@ -22,13 +22,17 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     try { await connectDB(); } catch (err) {
-        return res.status(500).json({ success: false, message: 'DB error' });
+        return res.status(500).json({ success: false, message: 'DB error', error: err.message });
     }
 
     if (req.method === 'GET') {
-        let settings = await Settings.findOne();
-        if (!settings) settings = await Settings.create({});
-        return res.json({ success: true, settings });
+        try {
+            let settings = await Settings.findOne();
+            if (!settings) settings = await Settings.create({});
+            return res.json({ success: true, settings });
+        } catch (err) {
+            return res.status(500).json({ success: false, message: 'Error al obtener configuración', error: err.message });
+        }
     }
 
     return res.status(405).json({ success: false, message: 'Método no permitido' });
