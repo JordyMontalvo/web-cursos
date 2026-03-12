@@ -5,7 +5,9 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
 
 let Settings;
-try { Settings = mongoose.model('Settings'); } catch {
+if (mongoose.models.Settings) {
+    Settings = mongoose.model('Settings');
+} else {
     const schema = new mongoose.Schema({
         presentationVideoUrl: { type: String, default: '' },
         companyName: { type: String, default: 'IATIBET ZUREON' },
@@ -33,12 +35,18 @@ function verifyAdmin(req) {
 
 module.exports = async (req, res) => {
     setCORS(res);
+    console.log(`[AdminSettings] ${req.method} ${req.url}`);
+    
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const admin = verifyAdmin(req);
-    if (!admin) return res.status(403).json({ success: false, message: 'Acceso denegado' });
+    if (!admin) {
+        console.warn('[AdminSettings] Acceso denegado: Token inválido o no proporcionado');
+        return res.status(403).json({ success: false, message: 'Acceso denegado' });
+    }
 
     try { await connectDB(); } catch (err) {
+        console.error('[AdminSettings] Error connecting to DB:', err);
         return res.status(500).json({ success: false, message: 'DB error' });
     }
 
@@ -52,6 +60,8 @@ module.exports = async (req, res) => {
     // PUT /api/admin/settings
     if (req.method === 'PUT') {
         const { presentationVideoUrl, companyName, logoUrl } = req.body;
+        console.log('[AdminSettings] Updating settings with:', { presentationVideoUrl, companyName, logoUrlSpecified: !!logoUrl });
+        
         let settings = await Settings.findOne();
         if (!settings) settings = new Settings();
 
@@ -61,6 +71,7 @@ module.exports = async (req, res) => {
 
         settings.updatedAt = new Date();
         await settings.save();
+        console.log('[AdminSettings] Settings updated successfully');
         return res.json({ success: true, settings });
     }
 

@@ -2,7 +2,9 @@ const { connectDB } = require('./_db');
 const mongoose = require('mongoose');
 
 let Settings;
-try { Settings = mongoose.model('Settings'); } catch {
+if (mongoose.models.Settings) {
+    Settings = mongoose.model('Settings');
+} else {
     const schema = new mongoose.Schema({
         presentationVideoUrl: { type: String, default: '' },
         companyName: { type: String, default: 'IATIBET ZUREON' },
