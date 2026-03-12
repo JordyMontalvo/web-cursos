@@ -1043,7 +1043,9 @@ async function revokeUserMembership() {
 
 async function loadSettings() {
     try {
-        const res = await fetch(apiUrl('/api/admin/settings'), { headers: authHeaders() });
+        // Usamos ruta relativa directa (NO apiUrl) para garantizar que siempre
+        // vaya a la función serverless de Vercel y no al BACKEND_URL (EC2)
+        const res = await fetch('/api/admin/settings', { headers: authHeaders() });
         const data = await res.json();
 
         if (data.success && data.settings) {
@@ -1108,7 +1110,7 @@ async function saveSettings(e) {
     btn.innerHTML = 'Guardando...';
 
     try {
-        const res = await fetch(apiUrl('/api/admin/settings'), {
+        const res = await fetch('/api/admin/settings', {
             method: 'PUT',
             headers: authHeaders(),
             body: JSON.stringify({ presentationVideoUrl: url })
@@ -1167,7 +1169,9 @@ async function saveLogoSettings(e) {
     const payload = { companyName, logoUrl };
 
     try {
-        const res = await fetch(apiUrl('/api/admin/settings'), {
+        // Ruta relativa directa: siempre va a la función serverless de Vercel,
+        // nunca al BACKEND_URL (EC2) que puede no tener este endpoint
+        const res = await fetch('/api/admin/settings', {
             method: 'PUT',
             headers: authHeaders(),
             body: JSON.stringify(payload)
