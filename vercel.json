@@ -26,6 +26,7 @@
     { "source": "/api/admin/memberships",     "destination": "/api/admin-memberships" },
     { "source": "/api/admin/users/:id/membership", "destination": "/api/admin-users?id=:id&membership=true" },
     { "source": "/api/admin/users",           "destination": "/api/admin-users" },
+    { "source": "/api/admin/settings",        "destination": "/api/admin-settings" },
 
     { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=:episodeId" },
     { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses?id=:id&chapterId=:chapterId" },
@@ -33,6 +34,7 @@
     { "source": "/api/courses/:id/chapters",                                "destination": "/api/courses?id=:id" },
     { "source": "/api/courses/:id",                                         "destination": "/api/courses?id=:id" },
     { "source": "/api/courses",                                             "destination": "/api/courses" },
+    { "source": "/api/settings",                                            "destination": "/api/settings" },
     { "source": "/api/upload",                                              "destination": "/api/upload" }
   ]
 }
