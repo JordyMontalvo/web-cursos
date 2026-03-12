@@ -703,6 +703,7 @@ let lastSavedSettings = null;
 let currentUserFilter = 'all'; // 'all', 'active', 'inactive'
 let usersCurrentPage = 1;
 const usersPerPage = 10;
+let selectedUserIdForDetails = null;
 
 function switchTab(tab) {
     ['courses', 'memberships', 'banners', 'users', 'logo'].forEach(t => {
@@ -993,9 +994,14 @@ function renderUsersTable(users) {
             <td style="font-size:.8rem;color:#1a1a1a;">${u.birthDate || '-'}</td>
             <td style="font-size:.8rem;color:#1a1a1a;">${isActive ? expDate : '-'}</td>
             <td>
-                <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
-                    💎 Membresía
-                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
+                        💎 Membresía
+                    </button>
+                    <button onclick="openUserDetailsModal('${u._id}')" style="padding:.45rem .9rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
+                        👁️ Detalles
+                    </button>
+                </div>
             </td>
         </tr>`;
     }).join('');
@@ -1510,6 +1516,82 @@ function editBanner(id) {
 }
 
 // ===================================
+// USER DETAILS & PASSWORD Reset
+// ===================================
+
+function openUserDetailsModal(userId) {
+    const user = usersData.find(u => u._id === userId);
+    if (!user) return;
+
+    selectedUserIdForDetails = userId;
+    const content = document.getElementById('userDetailContent');
+    
+    content.innerHTML = `
+        <div class="user-details-grid">
+            <div class="user-detail-item">
+                <p>Nombre</p>
+                <p>${user.name} ${user.lastName || ''}</p>
+            </div>
+            <div class="user-detail-item">
+                <p>Email</p>
+                <p>${user.email}</p>
+            </div>
+            <div class="user-detail-item">
+                <p>Celular</p>
+                <p>${user.phone || '-'}</p>
+            </div>
+            <div class="user-detail-item">
+                <p>País</p>
+                <p>${user.country || '-'}</p>
+            </div>
+            <div class="user-detail-item">
+                <p>Fecha de Nacimiento</p>
+                <p>${user.birthDate || '-'}</p>
+            </div>
+            <div class="user-detail-item">
+                <p>Rol</p>
+                <p><span class="badge">${user.role.toUpperCase()}</span></p>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('newAdminUserPassword').value = '';
+    document.getElementById('userDetailsModal').classList.add('active');
+}
+
+function closeUserDetailsModal() {
+    document.getElementById('userDetailsModal').classList.remove('active');
+    selectedUserIdForDetails = null;
+}
+
+async function updateUserPassword() {
+    const newPassword = document.getElementById('newAdminUserPassword').value;
+    if (!newPassword || newPassword.length < 6) {
+        showToast('La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+    }
+
+    if (!confirm('¿Seguro que deseas cambiar la contraseña de este usuario?')) return;
+
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users/${selectedUserIdForDetails}`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ password: newPassword })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Contraseña actualizada con éxito');
+            closeUserDetailsModal();
+        } else {
+            showToast(data.message || 'Error al actualizar', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+// ===================================
 // Initialize
 // ===================================
 
@@ -1543,6 +1625,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeContentModal();
             closeMembershipModal();
             closeUserMembershipModal();
+            closeUserDetailsModal();
             closeBannerModal();
         }
     });
@@ -1553,6 +1636,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('userMembershipModal')?.addEventListener('click', e => {
         if (e.target.id === 'userMembershipModal') closeUserMembershipModal();
+    });
+    document.getElementById('userDetailsModal')?.addEventListener('click', e => {
+        if (e.target.id === 'userDetailsModal') closeUserDetailsModal();
     });
     document.getElementById('bannerModal')?.addEventListener('click', e => {
         if (e.target.id === 'bannerModal') closeBannerModal();

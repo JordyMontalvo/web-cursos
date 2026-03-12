@@ -44,6 +44,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 html {
@@ -94,8 +100,9 @@ body {
 .header-content {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
@@ -112,6 +119,7 @@ body {
   gap: 0.75rem;
   text-decoration: none;
   color: var(--text-light);
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -124,12 +132,14 @@ body {
   );
   border-radius: 50%;
   box-shadow: var(--shadow-glow);
+  flex-shrink: 0;
 }
 
 .logo-text {
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .nav {

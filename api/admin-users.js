@@ -1,6 +1,7 @@
 const { connectDB } = require('./_db');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
 
@@ -23,10 +24,18 @@ if (mongoose.models.User) {
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
     });
+
+    schema.pre('save', async function () {
+        if (!this.isModified('password')) return;
+        this.password = await bcrypt.hash(this.password, 12);
+        this.updatedAt = Date.now();
+    });
+
     User = mongoose.model('User', schema);
 }
 
 let Membership;
+// ... (Membership model remains same)
 if (mongoose.models.Membership) {
     Membership = mongoose.model('Membership');
 } else {
@@ -65,7 +74,6 @@ module.exports = async (req, res) => {
 
     const url = req.url.split('?')[0];
     const parts = url.split('/').filter(Boolean);
-    // Use req.query.id (populated by Vercel rewrites) or extract from URL
     const userId = req.query.id || (parts.length >= 4 ? parts[3] : null);
     const isMembershipAction = req.query.membership === 'true' || parts[parts.length - 1] === 'membership';
 
@@ -75,38 +83,52 @@ module.exports = async (req, res) => {
         return res.json({ success: true, users });
     }
 
-    // PUT /api/admin/users/:id/membership
-    if (req.method === 'PUT' && userId && isMembershipAction) {
-        const { membershipId, action } = req.body;
+    // PUT /api/admin/users/:id
+    if (req.method === 'PUT' && userId) {
+        // Handle password update separately or in general PUT
+        if (isMembershipAction) {
+            const { membershipId, action } = req.body;
 
-        if (action === 'revoke') {
+            if (action === 'revoke') {
+                await User.findByIdAndUpdate(userId, {
+                    activeMembership: null,
+                    membershipExpiresAt: null,
+                    membershipPlan: null,
+                    updatedAt: Date.now()
+                });
+                return res.json({ success: true, message: 'Membresía revocada' });
+            }
+
+            if (!membershipId) return res.status(400).json({ success: false, message: 'membershipId requerido' });
+            const membership = await Membership.findById(membershipId);
+            if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+
+            let expiresAt;
+            if (!membership.durationDays || membership.durationDays === 0) {
+                expiresAt = new Date('2099-12-31');
+            } else {
+                expiresAt = new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+            }
+
             await User.findByIdAndUpdate(userId, {
-                activeMembership: null,
-                membershipExpiresAt: null,
-                membershipPlan: null,
+                activeMembership: membership._id,
+                membershipExpiresAt: expiresAt,
+                membershipPlan: membership.name,
                 updatedAt: Date.now()
             });
-            return res.json({ success: true, message: 'Membresía revocada' });
-        }
-
-        if (!membershipId) return res.status(400).json({ success: false, message: 'membershipId requerido' });
-        const membership = await Membership.findById(membershipId);
-        if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
-
-        let expiresAt;
-        if (!membership.durationDays || membership.durationDays === 0) {
-            expiresAt = new Date('2099-12-31');
+            return res.json({ success: true, message: 'Membresía asignada' });
         } else {
-            expiresAt = new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+            // General Update (Password, etc)
+            const { password } = req.body;
+            if (password) {
+                const user = await User.findById(userId);
+                if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+                user.password = password;
+                await user.save();
+                return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
+            }
+            return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
         }
-
-        await User.findByIdAndUpdate(userId, {
-            activeMembership: membership._id,
-            membershipExpiresAt: expiresAt,
-            membershipPlan: membership.name,
-            updatedAt: Date.now()
-        });
-        return res.json({ success: true, message: 'Membresía asignada' });
     }
 
     return res.status(405).json({ success: false, message: 'Método no permitido' });

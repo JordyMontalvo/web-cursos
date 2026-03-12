@@ -72,22 +72,16 @@
             </div>
 
             <!-- Tabs -->
-            <div
-                style="display:flex;gap:.5rem;margin-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:0;">
-                <button class="admin-tab active" id="tab-courses" onclick="switchTab('courses')"
-                    style="padding:.75rem 1.5rem;background:none;border:none;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid #7C3AED;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">📚
+            <div class="admin-tabs">
+                <button class="admin-tab active" id="tab-courses" onclick="switchTab('courses')">📚
                     Cursos</button>
-                <button class="admin-tab" id="tab-memberships" onclick="switchTab('memberships')"
-                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">💎
+                <button class="admin-tab" id="tab-memberships" onclick="switchTab('memberships')">💎
                     Membresías</button>
-                <button class="admin-tab" id="tab-banners" onclick="switchTab('banners')"
-                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">🖼️
+                <button class="admin-tab" id="tab-banners" onclick="switchTab('banners')">🖼️
                     Banners</button>
-                <button class="admin-tab" id="tab-users" onclick="switchTab('users')"
-                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">👥
+                <button class="admin-tab" id="tab-users" onclick="switchTab('users')">👥
                     Usuarios</button>
-                <button class="admin-tab" id="tab-logo" onclick="switchTab('logo')"
-                    style="padding:.75rem 1.5rem;background:none;border:none;color:rgba(255,255,255,.5);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Inter',sans-serif;">🎨
+                <button class="admin-tab" id="tab-logo" onclick="switchTab('logo')">🎨
                     Logo</button>
             </div>
 
@@ -555,6 +549,35 @@
                     <button class="btn-secondary" onclick="revokeUserMembership()"
                         style="border-color:rgba(255,75,85,.4);color:#FF6B70;">Revocar acceso</button>
                     <button class="btn-primary" onclick="assignUserMembership()">Asignar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Detalle de Usuario -->
+    <div id="userDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>Detalles del Usuario</h2>
+                <button class="modal-close" onclick="closeUserDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <div id="userDetailContent" style="margin-bottom: 2rem; color: #1a1a1a;">
+                    <!-- Se llena con JS -->
+                </div>
+
+                <div style="border-top: 1px solid #eee; padding-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: #1a1a1a;">Seguridad</h3>
+                    <div class="form-group">
+                        <label style="color: #1a1a1a;">Nueva Contraseña</label>
+                        <div class="security-form-group">
+                            <input type="text" id="newAdminUserPassword" placeholder="Escribe la nueva contraseña...">
+                            <button onclick="updateUserPassword()" class="btn-primary">
+                                Actualizar
+                            </button>
+                        </div>
+                        <small style="color: #666; display: block; margin-top: 0.5rem;">Esto cambiará la contraseña inmediatamente.</small>
+                    </div>
                 </div>
             </div>
         </div>

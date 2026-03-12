@@ -24,6 +24,56 @@
 }
 
 /* ===================================
+   Admin Tabs
+   =================================== */
+.admin-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-tab {
+    padding: 0.75rem 1.5rem;
+    background: none !important;
+    border: none !important;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: -1px;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.admin-tab.active {
+    color: #fff !important;
+    border-bottom: 2px solid #7C3AED !important;
+    background: none !important;
+}
+
+.admin-tab:hover:not(.active) {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ===================================
    Stats Grid
    =================================== */
 .stats-grid {
@@ -545,6 +595,52 @@
 }
 
 /* ===================================
+   User Details Modal
+   =================================== */
+.user-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.user-detail-item p:first-child {
+    color: #666 !important;
+    font-size: 0.8rem !important;
+    margin-bottom: 0.2rem !important;
+    font-weight: 500 !important;
+}
+
+.user-detail-item p:last-child {
+    font-weight: 600 !important;
+    color: #1a1a1a !important;
+    word-break: break-word !important;
+    font-size: 0.95rem !important;
+}
+
+.security-form-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 480px) {
+    .user-details-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .security-form-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .security-form-group button {
+        height: 45px;
+        padding: 0 !important;
+    }
+}
+
+/* ===================================
    Form Actions
    =================================== */
 .form-actions {
@@ -719,40 +815,167 @@
 /* ===================================
    Responsive Design
    =================================== */
+@media (max-width: 992px) {
+    .header-content {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 1.5rem;
+    }
+
+    .nav {
+        display: none; /* Hide navigation links on small screens to save space */
+    }
+
+    .admin-title {
+        font-size: 2rem;
+    }
+}
+
 @media (max-width: 768px) {
+    .admin-container {
+        padding: 1.5rem 0;
+    }
+
+    .admin-header {
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .admin-title {
+        font-size: 1.75rem;
+    }
+
+    .admin-description {
+        font-size: 0.95rem;
+    }
+
     .stats-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .table-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1.25rem;
+    }
+
+    .table-header h2 {
+        font-size: 1.25rem;
+        text-align: center;
+    }
+
+    .search-table {
+        min-width: 100%;
+        font-size: 0.875rem;
+    }
+
+    .status-filter-select {
+        width: 100%;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
     }
 
-    .table-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .search-table {
-        min-width: 100%;
-    }
-
     .courses-table {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .courses-table th,
     .courses-table td {
-        padding: 0.75rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
     }
 
     .modal-content {
-        margin: 1rem;
+        margin: 0.5rem;
+        padding: 0;
+    }
+
+    .modal-header {
+        padding: 1.25rem;
+    }
+
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .course-form {
+        padding: 1.25rem;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .form-actions button {
+        width: 100%;
     }
 
     .toast {
         bottom: 1rem;
         right: 1rem;
         left: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        gap: 0.25rem;
+        padding: 0.5rem 0;
+    }
+
+    .logo-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .logo-text {
+        font-size: 0.95rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .header-actions {
+        gap: 0.4rem;
+    }
+
+    #adminUserName {
+        display: none; /* Hide name on very small screens to keep it ultra compact */
+    }
+
+    .header-actions .btn-primary,
+    .header-actions .btn-secondary {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.75rem !important;
+        margin: 0 !important;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    .header-actions .btn-primary svg {
+        width: 12px;
+        height: 12px;
+        margin-right: 0.25rem;
+    }
+    .admin-tab {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .stat-card {
+        padding: 1.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
     }
 }
