@@ -1149,10 +1149,10 @@ async function saveLogoSettings(e) {
     submitText.style.display = 'none';
     submitSpinner.style.display = 'inline-block';
 
-    const payload = {
-        companyName: document.getElementById('configCompanyName').value,
-        logoUrl: document.getElementById('configLogoUrl').value
-    };
+    const companyName = document.getElementById('configCompanyName').value;
+    const logoUrl = document.getElementById('configLogoUrl').value;
+
+    const payload = { companyName, logoUrl };
 
     try {
         const res = await fetch(apiUrl('/api/admin/settings'), {
@@ -1176,13 +1176,34 @@ async function saveLogoSettings(e) {
         }
 
         if (data.success) {
-            showToast('Configuración de marca guardada');
-            loadSettings();
+            showToast('✅ Configuración de marca guardada correctamente');
+
+            // Actualizar la UI directamente con los valores guardados (sin releer de la BD)
+            localStorage.setItem('branding_companyName', companyName);
+            localStorage.setItem('branding_logoUrl', logoUrl);
+
+            // Actualizar el header en tiempo real
+            const headerLogoText = document.querySelector('.header .logo-text');
+            if (headerLogoText && companyName) headerLogoText.textContent = companyName;
+
+            const headerLogoIcon = document.querySelector('.header .logo-icon');
+            if (headerLogoIcon && logoUrl) {
+                headerLogoIcon.style.backgroundImage = `url('${logoUrl}')`;
+                headerLogoIcon.style.backgroundSize = 'cover';
+                headerLogoIcon.style.backgroundPosition = 'center';
+            }
+
+            // Mantener los valores en el formulario
+            document.getElementById('configCompanyName').value = companyName;
+            document.getElementById('configLogoUrl').value = logoUrl;
+
+            console.log('[SaveLogo] Saved successfully:', { companyName, logoUrlLength: logoUrl.length });
         } else {
             showToast(data.message || 'Error al guardar', 'error');
+            console.error('[SaveLogo] Server error:', data);
         }
     } catch (err) {
-        console.error('Error saving logo settings:', err);
+        console.error('[SaveLogo] Network error:', err);
         showToast('Error de conexión al servidor.', 'error');
     } finally {
         submitBtn.disabled = false;
