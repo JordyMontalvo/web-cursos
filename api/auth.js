@@ -12,6 +12,7 @@ try { User = mongoose.model('User'); } catch {
         name: { type: String, required: true, trim: true },
         email: { type: String, required: true, unique: true, lowercase: true, trim: true },
         password: { type: String, required: true },
+        phone: { type: String, default: '' },
         role: { type: String, enum: ['user', 'admin'], default: 'user' },
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
@@ -59,14 +60,14 @@ module.exports = async (req, res) => {
 
     // ── POST /api/auth/register ──────────────────────────────────
     if (req.method === 'POST' && url.endsWith('/register')) {
-        const { name, email, password } = req.body;
+        const { name, email, password, phone } = req.body;
         if (!name || !email || !password)
             return res.status(400).json({ success: false, message: 'Todos los campos son requeridos' });
         if (password.length < 6)
             return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 6 caracteres' });
         const exists = await User.findOne({ email });
         if (exists) return res.status(409).json({ success: false, message: 'El email ya está registrado' });
-        const user = new User({ name, email, password });
+        const user = new User({ name, email, password, phone: phone || '' });
         await user.save();
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
         return res.json({

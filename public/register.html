@@ -435,6 +435,50 @@
         .alert.hidden {
             display: none !important;
         }
+
+        /* Phone field */
+        .phone-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+
+        .country-code-select {
+            flex-shrink: 0;
+            width: 120px;
+            padding: 0.875rem 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.6rem center;
+            background-color: rgba(255,255,255,0.05);
+            padding-right: 1.8rem;
+        }
+
+        .country-code-select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .country-code-select:focus {
+            border-color: #7C3AED;
+            background-color: rgba(124, 58, 237, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .phone-input {
+            flex: 1;
+        }
     </style>
 </head>
 
@@ -476,6 +520,33 @@
                     <input type="email" id="regEmail" class="form-input" placeholder="tu@email.com" autocomplete="email"
                         required>
                     <div class="field-error" id="regEmailError">Por favor ingresa un email válido</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPhone">Número de celular</label>
+                    <div class="phone-group">
+                        <select id="regCountryCode" class="country-code-select" autocomplete="tel-country-code">
+                            <option value="+51">🇵🇪 +51</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+34">🇪🇸 +34</option>
+                            <option value="+52">🇲🇽 +52</option>
+                            <option value="+57">🇨🇴 +57</option>
+                            <option value="+54">🇦🇷 +54</option>
+                            <option value="+56">🇨🇱 +56</option>
+                            <option value="+593">🇪🇨 +593</option>
+                            <option value="+591">🇧🇴 +591</option>
+                            <option value="+595">🇵🇾 +595</option>
+                            <option value="+598">🇺🇾 +598</option>
+                            <option value="+58">🇻🇪 +58</option>
+                            <option value="+55">🇧🇷 +55</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="+49">🇩🇪 +49</option>
+                        </select>
+                        <input type="tel" id="regPhone" class="form-input phone-input"
+                            placeholder="987 654 321" autocomplete="tel-national">
+                    </div>
+                    <div class="field-error" id="phoneError">Ingresa un número de celular válido</div>
                 </div>
 
                 <div class="form-group">
@@ -587,6 +658,8 @@
 
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const countryCode = document.getElementById('regCountryCode').value;
             const password = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirm').value;
             const terms = document.getElementById('acceptTerms').checked;
@@ -602,6 +675,11 @@
             document.getElementById('regEmailError').style.display = emailErr ? 'block' : 'none';
             document.getElementById('regEmail').classList.toggle('error', emailErr);
             if (emailErr) valid = false;
+
+            const phoneErr = phone && !/^[0-9\s\-\(\)]{6,15}$/.test(phone) ? true : false;
+            document.getElementById('phoneError').style.display = phoneErr ? 'block' : 'none';
+            document.getElementById('regPhone').classList.toggle('error', phoneErr);
+            if (phoneErr) valid = false;
 
             const passErr = !password || password.length < 6;
             document.getElementById('regPasswordError').style.display = passErr ? 'block' : 'none';
@@ -627,7 +705,10 @@
                 const res = await fetch(apiUrl('/api/auth/register'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({
+                        name, email, password,
+                        phone: phone ? `${countryCode}${phone.replace(/\s/g, '')}` : ''
+                    })
                 });
                 const data = await res.json();
 
