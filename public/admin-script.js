@@ -1176,7 +1176,7 @@ async function saveLogoSettings(e) {
         }
 
         if (data.success) {
-            showToast('✅ Configuración de marca guardada correctamente');
+            showToast('Configuración de marca guardada correctamente');
 
             // Actualizar la UI directamente con los valores guardados (sin releer de la BD)
             localStorage.setItem('branding_companyName', companyName);
