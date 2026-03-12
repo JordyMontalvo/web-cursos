@@ -699,7 +699,8 @@ let usersData = [];
 let editingMembershipId = null;
 let editingUserId = null;
 let settingsLoaded = false;
-let lastSavedSettings = null; // Guarda los últimos valores salvados localmente
+let lastSavedSettings = null; 
+let currentUserFilter = 'all'; // 'all', 'active', 'inactive'
 
 function switchTab(tab) {
     ['courses', 'memberships', 'banners', 'users', 'logo'].forEach(t => {
@@ -945,12 +946,27 @@ function renderUsersTable(users) {
         return;
     }
     const now = new Date();
-    tbody.innerHTML = users.map(u => {
+
+    // Filtramos según el estado seleccionado
+    const filteredUsers = users.filter(u => {
+        const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
+        if (currentUserFilter === 'active') return isActive;
+        if (currentUserFilter === 'inactive') return !isActive;
+        return true;
+    });
+
+    if (filteredUsers.length === 0) {
+        const msg = currentUserFilter === 'active' ? 'No hay usuarios activos' : 'No hay usuarios inactivos';
+        tbody.innerHTML = `<tr><td colspan="6" class="loading-row"><p>${msg}</p></td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filteredUsers.map(u => {
         const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
         const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
         return `
         <tr>
-            <td><strong>${u.name}</strong></td>
+            <td><strong>${u.name}</strong> ${u.lastName || ''}</td>
             <td style="font-size:.875rem;color:#1a1a1a;">${u.email}</td>
             <td>${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.15);color:#FFD700;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">ADMIN</span>' : '<span style="background:rgba(0,0,0,0.05);color:#1a1a1a;font-size:.75rem;padding:.2rem .6rem;border-radius:100px;">Usuario</span>'}</td>
             <td>${isActive ? `<span style="background:rgba(79,255,176,.1);color:#1a1a1a;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:#666;font-size:.85rem;">Sin membresía</span>'}</td>
@@ -962,6 +978,11 @@ function renderUsersTable(users) {
             </td>
         </tr>`;
     }).join('');
+}
+
+function handleUserFilterChange(val) {
+    currentUserFilter = val;
+    renderUsersTable(usersData);
 }
 
 async function openUserMembershipModal(userId, userName) {

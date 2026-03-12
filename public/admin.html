@@ -269,10 +269,18 @@
             <!-- USERS SECTION -->
             <div id="section-users" style="display:none;">
 
-                <div style="margin-bottom:1.5rem;">
-                    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
-                    <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías
-                        activas</p>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                    <div>
+                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
+                    </div>
+                    <div class="table-actions">
+                        <select id="userStatusFilter" onchange="handleUserFilterChange(this.value)" class="status-filter-select">
+                            <option value="all">Todos los usuarios</option>
+                            <option value="active">Usuarios Activos</option>
+                            <option value="inactive">Usuarios Inactivos</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="table-container">
                     <div class="table-wrapper">
