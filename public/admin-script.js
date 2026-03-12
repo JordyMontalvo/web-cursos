@@ -701,6 +701,8 @@ let editingUserId = null;
 let settingsLoaded = false;
 let lastSavedSettings = null; 
 let currentUserFilter = 'all'; // 'all', 'active', 'inactive'
+let usersCurrentPage = 1;
+const usersPerPage = 10;
 
 function switchTab(tab) {
     ['courses', 'memberships', 'banners', 'users', 'logo'].forEach(t => {
@@ -941,13 +943,16 @@ async function loadUsers() {
 
 function renderUsersTable(users) {
     const tbody = document.getElementById('usersTableBody');
+    const paginationContainer = document.getElementById('usersPagination');
+    
     if (!users || users.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
+        if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
     const now = new Date();
 
-    // Filtramos según el estado seleccionado
+    // 1. Filtramos según el estado seleccionado
     const filteredUsers = users.filter(u => {
         const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
         if (currentUserFilter === 'active') return isActive;
@@ -958,10 +963,23 @@ function renderUsersTable(users) {
     if (filteredUsers.length === 0) {
         const msg = currentUserFilter === 'active' ? 'No hay usuarios activos' : 'No hay usuarios inactivos';
         tbody.innerHTML = `<tr><td colspan="6" class="loading-row"><p>${msg}</p></td></tr>`;
+        if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
 
-    tbody.innerHTML = filteredUsers.map(u => {
+    // 2. Aplicamos paginación
+    const totalFiltered = filteredUsers.length;
+    const totalPages = Math.ceil(totalFiltered / usersPerPage);
+    
+    // Asegurar que la página actual no exceda el total
+    if (usersCurrentPage > totalPages) usersCurrentPage = totalPages || 1;
+    
+    const start = (usersCurrentPage - 1) * usersPerPage;
+    const end = start + usersPerPage;
+    const paginatedUsers = filteredUsers.slice(start, end);
+
+    // 3. Renderizamos la tabla
+    tbody.innerHTML = paginatedUsers.map(u => {
         const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
         const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
         return `
@@ -978,10 +996,65 @@ function renderUsersTable(users) {
             </td>
         </tr>`;
     }).join('');
+
+    // 4. Renderizamos los controles de paginación
+    renderUsersPagination(totalFiltered);
+}
+
+function renderUsersPagination(totalUsers) {
+    const paginationContainer = document.getElementById('usersPagination');
+    if (!paginationContainer) return;
+
+    const totalPages = Math.ceil(totalUsers / usersPerPage);
+    if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+    }
+
+    let html = `
+        <button class="pagination-btn" onclick="changeUsersPage(${usersCurrentPage - 1})" ${usersCurrentPage === 1 ? 'disabled' : ''}>
+            &laquo;
+        </button>
+    `;
+
+    // Botones de números
+    for (let i = 1; i <= totalPages; i++) {
+        // Lógica para no mostrar demasiados números si hay muchas páginas
+        if (totalPages > 7) {
+            if (i > 1 && i < totalPages && (i < usersCurrentPage - 1 || i > usersCurrentPage + 1)) {
+                if (i === usersCurrentPage - 2 || i === usersCurrentPage + 2) {
+                    html += `<span style="color:rgba(0,0,0,0.3)">...</span>`;
+                }
+                continue;
+            }
+        }
+
+        html += `
+            <button class="pagination-btn ${usersCurrentPage === i ? 'active' : ''}" onclick="changeUsersPage(${i})">
+                ${i}
+            </button>
+        `;
+    }
+
+    html += `
+        <button class="pagination-btn" onclick="changeUsersPage(${usersCurrentPage + 1})" ${usersCurrentPage === totalPages ? 'disabled' : ''}>
+            &raquo;
+        </button>
+    `;
+
+    paginationContainer.innerHTML = html;
+}
+
+function changeUsersPage(page) {
+    usersCurrentPage = page;
+    renderUsersTable(usersData);
+    // Hacer scroll al principio de la sección de usuarios para ver la nueva página si es necesario
+    document.getElementById('section-users').scrollIntoView({ behavior: 'smooth' });
 }
 
 function handleUserFilterChange(val) {
     currentUserFilter = val;
+    usersCurrentPage = 1; // RESET DE PÁGINA AL FILTRAR
     renderUsersTable(usersData);
 }
 
