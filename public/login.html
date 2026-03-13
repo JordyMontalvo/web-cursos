@@ -598,16 +598,35 @@
         }
 
         // ── Google Login ────────────────────────────────────────────
+        let googleInitialized = false;
+
         function initGoogleLogin() {
             if (typeof google === 'undefined') {
                 showAlert('Google aún no cargó. Intenta de nuevo en un momento.');
                 return;
             }
-            google.accounts.id.initialize({
-                client_id: document.getElementById('g_id_onload').dataset.client_id,
-                callback: handleGoogleLogin
+            
+            const clientId = document.getElementById('g_id_onload').dataset.client_id;
+            if (clientId === '__GOOGLE_CLIENT_ID__') {
+                showAlert('Falta configurar tu Client ID de Google en el archivo HTML.');
+                return;
+            }
+
+            if (!googleInitialized) {
+                google.accounts.id.initialize({
+                    client_id: clientId,
+                    callback: handleGoogleLogin
+                });
+                googleInitialized = true;
+            }
+            
+            // Forzar mostrar el prompt (OneTap) de Google
+            google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    // Si el prompt es bloqueado por el navegador o adblock
+                    showAlert('El popup de Google fue bloqueado. Revisa tu navegador o desactiva tu AdBlock.');
+                }
             });
-            google.accounts.id.prompt();
         }
 
         async function handleGoogleLogin(response) {
