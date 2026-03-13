@@ -36,8 +36,26 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: false,   // opcional para usuarios OAuth
         minlength: 6
+    },
+    // OAuth fields
+    googleId: {
+        type: String,
+        sparse: true
+    },
+    githubId: {
+        type: String,
+        sparse: true
+    },
+    avatar: {
+        type: String,
+        default: null
+    },
+    provider: {
+        type: String,
+        enum: ['local', 'google', 'github'],
+        default: 'local'
     },
     role: {
         type: String,
@@ -70,14 +88,17 @@ const userSchema = new mongoose.Schema({
 
 // Hash password antes de guardar (Mongoose 9+ async sin next)
 userSchema.pre('save', async function() {
-    if (!this.isModified('password')) return;
-    this.password = await bcrypt.hash(this.password, 12);
+    // Solo hashear si hay contraseña y fue modificada
+    if (this.password && this.isModified('password')) {
+        this.password = await bcrypt.hash(this.password, 12);
+    }
     this.updatedAt = Date.now();
 });
 
 
 // Método para comparar contraseñas
 userSchema.methods.comparePassword = async function(candidatePassword) {
+    if (!this.password) return false; // usuario OAuth sin contraseña
     return await bcrypt.compare(candidatePassword, this.password);
 };
 

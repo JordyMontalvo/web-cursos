@@ -17,6 +17,9 @@
     { "source": "/api/auth/register",       "destination": "/api/auth" },
     { "source": "/api/auth/login",          "destination": "/api/auth" },
     { "source": "/api/auth/me",             "destination": "/api/auth" },
+    { "source": "/api/auth/google",         "destination": "/api/auth-oauth" },
+    { "source": "/api/auth/github/callback","destination": "/api/auth-oauth" },
+    { "source": "/api/auth/github",         "destination": "/api/auth-oauth" },
 
     { "source": "/api/memberships/subscribe", "destination": "/api/memberships" },
     { "source": "/api/memberships/:id",       "destination": "/api/memberships?id=:id" },
