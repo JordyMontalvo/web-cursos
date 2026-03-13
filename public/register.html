@@ -703,32 +703,37 @@
             }
         }
 
-        // ── Google Sign In ─────────────────────────────────────────────
-        let googleInitialized = false;
-
+        // ── Google Sign In (Redirect Flow) ─────────────────────────────────────────────
         function initGoogleSignUp() {
-            if (typeof google === 'undefined') {
-                showAlert('Google aún no cargó. Intenta de nuevo en un momento.');
-                return;
-            }
-
-            const clientId = document.getElementById('g_id_onload').dataset.client_id;
-            if (!googleInitialized) {
-                google.accounts.id.initialize({
-                    client_id: clientId,
-                    callback: handleGoogleSignIn
-                });
-                googleInitialized = true;
-            }
+            const btn = document.getElementById('googleSignUpBtn');
+            btn.disabled = true;
+            btn.textContent = 'Redirigiendo a Google...';
             
-            google.accounts.id.prompt((notification) => {
-                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    showAlert('❌ El popup fue bloqueado. Por favor desactiva los Shields de Brave o tu AdBlock para registrarte con Google.');
-                }
-            });
+            const clientId = '841725081856-japgunu2lo2im84i33vlq45odjgh4ijt.apps.googleusercontent.com';
+            const redirectUri = window.location.origin + '/register'; // Redirigir de vuelta a esta tabla
+            const nonce = Math.random().toString(36).substring(2);
+            
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=id_token&scope=email%20profile%20openid&nonce=${nonce}`;
+            window.location.href = authUrl;
         }
 
-        async function handleGoogleSignIn(response) {
+        // Manejar el retorno de Google (el id_token viene en el hash de la URL)
+        (function handleGoogleCallback() {
+            const hash = window.location.hash;
+            if (hash && hash.includes('id_token=')) {
+                const params = new URLSearchParams(hash.substring(1));
+                const idToken = params.get('id_token');
+                
+                if (idToken) {
+                    history.replaceState(null, null, ' '); // Limpiar URL
+                    
+                    // Simular respuesta usando tu lógica existente
+                    setTimeout(() => processGoogleToken(idToken), 100);
+                }
+            }
+        })();
+
+        async function processGoogleToken(credential) {
             const btn = document.getElementById('googleSignUpBtn');
             if (btn) {
                 btn.disabled = true;
@@ -739,7 +744,7 @@
                 const res = await fetch(apiUrl('/api/auth/google'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
+                    body: JSON.stringify({ token: credential })
                 });
                 const data = await res.json();
                 await handleOAuthSuccess(data);
