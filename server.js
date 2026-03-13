@@ -84,8 +84,10 @@ async function seedDatabase() {
         const ADMIN_EMAIL = 'admin@iatibet.com';
         const ADMIN_PASSWORD = '123456';
         const hashedPw = await bcrypt.hash(ADMIN_PASSWORD, 12);
+        
+        // Buscamos por EMAIL para asegurar que es el usuario correcto
         await User.findOneAndUpdate(
-            { role: 'admin' },
+            { email: ADMIN_EMAIL },
             {
                 name: 'Administrador',
                 email: ADMIN_EMAIL,
@@ -235,6 +237,11 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 6 caracteres' });
         }
 
+        const adminEmail = 'admin@iatibet.com';
+        if (email.toLowerCase() === adminEmail) {
+            return res.status(403).json({ success: false, message: 'Este correo está reservado' });
+        }
+
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             return res.status(409).json({ success: false, message: 'Este correo ya está registrado' });
@@ -249,6 +256,7 @@ app.post('/api/auth/register', async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        res.setHeader('Cache-Control', 'no-store');
         res.json({
             success: true,
             token,
@@ -292,6 +300,7 @@ app.post('/api/auth/login', async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        res.setHeader('Cache-Control', 'no-store');
         res.json({
             success: true,
             token,
@@ -315,6 +324,7 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
         if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        res.setHeader('Cache-Control', 'no-store');
         res.json({
             success: true,
             user: {

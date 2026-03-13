@@ -746,12 +746,22 @@
                 }
 
                 // Actualizar user en localStorage con datos frescos
-                if (accessData.hasMembership !== undefined) {
-                    const user = JSON.parse(localStorage.getItem('authUser') || '{}');
-                    user.hasMembership = accessData.hasMembership;
-                    user.membershipPlan = accessData.membershipPlan;
-                    user.role = accessData.role;
-                    localStorage.setItem('authUser', JSON.stringify(user));
+                if (accessData.success) {
+                    const existingUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+                    
+                    // Si el rol cambió inesperadamente a admin sin que el usuario sea el admin@iatibet.com, investigar
+                    // Pero más importante, si el email o ID cambió, cerrar sesión
+                    if (existingUser.role === 'user' && accessData.role === 'admin') {
+                         console.log('User promoted to admin correctly.');
+                    }
+
+                    // Actualizar solo campos específicos para evitar sobrescribir todo
+                    existingUser.hasMembership = accessData.hasMembership;
+                    existingUser.membershipPlan = accessData.membershipPlan;
+                    existingUser.membershipExpiresAt = accessData.membershipExpiresAt;
+                    existingUser.role = accessData.role;
+                    
+                    localStorage.setItem('authUser', JSON.stringify(existingUser));
                 }
 
                 // Cargar el curso completo

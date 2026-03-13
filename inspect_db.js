@@ -1,25 +1,47 @@
 const mongoose = require('mongoose');
-const Settings = require('./models/Settings');
-const REMOTA_URI = 'mongodb://admin:ADMIN_sifrah@ec2-18-220-240-71.us-east-2.compute.amazonaws.com:27017/cursos_db?authSource=admin';
 
-async function checkDb() {
+const REMOTA_URI = "mongodb+srv://iatibet:iatibet2025@atibet.u0vvt.mongodb.net/iatibet?retryWrites=true&w=majority&appName=atibet";
+
+// Definir esquemas para evitar requerir server.js
+const userSchema = new mongoose.Schema({
+    email: String,
+    role: String,
+    name: String
+}, { collection: 'users' });
+
+const settingsSchema = new mongoose.Schema({
+    companyName: String,
+    logoUrl: String,
+    presentationVideoUrl: String
+}, { collection: 'settings' });
+
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+const Settings = mongoose.models.Settings || mongoose.model('Settings', settingsSchema);
+
+async function inspect() {
     try {
+        console.log('Connecting to DB...');
         await mongoose.connect(REMOTA_URI);
-        const settings = await Settings.find();
-        console.log('Settings count:', settings.length);
-        settings.forEach((s, i) => {
-            console.log(`Setting ${i}:`, {
-                id: s._id,
-                companyName: s.companyName,
-                logoUrlSnippet: s.logoUrl ? s.logoUrl.substring(0, 50) + '...' : 'empty',
-                presentationVideoUrl: s.presentationVideoUrl
-            });
+        console.log('Connected.');
+
+        // List users
+        console.log('\n--- Users ---');
+        const users = await User.find().select('email role name');
+        console.log('Users count:', users.length);
+        users.forEach(u => {
+            console.log(`${u.email} [${u.role}] - ${u.name}`);
         });
+
+        // List settings
+        console.log('\n--- Settings ---');
+        const sData = await Settings.findOne();
+        console.log(sData);
+
         process.exit(0);
     } catch (err) {
-        console.error(err);
+        console.error('Error:', err);
         process.exit(1);
     }
 }
 
-checkDb();
+inspect();

@@ -687,9 +687,22 @@
 
                 if (data.success) {
                     currentUser = data.user;
-                    // Update local storage just in case
+                    
+                    // Defensive check: only update if it belongs to the current user
+                    const existingUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+                    const newId = currentUser._id || currentUser.id;
+                    const oldId = existingUser.id || existingUser._id;
+
+                    if (oldId && newId !== oldId) {
+                        console.warn('Session mismatch detected. Logging out.');
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('authUser');
+                        window.location.href = '/login';
+                        return;
+                    }
+
                     localStorage.setItem('authUser', JSON.stringify({ 
-                        id: currentUser._id || currentUser.id, 
+                        id: newId, 
                         name: currentUser.name, 
                         email: currentUser.email, 
                         phone: currentUser.phone || '',

@@ -91,13 +91,19 @@ module.exports = async (req, res) => {
         if (!name || !email || !password)
             return res.status(400).json({ success: false, message: 'Todos los campos son requeridos' });
         
-        const exists = await User.findOne({ email });
+        const adminEmail = 'admin@iatibet.com';
+        if (email.toLowerCase() === adminEmail) {
+            return res.status(403).json({ success: false, message: 'Este correo está reservado' });
+        }
+
+        const exists = await User.findOne({ email: email.toLowerCase() });
         if (exists) return res.status(409).json({ success: false, message: 'El email ya está registrado' });
         
         const user = new User({ name, email, password, phone: phone || '' });
         await user.save();
         
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.setHeader('Cache-Control', 'no-store');
         return res.json({
             success: true, token,
             user: { 
@@ -126,6 +132,7 @@ module.exports = async (req, res) => {
         if (!isMatch) return res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
         
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.setHeader('Cache-Control', 'no-store');
         return res.json({
             success: true, token,
             user: { 
@@ -147,6 +154,7 @@ module.exports = async (req, res) => {
         const user = await User.findById(decoded.id).select('-password');
         if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
         
+        res.setHeader('Cache-Control', 'no-store');
         return res.json({ success: true, user: { ...user.toObject(), hasMembership: user.hasMembership() } });
     }
 
@@ -204,6 +212,7 @@ module.exports = async (req, res) => {
         
         const hasMem = user.hasMembership();
         const hasAccess = hasMem || user.role === 'admin';
+        res.setHeader('Cache-Control', 'no-store');
         return res.json({ 
             success: true, 
             hasAccess, 
