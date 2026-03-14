@@ -18,17 +18,25 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const url = req.url.split('?')[0];
+    console.log(`[GENERAL] Request URL: ${url} | Method: ${req.method}`);
 
     // ── /api/config ────────────────────────────────────────────────
-    if (url.endsWith('/config')) {
-        return res.json({
+    if (url.includes('/config')) {
+        const config = {
             apiUrl: process.env.BACKEND_URL || '',
             izipayPublicKey: process.env.IZIPAY_PUBLIC_KEY || '',
             izipayShopId: process.env.IZIPAY_SHOP_ID || ''
-        });
+        };
+        console.log(`[GENERAL] Config served. Public Key exists: ${!!config.izipayPublicKey}`);
+        return res.json(config);
     }
 
-    try { await connectDB(); } catch (err) { return res.status(500).json({ success: false }); }
+    try { 
+        await connectDB(); 
+    } catch (err) { 
+        console.error('[GENERAL] DB Connection Error:', err.message);
+        return res.status(500).json({ success: false, message: 'DB Connection Error' }); 
+    }
 
     // ── /api/banners ───────────────────────────────────────────────
     if (url.endsWith('/banners')) {

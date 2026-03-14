@@ -51,13 +51,18 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const url = req.url.split('?')[0];
+    console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method}`);
 
     // ── POST /api/izipay (Checkout) ──────────────────────────────────
-    if (req.method === 'POST' && (url.endsWith('/checkout') || !req.body['kr-answer'])) {
+    if (req.method === 'POST' && (url.includes('/checkout') || !req.body?.['kr-answer'])) {
         const decoded = verifyToken(req);
-        if (!decoded) return res.status(401).json({ success: false, message: 'No autorizado' });
+        if (!decoded) {
+            console.warn('[IZIPAY] Unauthorized attempt');
+            return res.status(401).json({ success: false, message: 'No autorizado' });
+        }
 
         try {
+            console.log('[IZIPAY] Starting checkout for memberId:', req.body?.membershipId);
             await connectDB();
             const { membershipId } = req.body;
             if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
@@ -96,11 +101,14 @@ module.exports = async (req, res) => {
             });
 
             if (iziRes.status === 'SUCCESS') {
+                console.log('[IZIPAY] Checkout SUCCESS');
                 return res.json({ success: true, formToken: iziRes.answer.formToken });
             } else {
+                console.error('[IZIPAY] Izipay API Error Response:', iziRes);
                 return res.status(500).json({ success: false, message: 'Error de Izipay', error: iziRes.errorMessage });
             }
         } catch (err) {
+            console.error('[IZIPAY] Internal Checkout Error:', err.message);
             return res.status(500).json({ success: false, message: err.message });
         }
     }
