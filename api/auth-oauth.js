@@ -6,7 +6,7 @@ const https = require('https');
 const nodemailer = require('nodemailer');
 
 const mailUser = process.env.EMAIL_USER || 'soporteiatibetepisodios@gmail.com';
-const mailPassword = process.env.EMAIL_PASS || 'dkgd rsqm mkne zahz';
+const mailPassword = process.env.EMAIL_PASS || 'dkgdrsqmmknezahz';
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -261,7 +261,7 @@ module.exports = async (req, res) => {
                 await user.save();
                 
                 // Enviar correo electrónico a la nueva cuenta guardada de google
-                sendWelcomeEmail(googleData.email, googleData.name, null, 'google').catch(console.error);
+                await sendWelcomeEmail(googleData.email, googleData.name, null, 'google').catch(console.error);
             }
 
             const jwtToken = generateToken(user);
