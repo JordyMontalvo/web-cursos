@@ -72,6 +72,8 @@ try { User = mongoose.model('User'); } catch {
         activeMembership:    { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan:      { type: String, default: null },
+        resetPasswordToken:  { type: String },
+        resetPasswordExpires:{ type: Date },
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
     });

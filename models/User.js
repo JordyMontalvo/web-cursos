@@ -57,6 +57,12 @@ const userSchema = new mongoose.Schema({
         enum: ['local', 'google', 'github'],
         default: 'local'
     },
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],
