@@ -4,7 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planes de Membresía - IATIBET ZUREON</title>
+    <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
+            kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCXyUIT2ai"
+            kr-post-url-success="/perfil?payment=success"
+            kr-client-domain="https://api.micuentaweb.pe"
+            kr-language="es-PE">
+    </script>
+    <link rel="stylesheet" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css">
+    <title>Membresía - IATIBET ZUREON</title>
     <meta name="description"
         content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1089,19 +1096,20 @@
                 <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
             </div>
             <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
-            <div class="modal-actions">
+            <div class="modal-actions" id="purchaseActions">
                 <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
-                <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()">
-                    <span id="confirmBtnText">💳 Pagar con tarjeta</span>
-                    <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
-                </button>
+                <div id="izipayTriggerContainer">
+                    <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()">
+                        <span id="confirmBtnText">💳 Pagar con tarjeta</span>
+                        <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Contenedor Pop-in (vaciado pero listo) -->
+            <div id="izipayPopinContainer" style="margin-top:1rem; display:none; justify-content:center;">
+                <div class="kr-popin"></div>
             </div>
         </div>
-    </div>
-
-    <!-- Contenedor para Izipay (Debe estar en el DOM para que el SDK lo encuentre) -->
-    <div id="izipay-hidden-container" style="position: fixed; top: -100px; left: -100px; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden;">
-        <div class="kr-popin" id="myPaymentForm"></div>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -1339,39 +1347,7 @@
         }
 
         // ── Izipay Integration ──────────────────────────────────────────
-        let izipaySdkLoaded = false;
-
-        async function initIzipay() {
-            await configReady;
-            if (!IZIPAY_PUBLIC_KEY) return;
-            
-            // Si el script ya existe, lo omitimos para evitar conflictos en modo estándar
-            if (document.getElementById('izipay-sdk')) return;
-            
-            console.log('[IZIPAY] Initializing POP-IN SDK with Key:', IZIPAY_PUBLIC_KEY.slice(0, 15) + '...');
-            
-            // Cargar CSS oficial "Classic" para modo Pop-in
-            const link = document.createElement('link');
-            link.id = 'izipay-style';
-            link.rel = 'stylesheet';
-            link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css';
-            document.head.appendChild(link);
-
-            // Cargar JS del SDK con parámetros de localización
-            const script = document.createElement('script');
-            script.id = 'izipay-sdk';
-            script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
-            script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
-            script.setAttribute('kr-post-url-success', '/perfil?payment=success');
-            script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
-            script.setAttribute('kr-language', 'es-PE'); // Forzar español Perú
-            script.setAttribute('kr-popin', ''); // Activar modo popin
-            script.onload = () => {
-                izipaySdkLoaded = true;
-                console.log('[IZIPAY] Pop-in SDK Loaded & Ready');
-            };
-            document.head.appendChild(script);
-        }
+        let izipaySdkLoaded = true; // Cargado estáticamente en el head
 
         async function startIzipayCheckout() {
             if (!selectedPlanId) return;
@@ -1385,54 +1361,31 @@
             btnSpin.style.display = '';
 
             try {
-                console.log('[IZIPAY] Fetching formToken for plan:', selectedPlanId);
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ membershipId: selectedPlanId })
                 });
-
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    throw new Error(`Error en servidor (${res.status}): ${errorText.slice(0, 50)}`);
-                }
 
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Error al generar checkout');
 
-                console.log('[IZIPAY] Token received, opening modal...');
-                
-                // 3. Cerrar el modal de confirmación
-                closeModal();
-
-                // 4. Inyectar token y abrir Pop-in oficial
-                setTimeout(async () => {
-                    if (window.KR) {
-                        try {
-                            console.log('[IZIPAY] SetFormToken...');
-                            await KR.setFormToken(data.formToken);
-                            
-                            console.log('[IZIPAY] Triggering openPopin...');
-                            // Pequeña espera para que el SDK procese el token antes de abrir
-                            setTimeout(() => {
-                                KR.openPopin();
-                            }, 100);
-                        } catch (e) {
-                            console.error('[IZIPAY] Error inside KR sequence:', e);
-                            alert("Error al abrir la pasarela: " + e.message);
-                        }
-                    } else {
-                        console.error('[IZIPAY] KR object is missing');
-                        alert("El cargador de pagos no está listo. Por favor refresca la página.");
-                    }
-                }, 300);
+                if (window.KR) {
+                    await KR.setFormToken(data.formToken);
+                    
+                    // En lugar de abrirlo por código (que el navegador bloquea),
+                    // mostramos el botón oficial de Izipay para que el usuario le de click
+                    document.getElementById('izipayTriggerContainer').style.display = 'none';
+                    document.getElementById('izipayPopinContainer').style.display = 'flex';
+                    
+                    showToast('success', '✅', 'Orden lista', 'Haz clic abajo para completar tu pago seguro');
+                } else {
+                    alert("El sistema de pago no cargó. Por favor recarga la página.");
+                }
 
             } catch (err) {
                 console.error('[IZIPAY] Checkout Error:', err);
-                showToast('error', '❌', 'Error de pago', err.message);
+                showToast('error', '❌', 'Error', err.message);
                 btn.disabled = false;
                 btnText.style.display = '';
                 btnSpin.style.display = 'none';
@@ -1446,7 +1399,6 @@
         // ── Init ─────────────────────────────────────────────────────────
         renderHeader();
         loadPlans();
-        initIzipay(); // Cargar SDK de inmediato
 
         // loadSettings() is called inside script.js on DOMContentLoaded
 
