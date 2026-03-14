@@ -16,6 +16,8 @@
     { "source": "/api/auth/check-access",   "destination": "/api/auth" },
     { "source": "/api/auth/register",       "destination": "/api/auth" },
     { "source": "/api/auth/login",          "destination": "/api/auth" },
+    { "source": "/api/auth/forgot-password","destination": "/api/auth" },
+    { "source": "/api/auth/reset-password", "destination": "/api/auth" },
     { "source": "/api/auth/me",             "destination": "/api/auth" },
     { "source": "/api/auth/google",         "destination": "/api/auth-oauth" },
     { "source": "/api/auth/github/callback","destination": "/api/auth-oauth" },
