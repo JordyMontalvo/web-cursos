@@ -18,6 +18,8 @@ const transporter = nodemailer.createTransport({
 
 async function sendWelcomeEmail(email, name, password, provider = 'local') {
     try {
+        console.log(`[FRONTEND-API] Iniciando envío de correo de bienvenida a: ${email} (Provider: ${provider})`);
+
         const passText = provider === 'google' 
             ? '<em>Iniciaste sesión vinculando tu cuenta de Google. No necesitas contraseña.</em>' 
             : password;
@@ -42,9 +44,10 @@ async function sendWelcomeEmail(email, name, password, provider = 'local') {
                 </div>
             `
         };
-        await transporter.sendMail(mailOptions);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`[FRONTEND-API] ✅ Correo OAuth enviado con éxito a ${email}. Info ID: ${info.messageId}`);
     } catch (error) {
-        console.error('Error enviando correo de bienvenida OAuth:', error);
+        console.error(`[FRONTEND-API] ❌ Error enviando correo OAuth de bienvenida a ${email}:`, error);
     }
 }
 
