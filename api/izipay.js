@@ -8,6 +8,8 @@ const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').
 const IZIPAY_SHOP_ID = process.env.IZIPAY_SHOP_ID || '57935063';
 const IZIPAY_TEST_KEY = process.env.IZIPAY_TEST_KEY || 'testpassword_DWeSvCxTjoB8Shejukp5cXJb8ylevIdvRUOGj93Bh62aS';
 const IZIPAY_HMAC_KEY = process.env.IZIPAY_HMAC_SHA256 || 'EQeRVnjIJjzgPtuFCvrdUTyIfKPyO1zl84VCBfPfvTbek';
+// La clave pública DEBE coincidir exactamente con la del Back Office vendedor (Claves API REST > Clave pública de test)
+const IZIPAY_PUBLIC_KEY = process.env.IZIPAY_PUBLIC_KEY || `${IZIPAY_SHOP_ID}:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCXYUiT2ai`;
 const IZIPAY_CLIENT_KEY_RAW = IZIPAY_TEST_KEY;
 
 // Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
@@ -167,7 +169,11 @@ module.exports = async (req, res) => {
 
             if (iziRes.status === 'SUCCESS') {
                 console.log('[IZIPAY] Checkout SUCCESS');
-                return res.json({ success: true, formToken: iziRes.answer.formToken });
+                return res.json({ 
+                    success: true, 
+                    formToken: iziRes.answer.formToken,
+                    publicKey: IZIPAY_PUBLIC_KEY  // Clave pública pareada con este token
+                });
             } else {
                 console.error('[IZIPAY] Izipay API Final Error Response:', iziRes);
                 return res.status(500).json({ success: false, message: 'Error de Izipay', error: iziRes.errorMessage });
