@@ -1125,12 +1125,8 @@
                     </button>
                 </div>
 
-                <!-- Alerta de AdBlock -->
-                <div id="adblockWarning" style="display:none; margin-top:1rem; padding:1rem; background:rgba(255,107,112,0.1); border:1px solid rgba(255,107,112,0.3); border-radius:12px; color:#ff6b70; font-size:0.85rem; text-align:center; line-height:1.4;">
-                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚠️</div>
-                    <strong>Sistema de pago bloqueado</strong><br>
-                    Tu navegador está bloqueando los scripts de seguridad de Izipay.<br>
-                    <span style="font-weight: 700;">Desactiva tu AdBlocker o el escudo de Brave y recarga la página.</span>
+                <!-- Log de Sistema (Visible solo para depuración) -->
+                <div id="izipaySystemLog" style="display:none; margin-top:1rem; padding:0.5rem; background:rgba(0,0,0,0.3); border-radius:6px; font-family:monospace; font-size:10px; color:#aaa; max-height:80px; overflow-y:auto; text-align:left;">
                 </div>
             </div>
         </div>
@@ -1304,15 +1300,19 @@
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
             
             document.getElementById('confirmModal').classList.add('open');
+            logToSystem("Modal abierto para plan: " + name);
 
-            // Verificar AdBlock de inmediato
+            // Verificar AdBlock
             setTimeout(() => {
-                if (!window.KR || !izipayInitialized) {
-                    document.getElementById('adblockWarning').style.display = 'block';
-                    document.getElementById('purchaseActions').style.opacity = '0.3';
-                    document.getElementById('purchaseActions').style.pointerEvents = 'none';
+                const s = document.getElementById('izipay-sdk-js');
+                if (!window.KR) {
+                    logToSystem("⚠️ SDK de Izipay no detectado (Posible AdBlock)");
+                    const ad = document.getElementById('adblockWarning');
+                    if(ad) ad.style.display = 'block';
+                } else {
+                    logToSystem("✅ SDK de Izipay detectado");
                 }
-            }, 500);
+            }, 1000);
         }
 
         function resetCheckout() {
@@ -1343,7 +1343,17 @@
             if (!wasOpen) item.classList.add('open');
         }
 
-        // ── Toast ────────────────────────────────────────────────────────
+        // ── Toast & Log ──────────────────────────────────────────────────
+        function logToSystem(msg) {
+            const el = document.getElementById('izipaySystemLog');
+            if (!el) return;
+            el.style.display = 'block';
+            const time = new Date().toLocaleTimeString();
+            el.innerHTML += `<div>[${time}] ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+            console.log(`[SYS_LOG] ${msg}`);
+        }
+
         function showToast(type, icon, title, msg, duration = 4000) {
             const container = document.getElementById('toastContainer');
             const id = 'toast-' + Date.now();
@@ -1418,19 +1428,24 @@
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Error al generar checkout');
 
+                logToSystem("Respuesta del servidor OK. Iniciando SDK...");
+
                 if (window.KR) {
-                    console.log('[IZIPAY] Order generated, setting form token...');
+                    logToSystem("Configurando token...");
                     await KR.setFormToken(data.formToken);
+                    logToSystem("Token configurado con éxito.");
                     
-                    // FORZAR ocultamiento de botones iniciales (usando !important vía JS)
-                    const actions = document.getElementById('purchaseActions');
-                    actions.style.setProperty('display', 'none', 'important');
+                    // LIMPIEZA TOTAL DEL ÁREA DE ACCIÓN
+                    document.getElementById('purchaseActions').innerHTML = ''; 
+                    document.getElementById('purchaseActions').style.display = 'none';
                     
                     document.getElementById('izipayPopinContainer').style.display = 'block';
+                    logToSystem("UI Cambiada a pasarela.");
+                    
                     showToast('success', '🔐', 'Seguridad lista', 'Haz clic abajo para pagar');
-                    console.log('[IZIPAY] Pop-in container should now be visible');
                 } else {
-                    throw new Error("Sistema de pagos no inicializado (revisa tu AdBlock)");
+                    logToSystem("❌ Error: window.KR es null al intentar pagar");
+                    throw new Error("Sistema de pagos no inicializado");
                 }
 
             } catch (err) {
