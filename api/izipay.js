@@ -29,6 +29,7 @@ async function callIzipay(postData, shopId, key) {
 
     return new Promise((resolve, reject) => {
         const request = https.request(options, (response) => {
+            console.log(`[IZIPAY] HTTP Status: ${response.statusCode} | Shop=${shopId}`);
             let data = '';
             response.on('data', (chunk) => data += chunk);
             response.on('end', () => {
@@ -98,9 +99,10 @@ module.exports = async (req, res) => {
         try {
             console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
             
-            // LOG HEXADECIMAL (Detectar caracteres invisibles como espacios o saltos de línea)
-            const keyHex = Buffer.from(IZIPAY_CLIENT_KEY_RAW.slice(0, 10)).toString('hex');
-            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key Raw Len=${IZIPAY_CLIENT_KEY_RAW.length} | Hex(10)=${keyHex}`);
+            // ANALÍSIS DE CREDENCIALES (Hexadecimal)
+            const idHex = Buffer.from(IZIPAY_SHOP_ID).toString('hex');
+            const keyHex = Buffer.from(IZIPAY_CLIENT_KEY_RAW.slice(0, 15)).toString('hex');
+            console.log(`[IZIPAY] DIAGNOSTIC: ShopID="${IZIPAY_SHOP_ID}" (Hex:${idHex}) | KeyLen=${IZIPAY_CLIENT_KEY_RAW.length} (Hex_15:${keyHex})`);
             
             await connectDB();
             const { membershipId } = req.body;
@@ -124,33 +126,31 @@ module.exports = async (req, res) => {
                 currency: membership.currency || 'PEN',
                 orderId: orderId,
                 customer: { email: decoded.email }
-                // ctx_mode eliminado para que el servidor de Izipay lo detecte automáticamente
             });
 
-            // ESTRATEGIA DE FUERZA BRUTA: Probar todas las combinaciones posibles
-            const shopIds = [IZIPAY_SHOP_ID, '5647590'].filter(id => id);
+            // SECUENCIA DE INTENTOS FINAL
+            // Combinaciones de ShopID (Principal + Secundario) y Claves (Larga, Sanitizada, HMAC, Corta)
+            const shopIds = [IZIPAY_SHOP_ID, '5647590'].filter(id => id && id.length >= 7);
+            const rawKey = IZIPAY_CLIENT_KEY_RAW;
+            const hmacKey = (process.env.IZIPAY_HMAC_SHA256 || '').trim();
             const keysToTry = [
-                IZIPAY_CLIENT_KEY_RAW, // 1. Tal cual viene
-                IZIPAY_CLIENT_KEY_RAW.includes('_') ? IZIPAY_CLIENT_KEY_RAW.split('_')[1] : null, // 2. Sanitizada
-                process.env.IZIPAY_HMAC_SHA256?.trim(), // 3. HMAC como Pass
-                'muPkleaAM1mXyyk9' // 4. Clave corta Legacy
+                rawKey,                                      // 1. Clave Larga Completa
+                rawKey.includes('_') ? rawKey.split('_')[1] : null, // 2. Clave Larga Limpia
+                hmacKey.length > 10 ? hmacKey : null,        // 3. Clave HMAC
+                'muPkleaAM1mXyyk9'                            // 4. Clave Corta Legacy (Foto #1)
             ].filter(k => k);
 
-            let iziRes = { status: 'ERROR', errorMessage: 'No attempts made' };
+            let iziRes = { status: 'ERROR', errorMessage: 'Iniciando intentos...' };
             let success = false;
 
             for (const sId of shopIds) {
                 if (success) break;
                 for (const key of keysToTry) {
-                    console.log(`[IZIPAY] Attempting Auth: Shop=${sId} | Key Len=${key.length} | Prefix=${key.slice(0, 5)}...`);
+                    console.log(`[IZIPAY] Trying Auth: Shop=${sId} | KeyLen=${key.length} | Start=${key.slice(0, 8)}...`);
                     iziRes = await callIzipay(postData, sId, key);
                     if (iziRes.status === 'SUCCESS') {
                         success = true;
                         break;
-                    }
-                    if (iziRes.answer?.errorCode !== 'INT_905') {
-                        // Si el error NO es de credenciales, quizás es otro problema serio
-                        console.warn(`[IZIPAY] Warning: Received non-auth error: ${iziRes.answer?.errorCode}`);
                     }
                 }
             }

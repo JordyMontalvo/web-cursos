@@ -20,11 +20,12 @@ module.exports = async (req, res) => {
     const url = req.url.split('?')[0];
 
     // ── /api/config ────────────────────────────────────────────────
-    if (url.includes('config')) {
+    // Respondemos si la ruta contiene config o si es la raíz de esta función (vía rewrite)
+    if (url.includes('config') || url === '/api/general') {
         return res.json({
             apiUrl: process.env.BACKEND_URL || '',
-            izipayPublicKey: process.env.IZIPAY_PUBLIC_KEY || '',
-            izipayShopId: process.env.IZIPAY_SHOP_ID || ''
+            izipayPublicKey: (process.env.IZIPAY_PUBLIC_KEY || '').trim(),
+            izipayShopId: (process.env.IZIPAY_SHOP_ID || '').trim()
         });
     }
 
