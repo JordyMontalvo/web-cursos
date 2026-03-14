@@ -63,7 +63,10 @@ module.exports = async (req, res) => {
         }
 
         try {
-            console.log('[IZIPAY] Starting checkout for memberId:', req.body?.membershipId);
+            console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
+            // DEBUG DE CREDENCIALES (Seguro: solo muestra fragmentos)
+            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key=${IZIPAY_CLIENT_KEY.slice(0,8)}...${IZIPAY_CLIENT_KEY.slice(-4)}`);
+            
             await connectDB();
             const { membershipId } = req.body;
             if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
