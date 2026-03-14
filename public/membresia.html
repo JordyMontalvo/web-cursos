@@ -757,7 +757,23 @@
 
         .kr-embedded {
             width: 100%;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .kr-pan, .kr-expiry, .kr-security-code {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 8px !important;
+            padding: 10px !important;
+            min-height: 45px !important;
+        }
+
+        .kr-form-error {
+            color: #ff6b70 !important;
+            font-size: 0.8rem !important;
+            margin-top: 0.5rem !important;
         }
 
         .btn-cancel-modal {
@@ -1130,14 +1146,25 @@
                 </div>
 
                 <!-- Formulario Incrustado (Embedded) -->
-                <div id="izipayPopinContainer" style="display:none; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">
-                    <div style="margin-bottom: 1rem; font-size: 0.9rem; color: #4FFFB0; text-align:center;">🔒 Introduce los datos de tu tarjeta:</div>
+                <div id="izipayPopinContainer" style="display:none; text-align:left; background:rgba(0,0,0,0.3); padding:1.5rem; border-radius:16px; border: 1px solid rgba(79, 255, 176, 0.2);">
+                    <div style="margin-bottom: 1.5rem; font-size: 0.9rem; color: #4FFFB0; text-align:center;">🔒 Pago seguro encriptado</div>
                     
                     <div class="kr-embedded" id="myPaymentForm">
-                        <!-- El SDK inyectará el formulario aquí -->
+                        <!-- Campos del formulario -->
+                        <div class="kr-pan"></div>
+                        <div style="display: flex; gap: 1rem;">
+                            <div class="kr-expiry" style="flex: 1;"></div>
+                            <div class="kr-security-code" style="flex: 1;"></div>
+                        </div>
+
+                        <!-- Botón de pago -->
+                        <button class="kr-payment-button" style="margin-top: 1rem;"></button>
+
+                        <!-- Zona de errores -->
+                        <div class="kr-form-error"></div>
                     </div>
                     
-                    <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; width:100%; margin-top:1.5rem; text-decoration:underline;">
+                    <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; width:100%; margin-top:2rem; text-decoration:underline;">
                         Regresar o cambiar plan
                     </button>
                 </div>
