@@ -738,6 +738,20 @@
             box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45);
         }
 
+        /* Estilos para el botón de Izipay inyectado */
+        .kr-popin-button {
+            background-color: var(--purple) !important;
+            color: #fff !important;
+            border-radius: 12px !important;
+            padding: 0.875rem !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            width: 100% !important;
+            font-family: 'Inter', sans-serif !important;
+            border: none !important;
+            margin-top: 0 !important;
+        }
+
         .btn-cancel-modal {
             background: rgba(255, 255, 255, 0.05);
             color: rgba(255, 255, 255, 0.6);
@@ -1104,9 +1118,12 @@
                 </button>
             </div>
             
-            <!-- Espacio para el Pop-in oficial (Aparecerá aquí el botón oficial) -->
-            <div id="izipayPopinContainer" style="display:none; margin-top:1.25rem; justify-content:center;">
-                <div class="kr-popin"></div>
+            <!-- Espacio para el Pop-in oficial (El SDK transformará este botón) -->
+            <div id="izipayPopinContainer" style="display:none; margin-top:0.5rem; justify-content:center;">
+                <div class="kr-popin">
+                    <!-- Botón requerido por el SDK de Izipay para el modo Pop-in -->
+                    <button class="kr-payment-button"></button>
+                </div>
             </div>
         </div>
     </div>
@@ -1276,6 +1293,14 @@
             document.getElementById('modalPlanName').textContent = name;
             document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
+            
+            // RESET botones al abrir
+            document.getElementById('btnConfirm').style.display = 'block';
+            document.getElementById('btnConfirm').disabled = false;
+            document.getElementById('confirmBtnText').style.display = 'inline';
+            document.getElementById('confirmBtnSpinner').style.display = 'none';
+            document.getElementById('izipayPopinContainer').style.display = 'none';
+
             document.getElementById('confirmModal').classList.add('open');
         }
 
