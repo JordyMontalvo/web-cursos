@@ -1367,7 +1367,17 @@
         let izipaySdkLoaded = false;
 
         async function loadIzipaySdk() {
-            if (izipaySdkLoaded) return;
+            // Si ya existe el script, comprobar si la clave es la misma. 
+            // Si no, lo removemos para forzar recarga con la nueva clave.
+            const oldScript = document.getElementById('izipay-sdk');
+            if (oldScript) {
+                if (oldScript.getAttribute('kr-public-key') === IZIPAY_PUBLIC_KEY) {
+                    return; 
+                }
+                oldScript.remove();
+                if (window.KR) delete window.KR;
+            }
+
             await configReady;
             
             if (!IZIPAY_PUBLIC_KEY) {
@@ -1377,6 +1387,7 @@
 
             return new Promise((resolve) => {
                 const script = document.createElement('script');
+                script.id = 'izipay-sdk';
                 script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
                 script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
                 script.setAttribute('kr-post-url-success', '/perfil?payment=success');
@@ -1387,10 +1398,13 @@
                 document.head.appendChild(script);
 
                 // Estilos para el formulario incrustado
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.amber.css';
-                document.head.appendChild(link);
+                if (!document.getElementById('izipay-style')) {
+                    const link = document.createElement('link');
+                    link.id = 'izipay-style';
+                    link.rel = 'stylesheet';
+                    link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.amber.css';
+                    document.head.appendChild(link);
+                }
             });
         }
 
