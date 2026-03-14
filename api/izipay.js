@@ -134,14 +134,17 @@ module.exports = async (req, res) => {
 
             const amount = Math.round(membership.price * 100);
             
-            // ORDER_ID: Acortado a <20 caracteres para máxima compatibilidad con bancos peruanos
-            const orderId = `PAY_${Date.now().toString().slice(-8)}_${membershipId.slice(-4)}`;
+            // ORDER_ID: Acortado para máxima compatibilidad
+            const orderId = `TEST_${Date.now().toString().slice(-6)}_${membershipId.slice(-4)}`;
             
             const basePostData = {
                 amount: amount,
-                currency: membership.currency || 'PEN',
+                currency: 'PEN', // Forzamos PEN para evitar PSP_610 en cuentas de Perú que no tengan multidivisa
                 orderId: orderId,
-                customer: { email: decoded.email }
+                customer: { 
+                    email: decoded.email || 'customer@example.com',
+                    reference: decoded.id
+                }
             };
 
             // MODO TEST FORZADO
@@ -149,13 +152,16 @@ module.exports = async (req, res) => {
             const sId = normalizeShopId(IZIPAY_SHOP_ID);
             const key = IZIPAY_TEST_KEY;
 
-            console.log(`[IZIPAY] FORCING TEST MODE: Shop=${sId} | Key=${key.slice(0, 15)}...`);
-            
-            const finalPostData = JSON.stringify({ 
+            const finalBody = { 
                 ...basePostData, 
                 ctx_mode: mode 
-            });
+            };
 
+            const finalPostData = JSON.stringify(finalBody);
+
+            console.log(`[IZIPAY] SENDING TO API: Path=/api-payment/V4/Charge/CreatePayment | Mode=${mode} | Shop=${sId}`);
+            console.log(`[IZIPAY] BODY: ${finalPostData}`);
+            
             iziRes = await callIzipay(finalPostData, sId, key, 'api.micuentaweb.pe', '/api-payment/V4/Charge/CreatePayment');
 
 
