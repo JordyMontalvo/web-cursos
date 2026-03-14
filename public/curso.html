@@ -283,8 +283,8 @@
 
         /* Thumbnail inside Episode */
         .episode-thumb {
-            width: 120px;
-            height: 68px;
+            width: 140px;
+            height: 83px;
             border-radius: 8px;
             background-color: #2D1B4E;
             background-size: cover;
@@ -748,11 +748,11 @@
                 // Actualizar user en localStorage con datos frescos
                 if (accessData.success) {
                     const existingUser = JSON.parse(localStorage.getItem('authUser') || '{}');
-                    
+
                     // Si el rol cambió inesperadamente a admin sin que el usuario sea el admin@iatibet.com, investigar
                     // Pero más importante, si el email o ID cambió, cerrar sesión
                     if (existingUser.role === 'user' && accessData.role === 'admin') {
-                         console.log('User promoted to admin correctly.');
+                        console.log('User promoted to admin correctly.');
                     }
 
                     // Actualizar solo campos específicos para evitar sobrescribir todo
@@ -760,7 +760,7 @@
                     existingUser.membershipPlan = accessData.membershipPlan;
                     existingUser.membershipExpiresAt = accessData.membershipExpiresAt;
                     existingUser.role = accessData.role;
-                    
+
                     localStorage.setItem('authUser', JSON.stringify(existingUser));
                 }
 
