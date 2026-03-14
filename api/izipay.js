@@ -130,32 +130,33 @@ module.exports = async (req, res) => {
                 customer: { email: decoded.email }
             });
 
-            // SECUENCIA DE INTENTOS MAESTRA (ULTRA-DIAGNOSTICS)
-            // Probaremos variaciones de Endpoint, Path, ShopID y Claves
-            const endpoints = [
-                { host: 'api.micuentaweb.pe', path: '/api-payment/V4/Charge/CreatePayment' },
-                { host: 'api.micuentaweb.pe', path: '/api-payment/v4/Charge/CreatePayment' }, // Minúscula v4
-                { host: 'api-pw.izipay.pe',   path: '/V4/Charge/CreatePayment' }              // Endpoint alternativo Peru
-            ];
-
-            const shopIds = [IZIPAY_SHOP_ID, '05647590', '5647590'].filter(id => id && id.length >= 7);
+            // SECUENCIA DE INTENTOS DEFINITIVA (Con ctx_mode obligatorio)
+            const modes = ['PRODUCTION', 'TEST'];
+            const shopIds = [IZIPAY_SHOP_ID, '05647590'].filter(id => id && id.length >= 7);
             const rawKey = IZIPAY_CLIENT_KEY_RAW;
             const keysToTry = [
                 rawKey,                                      // A. Clave Larga Completa
-                rawKey.includes('_') ? rawKey.split('_')[1] : null, // B. Clave sin prefijo
-                (process.env.IZIPAY_HMAC_SHA256 || '').trim() // C. HMAC como Pass
-            ].filter(k => k && k.length > 10);
+                rawKey.includes('_') ? rawKey.split('_')[1] : null // B. Clave sin prefijo
+            ].filter(k => k && k.length > 20);
 
-            let iziRes = { status: 'ERROR', errorMessage: 'No se pudo conectar' };
+            let iziRes = { status: 'ERROR', errorMessage: 'Iniciando validación...' };
             let success = false;
 
-            for (const ep of endpoints) {
+            for (const mode of modes) {
                 if (success) break;
                 for (const sId of shopIds) {
                     if (success) break;
                     for (const key of keysToTry) {
-                        console.log(`[IZIPAY] Trying Auth: ${ep.host}${ep.path} | Shop=${sId} | Key=${key.slice(0, 8)}...`);
-                        iziRes = await callIzipay(postData, sId, key, ep.host, ep.path);
+                        const postData = JSON.stringify({
+                            amount: amount,
+                            currency: membership.currency || 'PEN',
+                            orderId: orderId,
+                            customer: { email: decoded.email },
+                            ctx_mode: mode // IMPORTANTE: PRODUCTION o TEST en mayúsculas
+                        });
+
+                        console.log(`[IZIPAY] Attempt: Mode=${mode} | Shop=${sId} | Key=${key.slice(0, 8)}...`);
+                        iziRes = await callIzipay(postData, sId, key, 'api.micuentaweb.pe', '/api-payment/V4/Charge/CreatePayment');
                         if (iziRes.status === 'SUCCESS') {
                             success = true;
                             break;
