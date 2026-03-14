@@ -200,6 +200,7 @@
             margin-bottom: 1.25rem;
             background: linear-gradient(135deg, #fff 30%, var(--purple-light));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -1107,9 +1108,9 @@
             </div>
             
             <!-- Contenedor de Izipay -->
-            <div id="izipayFormContainer" style="min-height: 300px;">
-                <!-- El SDK de Izipay inyectará el formulario aquí -->
-                <div class="kr-embedded" id="myPaymentForm">
+            <div id="izipayFormContainer" style="min-height: 350px;">
+                <!-- Formulario embebido estándar de Izipay -->
+                <form class="kr-embedded" id="myPaymentForm">
                     <!-- payment form fields -->
                     <div class="kr-pan"></div>
                     <div class="kr-expiry"></div>
@@ -1120,7 +1121,7 @@
 
                     <!-- error zone -->
                     <div class="kr-form-error"></div>
-                </div>
+                </form>
             </div>
 
             <div style="margin-top:1.5rem;text-align:center;">
@@ -1366,46 +1367,37 @@
         // ── Izipay Integration ──────────────────────────────────────────
         let izipaySdkLoaded = false;
 
-        async function loadIzipaySdk() {
-            // Si ya existe el script, comprobar si la clave es la misma. 
-            // Si no, lo removemos para forzar recarga con la nueva clave.
-            const oldScript = document.getElementById('izipay-sdk');
-            if (oldScript) {
-                if (oldScript.getAttribute('kr-public-key') === IZIPAY_PUBLIC_KEY) {
-                    return; 
-                }
-                oldScript.remove();
-                if (window.KR) delete window.KR;
-            }
-
+        async function initIzipay() {
             await configReady;
+            if (!IZIPAY_PUBLIC_KEY) return;
             
-            if (!IZIPAY_PUBLIC_KEY) {
-                console.error('IZIPAY_PUBLIC_KEY no configurada');
-                return;
+            console.log('[IZIPAY] Loading SDK with Key:', IZIPAY_PUBLIC_KEY.slice(0, 15) + '...');
+            
+            // Cargar CSS
+            if (!document.getElementById('izipay-style')) {
+                const link = document.createElement('link');
+                link.id = 'izipay-style';
+                link.rel = 'stylesheet';
+                link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.amber.css';
+                document.head.appendChild(link);
             }
 
-            return new Promise((resolve) => {
+            // Cargar JS
+            if (!document.getElementById('izipay-sdk')) {
                 const script = document.createElement('script');
                 script.id = 'izipay-sdk';
                 script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
                 script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
                 script.setAttribute('kr-post-url-success', '/perfil?payment=success');
+                script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe'); // Obligatorio en algunos casos de Peru
+                script.setAttribute('kr-language', 'es-PE');
+                script.setAttribute('kr-spa-mode', 'true');
                 script.onload = () => {
                     izipaySdkLoaded = true;
-                    resolve();
+                    console.log('[IZIPAY] SDK Loaded successfully');
                 };
                 document.head.appendChild(script);
-
-                // Estilos para el formulario incrustado
-                if (!document.getElementById('izipay-style')) {
-                    const link = document.createElement('link');
-                    link.id = 'izipay-style';
-                    link.rel = 'stylesheet';
-                    link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.amber.css';
-                    document.head.appendChild(link);
-                }
-            });
+            }
         }
 
         async function startIzipayCheckout() {
@@ -1420,10 +1412,7 @@
             btnSpin.style.display = '';
 
             try {
-                // 1. Asegurar SDK cargado
-                await loadIzipaySdk();
-
-                // 2. Obtener formToken del backend
+                console.log('[IZIPAY] Fetching formToken for plan:', selectedPlanId);
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
                     headers: { 
@@ -1433,32 +1422,43 @@
                     body: JSON.stringify({ membershipId: selectedPlanId })
                 });
 
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`Error en servidor (${res.status}): ${errorText.slice(0, 50)}`);
+                }
+
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Error al generar checkout');
 
-                // 3. Abrir modal de Izipay
+                console.log('[IZIPAY] Token received, opening modal...');
+                
+                // 3. Abrir modal
                 closeModal();
                 document.getElementById('izipayModal').classList.add('open');
 
-                // 4. Esperar un breve momento para que el DOM se renderice y luego inyectar el token
-                setTimeout(async () => {
-                    if (window.KR) {
-                        try {
-                            // Limpiar cualquier estado previo si es necesario
-                            await KR.setFormToken(data.formToken);
-                            console.log('Token de Izipay configurado correctamente');
-                        } catch (e) {
-                            console.error('Error al configurar token:', e);
+                // 4. Inyectar token
+                if (window.KR) {
+                    KR.setFormToken(data.formToken);
+                    console.log('[IZIPAY] Token injected to KR');
+                } else {
+                    // Fallback: intentar esperar un poco si el script se retrasó
+                    let attempts = 0;
+                    const checkKR = setInterval(() => {
+                        attempts++;
+                        if (window.KR) {
+                            clearInterval(checkKR);
+                            KR.setFormToken(data.formToken);
+                            console.log('[IZIPAY] Token injected (delayed)');
+                        } else if (attempts > 10) {
+                            clearInterval(checkKR);
+                            alert("Error: El procesador de pagos no cargó a tiempo. Por favor refresca la página.");
                         }
-                    } else {
-                        throw new Error('El SDK de Izipay no se cargó correctamente');
-                    }
-                }, 300);
+                    }, 500);
+                }
 
             } catch (err) {
-                console.error(err);
+                console.error('[IZIPAY] Checkout Error:', err);
                 showToast('error', '❌', 'Error de pago', err.message);
-            } finally {
                 btn.disabled = false;
                 btnText.style.display = '';
                 btnSpin.style.display = 'none';
@@ -1469,17 +1469,11 @@
             document.getElementById('izipayModal').classList.remove('open');
         }
 
-        // ── Close modal on outside click ─────────────────────────────────
-        document.getElementById('confirmModal').addEventListener('click', e => {
-            if (e.target === document.getElementById('confirmModal')) closeModal();
-        });
-        document.getElementById('izipayModal').addEventListener('click', e => {
-            if (e.target === document.getElementById('izipayModal')) closeIzipayModal();
-        });
-
         // ── Init ─────────────────────────────────────────────────────────
         renderHeader();
         loadPlans();
+        initIzipay(); // Cargar SDK de inmediato
+
         // loadSettings() is called inside script.js on DOMContentLoaded
 
         // Show notification if coming from a blocked course
