@@ -97,8 +97,10 @@ module.exports = async (req, res) => {
 
         try {
             console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
-            // DEBUG DE CREDENCIALES (Seguro: solo muestra fragmentos)
-            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key Raw=${IZIPAY_CLIENT_KEY_RAW.slice(0,4)}...${IZIPAY_CLIENT_KEY_RAW.slice(-4)} | Len=${IZIPAY_CLIENT_KEY_RAW.length}`);
+            
+            // LOG HEXADECIMAL (Detectar caracteres invisibles como espacios o saltos de línea)
+            const keyHex = Buffer.from(IZIPAY_CLIENT_KEY_RAW.slice(0, 10)).toString('hex');
+            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key Raw Len=${IZIPAY_CLIENT_KEY_RAW.length} | Hex(10)=${keyHex}`);
             
             await connectDB();
             const { membershipId } = req.body;
@@ -121,39 +123,36 @@ module.exports = async (req, res) => {
                 amount: amount,
                 currency: membership.currency || 'PEN',
                 orderId: orderId,
-                customer: { email: decoded.email },
-                // IMPORTANTE: Asegurar que estamos en producción
-                ctx_mode: 'PRODUCTION'
+                customer: { email: decoded.email }
+                // ctx_mode eliminado para que el servidor de Izipay lo detecte automáticamente
             });
 
-            // SECUENCIA DE INTENTOS DE AUTENTICACIÓN (4 NIVELES)
-            // 1. Clave Raw (Ej: prodpassword_...)
-            console.log(`[IZIPAY] Auth Attempt 1 (Raw Key, Len=${IZIPAY_CLIENT_KEY_RAW.length})`);
-            let iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, IZIPAY_CLIENT_KEY_RAW);
+            // ESTRATEGIA DE FUERZA BRUTA: Probar todas las combinaciones posibles
+            const shopIds = [IZIPAY_SHOP_ID, '5647590'].filter(id => id);
+            const keysToTry = [
+                IZIPAY_CLIENT_KEY_RAW, // 1. Tal cual viene
+                IZIPAY_CLIENT_KEY_RAW.includes('_') ? IZIPAY_CLIENT_KEY_RAW.split('_')[1] : null, // 2. Sanitizada
+                process.env.IZIPAY_HMAC_SHA256?.trim(), // 3. HMAC como Pass
+                'muPkleaAM1mXyyk9' // 4. Clave corta Legacy
+            ].filter(k => k);
 
-            // 2. Si falla, probar Sanitizada (Sin prefijo prodpassword_)
-            if (iziRes.answer?.errorCode === 'INT_905' || !iziRes.answer) {
-                let sanitizedKey = IZIPAY_CLIENT_KEY_RAW;
-                if (sanitizedKey.includes('_')) sanitizedKey = sanitizedKey.split('_')[1];
-                
-                console.log(`[IZIPAY] Auth Attempt 2 (Sanitized, Len=${sanitizedKey.length})`);
-                iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, sanitizedKey);
-            }
+            let iziRes = { status: 'ERROR', errorMessage: 'No attempts made' };
+            let success = false;
 
-            // 3. Si falla, probar con la clave HMAC de 45 caracteres (A veces Izipay la usa como Pass)
-            if (iziRes.answer?.errorCode === 'INT_905' && process.env.IZIPAY_HMAC_SHA256) {
-                const hmacKey = process.env.IZIPAY_HMAC_SHA256.trim();
-                console.log(`[IZIPAY] Auth Attempt 3 (HMAC Key, Len=${hmacKey.length})`);
-                iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, hmacKey);
-            }
-            
-            // 4. ÚLTIMO RECURSO: Probar con la clave corta de producción (Ej: muPkle...) 
-            // Si el usuario la puso en otra variable o si la clave RAW es muy corta, la usamos directamente.
-            if (iziRes.answer?.errorCode === 'INT_905') {
-                // Si tienes la clave corta (16 carac) de tu Imagen #1, ponla aquí o agrégala a Vercel como IZIPAY_SHORT_KEY
-                const shortKey = (process.env.IZIPAY_SHORT_KEY || 'muPkleaAM1mXyyk9').trim(); 
-                console.log(`[IZIPAY] Auth Attempt 4 (Legacy Short Key, Len=${shortKey.length})`);
-                iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, shortKey);
+            for (const sId of shopIds) {
+                if (success) break;
+                for (const key of keysToTry) {
+                    console.log(`[IZIPAY] Attempting Auth: Shop=${sId} | Key Len=${key.length} | Prefix=${key.slice(0, 5)}...`);
+                    iziRes = await callIzipay(postData, sId, key);
+                    if (iziRes.status === 'SUCCESS') {
+                        success = true;
+                        break;
+                    }
+                    if (iziRes.answer?.errorCode !== 'INT_905') {
+                        // Si el error NO es de credenciales, quizás es otro problema serio
+                        console.warn(`[IZIPAY] Warning: Received non-auth error: ${iziRes.answer?.errorCode}`);
+                    }
+                }
             }
 
             if (iziRes.status === 'SUCCESS') {
