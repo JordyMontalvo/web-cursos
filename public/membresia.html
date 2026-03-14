@@ -732,17 +732,24 @@
         }
 
         /* Estilos para el botón de Izipay inyectado */
-        .kr-popin-button {
+        .kr-popin-button, .kr-payment-button {
             background-color: var(--purple) !important;
             color: #fff !important;
             border-radius: 12px !important;
-            padding: 0.875rem !important;
-            font-size: 0.95rem !important;
+            padding: 1rem !important;
+            font-size: 1rem !important;
             font-weight: 700 !important;
             width: 100% !important;
+            min-height: 50px !important;
             font-family: 'Inter', sans-serif !important;
             border: none !important;
-            margin-top: 0 !important;
+            cursor: pointer !important;
+            display: block !important;
+        }
+
+        .kr-embedded {
+            width: 100%;
+            display: block;
         }
 
         .btn-cancel-modal {
@@ -1445,16 +1452,22 @@
                 if (window.KR) {
                     logToSystem("Configurando token...");
                     await KR.setFormToken(data.formToken);
-                    logToSystem("Token configurado con éxito.");
+                    logToSystem("Token configurado. Abriendo pasarela...");
                     
-                    // LIMPIEZA TOTAL DEL ÁREA DE ACCIÓN
+                    // LIMPIEZA
                     document.getElementById('purchaseActions').innerHTML = ''; 
                     document.getElementById('purchaseActions').style.display = 'none';
-                    
                     document.getElementById('izipayPopinContainer').style.display = 'block';
-                    logToSystem("UI Cambiada a pasarela.");
                     
-                    showToast('success', '🔐', 'Seguridad lista', 'Haz clic abajo para pagar');
+                    // Disparar la ventana emergente oficial
+                    try {
+                        KR.openPopin();
+                        logToSystem("✅ Ventana oficial solicitada.");
+                    } catch(e) {
+                        logToSystem("⚠️ Falló openPopin, esperando clic manual...");
+                    }
+                    
+                    showToast('success', '🔐', 'Seguridad lista', 'Completa el pago en la ventana');
                 } else {
                     logToSystem("❌ Error: window.KR es null al intentar pagar");
                     throw new Error("Sistema de pagos no inicializado");
