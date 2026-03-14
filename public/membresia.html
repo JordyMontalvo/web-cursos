@@ -5,6 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membresía - IATIBET ZUREON</title>
+    <!-- SDK de Izipay (Cargado siempre para evitar 'not ready') -->
+    <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
+            kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCXyUIT2ai"
+            kr-post-url-success="/perfil?payment=success"
+            kr-client-domain="https://api.micuentaweb.pe"
+            kr-language="es-PE"
+            kr-popin>
+    </script>
+    <link rel="stylesheet" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css">
     <meta name="description"
         content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1123,13 +1132,22 @@
 
                 <!-- Botón Oficial de Izipay (Se muestra tras generar token) -->
                 <div id="izipayPopinContainer" style="display:none; text-align:center;">
-                    <div style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--green);">✨ ¡Orden lista! Haz clic abajo para pagar:</div>
+                    <div style="margin-bottom: 1.25rem; font-size: 0.95rem; color: #4FFFB0; font-weight: 600;">✅ ¡Orden generada con éxito!</div>
+                    
+                    <!-- Botón de respaldo (Acción del usuario para evitar bloqueo de pop-up) -->
+                    <button id="manualPopinBtn" onclick="triggerPopin()" class="btn-confirm" style="width:100%; margin-bottom:1rem; background:linear-gradient(135deg,#7C3AED,#9F67FF);">
+                        🚀 ABRIR PASARELA DE PAGO
+                    </button>
+
                     <div class="kr-embedded" kr-popin id="myPaymentForm">
                         <button class="kr-payment-button"></button>
                     </div>
-                    <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; margin-top:1rem; text-decoration:underline;">
-                        Usar otro método o cancelar
-                    </button>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; text-decoration:underline;">
+                            Cancelar o cambiar método
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Log de Sistema (Visible solo para depuración) -->
@@ -1384,47 +1402,22 @@
         let izipayInitialized = false;
 
         async function initIzipay() {
-            if (izipayInitialized) return;
-            await configReady;
-            if (!IZIPAY_PUBLIC_KEY) return;
-            
-            console.log('[IZIPAY] Initializing SDK...');
-            
-            // Cargar CSS
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css';
-            document.head.appendChild(link);
+            izipayInitialized = true;
+            console.log('[IZIPAY] SDK statically loaded from head');
+        }
 
-            // Cargar Script
-            const script = document.createElement('script');
-            script.id = 'izipay-sdk-js';
-            script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
-            script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
-            script.setAttribute('kr-post-url-success', '/perfil?payment=success');
-            script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
-            script.setAttribute('kr-language', 'es-PE');
-            script.setAttribute('kr-popin', ''); 
-            
-            script.onload = () => { 
-                izipayInitialized = true; 
-                console.log('[IZIPAY] SDK Script loaded');
-                
-                // Escuchar eventos del SDK
-                if (window.KR) {
-                    KR.onError((err) => console.error('[IZIPAY] SDK Error Event:', err));
-                    KR.onFormReady(() => console.log('[IZIPAY] Form is ready'));
-                }
-            };
-            document.head.appendChild(script);
+        function triggerPopin() {
+            if (window.KR) {
+                logToSystem("Invocando KR.openPopin()...");
+                KR.openPopin();
+            } else {
+                logToSystem("❌ Error: KR no está disponible.");
+            }
         }
 
         async function startIzipayCheckout() {
-            logToSystem("🚀 Botón Pagar pulsado...");
-            if (!selectedPlanId) {
-                logToSystem("❌ Error: selectedPlanId es null");
-                return;
-            }
+            logToSystem("🚀 Solicitando pago al servidor...");
+            if (!selectedPlanId) return;
             
             const btn = document.getElementById('btnConfirm');
             const btnText = document.getElementById('confirmBtnText');
