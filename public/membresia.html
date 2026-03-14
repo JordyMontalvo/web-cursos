@@ -1284,23 +1284,30 @@
                 setTimeout(() => { window.location.href = `/login?redirect=/membresia`; }, 1800);
                 return;
             }
+
+            // 1. RESET UI de inmediato (Para que no se vea el rastro del pago anterior)
+            const btnConfirm = document.getElementById('btnConfirm');
+            const btnText = document.getElementById('confirmBtnText');
+            const btnSpin = document.getElementById('confirmBtnSpinner');
+            const popin = document.getElementById('izipayPopinContainer');
+
+            if (btnConfirm) btnConfirm.style.display = 'flex';
+            if (btnConfirm) btnConfirm.disabled = false;
+            if (btnText) btnText.style.display = 'inline';
+            if (btnSpin) btnSpin.style.display = 'none';
+            if (popin) popin.style.display = 'none';
+
             selectedPlanId = id;
-            const res = await fetch(apiUrl('/api/memberships')); // Refetch or use cached plans
-            const data = await res.json();
-            const plan = data.memberships.find(p => p._id === id);
-            const sym = (plan && plan.currency === 'USD') ? '$' : 'S/';
+            
+            // 2. Buscar símbolo de moneda sin fetch (ya tenemos plans[])
+            const currPlan = plans.find(p => p._id === id);
+            const sym = (currPlan && currPlan.currency === 'USD') ? '$' : 'S/';
 
             document.getElementById('modalPlanName').textContent = name;
             document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
             
-            // RESET botones al abrir
-            document.getElementById('btnConfirm').style.display = 'block';
-            document.getElementById('btnConfirm').disabled = false;
-            document.getElementById('confirmBtnText').style.display = 'inline';
-            document.getElementById('confirmBtnSpinner').style.display = 'none';
-            document.getElementById('izipayPopinContainer').style.display = 'none';
-
+            // 3. Abrir modal
             document.getElementById('confirmModal').classList.add('open');
         }
 
