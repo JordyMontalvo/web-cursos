@@ -280,7 +280,7 @@ body {
   position: relative;
   width: 100vw;
   max-width: 100%;
-  height: 25vh;
+  height: 26vh;
   /* Ajustado de 33vh para cubrir más abajo */
   min-height: 120px;
   overflow: hidden;
@@ -401,7 +401,7 @@ body {
 
 @media (max-width: 768px) {
   .banner-carousel {
-    height: 20vh;
+    height: 15vh;
     min-height: 100px;
   }
 
@@ -911,7 +911,7 @@ body {
   }
 
   .logo-text {
-    display: none;
+    font-size: 1.1rem;
   }
 }
 
