@@ -19,9 +19,13 @@ async function callIzipay(postData, shopId, key) {
         headers: { 
             'Authorization': authHeader, 
             'Content-Type': 'application/json', 
-            'Content-Length': Buffer.byteLength(postData) 
+            'Accept': 'application/json',
+            'User-Agent': 'Vercel-Serverless-Izipay-Integration/1.1'
         }
     };
+
+    const postDataBuffer = Buffer.from(postData);
+    options.headers['Content-Length'] = postDataBuffer.length;
 
     return new Promise((resolve, reject) => {
         const request = https.request(options, (response) => {
@@ -122,25 +126,34 @@ module.exports = async (req, res) => {
                 ctx_mode: 'PRODUCTION'
             });
 
-            // SECUENCIA DE INTENTOS DE AUTENTICACIÓN
-            // 1. Clave Raw (como viene de Vercel)
-            console.log(`[IZIPAY] Attempt 1 (Raw Key, Len=${IZIPAY_CLIENT_KEY_RAW.length})`);
+            // SECUENCIA DE INTENTOS DE AUTENTICACIÓN (4 NIVELES)
+            // 1. Clave Raw (Ej: prodpassword_...)
+            console.log(`[IZIPAY] Auth Attempt 1 (Raw Key, Len=${IZIPAY_CLIENT_KEY_RAW.length})`);
             let iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, IZIPAY_CLIENT_KEY_RAW);
 
-            // 2. Si falla por Auth, probar Sanitizada (sin prefijo prodpassword_)
-            if (iziRes.answer?.errorCode === 'INT_905' || (iziRes.status === 'ERROR' && !iziRes.answer)) {
+            // 2. Si falla, probar Sanitizada (Sin prefijo prodpassword_)
+            if (iziRes.answer?.errorCode === 'INT_905' || !iziRes.answer) {
                 let sanitizedKey = IZIPAY_CLIENT_KEY_RAW;
                 if (sanitizedKey.includes('_')) sanitizedKey = sanitizedKey.split('_')[1];
                 
-                console.log(`[IZIPAY] Attempt 1 failed. Trying Sanitized (Len=${sanitizedKey.length})`);
+                console.log(`[IZIPAY] Auth Attempt 2 (Sanitized, Len=${sanitizedKey.length})`);
                 iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, sanitizedKey);
             }
 
-            // 3. Si sigue fallando por Auth, probar la clave HMAC_SHA256 (algunas configuraciones de Izipay la necesitan como password)
-            if ((iziRes.answer?.errorCode === 'INT_905') && process.env.IZIPAY_HMAC_SHA256) {
+            // 3. Si falla, probar con la clave HMAC de 45 caracteres (A veces Izipay la usa como Pass)
+            if (iziRes.answer?.errorCode === 'INT_905' && process.env.IZIPAY_HMAC_SHA256) {
                 const hmacKey = process.env.IZIPAY_HMAC_SHA256.trim();
-                console.log(`[IZIPAY] Attempts failed. Trying HMAC Key as fallback (Len=${hmacKey.length})`);
+                console.log(`[IZIPAY] Auth Attempt 3 (HMAC Key, Len=${hmacKey.length})`);
                 iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, hmacKey);
+            }
+            
+            // 4. ÚLTIMO RECURSO: Probar con la clave corta de producción (Ej: muPkle...) 
+            // Si el usuario la puso en otra variable o si la clave RAW es muy corta, la usamos directamente.
+            if (iziRes.answer?.errorCode === 'INT_905') {
+                // Si tienes la clave corta (16 carac) de tu Imagen #1, ponla aquí o agrégala a Vercel como IZIPAY_SHORT_KEY
+                const shortKey = (process.env.IZIPAY_SHORT_KEY || 'muPkleaAM1mXyyk9').trim(); 
+                console.log(`[IZIPAY] Auth Attempt 4 (Legacy Short Key, Len=${shortKey.length})`);
+                iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, shortKey);
             }
 
             if (iziRes.status === 'SUCCESS') {
