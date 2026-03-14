@@ -1360,17 +1360,37 @@
         }
 
         function resetCheckout() {
-            document.getElementById('purchaseActions').style.display = 'flex';
-            document.getElementById('purchaseActions').style.opacity = '1';
-            document.getElementById('purchaseActions').style.pointerEvents = 'auto';
-            document.getElementById('izipayPopinContainer').style.display = 'none';
-            document.getElementById('adblockWarning').style.display = 'none';
-            
+            const actions = document.getElementById('purchaseActions');
+            if (actions) {
+                actions.style.display = 'flex';
+                actions.style.opacity = '1';
+                actions.style.pointerEvents = 'auto';
+                // Restaurar contenido de los botones si fue vaciado
+                if (!document.getElementById('btnConfirm')) {
+                    actions.innerHTML = `
+                        <button class="btn-cancel-modal" onclick="closeModal()" style="flex:1;">Cancelar</button>
+                        <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()" style="flex:1;">
+                            <span id="confirmBtnText">💳 Pagar con tarjeta</span>
+                            <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
+                        </button>`;
+                }
+            }
+            const popin = document.getElementById('izipayPopinContainer');
+            if (popin) popin.style.display = 'none';
+
+            const adWarn = document.getElementById('adblockWarning');
+            if (adWarn) adWarn.style.display = 'none';
+
+            const sysLog = document.getElementById('izipaySystemLog');
+            if (sysLog) { sysLog.style.display = 'none'; sysLog.innerHTML = ''; }
+
             const btn = document.getElementById('btnConfirm');
             if (btn) {
                 btn.disabled = false;
-                document.getElementById('confirmBtnText').style.display = 'inline';
-                document.getElementById('confirmBtnSpinner').style.display = 'none';
+                const t = document.getElementById('confirmBtnText');
+                const s = document.getElementById('confirmBtnSpinner');
+                if (t) t.style.display = 'inline';
+                if (s) s.style.display = 'none';
             }
         }
 
