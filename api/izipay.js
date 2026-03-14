@@ -4,8 +4,9 @@ const jwt = require('jsonwebtoken');
 const https = require('https');
 const crypto = require('crypto');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
-const IZIPAY_CLIENT_KEY = process.env.IZIPAY_CLIENT_KEY;
+const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').trim();
+const IZIPAY_CLIENT_KEY = (process.env.IZIPAY_CLIENT_KEY || '').trim();
+const IZIPAY_SHOP_ID = (process.env.IZIPAY_SHOP_ID || '').trim();
 
 // ── Models ──────────────────────────────────────────────────────
 let User;
@@ -71,7 +72,14 @@ module.exports = async (req, res) => {
             if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
 
             const amount = Math.round(membership.price * 100);
-            const orderId = `USR_${decoded.id}_MEM_${membershipId}_${Date.now()}`;
+            
+            // Izipay V4 limita el orderId a 64 caracteres.
+            // Usamos fragmentos para que sea único pero corto: U_[8char]_M_[8char]_[timestamp]
+            const uPart = decoded.id.slice(-8);
+            const mPart = membershipId.toString().slice(-8);
+            const orderId = `U_${uPart}_M_${mPart}_${Date.now()}`;
+
+            console.log(`[IZIPAY] orderId generado: ${orderId} (Length: ${orderId.length})`);
 
             const postData = JSON.stringify({
                 amount: amount,
@@ -80,7 +88,7 @@ module.exports = async (req, res) => {
                 customer: { email: decoded.email }
             });
 
-            const authHeader = 'Basic ' + Buffer.from(`${process.env.IZIPAY_SHOP_ID}:${IZIPAY_CLIENT_KEY}`).toString('base64');
+            const authHeader = 'Basic ' + Buffer.from(`${IZIPAY_SHOP_ID}:${IZIPAY_CLIENT_KEY}`).toString('base64');
             const options = {
                 hostname: 'api.micuentaweb.pe',
                 port: 443,
