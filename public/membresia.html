@@ -1107,10 +1107,10 @@
                 <button onclick="closeIzipayModal()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">✕</button>
             </div>
             
-            <!-- Contenedor de Izipay (Modo Pop-in estándar) -->
+            <!-- Contenedor de Izipay (Modo Pop-in oficial) -->
             <div id="izipayFormContainer" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
-                <!-- Dejamos el div vacío para que Izipay genere su propio diseño "Pop-in" -->
-                <div class="kr-embedded" id="myPaymentForm"></div>
+                <!-- Usamos la clase kr-popin para la ventana oficial emergente -->
+                <div class="kr-popin" id="myPaymentForm"></div>
             </div>
 
             <div style="margin-top:1.5rem;text-align:center;">
@@ -1422,18 +1422,18 @@
                 closeModal();
                 document.getElementById('izipayModal').classList.add('open');
 
-                // 4. Inyectar token con un pequeño delay para asegurar renderizado
+                // 4. Inyectar token y abrir Pop-in
                 setTimeout(async () => {
                     if (window.KR) {
                         try {
-                            const result = await KR.setFormToken(data.formToken);
-                            console.log('[IZIPAY] KR.setFormToken success:', result);
+                            await KR.setFormToken(data.formToken);
+                            console.log('[IZIPAY] Token set, Pop-in ready');
                         } catch (e) {
-                            console.error('[IZIPAY] KR.setFormToken failure:', e);
+                            console.error('[IZIPAY] Error setting token:', e);
                         }
                     } else {
-                        console.error('[IZIPAY] KR object not found in window');
-                        alert("El procesador de pagos no está listo. Por favor refresca la página.");
+                        console.error('[IZIPAY] KR not found');
+                        alert("Error: El cargador de pagos no está listo.");
                     }
                 }, 500);
 
