@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
     console.log(`[GENERAL] Request URL: ${url} | Method: ${req.method}`);
 
     // ── /api/config ────────────────────────────────────────────────
-    if (url.includes('/config')) {
+    if (url.includes('/config') || url.endsWith('/general')) {
         const config = {
             apiUrl: process.env.BACKEND_URL || '',
             izipayPublicKey: process.env.IZIPAY_PUBLIC_KEY || '',

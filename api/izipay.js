@@ -8,10 +8,13 @@ const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').
 const IZIPAY_CLIENT_KEY_RAW = (process.env.IZIPAY_CLIENT_KEY || '').trim();
 const IZIPAY_SHOP_ID = (process.env.IZIPAY_SHOP_ID || '').trim();
 
-// Limpiar prefijos de Izipay si existen
+// Limpiar prefijos de Izipay de forma estricta
 let IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY_RAW;
-if (IZIPAY_CLIENT_KEY.startsWith('prodpassword_')) IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY.replace('prodpassword_', '');
-if (IZIPAY_CLIENT_KEY.startsWith('testpassword_')) IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY.replace('testpassword_', '');
+if (IZIPAY_CLIENT_KEY.includes('_')) {
+    IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY.split('_')[1] || IZIPAY_CLIENT_KEY;
+}
+
+console.log(`[IZIPAY] Creds Loaded: Shop=${IZIPAY_SHOP_ID} | Key(sanitized)=${IZIPAY_CLIENT_KEY.slice(0,4)}...${IZIPAY_CLIENT_KEY.slice(-4)}`);
 
 // ── Models ──────────────────────────────────────────────────────
 let User;
@@ -102,14 +105,20 @@ module.exports = async (req, res) => {
                 port: 443,
                 path: '/api-payment/V4/Charge/CreatePayment',
                 method: 'POST',
-                headers: { 'Authorization': authHeader, 'Content-Type': 'application/json', 'Content-Length': postData.length }
+                headers: { 
+                    'Authorization': authHeader, 
+                    'Content-Type': 'application/json', 
+                    'Content-Length': Buffer.byteLength(postData) 
+                }
             };
 
             const iziRes = await new Promise((resolve, reject) => {
                 const request = https.request(options, (response) => {
                     let data = '';
                     response.on('data', (chunk) => data += chunk);
-                    response.on('end', () => resolve(JSON.parse(data)));
+                    response.on('end', () => {
+                        try { resolve(JSON.parse(data)); } catch (e) { resolve({ status: 'ERROR', errorMessage: 'Invalid JSON from Izipay' }); }
+                    });
                 });
                 request.on('error', (err) => reject(err));
                 request.write(postData);
