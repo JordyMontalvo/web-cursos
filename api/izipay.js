@@ -115,29 +115,27 @@ module.exports = async (req, res) => {
 
             const amount = Math.round(membership.price * 100);
             
-            // Izipay V4 limita el orderId a 64 caracteres.
-            // Usamos fragmentos para que sea único pero corto: U_[8char]_M_[8char]_[timestamp]
-            const uPart = decoded.id.slice(-8);
-            const mPart = membershipId.toString().slice(-8);
-            const orderId = `U_${uPart}_M_${mPart}_${Date.now()}`;
-
-            console.log(`[IZIPAY] orderId generado: ${orderId} (Length: ${orderId.length})`);
-
-            const postData = JSON.stringify({
+            // ORDER_ID: Acortado a <20 caracteres para máxima compatibilidad con bancos peruanos
+            const orderId = `PAY_${Date.now().toString().slice(-8)}_${membershipId.slice(-4)}`;
+            
+            const basePostData = {
                 amount: amount,
                 currency: membership.currency || 'PEN',
                 orderId: orderId,
                 customer: { email: decoded.email }
-            });
+            };
 
-            // SECUENCIA DE INTENTOS DEFINITIVA (Con ctx_mode obligatorio)
+            // SECUENCIA DE INTENTOS MAESTRA (Con orderId validado)
             const modes = ['PRODUCTION', 'TEST'];
-            const shopIds = [IZIPAY_SHOP_ID, '05647590'].filter(id => id && id.length >= 7);
+            const shopIds = [IZIPAY_SHOP_ID, '05647590', 'iatibet'].filter(id => id);
             const rawKey = IZIPAY_CLIENT_KEY_RAW;
+            const hmacKey = (process.env.IZIPAY_HMAC_SHA256 || '').trim();
+            
             const keysToTry = [
-                rawKey,                                      // A. Clave Larga Completa
-                rawKey.includes('_') ? rawKey.split('_')[1] : null // B. Clave sin prefijo
-            ].filter(k => k && k.length > 20);
+                rawKey,                                           // 1. Clave Larga (prodpassword_...)
+                rawKey.includes('_') ? rawKey.split('_')[1] : null, // 2. Clave Limpia
+                hmacKey.length > 20 ? hmacKey : null              // 3. Clave HMAC
+            ].filter(k => k);
 
             let iziRes = { status: 'ERROR', errorMessage: 'Iniciando validación...' };
             let success = false;
@@ -147,16 +145,10 @@ module.exports = async (req, res) => {
                 for (const sId of shopIds) {
                     if (success) break;
                     for (const key of keysToTry) {
-                        const postData = JSON.stringify({
-                            amount: amount,
-                            currency: membership.currency || 'PEN',
-                            orderId: orderId,
-                            customer: { email: decoded.email },
-                            ctx_mode: mode // IMPORTANTE: PRODUCTION o TEST en mayúsculas
-                        });
+                        const finalPostData = JSON.stringify({ ...basePostData, ctx_mode: mode });
 
                         console.log(`[IZIPAY] Attempt: Mode=${mode} | Shop=${sId} | Key=${key.slice(0, 8)}...`);
-                        iziRes = await callIzipay(postData, sId, key, 'api.micuentaweb.pe', '/api-payment/V4/Charge/CreatePayment');
+                        iziRes = await callIzipay(finalPostData, sId, key, 'api.micuentaweb.pe', '/api-payment/V4/Charge/CreatePayment');
                         if (iziRes.status === 'SUCCESS') {
                             success = true;
                             break;
