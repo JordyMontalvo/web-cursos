@@ -18,17 +18,15 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const url = req.url.split('?')[0];
-    console.log(`[GENERAL] Request URL: ${url} | Method: ${req.method}`);
+    console.log(`[GENERAL] Incoming Request: ${url} | Env Public Key: ${!!process.env.IZIPAY_PUBLIC_KEY}`);
 
-    // ── /api/config ────────────────────────────────────────────────
-    if (url.includes('/config') || url.endsWith('/general')) {
-        const config = {
+    // Responder al config si la ruta lo sugiere o si no hay otra ruta válida
+    if (url.includes('config') || url.includes('general') || req.method === 'GET') {
+        return res.json({
             apiUrl: process.env.BACKEND_URL || '',
             izipayPublicKey: process.env.IZIPAY_PUBLIC_KEY || '',
             izipayShopId: process.env.IZIPAY_SHOP_ID || ''
-        };
-        console.log(`[GENERAL] Config served. Public Key exists: ${!!config.izipayPublicKey}`);
-        return res.json(config);
+        });
     }
 
     try { 

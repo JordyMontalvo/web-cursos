@@ -8,13 +8,34 @@ const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').
 const IZIPAY_CLIENT_KEY_RAW = (process.env.IZIPAY_CLIENT_KEY || '').trim();
 const IZIPAY_SHOP_ID = (process.env.IZIPAY_SHOP_ID || '').trim();
 
-// Limpiar prefijos de Izipay de forma estricta
-let IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY_RAW;
-if (IZIPAY_CLIENT_KEY.includes('_')) {
-    IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY.split('_')[1] || IZIPAY_CLIENT_KEY;
-}
+// Función para llamar a Izipay con una clave específica
+async function callIzipay(postData, shopId, key) {
+    const authHeader = 'Basic ' + Buffer.from(`${shopId}:${key}`).toString('base64');
+    const options = {
+        hostname: 'api.micuentaweb.pe',
+        port: 443,
+        path: '/api-payment/V4/Charge/CreatePayment',
+        method: 'POST',
+        headers: { 
+            'Authorization': authHeader, 
+            'Content-Type': 'application/json', 
+            'Content-Length': Buffer.byteLength(postData) 
+        }
+    };
 
-console.log(`[IZIPAY] Creds Loaded: Shop=${IZIPAY_SHOP_ID} | Key(sanitized)=${IZIPAY_CLIENT_KEY.slice(0,4)}...${IZIPAY_CLIENT_KEY.slice(-4)}`);
+    return new Promise((resolve, reject) => {
+        const request = https.request(options, (response) => {
+            let data = '';
+            response.on('data', (chunk) => data += chunk);
+            response.on('end', () => {
+                try { resolve(JSON.parse(data)); } catch (e) { resolve({ status: 'ERROR', errorMessage: 'Invalid JSON from Izipay' }); }
+            });
+        });
+        request.on('error', (err) => reject(err));
+        request.write(postData);
+        request.end();
+    });
+}
 
 // ── Models ──────────────────────────────────────────────────────
 let User;
@@ -99,37 +120,22 @@ module.exports = async (req, res) => {
                 customer: { email: decoded.email }
             });
 
-            const authHeader = 'Basic ' + Buffer.from(`${IZIPAY_SHOP_ID}:${IZIPAY_CLIENT_KEY}`).toString('base64');
-            const options = {
-                hostname: 'api.micuentaweb.pe',
-                port: 443,
-                path: '/api-payment/V4/Charge/CreatePayment',
-                method: 'POST',
-                headers: { 
-                    'Authorization': authHeader, 
-                    'Content-Type': 'application/json', 
-                    'Content-Length': Buffer.byteLength(postData) 
-                }
-            };
+            // INTENTO 1: Con la clave tal cual (Raw)
+            console.log(`[IZIPAY] Attempt 1 (Raw Key, Len=${IZIPAY_CLIENT_KEY_RAW.length})`);
+            let iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, IZIPAY_CLIENT_KEY_RAW);
 
-            const iziRes = await new Promise((resolve, reject) => {
-                const request = https.request(options, (response) => {
-                    let data = '';
-                    response.on('data', (chunk) => data += chunk);
-                    response.on('end', () => {
-                        try { resolve(JSON.parse(data)); } catch (e) { resolve({ status: 'ERROR', errorMessage: 'Invalid JSON from Izipay' }); }
-                    });
-                });
-                request.on('error', (err) => reject(err));
-                request.write(postData);
-                request.end();
-            });
+            // INTENTO 2: Si el primero falla por auth, probar sanitizada (sin prefijo)
+            if (iziRes.answer?.errorCode === 'INT_905' && IZIPAY_CLIENT_KEY_RAW.includes('_')) {
+                const sanitizedKey = IZIPAY_CLIENT_KEY_RAW.split('_')[1];
+                console.log(`[IZIPAY] Attempt 1 failed. Attempting with Sanitized Key (Len=${sanitizedKey.length})`);
+                iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, sanitizedKey);
+            }
 
             if (iziRes.status === 'SUCCESS') {
                 console.log('[IZIPAY] Checkout SUCCESS');
                 return res.json({ success: true, formToken: iziRes.answer.formToken });
             } else {
-                console.error('[IZIPAY] Izipay API Error Response:', iziRes);
+                console.error('[IZIPAY] Izipay API Final Error Response:', iziRes);
                 return res.status(500).json({ success: false, message: 'Error de Izipay', error: iziRes.errorMessage });
             }
         } catch (err) {
