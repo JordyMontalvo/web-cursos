@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membresía - IATIBET ZUREON</title>
-    <!-- SDK de Izipay (Cargado siempre para evitar 'not ready') -->
+    <!-- SDK de Izipay (Modo Embedded para evitar bloqueos de Pop-ups) -->
     <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
             kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCXyUIT2ai"
             kr-post-url-success="/perfil?payment=success"
             kr-client-domain="https://api.micuentaweb.pe"
-            kr-language="es-PE"
-            kr-popin>
+            kr-language="es-PE">
     </script>
     <link rel="stylesheet" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css">
     <meta name="description"
@@ -1130,24 +1129,17 @@
                     </button>
                 </div>
 
-                <!-- Botón Oficial de Izipay (Se muestra tras generar token) -->
-                <div id="izipayPopinContainer" style="display:none; text-align:center;">
-                    <div style="margin-bottom: 1.25rem; font-size: 0.95rem; color: #4FFFB0; font-weight: 600;">✅ ¡Orden generada con éxito!</div>
+                <!-- Formulario Incrustado (Embedded) -->
+                <div id="izipayPopinContainer" style="display:none; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">
+                    <div style="margin-bottom: 1rem; font-size: 0.9rem; color: #4FFFB0; text-align:center;">🔒 Introduce los datos de tu tarjeta:</div>
                     
-                    <!-- Botón de respaldo (Acción del usuario para evitar bloqueo de pop-up) -->
-                    <button id="manualPopinBtn" onclick="triggerPopin()" class="btn-confirm" style="width:100%; margin-bottom:1rem; background:linear-gradient(135deg,#7C3AED,#9F67FF);">
-                        🚀 ABRIR PASARELA DE PAGO
+                    <div class="kr-embedded" id="myPaymentForm">
+                        <!-- El SDK inyectará el formulario aquí -->
+                    </div>
+                    
+                    <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; width:100%; margin-top:1.5rem; text-decoration:underline;">
+                        Regresar o cambiar plan
                     </button>
-
-                    <div class="kr-embedded" kr-popin id="myPaymentForm">
-                        <button class="kr-payment-button"></button>
-                    </div>
-                    
-                    <div style="margin-top: 1.5rem;">
-                        <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; text-decoration:underline;">
-                            Cancelar o cambiar método
-                        </button>
-                    </div>
                 </div>
 
                 <!-- Log de Sistema (Visible solo para depuración) -->
@@ -1407,12 +1399,7 @@
         }
 
         function triggerPopin() {
-            if (window.KR) {
-                logToSystem("Invocando KR.openPopin()...");
-                KR.openPopin();
-            } else {
-                logToSystem("❌ Error: KR no está disponible.");
-            }
+            logToSystem("Modo Embedded activo. Renderizando formulario...");
         }
 
         async function startIzipayCheckout() {
