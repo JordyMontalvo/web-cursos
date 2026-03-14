@@ -1105,25 +1105,35 @@
                 <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
             </div>
             <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
-            <div class="modal-actions" id="purchaseActions">
-                <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
-                <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()">
-                    <span id="confirmBtnText">💳 Pagar con tarjeta</span>
-                    <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
-                </button>
-            </div>
-            
-            <!-- Espacio para Izipay -->
-            <div id="izipayPopinContainer" style="display:none; margin-top:1rem; min-height:60px;">
-                <div class="kr-popin" id="myPaymentForm">
-                    <button class="kr-payment-button"></button>
+            <!-- Área de Acción de Pago -->
+            <div id="paymentActionArea" style="margin-top: 0.5rem;">
+                <!-- Botones Iniciales -->
+                <div class="modal-actions" id="purchaseActions" style="display: flex; gap: 0.75rem;">
+                    <button class="btn-cancel-modal" onclick="closeModal()" style="flex:1;">Cancelar</button>
+                    <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()" style="flex:1;">
+                        <span id="confirmBtnText">💳 Pagar con tarjeta</span>
+                        <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
+                    </button>
                 </div>
-                <div id="izipayLoadingMsg" style="text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4); margin-top:0.5rem;">
-                    Cargando pasarela segura...
+
+                <!-- Botón Oficial de Izipay (Se muestra tras generar token) -->
+                <div id="izipayPopinContainer" style="display:none; text-align:center;">
+                    <div style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--green);">✨ ¡Orden lista! Haz clic abajo para pagar:</div>
+                    <div class="kr-popin" id="myPaymentForm">
+                        <button class="kr-payment-button"></button>
+                    </div>
+                    <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; margin-top:1rem; text-decoration:underline;">
+                        Usar otro método o cancelar
+                    </button>
                 </div>
-            </div>
-            <div id="adblockWarning" style="display:none; margin-top:1rem; padding:0.75rem; background:rgba(255,107,112,0.1); border:1px solid rgba(255,107,112,0.3); border-radius:10px; color:var(--red); font-size:0.8rem; text-align:center;">
-                ⚠️ <strong>Sistema de pago bloqueado.</strong><br>Por favor, desactiva tu bloqueador de anuncios (AdBlock) para poder pagar de forma segura.
+
+                <!-- Alerta de AdBlock -->
+                <div id="adblockWarning" style="display:none; margin-top:1rem; padding:1rem; background:rgba(255,107,112,0.1); border:1px solid rgba(255,107,112,0.3); border-radius:12px; color:#ff6b70; font-size:0.85rem; text-align:center; line-height:1.4;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚠️</div>
+                    <strong>Sistema de pago bloqueado</strong><br>
+                    Tu navegador está bloqueando los scripts de seguridad de Izipay.<br>
+                    <span style="font-weight: 700;">Desactiva tu AdBlocker o el escudo de Brave y recarga la página.</span>
+                </div>
             </div>
         </div>
     </div>
@@ -1285,34 +1295,41 @@
                 return;
             }
 
-            // RESET UI
-            const btn = document.getElementById('btnConfirm');
-            const popin = document.getElementById('izipayPopinContainer');
-            const adWarning = document.getElementById('adblockWarning');
-            
-            if (btn) {
-                btn.style.display = 'flex';
-                btn.disabled = false;
-                document.getElementById('confirmBtnText').style.display = 'inline';
-                document.getElementById('confirmBtnSpinner').style.display = 'none';
-            }
-            if (popin) popin.style.display = 'none';
-            if (adWarning) adWarning.style.display = 'none';
-
-            // Alerta si el SDK no cargó (posible AdBlock)
-            if (!window.KR && izipayInitialized) {
-                if (adWarning) adWarning.style.display = 'block';
-            }
-
             selectedPlanId = id;
+            resetCheckout(); // Limpiar rastro anterior
+
+            // Datos del modal
             const currPlan = plans.find(p => p._id === id);
             const sym = (currPlan && currPlan.currency === 'USD') ? '$' : 'S/';
-
             document.getElementById('modalPlanName').textContent = name;
             document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
             
             document.getElementById('confirmModal').classList.add('open');
+
+            // Verificar AdBlock de inmediato
+            setTimeout(() => {
+                if (!window.KR || !izipayInitialized) {
+                    document.getElementById('adblockWarning').style.display = 'block';
+                    document.getElementById('purchaseActions').style.opacity = '0.3';
+                    document.getElementById('purchaseActions').style.pointerEvents = 'none';
+                }
+            }, 500);
+        }
+
+        function resetCheckout() {
+            document.getElementById('purchaseActions').style.display = 'flex';
+            document.getElementById('purchaseActions').style.opacity = '1';
+            document.getElementById('purchaseActions').style.pointerEvents = 'auto';
+            document.getElementById('izipayPopinContainer').style.display = 'none';
+            document.getElementById('adblockWarning').style.display = 'none';
+            
+            const btn = document.getElementById('btnConfirm');
+            if (btn) {
+                btn.disabled = false;
+                document.getElementById('confirmBtnText').style.display = 'inline';
+                document.getElementById('confirmBtnSpinner').style.display = 'none';
+            }
         }
 
         function closeModal() {
@@ -1393,20 +1410,14 @@
 
                 if (window.KR) {
                     await KR.setFormToken(data.formToken);
-                    btn.style.display = 'none';
-                    popinContainer.style.display = 'block';
-                    showToast('success', '🔐', 'Seguridad lista', 'Haz clic abajo para pagar');
                     
-                    setTimeout(() => {
-                        const krBtn = popinContainer.querySelector('.kr-popin-button') || popinContainer.querySelector('.kr-payment-button');
-                        if (!krBtn && popinContainer.style.display === 'block') {
-                            document.getElementById('izipayLoadingMsg').innerHTML = '<span style="color:var(--red);">Error de carga. Recarga la página.</span>';
-                        } else {
-                            document.getElementById('izipayLoadingMsg').style.display = 'none';
-                        }
-                    }, 4000);
+                    // Cambiar a botón de Izipay
+                    document.getElementById('purchaseActions').style.display = 'none';
+                    document.getElementById('izipayPopinContainer').style.display = 'block';
+                    
+                    showToast('success', '🔐', 'Seguridad lista', 'Haz clic en el botón de abajo');
                 } else {
-                    alert("El sistema de pago no cargó. Por favor recarga la página.");
+                    throw new Error("Sistema de pagos no inicializado (revisa tu AdBlock)");
                 }
 
             } catch (err) {
