@@ -94,7 +94,7 @@ module.exports = async (req, res) => {
         try {
             console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
             // DEBUG DE CREDENCIALES (Seguro: solo muestra fragmentos)
-            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key Final=${IZIPAY_CLIENT_KEY.slice(0,4)}...${IZIPAY_CLIENT_KEY.slice(-4)} | Len=${IZIPAY_CLIENT_KEY.length}`);
+            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key Raw=${IZIPAY_CLIENT_KEY_RAW.slice(0,4)}...${IZIPAY_CLIENT_KEY_RAW.slice(-4)} | Len=${IZIPAY_CLIENT_KEY_RAW.length}`);
             
             await connectDB();
             const { membershipId } = req.body;
