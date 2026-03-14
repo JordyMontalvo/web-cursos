@@ -8,10 +8,21 @@ const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').
 const IZIPAY_CLIENT_KEY_RAW = (process.env.IZIPAY_CLIENT_KEY || '').trim();
 const IZIPAY_SHOP_ID = (process.env.IZIPAY_SHOP_ID || '').trim();
 
+// Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
+function normalizeShopId(id) {
+    if (!id) return null;
+    let clean = id.toString().trim();
+    if (clean.length > 8 && clean.startsWith('0')) clean = clean.slice(1); // Quitar cero si sobra
+    while (clean.length < 8) clean = '0' + clean; // Añadir ceros si falta
+    return clean;
+}
+
 // Función para llamar a Izipay con una clave específica
 async function callIzipay(postData, shopId, key, endpoint = 'api.micuentaweb.pe', customPath = null) {
     const apiPath = customPath || '/api-payment/V4/Charge/CreatePayment';
-    const authHeader = 'Basic ' + Buffer.from(`${shopId}:${key}`).toString('base64');
+    const cleanId = shopId.toString().trim();
+    const cleanKey = key.toString().trim();
+    const authHeader = 'Basic ' + Buffer.from(`${cleanId}:${cleanKey}`).toString('base64');
     
     const options = {
         hostname: endpoint,
@@ -125,19 +136,24 @@ module.exports = async (req, res) => {
                 customer: { email: decoded.email }
             };
 
-            // SECUENCIA DE INTENTOS MAESTRA (Con orderId validado)
+            // SECUENCIA DE INTENTOS MAESTRA (Normalización Inteligente)
             const modes = ['PRODUCTION', 'TEST'];
-            const shopIds = [IZIPAY_SHOP_ID, '05647590', 'iatibet'].filter(id => id);
-            const rawKey = IZIPAY_CLIENT_KEY_RAW;
+            
+            // IDs de Tienda: Probamos el original, el normalizado a 8 dígitos, y los secundarios conocidos
+            const rawShopId = IZIPAY_SHOP_ID.trim();
+            const normShopId = normalizeShopId(rawShopId);
+            const shopIds = [...new Set([normShopId, rawShopId, '05647590', '5647590'])].filter(id => id && id.length >= 7);
+            
+            const rawKey = IZIPAY_CLIENT_KEY_RAW.trim();
             const hmacKey = (process.env.IZIPAY_HMAC_SHA256 || '').trim();
             
             const keysToTry = [
-                rawKey,                                           // 1. Clave Larga (prodpassword_...)
-                rawKey.includes('_') ? rawKey.split('_')[1] : null, // 2. Clave Limpia
+                rawKey,                                           // 1. Clave Larga Completa
+                rawKey.includes('_') ? rawKey.split('_')[1] : null, // 2. Clave Limpia (sin prodpassword_)
                 hmacKey.length > 20 ? hmacKey : null              // 3. Clave HMAC
             ].filter(k => k);
 
-            let iziRes = { status: 'ERROR', errorMessage: 'Iniciando validación...' };
+            let iziRes = { status: 'ERROR', errorMessage: 'No se pudo validar credenciales' };
             let success = false;
 
             for (const mode of modes) {
