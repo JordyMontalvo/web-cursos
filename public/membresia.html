@@ -4,13 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
-            kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCXyUIT2ai"
-            kr-post-url-success="/perfil?payment=success"
-            kr-client-domain="https://api.micuentaweb.pe"
-            kr-language="es-PE">
-    </script>
-    <link rel="stylesheet" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css">
     <title>Membresía - IATIBET ZUREON</title>
     <meta name="description"
         content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
@@ -1118,11 +1111,13 @@
                 </button>
             </div>
             
-            <!-- Espacio para el Pop-in oficial (El SDK transformará este botón) -->
-            <div id="izipayPopinContainer" style="display:none; margin-top:0.5rem; justify-content:center;">
-                <div class="kr-popin">
-                    <!-- Botón requerido por el SDK de Izipay para el modo Pop-in -->
+            <!-- Espacio para Izipay -->
+            <div id="izipayPopinContainer" style="display:none; margin-top:1rem; min-height:60px;">
+                <div class="kr-popin" id="myPaymentForm">
                     <button class="kr-payment-button"></button>
+                </div>
+                <div id="izipayLoadingMsg" style="text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4); margin-top:0.5rem;">
+                    Cargando pasarela segura...
                 </div>
             </div>
         </div>
@@ -1285,21 +1280,18 @@
                 return;
             }
 
-            // 1. RESET UI de inmediato (Para que no se vea el rastro del pago anterior)
-            const btnConfirm = document.getElementById('btnConfirm');
-            const btnText = document.getElementById('confirmBtnText');
-            const btnSpin = document.getElementById('confirmBtnSpinner');
+            // RESET UI
+            const btn = document.getElementById('btnConfirm');
             const popin = document.getElementById('izipayPopinContainer');
-
-            if (btnConfirm) btnConfirm.style.display = 'flex';
-            if (btnConfirm) btnConfirm.disabled = false;
-            if (btnText) btnText.style.display = 'inline';
-            if (btnSpin) btnSpin.style.display = 'none';
+            if (btn) {
+                btn.style.display = 'flex';
+                btn.disabled = false;
+                document.getElementById('confirmBtnText').style.display = 'inline';
+                document.getElementById('confirmBtnSpinner').style.display = 'none';
+            }
             if (popin) popin.style.display = 'none';
 
             selectedPlanId = id;
-            
-            // 2. Buscar símbolo de moneda sin fetch (ya tenemos plans[])
             const currPlan = plans.find(p => p._id === id);
             const sym = (currPlan && currPlan.currency === 'USD') ? '$' : 'S/';
 
@@ -1307,51 +1299,12 @@
             document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
             
-            // 3. Abrir modal
             document.getElementById('confirmModal').classList.add('open');
         }
 
         function closeModal() {
             document.getElementById('confirmModal').classList.remove('open');
             selectedPlanId = null;
-        }
-
-        async function confirmPurchase() {
-            if (!selectedPlanId) return;
-            const btnText = document.getElementById('confirmBtnText');
-            const btnSpin = document.getElementById('confirmBtnSpinner');
-            const btn = document.getElementById('btnConfirm');
-            btnText.style.display = 'none';
-            btnSpin.style.display = '';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(apiUrl('/api/memberships/subscribe'), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ membershipId: selectedPlanId })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    // Update localStorage
-                    const updUser = { ...user, hasMembership: true, membershipPlan: data.membership?.name || '', activeMembership: selectedPlanId };
-                    localStorage.setItem('authUser', JSON.stringify(updUser));
-                    closeModal();
-                    showToast('success', '🎉', '¡Membresía activada!', 'Ya tienes acceso a todos los cursos.');
-                    setTimeout(() => {
-                        const from = new URLSearchParams(window.location.search).get('from');
-                        window.location.href = from ? `/curso/${from}` : '/';
-                    }, 2500);
-                } else {
-                    showToast('error', '❌', 'Error al procesar', data.message || 'Intenta de nuevo');
-                }
-            } catch (err) {
-                showToast('error', '❌', 'Error de conexión', 'Verifica tu conexión e intenta de nuevo');
-            } finally {
-                btnText.style.display = '';
-                btnSpin.style.display = 'none';
-                btn.disabled = false;
-            }
         }
 
         // ── FAQ toggle ───────────────────────────────────────────────────
@@ -1378,18 +1331,42 @@
         }
 
         // ── Izipay Integration ──────────────────────────────────────────
-        let izipaySdkLoaded = true; // Cargado estáticamente en el head
+        let izipayInitialized = false;
+
+        async function initIzipay() {
+            if (izipayInitialized) return;
+            await configReady;
+            if (!IZIPAY_PUBLIC_KEY) return;
+            
+            // Cargar CSS
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css';
+            document.head.appendChild(link);
+
+            // Cargar Script
+            const script = document.createElement('script');
+            script.id = 'izipay-sdk-js';
+            script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
+            script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
+            script.setAttribute('kr-post-url-success', '/perfil?payment=success');
+            script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
+            script.setAttribute('kr-language', 'es-PE');
+            script.setAttribute('kr-popin', ''); 
+            script.onload = () => { izipayInitialized = true; console.log('[IZIPAY] SDK Loaded'); };
+            document.head.appendChild(script);
+        }
 
         async function startIzipayCheckout() {
             if (!selectedPlanId) return;
-            
             const btn = document.getElementById('btnConfirm');
             const btnText = document.getElementById('confirmBtnText');
             const btnSpin = document.getElementById('confirmBtnSpinner');
+            const popinContainer = document.getElementById('izipayPopinContainer');
 
             btn.disabled = true;
             btnText.style.display = 'none';
-            btnSpin.style.display = '';
+            btnSpin.style.display = 'inline-block';
 
             try {
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
@@ -1403,12 +1380,18 @@
 
                 if (window.KR) {
                     await KR.setFormToken(data.formToken);
+                    btn.style.display = 'none';
+                    popinContainer.style.display = 'block';
+                    showToast('success', '🔐', 'Seguridad lista', 'Haz clic abajo para pagar');
                     
-                    // Mostramos el botón oficial de Izipay para que el usuario proceda
-                    document.getElementById('btnConfirm').style.display = 'none';
-                    document.getElementById('izipayPopinContainer').style.display = 'flex';
-                    
-                    showToast('success', '✅', 'Orden generada', 'Haz clic en el botón de pago para continuar');
+                    setTimeout(() => {
+                        const krBtn = popinContainer.querySelector('.kr-popin-button') || popinContainer.querySelector('.kr-payment-button');
+                        if (!krBtn && popinContainer.style.display === 'block') {
+                            document.getElementById('izipayLoadingMsg').innerHTML = '<span style="color:var(--red);">Error de carga. Recarga la página.</span>';
+                        } else {
+                            document.getElementById('izipayLoadingMsg').style.display = 'none';
+                        }
+                    }, 4000);
                 } else {
                     alert("El sistema de pago no cargó. Por favor recarga la página.");
                 }
@@ -1429,6 +1412,7 @@
         // ── Init ─────────────────────────────────────────────────────────
         renderHeader();
         loadPlans();
+        initIzipay();
 
         // loadSettings() is called inside script.js on DOMContentLoaded
 
