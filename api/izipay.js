@@ -24,6 +24,10 @@ async function callIzipay(postData, shopId, key, endpoint = 'api.micuentaweb.pe'
     const cleanKey = key.toString().trim();
     const authHeader = 'Basic ' + Buffer.from(`${cleanId}:${cleanKey}`).toString('base64');
     
+    // Extraemos ctx_mode del postData para las cabeceras
+    let mode = 'PRODUCTION';
+    try { mode = JSON.parse(postData).ctx_mode || 'PRODUCTION'; } catch(e) {}
+
     const options = {
         hostname: endpoint,
         port: 443,
@@ -31,9 +35,11 @@ async function callIzipay(postData, shopId, key, endpoint = 'api.micuentaweb.pe'
         method: 'POST',
         headers: { 
             'Authorization': authHeader, 
-            'Content-Type': 'application/json', 
+            'Content-Type': 'application/json; charset=utf-8', 
             'Accept': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'X-Shop-Id': cleanId,
+            'X-Ctx-Mode': mode,
+            'User-Agent': 'Izipay-Node-Client/2.0'
         }
     };
 
@@ -161,7 +167,12 @@ module.exports = async (req, res) => {
                 for (const sId of shopIds) {
                     if (success) break;
                     for (const key of keysToTry) {
-                        const finalPostData = JSON.stringify({ ...basePostData, ctx_mode: mode });
+                        // Incluimos shop_id redundante en el body por si la cabecera falla en algunos casos de Peru
+                        const finalPostData = JSON.stringify({ 
+                            ...basePostData, 
+                            ctx_mode: mode,
+                            shop_id: sId 
+                        });
 
                         console.log(`[IZIPAY] Attempt: Mode=${mode} | Shop=${sId} | Key=${key.slice(0, 8)}...`);
                         iziRes = await callIzipay(finalPostData, sId, key, 'api.micuentaweb.pe', '/api-payment/V4/Charge/CreatePayment');
