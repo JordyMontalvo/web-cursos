@@ -59,9 +59,9 @@ module.exports = async (req, res) => {
         }
 
         // Configuración para Izipay
-        // El precio debe estar en centavos (ej: 10.00 -> 1000)
         const amount = Math.round(membership.price * 100);
-        const orderId = `ORDER-${Date.now()}-${decoded.id.slice(-4)}`;
+        // Formato: USR_[userId]_MEM_[membershipId]_[timestamp]
+        const orderId = `USR_${decoded.id}_MEM_${membershipId}_${Date.now()}`;
 
         const postData = JSON.stringify({
             amount: amount,
@@ -69,6 +69,10 @@ module.exports = async (req, res) => {
             orderId: orderId,
             customer: {
                 email: decoded.email
+            },
+            metadata: {
+                userId: decoded.id,
+                membershipId: membershipId
             }
         });
 

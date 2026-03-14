@@ -25,6 +25,7 @@
 
     { "source": "/api/memberships/subscribe", "destination": "/api/memberships" },
     { "source": "/api/payments/izipay-checkout", "destination": "/api/izipay-checkout" },
+    { "source": "/api/payments/izipay-webhook",  "destination": "/api/izipay-webhook" },
     { "source": "/api/memberships/:id",       "destination": "/api/memberships?id=:id" },
     { "source": "/api/memberships",           "destination": "/api/memberships" },
 
