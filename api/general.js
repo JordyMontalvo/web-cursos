@@ -18,10 +18,9 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const url = req.url.split('?')[0];
-    console.log(`[GENERAL] Incoming Request: ${url} | Env Public Key: ${!!process.env.IZIPAY_PUBLIC_KEY}`);
 
-    // Responder al config si la ruta lo sugiere o si no hay otra ruta válida
-    if (url.includes('config') || url.includes('general') || req.method === 'GET') {
+    // ── /api/config ────────────────────────────────────────────────
+    if (url.includes('config')) {
         return res.json({
             apiUrl: process.env.BACKEND_URL || '',
             izipayPublicKey: process.env.IZIPAY_PUBLIC_KEY || '',
@@ -29,21 +28,16 @@ module.exports = async (req, res) => {
         });
     }
 
-    try { 
-        await connectDB(); 
-    } catch (err) { 
-        console.error('[GENERAL] DB Connection Error:', err.message);
-        return res.status(500).json({ success: false, message: 'DB Connection Error' }); 
-    }
+    try { await connectDB(); } catch (err) { return res.status(500).json({ success: false }); }
 
     // ── /api/banners ───────────────────────────────────────────────
-    if (url.endsWith('/banners')) {
+    if (url.includes('banners')) {
         const banners = await Banner.find({ isActive: true }).sort({ order: 1 });
         return res.json({ success: true, banners });
     }
 
     // ── /api/settings ──────────────────────────────────────────────
-    if (url.endsWith('/settings')) {
+    if (url.includes('settings')) {
         let settings = await Settings.findOne() || await Settings.create({});
         return res.json({ success: true, settings });
     }

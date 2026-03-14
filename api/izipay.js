@@ -117,18 +117,30 @@ module.exports = async (req, res) => {
                 amount: amount,
                 currency: membership.currency || 'PEN',
                 orderId: orderId,
-                customer: { email: decoded.email }
+                customer: { email: decoded.email },
+                // IMPORTANTE: Asegurar que estamos en producción
+                ctx_mode: 'PRODUCTION'
             });
 
-            // INTENTO 1: Con la clave tal cual (Raw)
+            // SECUENCIA DE INTENTOS DE AUTENTICACIÓN
+            // 1. Clave Raw (como viene de Vercel)
             console.log(`[IZIPAY] Attempt 1 (Raw Key, Len=${IZIPAY_CLIENT_KEY_RAW.length})`);
             let iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, IZIPAY_CLIENT_KEY_RAW);
 
-            // INTENTO 2: Si el primero falla por auth, probar sanitizada (sin prefijo)
-            if (iziRes.answer?.errorCode === 'INT_905' && IZIPAY_CLIENT_KEY_RAW.includes('_')) {
-                const sanitizedKey = IZIPAY_CLIENT_KEY_RAW.split('_')[1];
-                console.log(`[IZIPAY] Attempt 1 failed. Attempting with Sanitized Key (Len=${sanitizedKey.length})`);
+            // 2. Si falla por Auth, probar Sanitizada (sin prefijo prodpassword_)
+            if (iziRes.answer?.errorCode === 'INT_905' || (iziRes.status === 'ERROR' && !iziRes.answer)) {
+                let sanitizedKey = IZIPAY_CLIENT_KEY_RAW;
+                if (sanitizedKey.includes('_')) sanitizedKey = sanitizedKey.split('_')[1];
+                
+                console.log(`[IZIPAY] Attempt 1 failed. Trying Sanitized (Len=${sanitizedKey.length})`);
                 iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, sanitizedKey);
+            }
+
+            // 3. Si sigue fallando por Auth, probar la clave HMAC_SHA256 (algunas configuraciones de Izipay la necesitan como password)
+            if ((iziRes.answer?.errorCode === 'INT_905') && process.env.IZIPAY_HMAC_SHA256) {
+                const hmacKey = process.env.IZIPAY_HMAC_SHA256.trim();
+                console.log(`[IZIPAY] Attempts failed. Trying HMAC Key as fallback (Len=${hmacKey.length})`);
+                iziRes = await callIzipay(postData, IZIPAY_SHOP_ID, hmacKey);
             }
 
             if (iziRes.status === 'SUCCESS') {
