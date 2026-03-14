@@ -706,10 +706,8 @@
         }
 
         .modal-actions {
-            display: flex !important;
+            display: flex;
             gap: 0.75rem;
-            visibility: visible !important;
-            opacity: 1 !important;
         }
 
         .modal-actions button {
@@ -1368,6 +1366,8 @@
             await configReady;
             if (!IZIPAY_PUBLIC_KEY) return;
             
+            console.log('[IZIPAY] Initializing SDK...');
+            
             // Cargar CSS
             const link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -1383,7 +1383,17 @@
             script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
             script.setAttribute('kr-language', 'es-PE');
             script.setAttribute('kr-popin', ''); 
-            script.onload = () => { izipayInitialized = true; console.log('[IZIPAY] SDK Loaded'); };
+            
+            script.onload = () => { 
+                izipayInitialized = true; 
+                console.log('[IZIPAY] SDK Script loaded');
+                
+                // Escuchar eventos del SDK
+                if (window.KR) {
+                    KR.onError((err) => console.error('[IZIPAY] SDK Error Event:', err));
+                    KR.onFormReady(() => console.log('[IZIPAY] Form is ready'));
+                }
+            };
             document.head.appendChild(script);
         }
 
@@ -1409,13 +1419,16 @@
                 if (!data.success) throw new Error(data.message || 'Error al generar checkout');
 
                 if (window.KR) {
+                    console.log('[IZIPAY] Order generated, setting form token...');
                     await KR.setFormToken(data.formToken);
                     
-                    // Cambiar a botón de Izipay
-                    document.getElementById('purchaseActions').style.display = 'none';
-                    document.getElementById('izipayPopinContainer').style.display = 'block';
+                    // FORZAR ocultamiento de botones iniciales (usando !important vía JS)
+                    const actions = document.getElementById('purchaseActions');
+                    actions.style.setProperty('display', 'none', 'important');
                     
-                    showToast('success', '🔐', 'Seguridad lista', 'Haz clic en el botón de abajo');
+                    document.getElementById('izipayPopinContainer').style.display = 'block';
+                    showToast('success', '🔐', 'Seguridad lista', 'Haz clic abajo para pagar');
+                    console.log('[IZIPAY] Pop-in container should now be visible');
                 } else {
                     throw new Error("Sistema de pagos no inicializado (revisa tu AdBlock)");
                 }
