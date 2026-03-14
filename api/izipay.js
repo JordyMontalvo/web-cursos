@@ -9,18 +9,20 @@ const IZIPAY_CLIENT_KEY_RAW = (process.env.IZIPAY_CLIENT_KEY || '').trim();
 const IZIPAY_SHOP_ID = (process.env.IZIPAY_SHOP_ID || '').trim();
 
 // Función para llamar a Izipay con una clave específica
-async function callIzipay(postData, shopId, key, endpoint = 'api.micuentaweb.pe') {
+async function callIzipay(postData, shopId, key, endpoint = 'api.micuentaweb.pe', customPath = null) {
+    const apiPath = customPath || '/api-payment/V4/Charge/CreatePayment';
     const authHeader = 'Basic ' + Buffer.from(`${shopId}:${key}`).toString('base64');
+    
     const options = {
         hostname: endpoint,
         port: 443,
-        path: '/api-payment/V4/Charge/CreatePayment',
+        path: apiPath,
         method: 'POST',
         headers: { 
             'Authorization': authHeader, 
             'Content-Type': 'application/json', 
             'Accept': 'application/json',
-            'User-Agent': 'Vercel-Serverless-Izipay/1.1'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         }
     };
 
@@ -128,33 +130,32 @@ module.exports = async (req, res) => {
                 customer: { email: decoded.email }
             });
 
-            // SECUENCIA DE INTENTOS FINAL (ULTRA-FALLBACK)
-            const endpoints = ['api.micuentaweb.pe', 'api-pw.izipay.pe'];
-            const shopIds = [
-                IZIPAY_SHOP_ID,           // 1. 57935063 (Usuario API)
-                '05647590',               // 2. 5647590 con PADDING de 8 dígitos (CRUCIAL)
-                '5647590'                 // 3. 5647590 tal cual
-            ].filter(id => id && id.length >= 7);
+            // SECUENCIA DE INTENTOS MAESTRA (ULTRA-DIAGNOSTICS)
+            // Probaremos variaciones de Endpoint, Path, ShopID y Claves
+            const endpoints = [
+                { host: 'api.micuentaweb.pe', path: '/api-payment/V4/Charge/CreatePayment' },
+                { host: 'api.micuentaweb.pe', path: '/api-payment/v4/Charge/CreatePayment' }, // Minúscula v4
+                { host: 'api-pw.izipay.pe',   path: '/V4/Charge/CreatePayment' }              // Endpoint alternativo Peru
+            ];
 
+            const shopIds = [IZIPAY_SHOP_ID, '05647590', '5647590'].filter(id => id && id.length >= 7);
             const rawKey = IZIPAY_CLIENT_KEY_RAW;
-            const hmacKey = (process.env.IZIPAY_HMAC_SHA256 || '').trim();
             const keysToTry = [
-                rawKey,                                      // A. Clave Larga (prodpassword_...)
+                rawKey,                                      // A. Clave Larga Completa
                 rawKey.includes('_') ? rawKey.split('_')[1] : null, // B. Clave sin prefijo
-                hmacKey.length > 10 ? hmacKey : null,        // C. Clave HMAC como Pass
-                'muPkleaAM1mXyyk9'                            // D. Clave Corta Legacy (Foto #1)
-            ].filter(k => k);
+                (process.env.IZIPAY_HMAC_SHA256 || '').trim() // C. HMAC como Pass
+            ].filter(k => k && k.length > 10);
 
-            let iziRes = { status: 'ERROR', errorMessage: 'Sin respuesta' };
+            let iziRes = { status: 'ERROR', errorMessage: 'No se pudo conectar' };
             let success = false;
 
-            for (const endpoint of endpoints) {
+            for (const ep of endpoints) {
                 if (success) break;
                 for (const sId of shopIds) {
                     if (success) break;
                     for (const key of keysToTry) {
-                        console.log(`[IZIPAY] Attempting Auth: Host=${endpoint} | Shop=${sId} | KeyLen=${key.length} | Prefix=${key.slice(0, 8)}...`);
-                        iziRes = await callIzipay(postData, sId, key, endpoint);
+                        console.log(`[IZIPAY] Trying Auth: ${ep.host}${ep.path} | Shop=${sId} | Key=${key.slice(0, 8)}...`);
+                        iziRes = await callIzipay(postData, sId, key, ep.host, ep.path);
                         if (iziRes.status === 'SUCCESS') {
                             success = true;
                             break;
