@@ -1098,15 +1098,14 @@
             <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
             <div class="modal-actions" id="purchaseActions">
                 <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
-                <div id="izipayTriggerContainer">
-                    <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()">
-                        <span id="confirmBtnText">💳 Pagar con tarjeta</span>
-                        <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
-                    </button>
-                </div>
+                <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()">
+                    <span id="confirmBtnText">💳 Pagar con tarjeta</span>
+                    <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
+                </button>
             </div>
-            <!-- Contenedor Pop-in (vaciado pero listo) -->
-            <div id="izipayPopinContainer" style="margin-top:1rem; display:none; justify-content:center;">
+            
+            <!-- Espacio para el Pop-in oficial (Aparecerá aquí el botón oficial) -->
+            <div id="izipayPopinContainer" style="display:none; margin-top:1.25rem; justify-content:center;">
                 <div class="kr-popin"></div>
             </div>
         </div>
@@ -1373,12 +1372,11 @@
                 if (window.KR) {
                     await KR.setFormToken(data.formToken);
                     
-                    // En lugar de abrirlo por código (que el navegador bloquea),
-                    // mostramos el botón oficial de Izipay para que el usuario le de click
-                    document.getElementById('izipayTriggerContainer').style.display = 'none';
+                    // Mostramos el botón oficial de Izipay para que el usuario proceda
+                    document.getElementById('btnConfirm').style.display = 'none';
                     document.getElementById('izipayPopinContainer').style.display = 'flex';
                     
-                    showToast('success', '✅', 'Orden lista', 'Haz clic abajo para completar tu pago seguro');
+                    showToast('success', '✅', 'Orden generada', 'Haz clic en el botón de pago para continuar');
                 } else {
                     alert("El sistema de pago no cargó. Por favor recarga la página.");
                 }
