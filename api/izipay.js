@@ -5,8 +5,13 @@ const https = require('https');
 const crypto = require('crypto');
 
 const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').trim();
-const IZIPAY_CLIENT_KEY = (process.env.IZIPAY_CLIENT_KEY || '').trim();
+const IZIPAY_CLIENT_KEY_RAW = (process.env.IZIPAY_CLIENT_KEY || '').trim();
 const IZIPAY_SHOP_ID = (process.env.IZIPAY_SHOP_ID || '').trim();
+
+// Limpiar prefijos de Izipay si existen
+let IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY_RAW;
+if (IZIPAY_CLIENT_KEY.startsWith('prodpassword_')) IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY.replace('prodpassword_', '');
+if (IZIPAY_CLIENT_KEY.startsWith('testpassword_')) IZIPAY_CLIENT_KEY = IZIPAY_CLIENT_KEY.replace('testpassword_', '');
 
 // ── Models ──────────────────────────────────────────────────────
 let User;
@@ -65,7 +70,7 @@ module.exports = async (req, res) => {
         try {
             console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
             // DEBUG DE CREDENCIALES (Seguro: solo muestra fragmentos)
-            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key=${IZIPAY_CLIENT_KEY.slice(0,8)}...${IZIPAY_CLIENT_KEY.slice(-4)}`);
+            console.log(`[IZIPAY] Creds Debug: Shop=${IZIPAY_SHOP_ID} | Key Final=${IZIPAY_CLIENT_KEY.slice(0,4)}...${IZIPAY_CLIENT_KEY.slice(-4)} | Len=${IZIPAY_CLIENT_KEY.length}`);
             
             await connectDB();
             const { membershipId } = req.body;
