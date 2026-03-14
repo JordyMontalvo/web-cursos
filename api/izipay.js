@@ -5,10 +5,10 @@ const https = require('https');
 const crypto = require('crypto');
 
 const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').trim();
-// CREDENCIALES DE TEST FORZADAS (Para validación de conectividad)
-const IZIPAY_SHOP_ID = '57935063';
-const IZIPAY_TEST_KEY = 'testpassword_DWeSvCxTjoB8Shejukp5cXJb8ylevIdvRUOGj93Bh62aS';
-const IZIPAY_CLIENT_KEY_RAW = IZIPAY_TEST_KEY; 
+const IZIPAY_SHOP_ID = process.env.IZIPAY_SHOP_ID || '57935063';
+const IZIPAY_TEST_KEY = process.env.IZIPAY_TEST_KEY || 'testpassword_DWeSvCxTjoB8Shejukp5cXJb8ylevIdvRUOGj93Bh62aS';
+const IZIPAY_HMAC_KEY = process.env.IZIPAY_HMAC_SHA256 || 'EQeRVnjIJjzgPtuFCvrdUTyIfKPyO1zl84VCBfPfvTbek';
+const IZIPAY_CLIENT_KEY_RAW = IZIPAY_TEST_KEY;
 
 // Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
 function normalizeShopId(id) {
@@ -181,7 +181,7 @@ module.exports = async (req, res) => {
     // ── POST /api/izipay (Webhook) ────────────────────────────────────
     if (req.method === 'POST' && req.body['kr-answer']) {
         const { "kr-answer": krAnswer, "kr-hash": krHash } = req.body;
-        const hmacKey = process.env.IZIPAY_HMAC_SHA256;
+        const hmacKey = IZIPAY_HMAC_KEY;
         if (!hmacKey) return res.status(500).send('HMAC key missing');
 
         const answerStr = (typeof krAnswer === 'string') ? krAnswer : JSON.stringify(krAnswer);

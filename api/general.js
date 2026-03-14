@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
     // ── /api/config ────────────────────────────────────────────────
     // Respondemos si la ruta contiene config o si es la raíz de esta función (vía rewrite)
     if (url.includes('config') || url === '/api/general') {
-        const testPubKey = '57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCXyUIT2ai';
+        const testPubKey = '57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCXYUiT2ai';
         return res.json({
             apiUrl: process.env.BACKEND_URL || '',
             izipayPublicKey: testPubKey,
