@@ -1107,8 +1107,9 @@
             </div>
             
             <!-- Contenedor de Izipay -->
-            <div id="izipayFormContainer">
-                <div class="kr-embedded">
+            <div id="izipayFormContainer" style="min-height: 300px;">
+                <!-- El SDK de Izipay inyectará el formulario aquí -->
+                <div class="kr-embedded" id="myPaymentForm">
                     <!-- payment form fields -->
                     <div class="kr-pan"></div>
                     <div class="kr-expiry"></div>
@@ -1421,19 +1422,24 @@
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Error al generar checkout');
 
-                // 3. Abrir modal de Izipay y configurar formulario
+                // 3. Abrir modal de Izipay
                 closeModal();
                 document.getElementById('izipayModal').classList.add('open');
 
-                // Esperar a que el SDK esté listo para procesar el token
-                if (window.KR) {
-                    KR.setFormToken(data.formToken);
-                    
-                    // Escuchar evento de pago exitoso
-                    KR.onFormReady(() => {
-                        console.log('Formulario Izipay listo');
-                    });
-                }
+                // 4. Esperar un breve momento para que el DOM se renderice y luego inyectar el token
+                setTimeout(async () => {
+                    if (window.KR) {
+                        try {
+                            // Limpiar cualquier estado previo si es necesario
+                            await KR.setFormToken(data.formToken);
+                            console.log('Token de Izipay configurado correctamente');
+                        } catch (e) {
+                            console.error('Error al configurar token:', e);
+                        }
+                    } else {
+                        throw new Error('El SDK de Izipay no se cargó correctamente');
+                    }
+                }, 300);
 
             } catch (err) {
                 console.error(err);
