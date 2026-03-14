@@ -9,10 +9,10 @@ const IZIPAY_CLIENT_KEY_RAW = (process.env.IZIPAY_CLIENT_KEY || '').trim();
 const IZIPAY_SHOP_ID = (process.env.IZIPAY_SHOP_ID || '').trim();
 
 // Función para llamar a Izipay con una clave específica
-async function callIzipay(postData, shopId, key) {
+async function callIzipay(postData, shopId, key, endpoint = 'api.micuentaweb.pe') {
     const authHeader = 'Basic ' + Buffer.from(`${shopId}:${key}`).toString('base64');
     const options = {
-        hostname: 'api.micuentaweb.pe',
+        hostname: endpoint,
         port: 443,
         path: '/api-payment/V4/Charge/CreatePayment',
         method: 'POST',
@@ -20,7 +20,7 @@ async function callIzipay(postData, shopId, key) {
             'Authorization': authHeader, 
             'Content-Type': 'application/json', 
             'Accept': 'application/json',
-            'User-Agent': 'Vercel-Serverless-Izipay-Integration/1.1'
+            'User-Agent': 'Vercel-Serverless-Izipay/1.1'
         }
     };
 
@@ -128,29 +128,37 @@ module.exports = async (req, res) => {
                 customer: { email: decoded.email }
             });
 
-            // SECUENCIA DE INTENTOS FINAL
-            // Combinaciones de ShopID (Principal + Secundario) y Claves (Larga, Sanitizada, HMAC, Corta)
-            const shopIds = [IZIPAY_SHOP_ID, '5647590'].filter(id => id && id.length >= 7);
+            // SECUENCIA DE INTENTOS FINAL (ULTRA-FALLBACK)
+            const endpoints = ['api.micuentaweb.pe', 'api-pw.izipay.pe'];
+            const shopIds = [
+                IZIPAY_SHOP_ID,           // 1. 57935063 (Usuario API)
+                '05647590',               // 2. 5647590 con PADDING de 8 dígitos (CRUCIAL)
+                '5647590'                 // 3. 5647590 tal cual
+            ].filter(id => id && id.length >= 7);
+
             const rawKey = IZIPAY_CLIENT_KEY_RAW;
             const hmacKey = (process.env.IZIPAY_HMAC_SHA256 || '').trim();
             const keysToTry = [
-                rawKey,                                      // 1. Clave Larga Completa
-                rawKey.includes('_') ? rawKey.split('_')[1] : null, // 2. Clave Larga Limpia
-                hmacKey.length > 10 ? hmacKey : null,        // 3. Clave HMAC
-                'muPkleaAM1mXyyk9'                            // 4. Clave Corta Legacy (Foto #1)
+                rawKey,                                      // A. Clave Larga (prodpassword_...)
+                rawKey.includes('_') ? rawKey.split('_')[1] : null, // B. Clave sin prefijo
+                hmacKey.length > 10 ? hmacKey : null,        // C. Clave HMAC como Pass
+                'muPkleaAM1mXyyk9'                            // D. Clave Corta Legacy (Foto #1)
             ].filter(k => k);
 
-            let iziRes = { status: 'ERROR', errorMessage: 'Iniciando intentos...' };
+            let iziRes = { status: 'ERROR', errorMessage: 'Sin respuesta' };
             let success = false;
 
-            for (const sId of shopIds) {
+            for (const endpoint of endpoints) {
                 if (success) break;
-                for (const key of keysToTry) {
-                    console.log(`[IZIPAY] Trying Auth: Shop=${sId} | KeyLen=${key.length} | Start=${key.slice(0, 8)}...`);
-                    iziRes = await callIzipay(postData, sId, key);
-                    if (iziRes.status === 'SUCCESS') {
-                        success = true;
-                        break;
+                for (const sId of shopIds) {
+                    if (success) break;
+                    for (const key of keysToTry) {
+                        console.log(`[IZIPAY] Attempting Auth: Host=${endpoint} | Shop=${sId} | KeyLen=${key.length} | Prefix=${key.slice(0, 8)}...`);
+                        iziRes = await callIzipay(postData, sId, key, endpoint);
+                        if (iziRes.status === 'SUCCESS') {
+                            success = true;
+                            break;
+                        }
                     }
                 }
             }
