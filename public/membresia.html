@@ -706,8 +706,10 @@
         }
 
         .modal-actions {
-            display: flex;
+            display: flex !important;
             gap: 0.75rem;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .modal-actions button {
@@ -1120,6 +1122,9 @@
                     Cargando pasarela segura...
                 </div>
             </div>
+            <div id="adblockWarning" style="display:none; margin-top:1rem; padding:0.75rem; background:rgba(255,107,112,0.1); border:1px solid rgba(255,107,112,0.3); border-radius:10px; color:var(--red); font-size:0.8rem; text-align:center;">
+                ⚠️ <strong>Sistema de pago bloqueado.</strong><br>Por favor, desactiva tu bloqueador de anuncios (AdBlock) para poder pagar de forma segura.
+            </div>
         </div>
     </div>
 
@@ -1283,6 +1288,8 @@
             // RESET UI
             const btn = document.getElementById('btnConfirm');
             const popin = document.getElementById('izipayPopinContainer');
+            const adWarning = document.getElementById('adblockWarning');
+            
             if (btn) {
                 btn.style.display = 'flex';
                 btn.disabled = false;
@@ -1290,6 +1297,12 @@
                 document.getElementById('confirmBtnSpinner').style.display = 'none';
             }
             if (popin) popin.style.display = 'none';
+            if (adWarning) adWarning.style.display = 'none';
+
+            // Alerta si el SDK no cargó (posible AdBlock)
+            if (!window.KR && izipayInitialized) {
+                if (adWarning) adWarning.style.display = 'block';
+            }
 
             selectedPlanId = id;
             const currPlan = plans.find(p => p._id === id);
