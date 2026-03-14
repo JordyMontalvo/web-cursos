@@ -1441,8 +1441,41 @@
         let izipayInitialized = false;
 
         async function initIzipay() {
-            izipayInitialized = true;
-            console.log('[IZIPAY] SDK statically loaded from head');
+            if (izipayInitialized) return;
+            await configReady; // Esperar a que el servidor nos dé la clave correcta
+            
+            if (!IZIPAY_PUBLIC_KEY) {
+                console.error('[IZIPAY] No se encontró IZIPAY_PUBLIC_KEY en config. Revisa /api/config.');
+                return;
+            }
+            
+            console.log('[IZIPAY] Cargando SDK con clave:', IZIPAY_PUBLIC_KEY.slice(0, 25) + '...');
+
+            // CSS
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css';
+            document.head.appendChild(link);
+
+            // Script con la clave dinámica
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js';
+                script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
+                script.setAttribute('kr-post-url-success', '/perfil?payment=success');
+                script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
+                script.setAttribute('kr-language', 'es-PE');
+                script.onload = () => {
+                    izipayInitialized = true;
+                    console.log('[IZIPAY] SDK listo con clave dinámica.');
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error('[IZIPAY] Error al cargar el script del SDK.');
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
         }
 
         function triggerPopin() {
