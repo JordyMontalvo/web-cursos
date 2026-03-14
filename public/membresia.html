@@ -1108,20 +1108,31 @@
             </div>
             
             <!-- Contenedor de Izipay -->
-            <div id="izipayFormContainer" style="min-height: 350px;">
-                <!-- Formulario embebido estándar de Izipay -->
-                <form class="kr-embedded" id="myPaymentForm">
-                    <!-- payment form fields -->
-                    <div class="kr-pan"></div>
-                    <div class="kr-expiry"></div>
-                    <div class="kr-security-code"></div>
+            <div id="izipayFormContainer" style="min-height: 280px; padding: 10px;">
+                <!-- Estructura embebida con labels manuales para mayor claridad -->
+                <div class="kr-embedded" id="myPaymentForm">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display:block; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem;">Número de tarjeta</label>
+                        <div class="kr-pan"></div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <label style="display:block; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem;">MM/AA</label>
+                            <div class="kr-expiry"></div>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display:block; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem;">CVV</label>
+                            <div class="kr-security-code"></div>
+                        </div>
+                    </div>
 
-                    <!-- payment form submit button -->
-                    <button class="kr-payment-button"></button>
+                    <!-- Botón de pago -->
+                    <button class="kr-payment-button" style="width: 100%; margin-top: 1rem;"></button>
 
-                    <!-- error zone -->
+                    <!-- Zona de error -->
                     <div class="kr-form-error"></div>
-                </form>
+                </div>
             </div>
 
             <div style="margin-top:1.5rem;text-align:center;">
@@ -1371,9 +1382,21 @@
             await configReady;
             if (!IZIPAY_PUBLIC_KEY) return;
             
-            console.log('[IZIPAY] Loading SDK with Key:', IZIPAY_PUBLIC_KEY.slice(0, 15) + '...');
+            // Si el script ya existe pero con otra clave, lo borramos
+            const oldScript = document.getElementById('izipay-sdk');
+            if (oldScript) {
+                if (oldScript.getAttribute('kr-public-key') === IZIPAY_PUBLIC_KEY) {
+                    console.log('[IZIPAY] SDK already loaded with correct key');
+                    return;
+                }
+                console.log('[IZIPAY] SDK key changed, reloading...');
+                oldScript.remove();
+                if (window.KR) delete window.KR;
+            }
             
-            // Cargar CSS
+            console.log('[IZIPAY] Initializing SDK with Key:', IZIPAY_PUBLIC_KEY.slice(0, 15) + '...');
+            
+            // Cargar CSS oficial
             if (!document.getElementById('izipay-style')) {
                 const link = document.createElement('link');
                 link.id = 'izipay-style';
@@ -1382,22 +1405,32 @@
                 document.head.appendChild(link);
             }
 
-            // Cargar JS
-            if (!document.getElementById('izipay-sdk')) {
-                const script = document.createElement('script');
-                script.id = 'izipay-sdk';
-                script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
-                script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
-                script.setAttribute('kr-post-url-success', '/perfil?payment=success');
-                script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe'); // Obligatorio en algunos casos de Peru
-                script.setAttribute('kr-language', 'es-PE');
-                script.setAttribute('kr-spa-mode', 'true');
-                script.onload = () => {
-                    izipaySdkLoaded = true;
-                    console.log('[IZIPAY] SDK Loaded successfully');
-                };
-                document.head.appendChild(script);
-            }
+            // Inyectar CSS personalizado para modo oscuro
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .kr-embedded .kr-pan, .kr-embedded .kr-expiry, .kr-embedded .kr-security-code {
+                    background-color: rgba(255,255,255,0.05) !important;
+                    border: 1px solid rgba(255,255,255,0.1) !important;
+                    border-radius: 8px !important;
+                    color: white !important;
+                }
+                .kr-embedded input { color: white !important; }
+            `;
+            document.head.appendChild(style);
+
+            // Cargar JS del SDK
+            const script = document.createElement('script');
+            script.id = 'izipay-sdk';
+            script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
+            script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
+            script.setAttribute('kr-post-url-success', '/perfil?payment=success');
+            script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
+            script.setAttribute('kr-spa-mode', 'true');
+            script.onload = () => {
+                izipaySdkLoaded = true;
+                console.log('[IZIPAY] SDK Script loaded and ready');
+            };
+            document.head.appendChild(script);
         }
 
         async function startIzipayCheckout() {
@@ -1436,25 +1469,20 @@
                 closeModal();
                 document.getElementById('izipayModal').classList.add('open');
 
-                // 4. Inyectar token
-                if (window.KR) {
-                    KR.setFormToken(data.formToken);
-                    console.log('[IZIPAY] Token injected to KR');
-                } else {
-                    // Fallback: intentar esperar un poco si el script se retrasó
-                    let attempts = 0;
-                    const checkKR = setInterval(() => {
-                        attempts++;
-                        if (window.KR) {
-                            clearInterval(checkKR);
-                            KR.setFormToken(data.formToken);
-                            console.log('[IZIPAY] Token injected (delayed)');
-                        } else if (attempts > 10) {
-                            clearInterval(checkKR);
-                            alert("Error: El procesador de pagos no cargó a tiempo. Por favor refresca la página.");
+                // 4. Inyectar token con un pequeño delay para asegurar renderizado
+                setTimeout(async () => {
+                    if (window.KR) {
+                        try {
+                            const result = await KR.setFormToken(data.formToken);
+                            console.log('[IZIPAY] KR.setFormToken success:', result);
+                        } catch (e) {
+                            console.error('[IZIPAY] KR.setFormToken failure:', e);
                         }
-                    }, 500);
-                }
+                    } else {
+                        console.error('[IZIPAY] KR object not found in window');
+                        alert("El procesador de pagos no está listo. Por favor refresca la página.");
+                    }
+                }, 500);
 
             } catch (err) {
                 console.error('[IZIPAY] Checkout Error:', err);
