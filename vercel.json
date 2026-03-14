@@ -12,7 +12,10 @@
     { "source": "/admin",             "destination": "/admin.html" },
     { "source": "/curso/:id",         "destination": "/curso.html" },
 
-    { "source": "/api/config",              "destination": "/api/config" },
+    { "source": "/api/config",              "destination": "/api/general" },
+    { "source": "/api/settings",            "destination": "/api/general" },
+    { "source": "/api/banners",             "destination": "/api/general" },
+
     { "source": "/api/auth/check-access",   "destination": "/api/auth" },
     { "source": "/api/auth/register",       "destination": "/api/auth" },
     { "source": "/api/auth/login",          "destination": "/api/auth" },
@@ -24,8 +27,8 @@
     { "source": "/api/auth/github",         "destination": "/api/auth-oauth" },
 
     { "source": "/api/memberships/subscribe", "destination": "/api/memberships" },
-    { "source": "/api/payments/izipay-checkout", "destination": "/api/izipay-checkout" },
-    { "source": "/api/payments/izipay-webhook",  "destination": "/api/izipay-webhook" },
+    { "source": "/api/payments/izipay-checkout", "destination": "/api/izipay" },
+    { "source": "/api/payments/izipay-webhook",  "destination": "/api/izipay" },
     { "source": "/api/memberships/:id",       "destination": "/api/memberships?id=:id" },
     { "source": "/api/memberships",           "destination": "/api/memberships" },
 
@@ -43,8 +46,6 @@
     { "source": "/api/courses/:id/chapters",                                "destination": "/api/courses?id=:id" },
     { "source": "/api/courses/:id",                                         "destination": "/api/courses?id=:id" },
     { "source": "/api/courses",                                             "destination": "/api/courses" },
-    { "source": "/api/settings",                                            "destination": "/api/settings" },
-    { "source": "/api/banners",                                             "destination": "/api/banners" },
     { "source": "/api/upload",                                              "destination": "/api/upload" }
   ]
 }
