@@ -1107,32 +1107,10 @@
                 <button onclick="closeIzipayModal()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">✕</button>
             </div>
             
-            <!-- Contenedor de Izipay -->
-            <div id="izipayFormContainer" style="min-height: 280px; padding: 10px;">
-                <!-- Estructura embebida con labels manuales para mayor claridad -->
-                <div class="kr-embedded" id="myPaymentForm">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display:block; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem;">Número de tarjeta</label>
-                        <div class="kr-pan"></div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="flex: 1;">
-                            <label style="display:block; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem;">MM/AA</label>
-                            <div class="kr-expiry"></div>
-                        </div>
-                        <div style="flex: 1;">
-                            <label style="display:block; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem;">CVV</label>
-                            <div class="kr-security-code"></div>
-                        </div>
-                    </div>
-
-                    <!-- Botón de pago -->
-                    <button class="kr-payment-button" style="width: 100%; margin-top: 1rem;"></button>
-
-                    <!-- Zona de error -->
-                    <div class="kr-form-error"></div>
-                </div>
+            <!-- Contenedor de Izipay (Modo Pop-in estándar) -->
+            <div id="izipayFormContainer" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                <!-- Dejamos el div vacío para que Izipay genere su propio diseño "Pop-in" -->
+                <div class="kr-embedded" id="myPaymentForm"></div>
             </div>
 
             <div style="margin-top:1.5rem;text-align:center;">
@@ -1382,41 +1360,17 @@
             await configReady;
             if (!IZIPAY_PUBLIC_KEY) return;
             
-            // Si el script ya existe pero con otra clave, lo borramos
-            const oldScript = document.getElementById('izipay-sdk');
-            if (oldScript) {
-                if (oldScript.getAttribute('kr-public-key') === IZIPAY_PUBLIC_KEY) {
-                    console.log('[IZIPAY] SDK already loaded with correct key');
-                    return;
-                }
-                console.log('[IZIPAY] SDK key changed, reloading...');
-                oldScript.remove();
-                if (window.KR) delete window.KR;
-            }
+            // Si el script ya existe, lo omitimos para evitar conflictos en modo estándar
+            if (document.getElementById('izipay-sdk')) return;
             
-            console.log('[IZIPAY] Initializing SDK with Key:', IZIPAY_PUBLIC_KEY.slice(0, 15) + '...');
+            console.log('[IZIPAY] Initializing POP-IN SDK with Key:', IZIPAY_PUBLIC_KEY.slice(0, 15) + '...');
             
-            // Cargar CSS oficial
-            if (!document.getElementById('izipay-style')) {
-                const link = document.createElement('link');
-                link.id = 'izipay-style';
-                link.rel = 'stylesheet';
-                link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.amber.css';
-                document.head.appendChild(link);
-            }
-
-            // Inyectar CSS personalizado para modo oscuro
-            const style = document.createElement('style');
-            style.innerHTML = `
-                .kr-embedded .kr-pan, .kr-embedded .kr-expiry, .kr-embedded .kr-security-code {
-                    background-color: rgba(255,255,255,0.05) !important;
-                    border: 1px solid rgba(255,255,255,0.1) !important;
-                    border-radius: 8px !important;
-                    color: white !important;
-                }
-                .kr-embedded input { color: white !important; }
-            `;
-            document.head.appendChild(style);
+            // Cargar CSS oficial "Classic" para modo Pop-in
+            const link = document.createElement('link');
+            link.id = 'izipay-style';
+            link.rel = 'stylesheet';
+            link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css';
+            document.head.appendChild(link);
 
             // Cargar JS del SDK
             const script = document.createElement('script');
@@ -1425,10 +1379,9 @@
             script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
             script.setAttribute('kr-post-url-success', '/perfil?payment=success');
             script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
-            script.setAttribute('kr-spa-mode', 'true');
             script.onload = () => {
                 izipaySdkLoaded = true;
-                console.log('[IZIPAY] SDK Script loaded and ready');
+                console.log('[IZIPAY] Pop-in SDK Loaded');
             };
             document.head.appendChild(script);
         }
