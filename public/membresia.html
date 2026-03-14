@@ -1087,14 +1087,32 @@
                 </div>
                 <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
             </div>
-            <p id="modalPlanNote">Al confirmar, activarás tu membresía de inmediato. Recuerda que tienes 7 días de
-                garantía.</p>
+            <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
             <div class="modal-actions">
                 <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
-                <button class="btn-confirm" id="btnConfirm" onclick="confirmPurchase()">
-                    <span id="confirmBtnText">✓ Confirmar y activar</span>
-                    <span id="confirmBtnSpinner" style="display:none;">Procesando...</span>
+                <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()">
+                    <span id="confirmBtnText">💳 Pagar con tarjeta</span>
+                    <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IZIPAY MODAL -->
+    <div class="modal-overlay" id="izipayModal" style="z-index: 1001;">
+        <div class="confirm-modal" style="max-width: 500px; padding: 1.5rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+                <h3 style="margin:0;">Pago Seguro</h3>
+                <button onclick="closeIzipayModal()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">✕</button>
+            </div>
+            
+            <!-- Contenedor de Izipay -->
+            <div id="izipayFormContainer">
+                <div class="kr-embedded"></div>
+            </div>
+
+            <div style="margin-top:1.5rem;text-align:center;">
+                <img src="https://micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay" style="height:25px;opacity:0.6;">
             </div>
         </div>
     </div>
@@ -1333,9 +1351,99 @@
             setTimeout(() => { const t = document.getElementById(id); if (t) t.remove(); }, duration);
         }
 
+        // ── Izipay Integration ──────────────────────────────────────────
+        let izipaySdkLoaded = false;
+
+        async function loadIzipaySdk() {
+            if (izipaySdkLoaded) return;
+            await configReady;
+            
+            if (!IZIPAY_PUBLIC_KEY) {
+                console.error('IZIPAY_PUBLIC_KEY no configurada');
+                return;
+            }
+
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
+                script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
+                script.setAttribute('kr-post-url-success', '/perfil?payment=success');
+                script.onload = () => {
+                    izipaySdkLoaded = true;
+                    resolve();
+                };
+                document.head.appendChild(script);
+
+                // Estilos para el formulario incrustado
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.amber.css';
+                document.head.appendChild(link);
+            });
+        }
+
+        async function startIzipayCheckout() {
+            if (!selectedPlanId) return;
+            
+            const btn = document.getElementById('btnConfirm');
+            const btnText = document.getElementById('confirmBtnText');
+            const btnSpin = document.getElementById('confirmBtnSpinner');
+
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            btnSpin.style.display = '';
+
+            try {
+                // 1. Asegurar SDK cargado
+                await loadIzipaySdk();
+
+                // 2. Obtener formToken del backend
+                const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ membershipId: selectedPlanId })
+                });
+
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Error al generar checkout');
+
+                // 3. Abrir modal de Izipay y configurar formulario
+                closeModal();
+                document.getElementById('izipayModal').classList.add('open');
+
+                // Esperar a que el SDK esté listo para procesar el token
+                if (window.KR) {
+                    KR.setFormToken(data.formToken);
+                    
+                    // Escuchar evento de pago exitoso
+                    KR.onFormReady(() => {
+                        console.log('Formulario Izipay listo');
+                    });
+                }
+
+            } catch (err) {
+                console.error(err);
+                showToast('error', '❌', 'Error de pago', err.message);
+            } finally {
+                btn.disabled = false;
+                btnText.style.display = '';
+                btnSpin.style.display = 'none';
+            }
+        }
+
+        function closeIzipayModal() {
+            document.getElementById('izipayModal').classList.remove('open');
+        }
+
         // ── Close modal on outside click ─────────────────────────────────
         document.getElementById('confirmModal').addEventListener('click', e => {
             if (e.target === document.getElementById('confirmModal')) closeModal();
+        });
+        document.getElementById('izipayModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('izipayModal')) closeIzipayModal();
         });
 
         // ── Init ─────────────────────────────────────────────────────────

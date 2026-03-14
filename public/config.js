@@ -5,20 +5,21 @@
 // En Vercel: llama a /api/config para obtener BACKEND_URL
 
 let API_BASE = '';
+let IZIPAY_PUBLIC_KEY = '';
+let IZIPAY_SHOP_ID = '';
 
 // Promesa que resuelve cuando la config está lista
 const configReady = (async () => {
     // FORZAMOS RUTAS RELATIVAS:
-    // Esto garantiza que en Vercel se usen las Funciones Serverless del proyecto
-    // y no se redirija a un servidor externo (EC2) que pueda estar desactualizado.
     API_BASE = '';
     
-    // Opcional: seguimos cargando el config por si se usa para otros fines,
-    // pero ya no sobreescribimos API_BASE.
     try {
-        await fetch('/api/config');
+        const res = await fetch('/api/config');
+        const data = await res.json();
+        if (data.izipayPublicKey) IZIPAY_PUBLIC_KEY = data.izipayPublicKey;
+        if (data.izipayShopId) IZIPAY_SHOP_ID = data.izipayShopId;
     } catch (e) {
-        // Ignorar errores
+        console.error('Error loading config:', e);
     }
 })();
 
