@@ -1099,8 +1099,8 @@
         </div>
     </div>
 
-    <!-- Contenedor oculto para Izipay (Necesario para el SDK) -->
-    <div id="izipay-hidden-container" style="display: none;">
+    <!-- Contenedor para Izipay (Debe estar en el DOM para que el SDK lo encuentre) -->
+    <div id="izipay-hidden-container" style="position: fixed; top: -100px; left: -100px; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden;">
         <div class="kr-popin" id="myPaymentForm"></div>
     </div>
 
@@ -1412,17 +1412,23 @@
                 setTimeout(async () => {
                     if (window.KR) {
                         try {
+                            console.log('[IZIPAY] SetFormToken...');
                             await KR.setFormToken(data.formToken);
-                            console.log('[IZIPAY] Token set, opening Pop-in...');
-                            KR.openPopin(); // Disparar la ventana oficial de Izipay
+                            
+                            console.log('[IZIPAY] Triggering openPopin...');
+                            // Pequeña espera para que el SDK procese el token antes de abrir
+                            setTimeout(() => {
+                                KR.openPopin();
+                            }, 100);
                         } catch (e) {
-                            console.error('[IZIPAY] Error opening Pop-in:', e);
+                            console.error('[IZIPAY] Error inside KR sequence:', e);
+                            alert("Error al abrir la pasarela: " + e.message);
                         }
                     } else {
-                        console.error('[IZIPAY] KR not found');
-                        alert("Error: El cargador de pagos no está listo.");
+                        console.error('[IZIPAY] KR object is missing');
+                        alert("El cargador de pagos no está listo. Por favor refresca la página.");
                     }
-                }, 200);
+                }, 300);
 
             } catch (err) {
                 console.error('[IZIPAY] Checkout Error:', err);
