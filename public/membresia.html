@@ -1099,24 +1099,9 @@
         </div>
     </div>
 
-    <!-- IZIPAY MODAL -->
-    <div class="modal-overlay" id="izipayModal" style="z-index: 1001;">
-        <div class="confirm-modal" style="max-width: 500px; padding: 1.5rem;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
-                <h3 style="margin:0;">Pago Seguro</h3>
-                <button onclick="closeIzipayModal()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">✕</button>
-            </div>
-            
-            <!-- Contenedor de Izipay (Modo Pop-in oficial) -->
-            <div id="izipayFormContainer" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
-                <!-- Usamos la clase kr-popin para la ventana oficial emergente -->
-                <div class="kr-popin" id="myPaymentForm"></div>
-            </div>
-
-            <div style="margin-top:1.5rem;text-align:center;">
-                <img src="https://micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay" style="height:25px;opacity:0.6;">
-            </div>
-        </div>
+    <!-- Contenedor oculto para Izipay (Necesario para el SDK) -->
+    <div id="izipay-hidden-container" style="display: none;">
+        <div class="kr-popin" id="myPaymentForm"></div>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -1372,16 +1357,18 @@
             link.href = 'https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.classic.css';
             document.head.appendChild(link);
 
-            // Cargar JS del SDK
+            // Cargar JS del SDK con parámetros de localización
             const script = document.createElement('script');
             script.id = 'izipay-sdk';
             script.src = "https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js";
             script.setAttribute('kr-public-key', IZIPAY_PUBLIC_KEY);
             script.setAttribute('kr-post-url-success', '/perfil?payment=success');
             script.setAttribute('kr-client-domain', 'https://api.micuentaweb.pe');
+            script.setAttribute('kr-language', 'es-PE'); // Forzar español Perú
+            script.setAttribute('kr-popin', ''); // Activar modo popin
             script.onload = () => {
                 izipaySdkLoaded = true;
-                console.log('[IZIPAY] Pop-in SDK Loaded');
+                console.log('[IZIPAY] Pop-in SDK Loaded & Ready');
             };
             document.head.appendChild(script);
         }
@@ -1418,24 +1405,24 @@
 
                 console.log('[IZIPAY] Token received, opening modal...');
                 
-                // 3. Abrir modal
+                // 3. Cerrar el modal de confirmación
                 closeModal();
-                document.getElementById('izipayModal').classList.add('open');
 
-                // 4. Inyectar token y abrir Pop-in
+                // 4. Inyectar token y abrir Pop-in oficial
                 setTimeout(async () => {
                     if (window.KR) {
                         try {
                             await KR.setFormToken(data.formToken);
-                            console.log('[IZIPAY] Token set, Pop-in ready');
+                            console.log('[IZIPAY] Token set, opening Pop-in...');
+                            KR.openPopin(); // Disparar la ventana oficial de Izipay
                         } catch (e) {
-                            console.error('[IZIPAY] Error setting token:', e);
+                            console.error('[IZIPAY] Error opening Pop-in:', e);
                         }
                     } else {
                         console.error('[IZIPAY] KR not found');
                         alert("Error: El cargador de pagos no está listo.");
                     }
-                }, 500);
+                }, 200);
 
             } catch (err) {
                 console.error('[IZIPAY] Checkout Error:', err);
@@ -1447,7 +1434,7 @@
         }
 
         function closeIzipayModal() {
-            document.getElementById('izipayModal').classList.remove('open');
+            // Ya no usamos nuestro modal personalizado, dejamos que Izipay maneje el suyo
         }
 
         // ── Init ─────────────────────────────────────────────────────────
