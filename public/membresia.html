@@ -1117,7 +1117,7 @@
                 <!-- Botón Oficial de Izipay (Se muestra tras generar token) -->
                 <div id="izipayPopinContainer" style="display:none; text-align:center;">
                     <div style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--green);">✨ ¡Orden lista! Haz clic abajo para pagar:</div>
-                    <div class="kr-popin" id="myPaymentForm">
+                    <div class="kr-embedded" kr-popin id="myPaymentForm">
                         <button class="kr-payment-button"></button>
                     </div>
                     <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.75rem; cursor:pointer; margin-top:1rem; text-decoration:underline;">
@@ -1344,6 +1344,11 @@
         }
 
         // ── Toast & Log ──────────────────────────────────────────────────
+        window.onerror = function(msg, url, line) {
+            logToSystem(`<span style="color:#ff6b70;">❌ ERROR: ${msg} (Línea ${line})</span>`);
+            return false;
+        };
+
         function logToSystem(msg) {
             const el = document.getElementById('izipaySystemLog');
             if (!el) return;
@@ -1408,7 +1413,12 @@
         }
 
         async function startIzipayCheckout() {
-            if (!selectedPlanId) return;
+            logToSystem("🚀 Botón Pagar pulsado...");
+            if (!selectedPlanId) {
+                logToSystem("❌ Error: selectedPlanId es null");
+                return;
+            }
+            
             const btn = document.getElementById('btnConfirm');
             const btnText = document.getElementById('confirmBtnText');
             const btnSpin = document.getElementById('confirmBtnSpinner');
@@ -1419,12 +1429,14 @@
             btnSpin.style.display = 'inline-block';
 
             try {
+                logToSystem("Contactando con el servidor...");
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ membershipId: selectedPlanId })
                 });
 
+                logToSystem("Respuesta del servidor recibida (Status: " + res.status + ")");
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Error al generar checkout');
 
