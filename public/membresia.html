@@ -20,8 +20,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
-        /* Estilos para asegurar que el Lightbox oficial de Izipay sea visible */
-        .kr-smart-form { background: transparent !important; }
+        /* ── IZIPAY OFFICIAL LIGHTBOX RESET ── */
+        /* Este bloque asegura que los estilos del sitio no deformen la pasarela */
+        .kr-popin-modal, .kr-popin-modal * {
+            box-sizing: border-box !important;
+            font-family: 'Inter', Arial, sans-serif !important;
+            line-height: 1.2 !important;
+        }
+        .kr-popin-modal .kr-popin-wrapper {
+            max-width: 420px !important;
+        }
+        /* Corregir tamaños de fuente gigantes heredados */
+        .kr-popin-modal .kr-field-element, 
+        .kr-popin-modal .kr-label,
+        .kr-popin-modal input,
+        .kr-popin-modal select {
+            font-size: 14px !important;
+            height: auto !important;
+            color: #333 !important;
+        }
+        .kr-popin-modal input {
+            padding: 12px 10px !important;
+            margin: 5px 0 !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            background: #fff !important;
+        }
+        .kr-popin-modal .kr-payment-button {
+            background-color: #00d1b2 !important; /* Color Izipay oficial */
+            height: 48px !important;
+            font-size: 16px !important;
+            margin-top: 15px !important;
+            border-radius: 8px !important;
+        }
+        /* Ajustar el z-index para que esté sobre todo */
         .kr-popin-modal { z-index: 100000 !important; }
     </style>
     <script>
