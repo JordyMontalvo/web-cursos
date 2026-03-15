@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil de Usuario - IATIBET ZUREON</title>
+    <title>Mi Perfil Premium - IATIBET ZUREON</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         (function () {
             const name = localStorage.getItem('branding_companyName');
@@ -32,18 +32,24 @@
     <style>
         :root {
             --purple: #7C3AED;
-            --purple-light: #A78BFA;
+            --purple-glow: rgba(124, 58, 237, 0.4);
             --green: #4FFFB0;
-            --bg: #0A0A0F;
-            --card: rgba(18, 18, 30, 0.9);
-            --border: rgba(255, 255, 255, 0.08);
+            --green-glow: rgba(79, 255, 176, 0.3);
+            --bg: #030308;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent: #FFD93D;
         }
 
         body {
             background: var(--bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(79, 255, 176, 0.1) 0%, transparent 40%);
             color: #fff;
             font-family: 'Inter', sans-serif;
             padding-top: 80px;
+            min-height: 100vh;
         }
 
         .container {
@@ -52,728 +58,524 @@
             padding: 2rem 1.5rem;
         }
 
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 2rem;
-        }
-
-        /* ── Top Panel ────────────────────────────────────────────── */
+        /* ── Profile Hero ── */
         .profile-hero {
-            background: linear-gradient(135deg, rgba(88, 33, 182, 0.6), rgba(46, 16, 101, 0.6));
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            border-radius: 20px;
-            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(0, 0, 0, 0.4));
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
             display: flex;
             align-items: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .profile-hero::before {
+        .profile-hero::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(124, 58, 237, 0.3) 0%, transparent 50%);
+            top: -20%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.15), transparent 70%);
             pointer-events: none;
         }
 
+        .hero-avatar-wrap {
+            position: relative;
+            z-index: 2;
+        }
+        
         .hero-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            border-radius: 30px; /* Modern squircle */
             background: linear-gradient(135deg, var(--purple), var(--green));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 800;
             color: #fff;
-            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0, 0, 0, 0.5);
             position: relative;
-            z-index: 10;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        .hero-info {
-            flex: 1;
-            position: relative;
-            z-index: 10;
+        .hero-avatar::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 34px;
+            background: linear-gradient(135deg, var(--purple), var(--green));
+            opacity: 0.4;
+            z-index: -1;
+            animation: avatarPulse 3s ease-in-out infinite;
         }
 
-        .hero-name {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 0.25rem;
-        }
+        .hero-info { flex: 1; z-index: 2; }
+        .hero-name { font-size: 2.5rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+        .hero-email { font-size: 1.1rem; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; }
 
-        .hero-email {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 1rem;
-        }
+        .hero-badges-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
         .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(124, 58, 237, 0.3);
-            border: 1px solid rgba(124, 58, 237, 0.5);
-            padding: 0.4rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1.25rem;
             border-radius: 100px;
             font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s;
+        }
+        .hero-badge.active { background: rgba(79, 255, 176, 0.1); border-color: var(--green-glow); color: var(--green); box-shadow: 0 0 20px rgba(79, 255, 176, 0.1); }
+        .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+        /* ── Profile Layout ── */
+        .profile-content {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2.5rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Sidebar Tabs */
+        .profile-sidebar { display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-tab {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 1rem 1.5rem;
+            border-radius: 14px;
+            color: rgba(255,255,255,0.6);
             font-weight: 600;
-            color: #C4B5FD;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+        .nav-tab:hover { background: var(--glass); color: #fff; }
+        .nav-tab.active { background: var(--glass); border-color: var(--glass-border); color: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .nav-tab svg { opacity: 0.6; width: 20px; }
+        .nav-tab.active svg { opacity: 1; color: var(--purple); }
+
+        /* Panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: tabEnter 0.4s cubic-bezier(0, 0, 0.2, 1); }
+
+        .panel-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
         }
 
-        .hero-badge.active {
-            background: rgba(79, 255, 176, 0.15);
-            border-color: rgba(79, 255, 176, 0.3);
-            color: var(--green);
-        }
+        .panel-header { margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; }
+        .panel-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
 
-        .hero-badge .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .edit-profile-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 0.75rem 1.5rem;
+        /* Forms */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.6rem; }
+        .form-label { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.5); }
+        
+        .form-input {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            padding: 1rem 1.25rem;
             border-radius: 12px;
             color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s;
-            position: relative;
-            z-index: 10;
+            font-size: 1rem;
+            transition: all 0.3s;
         }
+        .form-input:focus { border-color: var(--purple); background: rgba(124, 58, 237, 0.05); outline: none; box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
+        .form-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .edit-profile-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .btn-premium {
+            background: linear-gradient(135deg, var(--purple), #5B21B6);
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px var(--purple-glow);
+            width: 100%;
         }
+        .btn-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--purple-glow); filter: brightness(1.1); }
+        .btn-premium:active { transform: translateY(-1px); }
+        .btn-premium:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* ── Grid Layout ───────────────────────────────────────────── */
-        .profile-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            align-items: start;
+        /* Progress Card */
+        .progress-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.05));
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
+        .progress-thumb { width: 100px; height: 60px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; }
+        .progress-info { flex: 1; }
+        .progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 8px 0; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--green)); border-radius: 10px; width: 0%; transition: width 1s ease; }
+
+        /* Table */
+        .history-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        .history-table th { text-align: left; padding: 0 1rem 1rem; color: rgba(255,255,255,0.4); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        .history-table tr td { background: rgba(255,255,255,0.02); padding: 1.25rem 1rem; transition: background 0.2s; }
+        .history-table tr td:first-child { border-radius: 12px 0 0 12px; }
+        .history-table tr td:last-child { border-radius: 0 12px 12px 0; }
+        .history-table tr:hover td { background: rgba(255,255,255,0.05); }
+
+        /* Animations */
+        @keyframes avatarPulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.08); opacity: 0.2; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes tabEnter { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Header logic */
+        .header { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: rgba(3,3,8,0.8); backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border); }
 
         @media (max-width: 900px) {
-            .profile-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ── Cards ─────────────────────────────────────────────────── */
-        .card-panel {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .form-grid.full {
-            grid-template-columns: 1fr;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .form-input {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0.85rem 1rem;
-            border-radius: 10px;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
-
-        .form-input:focus {
-            border-color: var(--purple);
-            background: rgba(124, 58, 237, 0.05);
-            outline: none;
-        }
-
-        /* Estilo específico para select de país */
-        select.form-input {
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1.25rem center; /* Movida un poco a la izquierda */
-            padding-right: 2.5rem;
-            cursor: pointer;
-        }
-
-        select.form-input option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        .form-input:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-submit {
-            background: linear-gradient(135deg, var(--purple), #5B21B6);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            width: 100%;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-danger-outline {
-            background: transparent;
-            border: none;
-            color: rgba(255, 107, 112, 0.7);
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            padding: 0.5rem 0;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            align-self: flex-start;
-        }
-
-        .btn-danger-outline:hover {
-            color: #FF6B70;
-        }
-
-        /* ── Membership History ────────────────────────────────────── */
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .history-table th {
-            text-align: left;
-            padding: 1rem 0;
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 600;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .history-table td {
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .history-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .status-badge.success {
-            background: rgba(79, 255, 176, 0.1);
-            color: var(--green);
-        }
-
-        .btn-small-outline {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.8rem;
-            font-weight: 600;
-            padding: 0.4rem 0.8rem;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .btn-small-outline:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
-
-        .toast-container {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .toast-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: #1A1A2E;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
-            min-width: 280px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .toast-item.success {
-            border-color: rgba(79, 255, 176, 0.3);
-        }
-
-        .toast-item.error {
-            border-color: rgba(255, 107, 112, 0.3);
-        }
-
-        @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* ── Responsive adjustments ────────────────────────────────── */
-        @media (max-width: 768px) {
-            body {
-                padding-top: 70px;
-            }
-
-            .container {
-                padding: 1.5rem 1rem;
-            }
-
-            .page-title {
-                font-size: 1.75rem;
-                margin-bottom: 1.5rem;
-                text-align: center;
-            }
-
-            .profile-hero {
-                flex-direction: column;
-                text-align: center;
-                padding: 2rem 1.5rem;
-                gap: 1.5rem;
-            }
-
-            .hero-avatar {
-                width: 80px;
-                height: 80px;
-                font-size: 2.25rem;
-            }
-
-            .hero-name {
-                font-size: 1.5rem;
-            }
-
-            .hero-email {
-                font-size: 1rem;
-            }
-
-            .profile-grid {
-                gap: 1.5rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .card-panel {
-                padding: 1.5rem;
-            }
-
-            .edit-profile-btn {
-                width: 100%;
-                text-align: center;
-            }
-
-            .history-table {
-                font-size: 0.8rem;
-            }
-
-            .history-table th:nth-child(3),
-            .history-table td:nth-child(3) {
-                display: none;
-            }
-
-            /* Hide amount on very small screens */
+            .profile-content { grid-template-columns: 1fr; }
+            .profile-sidebar { flex-direction: row; overflow-x: auto; padding-bottom: 1rem; }
+            .nav-tab { white-space: nowrap; }
+            .profile-hero { flex-direction: column; text-align: center; padding: 2.5rem 1.5rem; }
+            .form-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <a href="/" class="logo">
-                    <div class="logo-icon"></div>
-                    <span class="logo-text">LOGO</span>
+        <div class="container" style="padding: 1rem 1.5rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <a href="/" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+                    <div class="logo-icon-sm" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--green));"></div>
+                    <span class="logo-text-sm" style="font-weight:900;font-size:1.2rem;color:#fff;">IATIBET ZUREON</span>
                 </a>
-                <nav class="nav">
-                    <a href="/" class="nav-link">Cursos</a>
-                </nav>
-                <div class="header-actions" id="headerActions">
-                    <!-- Script will inject user info here -->
-                    <a href="/login" class="btn-link">Entrar</a>
-                    <a href="/register" class="btn-primary">Crear Cuenta</a>
+                <div id="headerActions" style="display:flex; align-items:center; gap:1rem;">
+                    <!-- Inyectado por JS de script.js -->
                 </div>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <h1 class="page-title">Perfil de Usuario</h1>
-
-        <!-- Top Hero -->
+        <!-- Profile Hero -->
         <div class="profile-hero">
-            <div class="hero-avatar" id="heroAvatar">?</div>
+            <div class="hero-avatar-wrap">
+                <div class="hero-avatar" id="heroAvatar">?</div>
+            </div>
             <div class="hero-info">
-                <div class="hero-name" id="heroName">Cargando...</div>
-                <div class="hero-email" id="heroEmail">--</div>
-                <div class="hero-badge" id="heroBadge">
-                    <div class="dot"></div> <span id="heroStatusText">Verificando estado...</span>
+                <h1 class="hero-name" id="heroName">Cargando...</h1>
+                <div class="hero-email" id="heroEmail">---</div>
+                <div class="hero-badges-row">
+                    <div class="hero-badge" id="heroBadge">
+                        <div class="dot"></div> <span id="heroStatusText">Verificando suscripción...</span>
+                    </div>
+                    <div class="hero-badge" id="joinBadge">
+                        📅 <span id="joinDate">Miembro desde ...</span>
+                    </div>
                 </div>
             </div>
-            <a href="#datos" class="edit-profile-btn" onclick="document.getElementById('profileName').focus()">Editar
-                Perfil</a>
         </div>
 
-        <div class="profile-grid">
+        <div class="profile-content">
+            <!-- Sidebar Navigation -->
+            <aside class="profile-sidebar">
+                <button class="nav-tab active" onclick="switchTab('datos', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Mi Perfil
+                </button>
+                <button class="nav-tab" onclick="switchTab('cursos', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+                    Mis Cursos
+                </button>
+                <button class="nav-tab" onclick="switchTab('seguridad', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Seguridad
+                </button>
+                <button class="nav-tab" onclick="switchTab('facturacion', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    Suscripción
+                </button>
+            </aside>
 
-            <!-- Left Column -->
-            <div style="display:flex;flex-direction:column;gap:2rem;">
-
-                <!-- Datos Personales -->
-                <form class="card-panel" id="profileForm" novalidate onsubmit="updateProfile(event)">
-                    <div class="card-title">Datos Personales</div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Nombre</label>
-                            <input type="text" class="form-input" id="profileName" required>
+            <!-- Main Content Area -->
+            <main class="profile-main">
+                
+                <!-- TAB: DATOS PERSONALES -->
+                <div id="tab-datos" class="tab-panel active">
+                    <form class="panel-card" onsubmit="updateProfile(event)">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Información Personal</h2>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Apellido</label>
-                            <input type="text" class="form-input" id="profileLastName">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-input" id="profileName" placeholder="Tu nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Apellido</label>
+                                <input type="text" class="form-input" id="profileLastName" placeholder="Tu apellido">
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">País</label>
-                            <select class="form-input" id="profileCountry">
-                                <option value="">Selecciona tu país</option>
-                                <option value="Perú">🇵🇪 Perú</option>
-                                <option value="México">🇲🇽 México</option>
-                                <option value="Colombia">🇨🇴 Colombia</option>
-                                <option value="Chile">🇨🇱 Chile</option>
-                                <option value="Argentina">🇦🇷 Argentina</option>
-                                <option value="España">🇪🇸 España</option>
-                                <option value="Ecuador">🇪🇨 Ecuador</option>
-                                <option value="Bolivia">🇧🇴 Bolivia</option>
-                                <option value="Paraguay">🇵🇾 Paraguay</option>
-                                <option value="Uruguay">🇺🇾 Uruguay</option>
-                                <option value="Venezuela">🇻🇪 Venezuela</option>
-                                <option value="Brasil">🇧🇷 Brasil</option>
-                                <option value="Estados Unidos">🇺🇸 Estados Unidos</option>
-                                <option value="Costa Rica">🇨🇷 Costa Rica</option>
-                                <option value="Panamá">🇵🇦 Panamá</option>
-                                <option value="Guatemala">🇬🇹 Guatemala</option>
-                                <option value="Otros">🌍 Otros</option>
-                            </select>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">País</label>
+                                <select class="form-input" id="profileCountry">
+                                    <option value="">Selecciona tu país</option>
+                                    <option value="Perú">🇵🇪 Perú</option>
+                                    <option value="México">🇲🇽 México</option>
+                                    <option value="Colombia">🇨🇴 Colombia</option>
+                                    <option value="Chile">🇨🇱 Chile</option>
+                                    <option value="Argentina">🇦🇷 Argentina</option>
+                                    <option value="España">🇪🇸 España</option>
+                                    <option value="Ecuador">🇪🇨 Ecuador</option>
+                                    <option value="Otros">🌍 Otros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ciudad</label>
+                                <input type="text" class="form-input" id="profileCity" placeholder="Ciudad">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Ciudad</label>
-                            <input type="text" class="form-input" id="profileCity">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-input" id="profilePhone" placeholder="+51 ...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-input" id="profileBirthDate">
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-input" id="profilePhone">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Fecha de Nacimiento</label>
-                            <input type="date" class="form-input" id="profileBirthDate">
-                        </div>
-                    </div>
-
-                    <div class="form-grid full">
-                        <div class="form-group">
-                            <label class="form-label">Correo Electrónico</label>
+                        <div class="form-group" style="margin-bottom:2rem;">
+                            <label class="form-label">Correo Electrónico (No editable)</label>
                             <input type="email" class="form-input" id="profileEmail" disabled>
                         </div>
-                    </div>
+                        <button type="submit" class="btn-premium" id="btnUpdateProfile">Guardar Cambios</button>
+                    </form>
+                </div>
 
-                    <div style="margin-top:0.5rem;">
-                        <button type="submit" class="btn-submit" id="btnUpdateProfile">Guardar Cambios</button>
-                    </div>
-
-                    <button type="button" class="btn-danger-outline" style="margin-top:1rem;"
-                        onclick="alert('Función no disponible por ahora.')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6" />
-                        </svg>
-                        Desactivar cuenta
-                    </button>
-                </form>
-
-            </div>
-
-            <!-- Right Column -->
-            <div style="display:flex;flex-direction:column;gap:2rem;">
-
-                <!-- Seguridad -->
-                <form class="card-panel" id="securityForm" novalidate onsubmit="updatePassword(event)">
-                    <div class="card-title">Seguridad</div>
-                    <div class="form-grid full">
-                        <div class="form-group">
-                            <label class="form-label">Contraseña Actual</label>
-                            <input type="password" class="form-input" id="currentPassword" required minlength="6">
+                <!-- TAB: MIS CURSOS -->
+                <div id="tab-cursos" class="tab-panel">
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Tu Progreso</h2>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Nueva Contraseña</label>
-                            <input type="password" class="form-input" id="newPassword" required minlength="6">
+                        
+                        <div id="continueContainer">
+                            <!-- Inyectado por JS -->
+                            <p style="opacity:0.5; text-align:center;">Todavía no has empezado ningún curso.</p>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Confirmar Contraseña</label>
-                            <input type="password" class="form-input" id="confirmPassword" required minlength="6">
+
+                        <div style="text-align:center; margin-top:2rem;">
+                            <a href="/" class="btn-premium" style="display:inline-block; text-decoration:none; width:auto;">Explorar Cursos</a>
                         </div>
-                    </div>
-                    <div style="margin-top:0.5rem;">
-                        <button type="submit" class="btn-submit" id="btnUpdatePassword">Actualizar Contraseña</button>
-                    </div>
-                </form>
-
-                <!-- Membresía -->
-                <div class="card-panel">
-                    <div class="card-title">
-                        Membresía
-                        <a href="/membresia" class="btn-small-outline">Gestionar Membresía</a>
-                    </div>
-
-                    <div style="overflow-x:auto;">
-                        <table class="history-table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Descripción</th>
-                                    <th>Monto</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="paymentHistory">
-                                <tr>
-                                    <td colspan="4" style="text-align:center;opacity:0.5;padding:2rem;">No hay pagos
-                                        recientes</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="text-align:right; margin-top:1rem;">
-                        <a href="#" style="color:rgba(255,255,255,0.4);font-size:0.85rem;text-decoration:none;">Ver
-                            más</a>
                     </div>
                 </div>
 
-            </div>
+                <!-- TAB: SEGURIDAD -->
+                <div id="tab-seguridad" class="tab-panel">
+                    <form class="panel-card" onsubmit="updatePassword(event)">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Cambiar Contraseña</h2>
+                        </div>
+                        <div class="form-group" style="margin-bottom:1.5rem;">
+                            <label class="form-label">Contraseña Actual</label>
+                            <input type="password" class="form-input" id="currentPassword" placeholder="••••••••" required>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Nueva Contraseña</label>
+                                <input type="password" class="form-input" id="newPassword" placeholder="Mín. 6 caracteres" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirmar Nueva Contraseña</label>
+                                <input type="password" class="form-input" id="confirmPassword" placeholder="Repite contraseña" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-premium" id="btnUpdatePassword">Actualizar Contraseña</button>
+                    </form>
+                </div>
+
+                <!-- TAB: FACTURACIÓN / SUSCRIPCIÓN -->
+                <div id="tab-facturacion" class="tab-panel">
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Historial de Membresía</h2>
+                        </div>
+                        
+                        <div style="overflow-x:auto;">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Descripción</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentHistory">
+                                    <tr><td colspan="4" style="text-align:center; opacity:0.5;">Cargando historial...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top:2rem; padding:1.5rem; background:rgba(124, 58, 237, 0.05); border-radius:18px; border:1px solid rgba(124, 58, 237, 0.1);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <h4 style="font-weight:700; margin-bottom:0.25rem;">¿Deseas mejorar tu plan?</h4>
+                                    <p style="font-size:0.85rem; opacity:0.6;">Obtén acceso a mentorías grupales y certificados premium.</p>
+                                </div>
+                                <a href="/membresia" class="btn-premium" style="width:auto; padding:0.75rem 1.5rem; font-size:0.9rem;">Ver Planes</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
     <!-- TOAST CONTAINER -->
-    <div class="toast-container" id="toastContainer"></div>
+    <div id="toastContainer" style="position:fixed; bottom:2rem; right:2rem; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>
 
     <script src="/config.js"></script>
     <script src="/script.js"></script>
     <script>
         const token = localStorage.getItem('authToken');
-        if (!token) {
-            window.location.href = '/login?redirect=/perfil';
-        }
+        if (!token) window.location.href = '/login?redirect=/perfil';
 
         let currentUser = null;
 
         function showToast(msg, type = 'success') {
             const c = document.getElementById('toastContainer');
             const t = document.createElement('div');
-            const icons = {
-                success: '✅',
-                error: '🚨',
-                info: '💡'
-            };
-            t.className = `toast-item ${type}`;
-            t.innerHTML = `<div class="toast-icon-wrap">${icons[type]}</div><div class="toast-text">${msg}</div><button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+            const colors = { success: '#4FFFB0', error: '#FF6B70', info: '#7C3AED' };
+            t.style = `background:rgba(15,15,25,0.9); backdrop-filter:blur(10px); border:1px solid ${colors[type]}44; border-left:4px solid ${colors[type]}; color:#fff; padding:1rem 1.5rem; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.3); animation:slideIn 0.4s ease-out; display:flex; align-items:center; gap:10px; min-width:280px;`;
+            t.innerHTML = `<span>${type === 'success' ? '✅' : '🚨'}</span> <div>${msg}</div><button style="margin-left:auto; background:none; border:none; color:#fff; cursor:pointer;" onclick="this.parentElement.remove()">✕</button>`;
             c.appendChild(t);
-            setTimeout(() => { if (t.parentElement) t.remove(); }, 5000);
+            setTimeout(() => { if(t.parentElement) t.remove(); }, 4000);
+        }
+
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            btn.classList.add('active');
         }
 
         async function loadProfile() {
             await configReady;
             try {
-                const res = await fetch(apiUrl('/api/auth/me'), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await fetch(apiUrl('/api/auth/me'), { headers: { 'Authorization': `Bearer ${token}` } });
                 const data = await res.json();
-
                 if (data.success) {
                     currentUser = data.user;
-                    
-                    // Defensive check: only update if it belongs to the current user
-                    const existingUser = JSON.parse(localStorage.getItem('authUser') || '{}');
-                    const newId = currentUser._id || currentUser.id;
-                    const oldId = existingUser.id || existingUser._id;
-
-                    if (oldId && newId !== oldId) {
-                        console.warn('Session mismatch detected. Logging out.');
-                        localStorage.removeItem('authToken');
-                        localStorage.removeItem('authUser');
-                        window.location.href = '/login';
-                        return;
-                    }
-
-                    localStorage.setItem('authUser', JSON.stringify({ 
-                        id: newId, 
-                        name: currentUser.name, 
-                        email: currentUser.email, 
-                        phone: currentUser.phone || '',
-                        role: currentUser.role, 
-                        hasMembership: currentUser.hasMembership 
-                    }));
                     renderProfile();
+                    loadContinueWatching();
+                    if(window.updateHeader) updateHeader();
                 } else {
-                    showToast(data.message, 'error');
-                    if (data.message === 'Token inválido') {
-                        localStorage.removeItem('authToken');
-                        localStorage.removeItem('authUser');
-                        window.location.href = '/login';
-                    }
+                    if (data.message === 'Token inválido') logout();
                 }
-            } catch (error) {
-                showToast('Error de conexión', 'error');
+            } catch (e) { 
+                console.error(e);
+                showToast('Error al cargar perfil', 'error');
             }
         }
 
         function renderProfile() {
-            // Hero
             const initials = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
             document.getElementById('heroAvatar').textContent = initials;
-            const fullName = [currentUser.name, currentUser.lastName].filter(Boolean).join(' ');
-            document.getElementById('heroName').textContent = fullName;
+            document.getElementById('heroName').textContent = `${currentUser.name} ${currentUser.lastName || ''}`;
             document.getElementById('heroEmail').textContent = currentUser.email;
+            
+            if (currentUser.createdAt) {
+                const date = new Date(currentUser.createdAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                document.getElementById('joinDate').textContent = `Miembro desde ${date}`;
+            }
 
             const badge = document.getElementById('heroBadge');
             const statusText = document.getElementById('heroStatusText');
+            const historyBody = document.getElementById('paymentHistory');
+            
             if (currentUser.hasMembership) {
                 badge.classList.add('active');
-                let expText = '';
-                if (currentUser.membershipExpiresAt) {
-                    const expDate = new Date(currentUser.membershipExpiresAt).toLocaleDateString();
-                    expText = ` (Vence/Renueva: ${expDate})`;
-                }
-                statusText.textContent = `Membresía Activa: ${currentUser.membershipPlan || 'Plan'}${expText}`;
+                const exp = currentUser.membershipExpiresAt ? new Date(currentUser.membershipExpiresAt).toLocaleDateString() : 'Activa';
+                statusText.textContent = `Premium: ${currentUser.membershipPlan || 'Plan'} (Vence: ${exp})`;
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                <td>Hace poco</td>
-                <td>Pago de membresía ${currentUser.membershipPlan || ''}</td>
-                <td>Completado</td>
-                <td><span class="status-badge success"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:currentColor;"></span> Pagado</span></td>
-            `;
-                document.getElementById('paymentHistory').innerHTML = '';
-                document.getElementById('paymentHistory').appendChild(tr);
+                historyBody.innerHTML = `
+                    <tr>
+                        <td style="font-weight:600;">Reciente</td>
+                        <td>Suscripción ${currentUser.membershipPlan || ''}</td>
+                        <td><span style="color:var(--green); font-weight:700;">● Pagado</span></td>
+                        <td><a href="#" class="form-label" style="text-decoration:none; color:var(--purple);">Ver Recibo</a></td>
+                    </tr>
+                `;
             } else {
                 badge.classList.remove('active');
-                statusText.textContent = 'Usuario Inactivo';
+                statusText.textContent = 'Sin Suscripción Activa';
+                historyBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; opacity:0.5;">No hay pagos registrados.</td></tr>`;
             }
 
-            // Form
-            document.getElementById('profileName').value = currentUser.name || '';
-            document.getElementById('profileLastName').value = currentUser.lastName || '';
-            document.getElementById('profileCountry').value = currentUser.country || '';
-            document.getElementById('profileCity').value = currentUser.city || '';
-            document.getElementById('profilePhone').value = currentUser.phone || '';
-            if (currentUser.birthDate) {
-                document.getElementById('profileBirthDate').value = currentUser.birthDate;
-            }
-            document.getElementById('profileEmail').value = currentUser.email || '';
+            // Fill form
+            const fields = ['profileName', 'profileLastName', 'profileCountry', 'profileCity', 'profilePhone', 'profileBirthDate', 'profileEmail'];
+            fields.forEach(f => {
+                const property = f.replace('profile', '').charAt(0).toLowerCase() + f.replace('profile', '').slice(1);
+                const val = currentUser[property];
+                const el = document.getElementById(f);
+                if (el) el.value = val || '';
+            });
+        }
+
+        function loadContinueWatching() {
+            const container = document.getElementById('continueContainer');
+            try {
+                const last = JSON.parse(localStorage.getItem('lastPlayedCourse') || 'null');
+                if (last && last.courseId) {
+                    container.innerHTML = `
+                        <div class="progress-card" onclick="window.location.href='/curso/${last.courseId}'" style="cursor:pointer;">
+                            <div class="progress-thumb" style="background-image:url('${last.courseThumbnail || '/uploads/default-course.jpg'}')"></div>
+                            <div class="progress-info">
+                                <h4 style="font-weight:800; margin-bottom:0.25rem;">${last.courseName}</h4>
+                                <p style="font-size:0.8rem; opacity:0.6;">Continúa donde lo dejaste: ${last.lastEpisodeName || 'Siguiente capítulo'}</p>
+                                <div class="progress-bar-wrap">
+                                    <div class="progress-bar-fill" style="width:${last.progress || 0}%"></div>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                                    <span style="color:var(--green); font-weight:700;">${last.progress || 0}% completado</span>
+                                    <span style="color:var(--purple); font-weight:700;">Continuar ▶</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch(e) { console.error("Error loading last tracking", e); }
         }
 
         async function updateProfile(e) {
             e.preventDefault();
             const btn = document.getElementById('btnUpdateProfile');
-            btn.disabled = true;
-            btn.textContent = 'Guardando...';
-
+            const originalText = btn.textContent;
+            btn.disabled = true; btn.textContent = 'Guardando...';
             const payload = {
                 name: document.getElementById('profileName').value.trim(),
                 lastName: document.getElementById('profileLastName').value.trim(),
@@ -782,78 +584,55 @@
                 phone: document.getElementById('profilePhone').value.trim(),
                 birthDate: document.getElementById('profileBirthDate').value
             };
-
             try {
                 const res = await fetch(apiUrl('/api/auth/me'), {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-
                 if (data.success) {
-                    showToast('Perfil actualizado correctamente', 'success');
+                    showToast('¡Perfil actualizado con éxito!');
                     currentUser = data.user;
                     renderProfile();
-                } else {
-                    showToast(data.message || 'Error al actualizar', 'error');
-                }
-            } catch (error) {
-                showToast('Error de conexión', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Guardar Cambios';
-            }
+                    updateLocalUser(data.user);
+                } else showToast(data.message, 'error');
+            } catch(e) { showToast('Error de conexión', 'error'); }
+            finally { btn.disabled = false; btn.textContent = originalText; }
         }
 
         async function updatePassword(e) {
             e.preventDefault();
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            if (newPassword !== confirmPassword) {
-                showToast('Las contraseñas nuevas no coinciden', 'error');
-                return;
-            }
-
+            const cur = document.getElementById('currentPassword').value;
+            const n1 = document.getElementById('newPassword').value;
+            const n2 = document.getElementById('confirmPassword').value;
+            if (n1 !== n2) return showToast('Las contraseñas no coinciden', 'error');
             const btn = document.getElementById('btnUpdatePassword');
             btn.disabled = true;
-            btn.textContent = 'Un momento...';
-
             try {
                 const res = await fetch(apiUrl('/api/auth/me'), {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ currentPassword, newPassword })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ currentPassword: cur, newPassword: n1 })
                 });
                 const data = await res.json();
-
                 if (data.success) {
-                    showToast('Contraseña actualizada correctamente', 'success');
-                    document.getElementById('securityForm').reset();
-                } else {
-                    showToast(data.message || 'Error al actualizar la contraseña', 'error');
-                }
-            } catch (error) {
-                showToast('Error de conexión', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Actualizar Contraseña';
-            }
+                    showToast('Contraseña actualizada correctamente');
+                    e.target.reset();
+                } else showToast(data.message, 'error');
+            } catch(e) { showToast('Error al actualizar contraseña', 'error'); }
+            finally { btn.disabled = false; }
         }
 
-        // Inicializar
-        loadSettings();
-        loadProfile();
+        function updateLocalUser(u) {
+            const current = JSON.parse(localStorage.getItem('authUser') || '{}');
+            localStorage.setItem('authUser', JSON.stringify({ ...current, name: u.name, phone: u.phone }));
+            if (window.updateHeader) updateHeader();
+        }
 
+        loadProfile();
     </script>
+    <style>@keyframes slideIn { from { transform:translateX(30px); opacity:0; } to { transform:translateX(0); opacity:1; } }</style>
 </body>
 
 </html>

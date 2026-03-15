@@ -4,12 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso - IATIBET ZUREON</title>
-    <meta name="description" content="Aprende con nuestros cursos online">
+    <title>Reproductor de Cursos - IATIBET ZUREON</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         (function () {
             const name = localStorage.getItem('branding_companyName');
@@ -31,1092 +30,551 @@
         })();
     </script>
     <style>
+        :root {
+            --purple: #7C3AED;
+            --purple-glow: rgba(124, 58, 237, 0.4);
+            --green: #4FFFB0;
+            --green-glow: rgba(79, 255, 176, 0.3);
+            --bg: #05050A;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --sidebar-w: 380px;
+        }
+
         body {
-            background: #130a21;
-            /* Dark purple base */
+            background: var(--bg);
+            background-image: 
+                radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.08) 0%, transparent 40%);
             color: #fff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Solo scroll en áreas específicas */
+            height: 100vh;
         }
 
-        .course-player {
-            padding: 2rem 0;
-        }
-
-        @media (max-width: 900px) {
-            .course-player {
-                padding: 0 0 2rem 0;
-            }
-
-            .header {
-                display: none !important;
-            }
-
-            /* Hide standard header on mobile */
-        }
-
-        .mobile-header {
-            display: none;
+        /* ── Header ── */
+        .player-header {
+            height: 64px;
+            background: rgba(5, 5, 10, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 1.5rem;
-            position: sticky;
-            top: 0;
+            padding: 0 2rem;
+            position: relative;
             z-index: 100;
-            background: linear-gradient(180deg, rgba(19, 10, 33, 1) 0%, rgba(19, 10, 33, 0) 100%);
         }
 
-        @media (max-width: 900px) {
-            .mobile-header {
-                display: flex;
-            }
-
-            .course-player .container {
-                padding: 0;
-                max-width: 100%;
-            }
-        }
-
-        .mobile-header .back-btn {
-            color: #A78BFA;
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: rgba(255,255,255,0.6);
             text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-
-        .mobile-header .logo-text {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            color: #fff;
-            text-transform: uppercase;
-        }
-
-        .player-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%;
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        @media (max-width: 900px) {
-            .video-container {
-                border-radius: 0;
-            }
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .video-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 1rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .course-info {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            padding: 0.5rem 1.5rem 1.5rem;
-        }
-
-        @media (min-width: 901px) {
-            .course-info {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 12px;
-                padding: 1.5rem;
-            }
-        }
-
-        .course-title {
-            font-size: 1.65rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
-        }
-
-        .course-meta {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            opacity: 0.6;
             font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .course-meta span.separator {
-            margin: 0 0.5rem;
-        }
-
-        .course-navigation {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            width: 100%;
-        }
-
-        @media (min-width: 901px) {
-            .course-navigation {
-                display: flex;
-                width: auto;
-            }
-        }
-
-        .btn-nav {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.85rem 1rem;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #fff;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .btn-nav:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .btn-prev {
-            background: rgba(124, 58, 237, 0.7);
-        }
-
-        .btn-prev:hover:not(:disabled) {
-            background: rgba(124, 58, 237, 0.9);
-        }
-
-        .btn-next {
-            background: #15803D;
-        }
-
-        /* Dark Green */
-        .btn-next:hover:not(:disabled) {
-            background: #16A34A;
-        }
-
-        /* Chapters sidebar layout */
-        .course-layout {
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 2rem;
-            align-items: start;
-        }
-
-        @media (max-width: 900px) {
-            .course-layout {
-                grid-template-columns: 1fr;
-                gap: 0;
-            }
-
-            .chapters-panel {
-                padding: 0 1.5rem;
-            }
-        }
-
-        /* Chapter/Episode list */
-        .chapters-panel {
-            border-radius: 16px;
-        }
-
-        .chapter-group-title {
-            padding: 1rem 0 0.5rem;
-            font-weight: 700;
-            font-size: 1rem;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .chapter-group-title span.ep-count {
-            opacity: 0.6;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .episode-item {
-            padding: 0.75rem 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: all 0.2s;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
-        }
-
-        .episode-item:last-child {
-            border-bottom: none;
-        }
-
-        /* Thumbnail inside Episode */
-        .episode-thumb {
-            width: 140px;
-            height: 83px;
-            border-radius: 8px;
-            background-color: #2D1B4E;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .episode-thumb-overlay {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            padding: 0.15rem 0.35rem;
-            font-size: 0.65rem;
-            font-weight: 700;
-            border-radius: 4px;
-        }
-
-        .episode-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-center;
-            min-width: 0;
-        }
-
-        .episode-title {
-            font-size: 0.95rem;
             font-weight: 600;
-            color: #fff;
+            transition: all 0.2s;
+        }
+        .back-link:hover { color: #fff; transform: translateX(-4px); }
+
+        /* ── Layout ── */
+        .player-main {
+            display: grid;
+            grid-template-columns: 1fr var(--sidebar-w);
+            height: calc(100vh - 64px);
+        }
+
+        /* ── Content View ── */
+        .content-view {
+            overflow-y: auto;
+            background: #000;
+            position: relative;
+        }
+
+        .video-stage {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            box-shadow: 0 20px 100px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .video-stage iframe { width: 100%; height: 100%; border: none; }
+
+        .content-info {
+            padding: 3rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .episode-label {
+            color: var(--purple-light, #A78BFA);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .episode-main-title {
+            font-size: 2.25rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .course-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .meta-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+        }
+        .meta-stat span.value { color: #fff; font-weight: 700; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background: rgba(10, 10, 20, 0.4);
+            backdrop-filter: blur(30px);
+            border-left: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .sidebar-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 1rem; }
+
+        .progress-circle-wrap { display: flex; align-items: center; gap: 1rem; }
+        .progress-text { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 600; }
+        .progress-text b { color: var(--green); }
+
+        .chapters-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .chapter-group { margin-bottom: 1rem; }
+        .chapter-title-btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.02);
+            border: none;
+            color: rgba(255,255,255,0.8);
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chapter-title-btn:hover { background: var(--glass); }
+
+        .ep-list { padding: 0.5rem 0; }
+        .ep-item {
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .ep-item:hover { background: rgba(255,255,255,0.03); }
+        .ep-item.active {
+            background: rgba(124, 58, 237, 0.08);
+            border-left-color: var(--purple);
+        }
+        .ep-item.completed .ep-check { color: var(--green); opacity: 1; }
+
+        .ep-thumb {
+            width: 110px;
+            height: 62px;
+            border-radius: 8px;
+            background: #1a1a2e;
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .ep-thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+        .ep-item.active .ep-thumb img { opacity: 1; }
+
+        .ep-info { min-width: 0; }
+        .ep-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.25rem;
         }
+        .ep-item.active .ep-name { color: #fff; }
+        .ep-meta { font-size: 0.75rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 0.5rem; }
 
-        .episode-duration-icon {
+        /* ── Controls ── */
+        .stage-controls {
             display: flex;
             align-items: center;
-            gap: 0.35rem;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.5);
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        .episode-duration-icon svg {
-            width: 14px;
-            height: 14px;
-            opacity: 0.7;
-            color: #A78BFA;
-        }
-
-        .episode-check {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #A78BFA;
-            opacity: 0.3;
-            transition: all 0.3s ease;
-        }
-
-        /* Episodio completado */
-        .episode-item.completed .episode-check {
-            color: #4FFFB0;
-            opacity: 1;
-        }
-        .episode-item.completed .episode-title {
-            color: rgba(255,255,255,0.6);
-        }
-        .episode-item.completed .episode-thumb::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            width: 100%;
-            background: #4FFFB0;
-        }
-        /* Barra de progreso del capítulo */
-        .chapter-progress-bar {
-            height: 3px;
-            background: rgba(255,255,255,0.07);
-            border-radius: 100px;
-            margin: 0.25rem 0 0.5rem;
-            overflow: hidden;
-        }
-        .chapter-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #7C3AED, #4FFFB0);
-            border-radius: 100px;
-            transition: width 0.5s ease;
-        }
-        /* Preview badge */
-        .preview-badge {
-            background: linear-gradient(135deg,#F59E0B,#D97706);
-            color: #000;
-            font-size: 0.6rem;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 4px;
-            letter-spacing: 0.05em;
-        }
-        /* Botón marcar completado */
-        .btn-mark-complete {
+        .btn-action {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            color: #fff;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.65rem 1.25rem;
-            background: rgba(79,255,176,0.1);
-            border: 1px solid rgba(79,255,176,0.25);
-            color: #4FFFB0;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
             transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
         }
-        .btn-mark-complete:hover {
-            background: rgba(79,255,176,0.18);
-            border-color: rgba(79,255,176,0.5);
-        }
-        .btn-mark-complete.done {
-            background: rgba(79,255,176,0.15);
-            border-color: #4FFFB0;
+        .btn-action:hover:not(:disabled) { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .btn-action.primary { background: var(--purple); border: none; box-shadow: 0 10px 20px var(--purple-glow); }
+        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── Mobile Logic ── */
+        @media (max-width: 1000px) {
+            .player-main { grid-template-columns: 1fr; }
+            .sidebar { border-left: none; border-top: 1px solid var(--glass-border); height: auto; overflow: visible; }
+            .content-view { overflow-y: visible; }
+            body { overflow-y: auto; height: auto; }
+            .player-header { padding: 0 1rem; }
         }
 
-        /* Active State */
-        .episode-item.active {
-            background: transparent;
-        }
-
-        .episode-item.active .episode-title {
-            color: #fff;
-        }
-
-        .episode-item.active .episode-thumb {
-            box-shadow: 0 0 0 2px #A78BFA, 0 0 15px rgba(167, 139, 250, 0.5);
-        }
-
-        .episode-item.active .episode-thumb::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            width: 60%;
-            background: #A78BFA;
-        }
-
-        .episode-item.active .episode-check {
-            color: #4FFFB0;
-            opacity: 1;
-        }
-
-        .episode-item.active .episode-duration-icon {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Loading */
-        .loading-state {
+        /* ── Lock Screen ── */
+        .lock-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(3,3,8,0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 300px;
-            flex-direction: column;
-            gap: 1rem;
-            color: rgba(255, 255, 255, 0.5);
+            padding: 2rem;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s;
+        }
+        .lock-screen.active { opacity: 1; pointer-events: auto; }
+
+        .lock-card {
+            background: linear-gradient(145deg, #110B22, #050510);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 32px;
+            padding: 3.5rem 2.5rem;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #7C3AED;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
+        .lock-icon { font-size: 3rem; margin-bottom: 1.5rem; filter: drop-shadow(0 0 20px var(--purple-glow)); }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<style>
-    /* Membership Lock Screen */
-    .lock-screen {
-        position: fixed;
-        inset: 0;
-        background: rgba(10, 10, 15, 0.96);
-        backdrop-filter: blur(12px);
-        z-index: 500;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-    }
-
-    .lock-screen.hidden {
-        display: none;
-    }
-
-    .lock-card {
-        background: rgba(20, 20, 35, 0.9);
-        border: 1px solid rgba(124, 58, 237, 0.3);
-        border-radius: 28px;
-        padding: 3rem 2.5rem;
-        max-width: 480px;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(124, 58, 237, 0.08);
-    }
-
-    .lock-card-icon {
-        width: 80px;
-        height: 80px;
-        border-radius: 24px;
-        background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 255, 176, 0.1));
-        border: 1px solid rgba(124, 58, 237, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        margin: 0 auto 1.75rem;
-    }
-
-    .lock-card h2 {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: #fff;
-        margin-bottom: 0.75rem;
-    }
-
-    .lock-card p {
-        color: rgba(255, 255, 255, 0.55);
-        line-height: 1.7;
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
-    }
-
-    .lock-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.9rem 2rem;
-        background: linear-gradient(135deg, #7C3AED, #5B21B6);
-        color: #fff;
-        font-size: 1rem;
-        font-weight: 700;
-        border-radius: 14px;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        transition: all 0.25s;
-        margin-bottom: 1rem;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .lock-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
-    }
-
-    .lock-btn-outline {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.75rem 2rem;
-        background: transparent;
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 0.9rem;
-        font-weight: 500;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        cursor: pointer;
-        text-decoration: none;
-        transition: all 0.25s;
-        width: 100%;
-    }
-
-    .lock-btn-outline:hover {
-        border-color: rgba(255, 255, 255, 0.3);
-        color: #fff;
-    }
-</style>
 
 <body>
-    <!-- Membership Lock Screen -->
-    <div class="lock-screen hidden" id="lockScreen">
+
+    <header class="player-header">
+        <a href="/" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Volver a Cursos
+        </a>
+        <div class="logo" style="display:flex;align-items:center;gap:0.75rem;">
+            <div class="logo-icon-sm" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--green));"></div>
+            <span class="logo-text-sm" style="font-weight:900;font-size:1.1rem;">IATIBET ZUREON</span>
+        </div>
+        <div id="headerActions"></div>
+    </header>
+
+    <div id="lockScreen" class="lock-screen">
         <div class="lock-card">
-            <div class="lock-card-icon">🔒</div>
-            <h2>Contenido Exclusivo</h2>
-            <p>Este curso está disponible solo para miembros activos. Elige un plan y accede a todos los cursos de la
-                plataforma.</p>
-            <a href="#" class="lock-btn" id="lockMembershipBtn">
-                💎 Ver planes de membresía
-            </a>
-            <a href="/" class="lock-btn-outline">← Volver al inicio</a>
+            <div class="lock-icon">🔒</div>
+            <h2 style="font-size:2rem; font-weight:900; margin-bottom:1rem;">Contenido VIP</h2>
+            <p style="color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:2.5rem;">Este curso es parte de nuestra membresía Premium. Suscríbete hoy para desbloquear este y cientos de cursos más.</p>
+            <a href="/membresia" class="btn-action primary" style="justify-content:center; text-decoration:none;">💎 Ver Planes Premium</a>
+            <a href="/" style="display:block; margin-top:1.5rem; color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.9rem; font-weight:600;">Regresar al catálogo</a>
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon"></div>
-                    <span class="logo-text">LOGO</span>
+    <main class="player-main">
+        <!-- Main Content -->
+        <div class="content-view">
+            <div id="loadingState" style="position:absolute; inset:0; z-index:50; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+                <div style="width:40px;height:40px;border:3px solid rgba(124,58,237,0.1);border-top-color:var(--purple);border-radius:50%;animation:spin 1s linear infinite;"></div>
+                <span style="font-weight:600; opacity:0.6;">Cargando experiencia...</span>
+            </div>
+
+            <div class="video-stage" id="videoContainer">
+                <!-- Iframe inyectado por JS -->
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;color:rgba(255,255,255,0.3);">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span style="font-weight:700;letter-spacing:1px;">IATIBET PLAYER PREVIEW</span>
                 </div>
-                <nav class="nav">
-                    <a href="/" class="nav-link">Cursos</a>
-                </nav>
-                <div class="header-search">
-                    <input type="search" placeholder="Búsqueda..." class="search-input">
-                    <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path
-                            d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M19 19L14.65 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
+            </div>
+
+            <div class="content-info">
+                <span class="episode-label" id="curChapterLabel">CAPÍTULO 1</span>
+                <h1 class="episode-main-title" id="curEpisodeTitle">Cargando título...</h1>
+                
+                <div class="course-meta-row">
+                    <div class="meta-stat">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Duración: <span class="value" id="curDuration">--:--</span>
+                    </div>
+                    <div class="meta-stat">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Progreso: <span class="value" id="curProgressText">0%</span>
+                    </div>
                 </div>
-                <button class="menu-btn"><span></span><span></span><span></span></button>
-                <div class="header-actions" id="headerActions">
-                    <a href="/login" class="btn-link">Entrar</a>
-                    <a href="/register" class="btn-primary">Crear Cuenta</a>
+
+                <div class="stage-controls">
+                    <button class="btn-action primary" id="btnNext" onclick="nextEpisode()">
+                        Siguiente Episodio
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                    <button class="btn-action" id="btnPrev" onclick="prevEpisode()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                        Anterior
+                    </button>
+                    <button class="btn-action" id="btnMarkComplete" onclick="toggleMarkComplete()" style="margin-left:auto;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Marcar como visto
+                    </button>
                 </div>
             </div>
         </div>
-    </header>
 
-    <header class="mobile-header">
-        <a href="/" class="back-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-        </a>
-        <span class="logo-text">IATIBET</span>
-        <div style="width:24px;"></div>
-    </header>
-
-    <!-- Course Player -->
-    <section class="course-player">
-        <div class="container">
-            <div id="loadingState" class="loading-state">
-                <div class="spinner"></div>
-                <span>Cargando curso...</span>
-            </div>
-
-            <div id="courseContent" style="display:none;">
-                <div class="course-layout">
-                    <!-- Left: Video + Info -->
-                    <div>
-                        <div class="video-container" id="videoContainer">
-                            <div class="video-placeholder">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1.5">
-                                    <path
-                                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>Selecciona un episodio</span>
-                            </div>
-                        </div>
-
-                        <div class="course-info">
-                            <div class="course-details">
-                                <h1 class="course-title" id="courseTitle">-</h1>
-                                <div class="course-meta">
-                                    <span id="episodeCount">-</span>
-                                    <span class="separator">·</span>
-                                    <span id="chapterCount">-</span>
-                                    <span class="separator">·</span>
-                                    <span id="progressLabel" style="color:#4FFFB0; font-weight:700;">0% completado</span>
-                                </div>
-                                <!-- Barra de progreso global -->
-                                <div style="margin-top:0.5rem; background:rgba(255,255,255,0.07); border-radius:100px; height:5px; overflow:hidden; max-width:400px;">
-                                    <div id="globalProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg,#7C3AED,#4FFFB0); border-radius:100px; transition:width 0.5s ease;"></div>
-                                </div>
-                                <p id="nowPlaying" style="display:none;"></p>
-                            </div>
-                            <div class="course-navigation">
-                                <button class="btn-mark-complete" id="btnMarkComplete" onclick="toggleMarkComplete()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    <span id="markCompleteText">Marcar completado</span>
-                                </button>
-                                <button class="btn-nav btn-prev" id="btnPrev" onclick="prevEpisode()">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M15 18l-6-6 6-6" />
-                                    </svg>
-                                    ATRÁS
-                                </button>
-                                <button class="btn-nav btn-next" id="btnNext" onclick="nextEpisode()">
-                                    SIGUIENTE
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M9 18l6-6-6-6" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3 class="sidebar-title" id="courseSidebarTitle">Nombre del Curso</h3>
+                <div class="progress-circle-wrap">
+                    <div style="flex:1; background:rgba(255,255,255,0.05); border-radius:100px; height:6px; overflow:hidden;">
+                        <div id="globalProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, var(--purple), var(--green)); transition:width 0.6s cubic-bezier(0.4, 0, 0.2, 1);"></div>
                     </div>
-
-                    <!-- Right: Chapters + Episodes -->
-                    <div class="chapters-panel">
-                        <div id="chaptersList"></div>
-                    </div>
+                    <span class="progress-text"><b id="globalProgressPct">0%</b> completado</span>
                 </div>
             </div>
-        </div>
-    </section>
+
+            <div class="chapters-list" id="chaptersList">
+                <!-- Inyectado por JS -->
+            </div>
+        </aside>
+    </main>
 
     <script src="/config.js"></script>
+    <script src="/script.js"></script>
     <script>
         let course = null;
         let allEpisodes = [];
         let currentEpisodeIndex = 0;
         let courseId = null;
-        let userHasMembership = false;
 
-        // ── Progress stored in localStorage per course ──────────────────
+        const token = localStorage.getItem('authToken');
+        if (!token) window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+
+        // ── Navigation Logic ──
         function getProgressKey() { return `progress_${courseId}`; }
-        function getProgress() {
-            try { return JSON.parse(localStorage.getItem(getProgressKey()) || '{}'); }
-            catch(e) { return {}; }
-        }
-        function saveProgress(data) {
-            localStorage.setItem(getProgressKey(), JSON.stringify(data));
-        }
-        function isEpisodeWatched(idx) {
-            return !!getProgress()[`ep_${idx}`];
-        }
+        function getProgress() { try { return JSON.parse(localStorage.getItem(getProgressKey()) || '{}'); } catch(e) { return {}; } }
+        function saveProgress(data) { localStorage.setItem(getProgressKey(), JSON.stringify(data)); }
+
+        function isEpisodeWatched(idx) { return !!getProgress()[`ep_${idx}`]; }
+
         function markEpisodeWatched(idx, watched = true) {
             const p = getProgress();
             if (watched) p[`ep_${idx}`] = true;
             else delete p[`ep_${idx}`];
             p.lastEpisode = currentEpisodeIndex;
             saveProgress(p);
-            updateGlobalProgress();
-            renderProgress();
+            updateVisuals();
         }
-        function updateGlobalProgress() {
+
+        function updateVisuals() {
             const total = allEpisodes.length;
             if (!total) return;
             const done = allEpisodes.filter((_, i) => isEpisodeWatched(i)).length;
             const pct = Math.round((done / total) * 100);
-            const bar = document.getElementById('globalProgressBar');
-            const lbl = document.getElementById('progressLabel');
-            if (bar) bar.style.width = pct + '%';
-            if (lbl) lbl.textContent = `${pct}% completado`;
-            // Guardar en last-played global para el home
+            
+            document.getElementById('globalProgressBar').style.width = pct + '%';
+            document.getElementById('globalProgressPct').textContent = pct + '%';
+            document.getElementById('curProgressText').textContent = pct + '%';
+
+            // Mark completed classes in list
+            allEpisodes.forEach((_, i) => {
+                const el = document.getElementById(`ep-item-${i}`);
+                if (el) el.classList.toggle('completed', isEpisodeWatched(i));
+            });
+
+            // Tracking global para el home
             const lastPlayed = JSON.parse(localStorage.getItem('lastPlayedCourse') || '{}');
             lastPlayed.courseId = courseId;
             lastPlayed.courseName = course?.name || '';
             lastPlayed.courseThumbnail = course?.thumbnail || '';
-            lastPlayed.lastEpisodeIdx = currentEpisodeIndex;
             lastPlayed.progress = pct;
             lastPlayed.lastEpisodeName = allEpisodes[currentEpisodeIndex]?.episode?.title || '';
             localStorage.setItem('lastPlayedCourse', JSON.stringify(lastPlayed));
         }
-        function renderProgress() {
-            allEpisodes.forEach((_, i) => {
-                const el = document.getElementById(`ep-item-${i}`);
-                if (!el) return;
-                if (isEpisodeWatched(i)) el.classList.add('completed');
-                else el.classList.remove('completed');
-            });
-            // Chapter progress bars
-            let flatIdx = 0;
-            (course?.chapters || []).forEach((ch, ci) => {
-                const eps = ch.episodes || [];
-                const chStart = flatIdx;
-                const chEnd = flatIdx + eps.length;
-                flatIdx = chEnd;
-                const done = allEpisodes.slice(chStart, chEnd).filter((_, i) => isEpisodeWatched(chStart + i)).length;
-                const fill = document.getElementById(`ch-fill-${ci}`);
-                if (fill) fill.style.width = (eps.length ? Math.round(done/eps.length*100) : 0) + '%';
-            });
-        }
 
-        // ── Auth Header ──────────────────────────────────────────────────────────
-        function updateHeader() {
-            const user = JSON.parse(localStorage.getItem('authUser') || 'null');
-            const actionsEl = document.getElementById('headerActions');
-            if (user) {
-                const initials = user.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
-                const hasMem = user.hasMembership;
-                actionsEl.innerHTML = `
-                <div class="user-badge" id="dropdownBadge">
-                    <div class="user-avatar">${initials}</div>
-                    <span class="user-name">${user.name}</span>
-                    <span class="membership-tag ${hasMem ? 'active' : ''}">${hasMem ? user.membershipPlan || 'Pro' : 'Sin plan'}</span>
-                    <div class="user-dropdown" id="dropdownContent">
-                        <a href="/" class="dropdown-item">🏠 Inicio</a>
-                        <a href="/membresia" class="dropdown-item">💎 Membresía</a>
-                        <a href="/perfil" class="dropdown-item">👤 Perfil</a>
-                        ${user.role === 'admin' ? '<a href="/admin" class="dropdown-item">⚙️ Admin</a>' : ''}
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item danger" onclick="logout()">🚪 Cerrar sesión</div>
-                    </div>
-                </div>`;
-                setTimeout(() => {
-                    const badge = document.getElementById('dropdownBadge');
-                    const dd = document.getElementById('dropdownContent');
-                    if (badge && dd) {
-                        badge.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            const isVisible = dd.style.display === 'block';
-                            // Close all other dropdowns if any, then toggle this one
-                            dd.style.display = isVisible ? 'none' : 'block';
-                        });
-
-                        // Prevent clicks inside the dropdown from closing it
-                        dd.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                        });
-
-                        // Close when clicking anywhere else
-                        document.addEventListener('click', () => {
-                            dd.style.display = 'none';
-                        });
-                    }
-                }, 0);
-            }
-        }
-        function logout() {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('authUser');
-            window.location.href = '/login';
-        }
-
-        // ── Init ──────────────────────────────────────────────────────────────────
-        document.addEventListener('DOMContentLoaded', async () => {
-            updateHeader();
-            const parts = window.location.pathname.split('/');
-            courseId = parts[parts.length - 1];
-
-            if (!courseId) {
-                document.getElementById('loadingState').innerHTML = '<p style="color:#f87171;">ID de curso no encontrado</p>';
-                return;
-            }
-
+        async function initCourse() {
             await configReady;
-
-            // Verificar autenticación y membresía
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                window.location.href = `/login?redirect=/curso/${courseId}`;
-                return;
-            }
-
+            const path = window.location.pathname;
+            courseId = path.split('/').pop();
+            
             try {
-                // Verificar acceso
-                const accessRes = await fetch(apiUrl('/api/auth/check-access'), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!accessRes.ok) {
-                    if (accessRes.status === 401) {
-                        window.location.href = `/login?redirect=/curso/${courseId}`;
-                        return;
-                    }
-                    throw new Error(`Error de servidor: ${accessRes.status}`);
-                }
-
-                const accessData = await accessRes.json();
-                console.log('[AccessData]:', accessData);
-                userHasMembership = accessData.hasMembership || accessData.hasAccess || false;
-
-                if (!accessData.success || !accessData.hasAccess) {
-                    // Sin acceso: cargar el curso de todas formas para mostrar el ep.1 gratis
-                    userHasMembership = false;
-
-                    // Cargar datos mínimos del curso para el botón de membresía
-                    try {
-                        const courseRes = await fetch(apiUrl(`/api/courses/${courseId}`));
-                        const courseData = await courseRes.json();
-                        const courseName = courseData.success ? encodeURIComponent(courseData.course.name) : '';
-                        const mBtn = document.getElementById('lockMembershipBtn');
-                        if (mBtn) mBtn.href = `/membresia?from=${courseId}&course=${courseName}`;
-                    } catch (e) {
-                        const mBtn = document.getElementById('lockMembershipBtn');
-                        if (mBtn) mBtn.href = `/membresia?from=${courseId}`;
-                    }
-
-                    document.getElementById('loadingState').style.display = 'none';
+                // Check Access
+                const accRes = await fetch(apiUrl('/api/auth/check-access'), { headers: { 'Authorization': `Bearer ${token}` } });
+                const acc = await accRes.json();
+                if (!acc.hasAccess) {
+                    document.getElementById('lockScreen').classList.add('active');
                     return;
                 }
 
-                // Actualizar user en localStorage con datos frescos
-                if (accessData.success) {
-                    const existingUser = JSON.parse(localStorage.getItem('authUser') || '{}');
-
-                    // Si el rol cambió inesperadamente a admin sin que el usuario sea el admin@iatibet.com, investigar
-                    // Pero más importante, si el email o ID cambió, cerrar sesión
-                    if (existingUser.role === 'user' && accessData.role === 'admin') {
-                        console.log('User promoted to admin correctly.');
-                    }
-
-                    // Actualizar solo campos específicos para evitar sobrescribir todo
-                    existingUser.hasMembership = accessData.hasMembership;
-                    existingUser.membershipPlan = accessData.membershipPlan;
-                    existingUser.membershipExpiresAt = accessData.membershipExpiresAt;
-                    existingUser.role = accessData.role;
-
-                    localStorage.setItem('authUser', JSON.stringify(existingUser));
-                }
-
-                // Cargar el curso completo
+                // Load Course
                 const res = await fetch(apiUrl(`/api/courses/${courseId}`));
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                if (!data.success) throw new Error(data.message);
-
-                course = data.course;
-                // Asegurarnos que esté oculto (ya es default, pero por si acaso)
-                const lockScreen = document.getElementById('lockScreen');
-                if (lockScreen) lockScreen.classList.add('hidden');
-                initCourse();
-            } catch (err) {
-                console.error('[InitError]:', err);
-                document.getElementById('loadingState').innerHTML = `<p style="color:#f87171; padding: 2rem; text-align: center;">Error al cargar el curso: ${err.message}<br><br><a href="/" style="color: #fff; text-decoration: underline;">Volver al inicio</a></p>`;
-            }
-        });
-
-        // ── Setup course ──────────────────────────────────────────────────────────
-        function initCourse() {
-            document.title = `${course.name} - IATIBET ZUREON`;
-            document.getElementById('courseTitle').textContent = course.name;
-            document.getElementById('episodeCount').textContent = `${course.totalEpisodes || 0} Episodios`;
-            document.getElementById('chapterCount').textContent = `${course.totalChapters || 0} Capítulos`;
-
-            // Build flat episode list
-            allEpisodes = [];
-            (course.chapters || []).forEach((ch, ci) => {
-                (ch.episodes || []).forEach((ep, ei) => {
-                    allEpisodes.push({ chapterIndex: ci, episodeIndex: ei, chapter: ch, episode: ep });
-                });
-            });
-
-            renderChaptersList();
-            updateGlobalProgress();
-            renderProgress();
-
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('courseContent').style.display = 'block';
-
-            // ✅ Reanudar desde el último episodio visto
-            const saved = getProgress();
-            const resumeIdx = (typeof saved.lastEpisode === 'number' && saved.lastEpisode < allEpisodes.length)
-                ? saved.lastEpisode : 0;
-            if (allEpisodes.length > 0) {
-                playEpisode(resumeIdx);
-                if (resumeIdx > 0) {
-                    // Mostrar toast de reanudación
-                    setTimeout(() => showResumeToast(resumeIdx), 800);
+                if (data.success) {
+                    course = data.course;
+                    document.getElementById('courseSidebarTitle').textContent = course.name;
+                    renderChapters();
+                    
+                    // Restaurar progreso
+                    const p = getProgress();
+                    if (p.lastEpisode !== undefined && p.lastEpisode < allEpisodes.length) {
+                        playEpisode(p.lastEpisode);
+                    } else {
+                        playEpisode(0);
+                    }
+                    
+                    document.getElementById('loadingState').style.display = 'none';
+                    updateVisuals();
                 }
-            }
+            } catch (e) { console.error(e); }
         }
 
-        function showResumeToast(idx) {
-            const ep = allEpisodes[idx]?.episode;
-            if (!ep) return;
-            const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a0a3a,#0f0520);border:1px solid rgba(124,58,237,0.4);border-radius:14px;padding:0.875rem 1.25rem;display:flex;align-items:center;gap:0.75rem;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;min-width:280px;max-width:90vw;';
-            toast.innerHTML = `
-                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#4FFFB0);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">▶️</div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);margin-bottom:2px;">Continuar donde lo dejaste</div>
-                    <div style="font-size:0.85rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ep.title}</div>
-                </div>
-                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:1rem;padding:0;">✕</button>
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
-        }
-
-        // ── Render sidebar ────────────────────────────────────────────────────────
-        function renderChaptersList() {
-            const container = document.getElementById('chaptersList');
-            if (!course.chapters || course.chapters.length === 0) {
-                container.innerHTML = '<p style="padding:1.5rem; opacity:0.5; font-size:0.875rem; text-align:center;">Sin contenido aún</p>';
-                return;
-            }
-
-            let flatIndex = 0;
-            const defaultThumb = course.thumbnail || '/uploads/default-course.jpg';
-            container.innerHTML = course.chapters.map((ch, ci) => {
-                const episodesInfo = ch.episodes || [];
-                if (episodesInfo.length === 0) return '';
-
-                const episodes = episodesInfo.map((ep, ei) => {
-                    const idx = flatIndex++;
-                    const isFirst = idx === 0; // Primer episodio = preview gratuito
-                    const previewBadge = isFirst ? '<span class="preview-badge">GRATIS</span>' : '';
-                    return `
-                    <div class="episode-item" id="ep-item-${idx}" onclick="playEpisode(${idx})">
-                        <div class="episode-thumb" style="background-image: url('${defaultThumb}')">
-                            <span class="episode-thumb-overlay">${ep.duration || '0:00'}</span>
+        function renderChapters() {
+            const list = document.getElementById('chaptersList');
+            allEpisodes = [];
+            let html = '';
+            
+            (course.chapters || []).forEach((ch, ci) => {
+                html += `
+                    <div class="chapter-group">
+                        <div class="chapter-title-btn">
+                            ${ch.name}
+                            <span style="font-size:0.7rem; opacity:0.5;">${ch.episodes?.length || 0} CLASES</span>
                         </div>
-                        <div class="episode-info">
-                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
-                                <span class="episode-title">${ep.title}</span>
-                                <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0;">
-                                    ${previewBadge}
-                                    <div class="episode-check">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    </div>
+                        <div class="ep-list">
+                `;
+                (ch.episodes || []).forEach(epObj => {
+                    const idx = allEpisodes.length;
+                    allEpisodes.push({ ...epObj, chapterName: ch.name });
+                    html += `
+                        <div class="ep-item" id="ep-item-${idx}" onclick="playEpisode(${idx})">
+                            <div class="ep-thumb">
+                                <img src="${course.thumbnail || '/placeholder.jpg'}" alt="">
+                                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4);">
+                                    <svg class="ep-check" style="opacity:0.2; color:#fff;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                                 </div>
                             </div>
-                            <div class="episode-duration-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
-                                <span>${ep.duration || '0:00'}</span>
+                            <div class="ep-info">
+                                <div class="ep-name">${epObj.episode?.title || 'Sin título'}</div>
+                                <div class="ep-meta">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    ${epObj.episode?.duration || '10:00'}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                }).join('');
-
-                return `
-                <div class="chapter-group">
-                    <div class="chapter-group-title">
-                        <span>Cap. ${ci + 1}: ${ch.title}</span>
-                        <span class="ep-count">· ${episodesInfo.length} ep.</span>
-                    </div>
-                    <div class="chapter-progress-bar"><div class="chapter-progress-fill" id="ch-fill-${ci}" style="width:0%"></div></div>
-                    ${episodes}
-                </div>
-            `;
-            }).join('');
+                    `;
+                });
+                html += `</div></div>`;
+            });
+            list.innerHTML = html;
         }
 
-        // ── Play episode ──────────────────────────────────────────────────────────
-        function playEpisode(index) {
-            if (index < 0 || index >= allEpisodes.length) return;
+        function playEpisode(idx) {
+            if (idx < 0 || idx >= allEpisodes.length) return;
+            currentEpisodeIndex = idx;
+            const ep = allEpisodes[idx];
+            
+            document.getElementById('curChapterLabel').textContent = ep.chapterName;
+            document.getElementById('curEpisodeTitle').textContent = ep.episode?.title;
+            document.getElementById('curDuration').textContent = ep.episode?.duration || '--:--';
 
-            // 🔒 Preview: solo el ep.0 es gratis para usuarios sin membresía
-            if (index > 0 && !userHasMembership) {
-                document.getElementById('lockScreen').classList.remove('hidden');
-                return;
-            }
-
-            currentEpisodeIndex = index;
-            const { episode, chapter } = allEpisodes[index];
-
-            // Guardar último episodio visto
-            const p = getProgress();
-            p.lastEpisode = index;
-            saveProgress(p);
-            updateGlobalProgress();
-
-            // Update video
-            const container = document.getElementById('videoContainer');
-            const videoUrl = episode.videoUrl || '';
-            const embedUrl = toEmbedUrl(videoUrl);
-
-            if (embedUrl) {
-                container.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+            // Actualizar video
+            const videoContainer = document.getElementById('videoContainer');
+            if (ep.episode?.videoUrl) {
+                // Si es bunny.net o vimeo o youtube, manejamos iframe
+                let embedUrl = ep.episode.videoUrl;
+                if (embedUrl.includes('youtube.com/watch?v=')) {
+                    embedUrl = embedUrl.replace('watch?v=', 'embed/');
+                }
+                videoContainer.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
             } else {
-                container.innerHTML = `
-                <div class="video-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>URL de video no válida</span>
-                    <small style="opacity:0.5;">${videoUrl}</small>
-                </div>`;
+                videoContainer.innerHTML = `<div style="padding:3rem;text-align:center;color:rgba(255,255,255,0.4);">Video no disponible para este episodio.</div>`;
             }
 
-            // Update now playing
-            const np = document.getElementById('nowPlaying');
-            np.textContent = `▶ ${chapter.title} · ${episode.title}`;
-            np.style.display = 'block';
-
-            // Update nav buttons
-            document.getElementById('btnPrev').disabled = index === 0;
-            document.getElementById('btnNext').disabled = index === allEpisodes.length - 1;
-
-            // Update marcar completado button
-            updateMarkCompleteBtn();
-
-            // Update active state in sidebar
-            document.querySelectorAll('.episode-item').forEach(el => el.classList.remove('active'));
-            const activeEl = document.getElementById(`ep-item-${index}`);
-            if (activeEl) {
-                activeEl.classList.add('active');
-                activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Actualizar UI
+            document.querySelectorAll('.ep-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`ep-item-${idx}`).classList.add('active');
+            
+            // Check button state
+            const btnMark = document.getElementById('btnMarkComplete');
+            if (isEpisodeWatched(idx)) {
+                btnMark.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ¡Visto!`;
+                btnMark.style.borderColor = 'var(--green)';
+                btnMark.style.color = 'var(--green)';
+            } else {
+                btnMark.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Marcar como visto`;
+                btnMark.style.borderColor = 'var(--glass-border)';
+                btnMark.style.color = '#fff';
             }
-        }
 
-        function updateMarkCompleteBtn() {
-            const btn = document.getElementById('btnMarkComplete');
-            const txt = document.getElementById('markCompleteText');
-            if (!btn || !txt) return;
-            const done = isEpisodeWatched(currentEpisodeIndex);
-            btn.classList.toggle('done', done);
-            txt.textContent = done ? '✓ Completado' : 'Marcar completado';
+            // Actualizar navegación
+            document.getElementById('btnPrev').disabled = (idx === 0);
+            document.getElementById('btnNext').disabled = (idx === allEpisodes.length - 1);
+
+            // Auto-guardar como último visto
+            const p = getProgress();
+            p.lastEpisode = idx;
+            saveProgress(p);
+            updateVisuals();
         }
 
         function toggleMarkComplete() {
-            const done = isEpisodeWatched(currentEpisodeIndex);
-            markEpisodeWatched(currentEpisodeIndex, !done);
-            updateMarkCompleteBtn();
-            // Auto-avanzar al siguiente si marcamos completado
-            if (!done && currentEpisodeIndex < allEpisodes.length - 1) {
-                setTimeout(() => playEpisode(currentEpisodeIndex + 1), 400);
-            }
+            const watched = isEpisodeWatched(currentEpisodeIndex);
+            markEpisodeWatched(currentEpisodeIndex, !watched);
+            playEpisode(currentEpisodeIndex); // refrescar UI del botón
         }
 
-        function toEmbedUrl(url) {
-            if (!url) return null;
-            // Already embed
-            if (url.includes('youtube.com/embed/') || url.includes('player.vimeo.com')) return url;
-            // YouTube watch
-            const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-            if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-            // Direct video URL
-            if (url.match(/\.(mp4|webm|ogg)$/i)) return url;
-            return url; // try as-is
-        }
+        function nextEpisode() { if (currentEpisodeIndex < allEpisodes.length - 1) playEpisode(currentEpisodeIndex + 1); }
+        function prevEpisode() { if (currentEpisodeIndex > 0) playEpisode(currentEpisodeIndex - 1); }
 
-        function prevEpisode() { playEpisode(currentEpisodeIndex - 1); }
-        function nextEpisode() { playEpisode(currentEpisodeIndex + 1); }
+        initCourse();
     </script>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 </body>
 
 </html>
