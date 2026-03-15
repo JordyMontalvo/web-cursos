@@ -146,6 +146,11 @@ module.exports = async (req, res) => {
                 customer: { 
                     email: decoded.email || 'customer@example.com',
                     reference: decoded.id
+                },
+                metadata: {
+                    userId: decoded.id,
+                    membershipId: membershipId,
+                    platform: 'IATIBET_ZUREON'
                 }
             };
 

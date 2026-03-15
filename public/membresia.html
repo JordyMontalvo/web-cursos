@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Membresía - IATIBET ZUREON</title>
+    <title>Membresía Premium - IATIBET ZUREON</title>
     <!-- SDK de Izipay: cargado ESTÁTICO en head según documentación oficial -->
     <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
             kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCxYUiT2ai"
@@ -22,6 +22,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+    <style>
+        /* Personalización del Smart Form para que encaje con el tema oscuro */
+        .kr-smart-form { background: transparent !important; margin-bottom: 2rem !important; }
+        .kr-smart-form .kr-payment-button {
+            background: linear-gradient(135deg, #7C3AED, #5B21B6) !important;
+            color: #ffffff !important;
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+            height: 50px !important;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
+            border: none !important;
+            margin-top: 1.5rem !important;
+        }
+        .kr-smart-form .kr-payment-button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6) !important;
+        }
+        .kr-smart-form input, .kr-smart-form .kr-field {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            border-radius: 10px !important;
+        }
+    </style>
     <script>
         (function () {
             const name = localStorage.getItem('branding_companyName');
@@ -1201,26 +1225,21 @@
                         </div>
                     </div>
 
-                    <!-- Logos de tarjetas aceptadas -->
-                    <div style="display:flex; gap:0.5rem; margin-bottom:1.25rem; flex-wrap:wrap;">
-                        <span style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:rgba(255,255,255,0.5); font-weight:600;">VISA</span>
-                        <span style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:rgba(255,255,255,0.5); font-weight:600;">MASTERCARD</span>
-                        <span style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:rgba(255,255,255,0.5); font-weight:600;">AMEX</span>
-                        <span style="background:rgba(79,255,176,0.1); border:1px solid rgba(79,255,176,0.2); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:#4FFFB0; font-weight:600;">TEST MODE</span>
+                    <!-- Logos de métodos aceptados -->
+                    <div style="display:flex; gap:0.6rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center;">
+                        <span style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:rgba(255,255,255,0.6); font-weight:700;">VISA</span>
+                        <span style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:rgba(255,255,255,0.6); font-weight:700;">MASTERCARD</span>
+                        <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); margin:0 2px;"></div>
+                        <span style="background:rgba(0,191,174,0.15); border:1px solid rgba(0,191,174,0.3); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:#00BFAE; font-weight:800; display:flex; align-items:center; gap:4px;">
+                            <img src="https://vignette.wikia.nocookie.net/logopedia/images/b/b3/Logo_Yape.png" style="height:12px; filter:brightness(1.2);" alt="Yape"> YAPE
+                        </span>
+                        <span style="background:rgba(255,185,0,0.1); border:1px solid rgba(255,185,0,0.25); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:#FFB900; font-weight:700;">PAGO EFECTIVO</span>
+                        <span style="background:rgba(79,255,176,0.1); border:1px solid rgba(79,255,176,0.2); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:#4FFFB0; font-weight:600;">QR / POS</span>
                     </div>
 
-                    <!-- Formulario Izipay -->
-                    <div class="kr-embedded" id="myPaymentForm">
-                        <!-- Campos del formulario (el SDK los rellena) -->
-                        <div class="kr-pan"></div>
-                        <div style="display: flex; gap: 0.75rem;">
-                            <div class="kr-expiry" style="flex: 1;"></div>
-                            <div class="kr-security-code" style="flex: 1;"></div>
-                        </div>
-                        <!-- Botón de pago -->
-                        <button class="kr-payment-button" style="margin-top: 0.5rem;"></button>
-                        <!-- Zona de errores -->
-                        <div class="kr-form-error"></div>
+                    <!-- Smart Form Izipay (Muestra todos los métodos habilitados: Yape, QR, PagoEfectivo, Tarjetas) -->
+                    <div class="kr-smart-form" id="myPaymentForm">
+                        <!-- El SDK renderiza aquí los botones y campos automáticamente -->
                     </div>
 
                     <!-- Separador -->
