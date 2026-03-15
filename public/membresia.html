@@ -10,12 +10,8 @@
             kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCxYUiT2ai"
             kr-post-url-success="/api/payments/izipay-return"
             kr-client-domain="https://api.micuentaweb.pe"
-            kr-language="es-PE"
-            kr-theme="neon">
+            kr-language="es-PE">
     </script>
-    <!-- Tema Neon de Izipay (diseñado para fondos oscuros - texto blanco) -->
-    <link rel="stylesheet" href="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/neon-reset.min.css">
-    <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/ext/neon.js"></script>
     <meta name="description"
         content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,73 +19,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
-        /* 🎨 Izipay Official Styling Overrides */
-        :root {
-            --izipay-emerald: #45a094;
-            --izipay-bg-card: #f9fafb;
-            --izipay-border: #e5e7eb;
-            --izipay-text: #374151;
-            --izipay-label: #6b7280;
-        }
-
-        .kr-smart-form {
-            background: #ffffff !important;
-            padding: 1.5rem !important;
-            border-radius: 16px !important;
-            max-width: 480px !important;
-            margin: 0 auto !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-        }
-
-        /* Botón de pago oficial Estilo Izipay */
-        .kr-smart-form .kr-payment-button {
-            background: var(--izipay-emerald) !important;
-            color: #ffffff !important;
-            border-radius: 8px !important;
-            font-weight: 700 !important;
-            height: 54px !important;
-            font-size: 1.1rem !important;
-            border: none !important;
-            margin-top: 2rem !important;
-            width: 100% !important;
-            text-transform: none !important;
-            box-shadow: none !important;
-        }
-
-        .kr-smart-form .kr-payment-button:hover {
-            background: #388e84 !important;
-            transform: none !important;
-        }
-
-        /* Inputs limpios estilo oficial */
-        .kr-smart-form .kr-field {
-            background: #ffffff !important;
-            border: 1px solid var(--izipay-border) !important;
-            border-radius: 6px !important;
-            color: var(--izipay-text) !important;
-            height: 48px !important;
-        }
-
-        .kr-smart-form .kr-field:focus {
-            border-color: var(--izipay-emerald) !important;
-            box-shadow: 0 0 0 2px rgba(69, 160, 148, 0.1) !important;
-        }
-
-        /* Ocultar elementos innecesarios del SDK que el tema Neon a veces arrastra */
-        .kr-embedded {
-            border: none !important;
-            box-shadow: none !important;
-        }
-        
-        /* Ajustar proporción del contenedor modal para el formulario oficial */
+        /* Contenedor del formulario oficial - Limpio para que Izipay tome el control */
         #izipayPopinContainer {
-            background: #ffffff !important; /* Fondo blanco para limpieza oficial */
-            color: #111827 !important;
-            max-width: 520px !important;
+            background: #ffffff !important;
+            color: #374151 !important;
+            max-width: 500px !important;
             margin: 0 auto !important;
+            padding: 2rem !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
         }
+        .kr-smart-form { background: #fff !important; }
     </style>
     <script>
+        // Fix para errores de logToSystem
+        window.logToSystem = function(msg) { console.log("[System]", msg); };
         (function () {
             const name = localStorage.getItem('branding_companyName');
             const logo = localStorage.getItem('branding_logoUrl');
@@ -809,90 +753,6 @@
             box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45);
         }
 
-        /* ── Estilos formulario Izipay (Tema Neon / Oscuro IATIBET) ──────── */
-        /* Variables CSS del tema neon - texto blanco sobre fondo oscuro */
-        .kr-embedded {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            --kr-font-color: #ffffff;
-            --kr-placeholder-color: rgba(255, 255, 255, 0.4);
-            --kr-background-color: rgba(255, 255, 255, 0.04);
-            --kr-border-color: rgba(255, 255, 255, 0.12);
-            --kr-focus-color: #7C3AED;
-            --kr-hover-border-color: rgba(124, 58, 237, 0.5);
-            --kr-error-color: #ff6b70;
-            --kr-border-radius: 10px;
-            --kr-label-color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Forzar texto blanco en los iframes de los campos */
-        .kr-pan, .kr-expiry, .kr-security-code, .kr-cardholder-name {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 10px !important;
-            min-height: 52px !important;
-            transition: border-color 0.2s ease;
-            color: #fff !important;
-        }
-
-        .kr-pan:hover, .kr-expiry:hover, 
-        .kr-security-code:hover, .kr-cardholder-name:hover {
-            border-color: rgba(124, 58, 237, 0.5) !important;
-        }
-
-        .kr-form-error {
-            color: #ff6b70 !important;
-            font-size: 0.8rem !important;
-            margin-top: 0.25rem !important;
-            padding-left: 0.25rem;
-        }
-
-        /* Selects del formulario (cuotas, diferido) */
-        .kr-installments-field select,
-        .kr-deferred-field select,
-        .kr-embedded select {
-            background: rgba(255, 255, 255, 0.05) !important;
-            color: #fff !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 10px !important;
-            padding: 0.75rem 1rem !important;
-            width: 100% !important;
-            font-family: 'Inter', sans-serif !important;
-            appearance: auto !important;
-        }
-
-        /* Botón de pago Izipay - estilo IATIBET */
-        .kr-payment-button, .kr-popin-button {
-            background: linear-gradient(135deg, #7C3AED, #5B21B6) !important;
-            color: #fff !important;
-            border-radius: 12px !important;
-            padding: 1rem 1.5rem !important;
-            font-size: 1rem !important;
-            font-weight: 700 !important;
-            width: 100% !important;
-            min-height: 54px !important;
-            font-family: 'Inter', sans-serif !important;
-            border: none !important;
-            cursor: pointer !important;
-            display: block !important;
-            letter-spacing: 0.5px !important;
-            transition: all 0.2s ease !important;
-            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4) !important;
-        }
-
-        .kr-payment-button:hover, .kr-popin-button:hover {
-            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6) !important;
-            transform: translateY(-1px) !important;
-        }
-
-        .btn-cancel-modal {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-
         .btn-cancel-modal:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
@@ -1257,27 +1117,15 @@
                 </div>
 
                 <!-- Formulario Incrustado (Embedded) -->
-                    <!-- Logos de métodos aceptados (Estilo oficial limpio) -->
-                    <div style="text-align:center; padding-top: 0.5rem;">
-                        <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay" style="height:32px; margin-bottom:1rem;">
-                        <div style="font-size:0.85rem; color:#6b7280; margin-bottom:1.5rem;">Elige tu método de pago favorito</div>
+                <div id="izipayPopinContainer" style="display:none;">
+                    <!-- El Smart Form de Izipay se encarga de mostrar Tarjetas, Yape y otros métodos automáticamente -->
+                    <div style="text-align:center; padding-bottom: 1.5rem;">
+                        <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay" style="height:35px;">
+                        <div style="font-size:0.85rem; color:#6b7280; margin-top:0.5rem;">Pago 100% seguro y encriptado</div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom:1.5rem;">
-                        <div style="border:2px solid var(--izipay-emerald); border-radius:10px; padding:1rem; text-align:center; position:relative; background:#f0f9f8;">
-                            <div style="position:absolute; top:-8px; right:-8px; background:var(--izipay-emerald); color:white; border-radius:50%; width:20px; height:20px; font-size:12px; display:flex; align-items:center; justify-content:center;">✓</div>
-                            <img src="https://static.micuentaweb.pe/static/img/payment-methods/visa.png" style="height:20px; margin-bottom:4px;">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--izipay-text);">Tarjeta</div>
-                        </div>
-                        <div style="border:1px solid #e5e7eb; border-radius:10px; padding:1rem; text-align:center; opacity:0.7; filter:grayscale(0.5);">
-                            <img src="https://vignette.wikia.nocookie.net/logopedia/images/b/b3/Logo_Yape.png" style="height:20px; margin-bottom:4px;">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--izipay-text);">Yape</div>
-                        </div>
-                    </div>
-
-                    <!-- Smart Form Izipay (Muestra todos los métodos habilitados: Yape, QR, PagoEfectivo, Tarjetas) -->
                     <div class="kr-smart-form" id="myPaymentForm">
-                        <!-- El SDK renderiza aquí los botones y campos automáticamente -->
+                        <!-- El SDK oficial renderiza aquí el formulario completo (Tarjeta, Yape, QR) -->
                     </div>
 
                     <!-- Separador -->
@@ -1462,17 +1310,13 @@
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
             
             document.getElementById('confirmModal').classList.add('open');
-            logToSystem("Modal abierto para plan: " + name);
+            document.getElementById('confirmModal').classList.add('open');
 
             // Verificar AdBlock
             setTimeout(() => {
-                const s = document.getElementById('izipay-sdk-js');
                 if (!window.KR) {
-                    logToSystem("⚠️ SDK de Izipay no detectado (Posible AdBlock)");
                     const ad = document.getElementById('adblockWarning');
                     if(ad) ad.style.display = 'block';
-                } else {
-                    logToSystem("✅ SDK de Izipay detectado");
                 }
             }, 1000);
         }
