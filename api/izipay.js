@@ -151,8 +151,7 @@ module.exports = async (req, res) => {
                     userId: decoded.id,
                     membershipId: membershipId,
                     platform: 'IATIBET_ZUREON'
-                },
-                paymentMethods: ["CARD", "TUKUY_YAPE", "TUKUY_QRSET", "TUKUY_PAGOEFECTIVO"]
+                }
             };
 
             // MODO TEST FORZADO
