@@ -232,8 +232,7 @@ module.exports = async (req, res) => {
     // Izipay hace POST aquí tras pago exitoso. Validamos, activamos membresía y redirigimos.
     if (url.includes('izipay-return') || url.includes('izipay-success')) {
         if (req.method === 'GET') {
-            // Redirigir directamente si es GET (acceso manual)
-            return res.writeHead(302, { Location: '/perfil?payment=success' }).end();
+            return res.writeHead(302, { Location: '/?payment=success' }).end();
         }
         if (req.method !== 'POST') return res.status(405).end();
 
@@ -299,8 +298,8 @@ module.exports = async (req, res) => {
             console.error('[IZIPAY] izipay-return DB error:', err.message);
         }
 
-        // Siempre redirigir al perfil tras un pago PAID
-        return res.writeHead(302, { Location: '/perfil?payment=success' }).end();
+        // Siempre redirigir al inicio tras un pago PAID
+        return res.writeHead(302, { Location: '/?payment=success' }).end();
     }
 
     return res.status(404).end();
