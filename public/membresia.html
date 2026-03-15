@@ -23,27 +23,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
-        /* Personalización del Smart Form para que encaje con el tema oscuro */
-        .kr-smart-form { background: transparent !important; margin-bottom: 2rem !important; }
+        /* 🎨 Izipay Official Styling Overrides */
+        :root {
+            --izipay-emerald: #45a094;
+            --izipay-bg-card: #f9fafb;
+            --izipay-border: #e5e7eb;
+            --izipay-text: #374151;
+            --izipay-label: #6b7280;
+        }
+
+        .kr-smart-form {
+            background: #ffffff !important;
+            padding: 1.5rem !important;
+            border-radius: 16px !important;
+            max-width: 480px !important;
+            margin: 0 auto !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        /* Botón de pago oficial Estilo Izipay */
         .kr-smart-form .kr-payment-button {
-            background: linear-gradient(135deg, #7C3AED, #5B21B6) !important;
+            background: var(--izipay-emerald) !important;
             color: #ffffff !important;
-            border-radius: 12px !important;
+            border-radius: 8px !important;
             font-weight: 700 !important;
-            height: 50px !important;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
+            height: 54px !important;
+            font-size: 1.1rem !important;
             border: none !important;
-            margin-top: 1.5rem !important;
+            margin-top: 2rem !important;
+            width: 100% !important;
+            text-transform: none !important;
+            box-shadow: none !important;
         }
+
         .kr-smart-form .kr-payment-button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6) !important;
+            background: #388e84 !important;
+            transform: none !important;
         }
-        .kr-smart-form input, .kr-smart-form .kr-field {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: #ffffff !important;
-            border-radius: 10px !important;
+
+        /* Inputs limpios estilo oficial */
+        .kr-smart-form .kr-field {
+            background: #ffffff !important;
+            border: 1px solid var(--izipay-border) !important;
+            border-radius: 6px !important;
+            color: var(--izipay-text) !important;
+            height: 48px !important;
+        }
+
+        .kr-smart-form .kr-field:focus {
+            border-color: var(--izipay-emerald) !important;
+            box-shadow: 0 0 0 2px rgba(69, 160, 148, 0.1) !important;
+        }
+
+        /* Ocultar elementos innecesarios del SDK que el tema Neon a veces arrastra */
+        .kr-embedded {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Ajustar proporción del contenedor modal para el formulario oficial */
+        #izipayPopinContainer {
+            background: #ffffff !important; /* Fondo blanco para limpieza oficial */
+            color: #111827 !important;
+            max-width: 520px !important;
+            margin: 0 auto !important;
         }
     </style>
     <script>
@@ -1214,27 +1257,22 @@
                 </div>
 
                 <!-- Formulario Incrustado (Embedded) -->
-                <div id="izipayPopinContainer" style="display:none; text-align:left; background: linear-gradient(145deg, rgba(20,10,40,0.95), rgba(15,8,35,0.98)); padding:1.75rem; border-radius:20px; border: 1px solid rgba(124, 58, 237, 0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);">
-                    
-                    <!-- Header del formulario -->
-                    <div style="display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:1.5rem;">
-                        <div style="width:28px; height:28px; background:linear-gradient(135deg,#7C3AED,#4FFFB0); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px;">🔒</div>
-                        <div>
-                            <div style="font-size:0.95rem; font-weight:700; color:#fff;">Pago seguro con Izipay</div>
-                            <div style="font-size:0.7rem; color:rgba(255,255,255,0.4);">Tus datos están encriptados con SSL 256-bit</div>
-                        </div>
+                    <!-- Logos de métodos aceptados (Estilo oficial limpio) -->
+                    <div style="text-align:center; padding-top: 0.5rem;">
+                        <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay" style="height:32px; margin-bottom:1rem;">
+                        <div style="font-size:0.85rem; color:#6b7280; margin-bottom:1.5rem;">Elige tu método de pago favorito</div>
                     </div>
 
-                    <!-- Logos de métodos aceptados -->
-                    <div style="display:flex; gap:0.6rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center;">
-                        <span style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:rgba(255,255,255,0.6); font-weight:700;">VISA</span>
-                        <span style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:rgba(255,255,255,0.6); font-weight:700;">MASTERCARD</span>
-                        <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); margin:0 2px;"></div>
-                        <span style="background:rgba(0,191,174,0.15); border:1px solid rgba(0,191,174,0.3); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:#00BFAE; font-weight:800; display:flex; align-items:center; gap:4px;">
-                            <img src="https://vignette.wikia.nocookie.net/logopedia/images/b/b3/Logo_Yape.png" style="height:12px; filter:brightness(1.2);" alt="Yape"> YAPE
-                        </span>
-                        <span style="background:rgba(255,185,0,0.1); border:1px solid rgba(255,185,0,0.25); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:#FFB900; font-weight:700;">PAGO EFECTIVO</span>
-                        <span style="background:rgba(79,255,176,0.1); border:1px solid rgba(79,255,176,0.2); border-radius:6px; padding:4px 10px; font-size:0.7rem; color:#4FFFB0; font-weight:600;">QR / POS</span>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom:1.5rem;">
+                        <div style="border:2px solid var(--izipay-emerald); border-radius:10px; padding:1rem; text-align:center; position:relative; background:#f0f9f8;">
+                            <div style="position:absolute; top:-8px; right:-8px; background:var(--izipay-emerald); color:white; border-radius:50%; width:20px; height:20px; font-size:12px; display:flex; align-items:center; justify-content:center;">✓</div>
+                            <img src="https://static.micuentaweb.pe/static/img/payment-methods/visa.png" style="height:20px; margin-bottom:4px;">
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--izipay-text);">Tarjeta</div>
+                        </div>
+                        <div style="border:1px solid #e5e7eb; border-radius:10px; padding:1rem; text-align:center; opacity:0.7; filter:grayscale(0.5);">
+                            <img src="https://vignette.wikia.nocookie.net/logopedia/images/b/b3/Logo_Yape.png" style="height:20px; margin-bottom:4px;">
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--izipay-text);">Yape</div>
+                        </div>
                     </div>
 
                     <!-- Smart Form Izipay (Muestra todos los métodos habilitados: Yape, QR, PagoEfectivo, Tarjetas) -->
