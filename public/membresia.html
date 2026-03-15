@@ -20,73 +20,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
-        /* Estilos para el Modal Oficial de Izipay (Tema Blanco) */
-        #izipayModal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.9) !important;
-            backdrop-filter: blur(12px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 11000;
-            padding: 1.5rem;
-        }
-        #izipayModal.open { display: flex; }
-        .izipay-content {
-            background: #ffffff !important;
-            width: 100%;
-            max-width: 480px;
-            min-height: 520px;
-            border-radius: 20px;
-            padding: 3rem 1.5rem 2rem;
-            position: relative;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
-            animation: modalFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            color: #1f2937 !important; /* Texto oscuro para el fondo blanco */
-        }
-        
-        /* BLOQUEAR INTERFERENCIAS DE ESTILOS GLOBALES */
-        .izipay-content * {
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif !important;
-        }
-        .izipay-content label { color: #4b5563 !important; font-size: 14px !important; margin-bottom: 8px !important; display: block; }
-        .izipay-content input { color: #111827 !important; border-radius: 8px !important; }
-
-        .izipay-logo-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        .izipay-logo-header img {
-            height: 38px;
-            width: auto;
-        }
-        .close-izipay {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            background: #f3f4f6;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            color: #6b7280;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            font-size: 1.2rem;
-            z-index: 10;
-        }
-        .close-izipay:hover { background: #e5e7eb; color: #111827; transform: scale(1.1); }
-        .kr-smart-form { background: #fff !important; min-height: 350px !important; }
-        
-        @keyframes modalFadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Estilos para asegurar que el Lightbox oficial de Izipay sea visible */
+        .kr-smart-form { background: transparent !important; }
+        .kr-popin-modal { z-index: 100000 !important; }
     </style>
     <script>
         // Configuración Global de Logs y Branding
@@ -1170,27 +1106,10 @@
                 </button>
             </div>
         </div>
-        </div>
     </div>
 
-    <!-- MODAL OFICIAL IZIPAY (WHITE THEME) -->
-    <div id="izipayModal">
-        <div class="izipay-content">
-            <button class="close-izipay" onclick="closeIzipayModal()">✕</button>
-            <div class="izipay-logo-header">
-                <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay">
-                <div style="font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem; font-weight: 500;">Pago 100% seguro</div>
-            </div>
-            
-            <div class="kr-smart-form" id="myPaymentForm">
-                <!-- El SDK de Izipay inyectará aquí Card, Yape, QR, etc. -->
-            </div>
-
-            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; text-align: center;">
-                <span style="font-size: 0.7rem; color: #9ca3af;">Encriptación SSL de 256 bits · Powered by Izipay</span>
-            </div>
-        </div>
-    </div>
+    <!-- Elemento técnico para el Pop-in oficial (Lightbox) -->
+    <div class="kr-smart-form" kr-popin id="myPaymentForm"></div>
 
     <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
@@ -1474,19 +1393,16 @@
 
                 await KR.setFormToken(data.formToken);
 
-                // Cerramos el modal oscuro y abrimos el modal oficial de Izipay
+                // MODO POP-IN OFICIAL (LIGHTBOX)
+                // Cerramos nuestro modal de confirmación
                 closeModal();
-                const iModal = document.getElementById('izipayModal');
-                iModal.classList.add('open');
+                
+                // Disparamos la apertura oficial de Izipay
+                showToast('success', '🔐', 'Redirigiendo a pago seguro...', 'Se abrirá el formulario oficial de Izipay');
+                
+                KR.openPopin();
 
-                // Forzamos la apertura del Popin oficial (Lightbox) si el modo Smart Form lo requiere
-                KR.openPopin().catch(err => {
-                    console.log("Normal flow, Popin already handled by Smart Form rendering");
-                });
-
-                showToast('success', '🔐', 'Pasarela lista', 'Ingresa tus datos de pago');
-
-                // Resetear botones por si cierra el modal y vuelve a intentar
+                // Resetear botones por si el usuario cancela y vuelve a intentar
                 btn.disabled = false;
                 btnText.style.display = 'inline';
                 btnSpin.style.display = 'none';
@@ -1497,10 +1413,6 @@
                 btnText.style.display = 'inline';
                 btnSpin.style.display = 'none';
             }
-        }
-
-        function closeIzipayModal() {
-            document.getElementById('izipayModal').classList.remove('open');
         }
 
         // ── Init ─────────────────────────────────────────────────────────
