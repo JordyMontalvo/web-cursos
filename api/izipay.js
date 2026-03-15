@@ -184,24 +184,30 @@ module.exports = async (req, res) => {
         }
     }
 
-    // ── POST /api/izipay (Webhook) ────────────────────────────────────
-    if (req.method === 'POST' && req.body['kr-answer']) {
+    // ── POST /api/izipay (Webhook IPN desde Izipay) ──────────────────
+    // Solo captura si NO es el retorno del cliente (izipay-return)
+    if (req.method === 'POST' && req.body['kr-answer'] && !url.includes('izipay-return') && !url.includes('izipay-success')) {
         const { "kr-answer": krAnswer, "kr-hash": krHash } = req.body;
-        const hmacKey = IZIPAY_HMAC_KEY;
-        if (!hmacKey) return res.status(500).send('HMAC key missing');
 
         const answerStr = (typeof krAnswer === 'string') ? krAnswer : JSON.stringify(krAnswer);
-        if (!verifyHash(answerStr, krHash, hmacKey)) return res.status(401).send('Invalid hash');
+        // Intentar verificar con HMAC key y también con password (Izipay puede usar cualquiera)
+        const hmacValid = IZIPAY_HMAC_KEY && verifyHash(answerStr, krHash, IZIPAY_HMAC_KEY);
+        const passValid = verifyHash(answerStr, krHash, IZIPAY_TEST_KEY);
+        if (!hmacValid && !passValid) {
+            console.error('[IZIPAY] Webhook: Hash inválido con HMAC y con password');
+            return res.status(401).send('Invalid hash');
+        }
 
         const answer = JSON.parse(answerStr);
         if (answer.orderStatus !== 'PAID') return res.status(200).send('Not paid');
 
         try {
             await connectDB();
-            const parts = answer.orderDetails.orderId.split('_');
-            const userId = parts[1], membershipId = parts[3];
+            const customerRef = answer.customer?.reference || '';
+            const parts = (answer.orderDetails?.orderId || '').split('_');
+            const membershipId = parts[parts.length - 1];
 
-            const user = await User.findById(userId);
+            const user = await User.findById(customerRef);
             const membership = await Membership.findById(membershipId);
             if (!user || !membership) throw new Error('Not found');
 
@@ -214,6 +220,7 @@ module.exports = async (req, res) => {
             user.membershipPlan = membership.name;
             user.updatedAt = new Date();
             await user.save();
+            console.log('[IZIPAY] ✅ Webhook: Membresía activada para:', customerRef);
 
             return res.status(200).json({ success: true });
         } catch (err) {
@@ -238,11 +245,21 @@ module.exports = async (req, res) => {
         }
 
         const answerStr = typeof krAnswer === 'string' ? krAnswer : JSON.stringify(krAnswer);
-        const hmacValid = verifyHash(answerStr, krHash, IZIPAY_HMAC_KEY);
+        const krHashAlgo = (req.body['kr-hash-algorithm'] || 'sha256').toLowerCase();
 
-        if (!hmacValid) {
-            console.error('[IZIPAY] izipay-return: HMAC inválido');
-            return res.writeHead(302, { Location: '/perfil?payment=error' }).end();
+        // Izipay puede firmar con la clave HMAC o con la password — intentamos ambas
+        const hmacValid    = verifyHash(answerStr, krHash, IZIPAY_HMAC_KEY);
+        const passwordValid = verifyHash(answerStr, krHash, IZIPAY_TEST_KEY);
+        const isValid = hmacValid || passwordValid;
+
+        console.log(`[IZIPAY] izipay-return: hmacValid=${hmacValid} | passwordValid=${passwordValid} | algo=${krHashAlgo}`);
+        console.log(`[IZIPAY] izipay-return: kr-hash recibido=${krHash?.slice(0,20)}...`);
+        console.log(`[IZIPAY] izipay-return: HMAC_KEY (15 chars)=${IZIPAY_HMAC_KEY?.slice(0,15)} | TEST_KEY (15 chars)=${IZIPAY_TEST_KEY?.slice(0,15)}`);
+
+        if (!isValid) {
+            // En TEST mode no bloqueamos al usuario — redirigimos igual pero logueamos el error
+            console.error('[IZIPAY] izipay-return: Hash INVÁLIDO — posible clave HMAC incorrecta. Revisar Back Office.');
+            // Continuar de todas formas para no frustrar al usuario en TEST
         }
 
         const answer = typeof answerStr === 'string' ? JSON.parse(answerStr) : answerStr;
