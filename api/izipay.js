@@ -161,7 +161,8 @@ module.exports = async (req, res) => {
 
             const finalBody = { 
                 ...basePostData, 
-                ctx_mode: mode 
+                ctx_mode: mode,
+                paymentMethods: ["CARD", "TUKUY_YAPE", "TUKUY_QRSET"]
             };
 
             const finalPostData = JSON.stringify(finalBody);
