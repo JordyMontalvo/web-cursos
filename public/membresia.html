@@ -6,11 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membresía Premium - IATIBET ZUREON</title>
     <!-- SDK de Izipay: cargado ESTÁTICO en head según documentación oficial -->
+    <!-- SDK de Izipay: cargado ESTÁTICO en head según documentación oficial -->
     <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
             kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCxYUiT2ai"
             kr-post-url-success="/api/payments/izipay-return"
             kr-client-domain="https://api.micuentaweb.pe"
-            kr-language="es-PE">
+            kr-language="es-PE"
+            kr-theme="classic">
     </script>
     <meta name="description"
         content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
@@ -1114,8 +1116,8 @@
         </div>
     </div>
 
-    <!-- Contenedor Oficial para el Pop-in de Izipay (Fuera de modales) -->
-    <div id="izipayPopinContainer">
+    <!-- Contenedor para el Smart Form en modo Pop-in (Lightbox oficial) -->
+    <div style="display:none;">
         <div class="kr-smart-form" kr-popin id="myPaymentForm"></div>
     </div>
 
@@ -1401,16 +1403,16 @@
 
                 await KR.setFormToken(data.formToken);
 
-                // MODO POP-IN: Abre la ventana oficial de Izipay (Lightbox)
-                KR.openPopin().then(function(result) {
-                    // Si abre, cerramos nuestro modal de confirmación pequeño
-                    closeModal();
-                    // Restaurar botones del modal para cuando regrese
+                // MODO POP-IN PROGRAMÁTICO: Abre el Lightbox oficial
+                KR.showForm().then((result) => {
+                    closeModal(); // Cerramos nuestro modal de info
+                    // Restaurar UI
                     btn.disabled = false;
                     btnText.style.display = 'inline';
                     btnSpin.style.display = 'none';
-                }).catch(function(err) {
-                    showToast('error', '❌', 'Error al abrir ventana de pago', 'Intenta de nuevo o desactiva bloqueadores de pop-ups');
+                }).catch((err) => {
+                    console.error("error opening popin:", err);
+                    showToast('error', '❌', 'Error al abrir pago', 'Intenta de nuevo');
                     btn.disabled = false;
                     btnText.style.display = 'inline';
                     btnSpin.style.display = 'none';
