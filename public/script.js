@@ -582,9 +582,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ===================================
 // Add some interactive hover effects
 // ===================================
+// Caché de elementos para evitar querySelectorAll en cada mousemove (alto impacto en rendimiento)
+let cachedCards = [];
+const updateCachedCards = () => { cachedCards = Array.from(document.querySelectorAll('.course-card')); };
+
 document.addEventListener('mousemove', (e) => {
-    const cards = document.querySelectorAll('.course-card');
-    cards.forEach(card => {
+    // Solo actualizar si la lista está vacía o ha pasado tiempo (aproximación simple)
+    if (cachedCards.length === 0) updateCachedCards();
+    
+    cachedCards.forEach(card => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -597,15 +603,18 @@ document.addEventListener('mousemove', (e) => {
 
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
         } else {
-            card.style.transform = '';
+            if (card.style.transform !== '') card.style.transform = '';
         }
     });
 });
 
+// Re-cache cuando el DOM cambie (opcional pero recomendado)
+const observer = new MutationObserver(updateCachedCards);
+if (document.body) observer.observe(document.body, { childList: true, subtree: true });
+
 // Reset card transforms when mouse leaves
 document.addEventListener('mouseleave', () => {
-    const cards = document.querySelectorAll('.course-card');
-    cards.forEach(card => {
+    cachedCards.forEach(card => {
         card.style.transform = '';
     });
 });
