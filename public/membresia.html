@@ -76,48 +76,56 @@
         }
         .izi-close:hover { background: #e2e8f0; color: #1e293b; }
 
-        /* AISLAMIENTO Y AJUSTE DE TAMAÑO */
+        /* AISLAMIENTO TOTAL Y COMPACTACIÓN */
         .izipay-white-container * {
             box-sizing: border-box !important;
             font-family: 'Inter', sans-serif !important;
             letter-spacing: -0.01em !important;
-            line-height: normal !important;
+            line-height: 1.2 !important;
         }
 
-        /* Campos más compactos */
-        .kr-smart-form .kr-label {
-            font-size: 12px !important;
-            color: #64748b !important;
-            margin-bottom: 4px !important;
-            font-weight: 600 !important;
-        }
-        .kr-smart-form input {
-            font-size: 14px !important;
-            color: #1e293b !important;
-            height: 40px !important; /* Más bajo */
-            border-radius: 8px !important;
-            border: 1px solid #cbd5e1 !important;
-            padding: 0 10px !important;
-            background: #fff !important;
-            box-shadow: none !important;
-        }
-        .kr-smart-form .kr-field-wrapper { 
-            margin-bottom: 0.75rem !important; /* Menos espacio entre campos */
+        /* Corregir distorsión de inputs y campos */
+        .kr-smart-form, .kr-smart-form * {
+            max-width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
         }
         
-        /* Botón Oficial Compacto */
-        .kr-smart-form .kr-payment-button {
-            height: 44px !important;
-            background: #00d1b2 !important;
-            border-radius: 8px !important;
-            font-weight: 700 !important;
-            font-size: 15px !important;
-            margin-top: 0.5rem !important;
-            transition: all 0.2s !important;
+        .kr-smart-form .kr-field-wrapper {
+            margin-bottom: 8px !important; /* Espacio mínimo */
+            padding: 0 !important;
         }
-        .kr-smart-form .kr-payment-button:hover {
-            filter: brightness(1.05);
-            transform: translateY(-1px);
+
+        .kr-smart-form .kr-label {
+            font-size: 13px !important;
+            color: #475569 !important;
+            font-weight: 600 !important;
+            margin-bottom: 4px !important;
+            display: block !important;
+        }
+
+        .kr-smart-form .kr-field-element,
+        .kr-smart-form input,
+        .kr-smart-form select {
+            font-size: 14px !important;
+            color: #1e293b !important;
+            height: 42px !important; /* Altura fija oficial */
+            border-radius: 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            background: #fff !important;
+            padding: 0 12px !important;
+            width: 100% !important;
+        }
+
+        /* Botón de Pago Compacto */
+        .kr-smart-form .kr-payment-button {
+            height: 46px !important;
+            background: #00d1b2 !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            margin-top: 10px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         }
 
         @keyframes iziSlideUp {
@@ -1468,17 +1476,22 @@
             setTimeout(() => { const t = document.getElementById(id); if (t) t.remove(); }, duration);
         }
 
-        // ── Izipay Integration (Patrón oficial: SDK estático en head) ───
-        let izipayInitialized = false;
+        // ── Izipay Integration ──────────────────────────────────────────
+        let izipayInitAttempts = 0;
 
         function initIzipay() {
             if (window.KR) {
-                izipayInitialized = true;
+                console.log("[IZIPAY] SDK detectado con éxito");
                 KR.onError((err) => {
                     showToast('error', '❌', 'Error de pago', err.errorMessage || 'Verifica los datos de tu tarjeta');
                 });
             } else {
-                setTimeout(initIzipay, 500);
+                izipayInitAttempts++;
+                if (izipayInitAttempts < 15) { // Intentar por 7.5 segundos
+                    setTimeout(initIzipay, 500);
+                } else {
+                    console.warn("[IZIPAY] El SDK no cargó. Verifica AdBlock o conexión.");
+                }
             }
         }
 
