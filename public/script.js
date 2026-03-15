@@ -224,34 +224,56 @@ async function loadSettings() {
 // Create Course Card
 // ===================================
 function createCourseCard(course) {
-    const card = document.createElement('a');
+    const card = document.createElement('div');
     const courseId = course._id || course.id;
-    card.href = `/curso/${courseId}`;
     card.className = 'course-card';
 
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const isFav = wishlist.includes(courseId);
+
     card.innerHTML = `
-        <div class="course-card-bg" style="background-image: url('${course.thumbnail || '/uploads/default-course.jpg'}')"></div>
-        <div class="course-card-overlay"></div>
-        <div class="course-card-content">
-            <span class="course-badge">${course.category || 'CURSO'}</span>
-            <h3 class="course-name">${course.name}</h3>
-            <div class="course-stats">
-                <div class="stat-item">
-                    <span class="stat-icon"></span>
-                    <span>${course.totalChapters || 0} Capítulos</span>
+        <button class="wishlist-btn ${isFav ? 'active' : ''}" onclick="toggleWishlist(event, '${courseId}')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        </button>
+        <a href="/curso/${courseId}" style="text-decoration:none; color:inherit; display:contents;">
+            <div class="course-card-bg" style="background-image: url('${course.thumbnail || '/uploads/default-course.jpg'}')"></div>
+            <div class="course-card-overlay"></div>
+            <div class="course-card-content">
+                <span class="course-badge">${course.category || 'CURSO'}</span>
+                <h3 class="course-name">${course.name}</h3>
+                <div class="course-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon"></span>
+                        <span>${course.totalChapters || 0} Capítulos</span>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <span>${course.totalEpisodes || 0} Episodios</span>
-                </div>
+                <button class="btn-start">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                    EMPEZAR
+                </button>
             </div>
-            <button class="btn-start">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-                EMPEZAR
-            </button>
-        </div>
+        </a>
     `;
 
     return card;
+}
+
+function toggleWishlist(e, id) {
+    e.preventDefault();
+    e.stopPropagation();
+    let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const idx = wishlist.indexOf(id);
+    if (idx > -1) {
+        wishlist.splice(idx, 1);
+        e.currentTarget.classList.remove('active');
+    } else {
+        wishlist.push(id);
+        e.currentTarget.classList.add('active');
+        // Efecto visual divertido
+        e.currentTarget.style.transform = 'scale(1.4)';
+        setTimeout(() => e.currentTarget.style.transform = '', 200);
+    }
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
 }
 
 // ===================================
@@ -342,31 +364,49 @@ function setupMobileMenu() {
 // Search Functionality
 // ===================================
 function setupSearch() {
-    const searchInput = document.querySelector('.search-input');
+    const searchInput = document.getElementById('globalSearchInput');
+    const resultsDropdown = document.getElementById('searchResultsDropdown');
 
-    if (searchInput) {
+    if (searchInput && resultsDropdown) {
         searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            console.log('Searching for:', searchTerm);
-
-            // Here you would implement actual search logic
-            // For demo purposes, we'll just filter the displayed courses
-            if (searchTerm.length > 0) {
-                const filteredCourses = coursesData.filter(course =>
-                    course.name.toLowerCase().includes(searchTerm) ||
-                    course.category.toLowerCase().includes(searchTerm)
-                );
-
-                const coursesGrid = document.getElementById('coursesGrid');
-                if (coursesGrid) {
-                    coursesGrid.innerHTML = '';
-                    filteredCourses.forEach(course => {
-                        coursesGrid.appendChild(createCourseCard(course));
-                    });
-                }
-            } else {
-                renderCourses();
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            if (searchTerm.length < 2) {
+                resultsDropdown.classList.remove('active');
+                return;
             }
+
+            const filtered = coursesData.filter(c => 
+                c.name.toLowerCase().includes(searchTerm) || 
+                (c.category && c.category.toLowerCase().includes(searchTerm))
+            ).slice(0, 5);
+
+            if (filtered.length > 0) {
+                resultsDropdown.innerHTML = filtered.map(c => `
+                    <a href="/curso/${c._id || c.id}" class="search-result-item">
+                        <div class="search-result-thumb" style="background-image:url('${c.thumbnail || '/uploads/default-course.jpg'}')"></div>
+                        <div class="search-result-info">
+                            <span class="search-result-name">${c.name}</span>
+                            <span class="search-result-category">${c.category || 'Curso'}</span>
+                        </div>
+                    </a>
+                `).join('');
+                resultsDropdown.classList.add('active');
+            } else {
+                resultsDropdown.innerHTML = '<div style="padding:1rem; text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4);">No se encontraron cursos</div>';
+                resultsDropdown.classList.add('active');
+            }
+        });
+
+        // Cerrar al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsDropdown.contains(e.target)) {
+                resultsDropdown.classList.remove('active');
+            }
+        });
+
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.length >= 2) resultsDropdown.classList.add('active');
         });
     }
 }

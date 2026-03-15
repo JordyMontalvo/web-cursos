@@ -1232,9 +1232,7 @@
                     </div>
                 </div>
 
-                <!-- Log de Sistema (Visible solo para depuración) -->
-                <div id="izipaySystemLog" style="display:none; margin-top:1rem; padding:0.5rem; background:rgba(0,0,0,0.3); border-radius:6px; font-family:monospace; font-size:10px; color:#aaa; max-height:80px; overflow-y:auto; text-align:left;">
-                </div>
+
             </div>
         </div>
     </div>
@@ -1444,8 +1442,6 @@
             const adWarn = document.getElementById('adblockWarning');
             if (adWarn) adWarn.style.display = 'none';
 
-            const sysLog = document.getElementById('izipaySystemLog');
-            if (sysLog) { sysLog.style.display = 'none'; sysLog.innerHTML = ''; }
 
             const btn = document.getElementById('btnConfirm');
             if (btn) {
@@ -1470,21 +1466,7 @@
             if (!wasOpen) item.classList.add('open');
         }
 
-        // ── Toast & Log ──────────────────────────────────────────────────
-        window.onerror = function(msg, url, line) {
-            logToSystem(`<span style="color:#ff6b70;">❌ ERROR: ${msg} (Línea ${line})</span>`);
-            return false;
-        };
-
-        function logToSystem(msg) {
-            const el = document.getElementById('izipaySystemLog');
-            if (!el) return;
-            el.style.display = 'block';
-            const time = new Date().toLocaleTimeString();
-            el.innerHTML += `<div>[${time}] ${msg}</div>`;
-            el.scrollTop = el.scrollHeight;
-            console.log(`[SYS_LOG] ${msg}`);
-        }
+        // ── Toast ────────────────────────────────────────────────────────
 
         function showToast(type, icon, title, msg, duration = 4000) {
             const container = document.getElementById('toastContainer');
@@ -1504,23 +1486,17 @@
         let izipayInitialized = false;
 
         function initIzipay() {
-            // El SDK ya está cargado estáticamente en el <head>.
-            // Solo registramos los callbacks de error para diagnóstico.
             if (window.KR) {
                 izipayInitialized = true;
-                console.log('[IZIPAY] ✅ SDK listo (cargado desde head).');
                 KR.onError((err) => {
-                    console.error('[IZIPAY] Error del SDK:', err);
-                    logToSystem('❌ Error SDK: ' + (err.errorMessage || JSON.stringify(err)));
+                    showToast('error', '❌', 'Error de pago', err.errorMessage || 'Verifica los datos de tu tarjeta');
                 });
             } else {
-                // SDK aún no listo, reintentar en 500ms
                 setTimeout(initIzipay, 500);
             }
         }
 
         async function startIzipayCheckout() {
-            logToSystem('🚀 Iniciando pago...');
             if (!selectedPlanId) return;
 
             const btn = document.getElementById('btnConfirm');
@@ -1533,38 +1509,30 @@
             btnSpin.style.display = 'inline-block';
 
             try {
-                logToSystem('Contactando con el servidor...');
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ membershipId: selectedPlanId })
                 });
 
-                logToSystem('Respuesta recibida (Status: ' + res.status + ')');
                 const data = await res.json();
-                if (!data.success) throw new Error(data.message || 'Error al generar checkout');
-
-                logToSystem('✅ formToken recibido del servidor.');
+                if (!data.success) throw new Error(data.message || 'Error al generar el pago');
 
                 if (!window.KR) {
-                    throw new Error('El SDK de Izipay no está disponible. Recarga la página.');
+                    throw new Error('El formulario de pago no está disponible. Recarga la página.');
                 }
 
-                logToSystem('Configurando token en SDK...');
                 await KR.setFormToken(data.formToken);
-                logToSystem('✅ Token configurado. Mostrando formulario de tarjeta.');
 
                 // Ocultar botones y mostrar formulario
                 const actions = document.getElementById('purchaseActions');
                 if (actions) actions.style.display = 'none';
                 popinContainer.style.display = 'block';
 
-                showToast('success', '🔐', 'Seguridad lista', 'Ingresa los datos de tu tarjeta');
+                showToast('success', '🔐', 'Pago seguro listo', 'Ingresa los datos de tu tarjeta');
 
             } catch (err) {
-                logToSystem('❌ Error: ' + err.message);
-                console.error('[IZIPAY] Checkout Error:', err);
-                showToast('error', '❌', 'Error', err.message);
+                showToast('error', '❌', 'Error al iniciar el pago', err.message);
                 btn.disabled = false;
                 btnText.style.display = 'inline';
                 btnSpin.style.display = 'none';
