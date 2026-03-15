@@ -19,20 +19,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
-        /* Contenedor del formulario oficial - Limpio para que Izipay tome el control */
-        #izipayPopinContainer {
-            background: #ffffff !important;
-            color: #374151 !important;
-            max-width: 500px !important;
-            margin: 0 auto !important;
-            padding: 2rem !important;
-            border-radius: 20px !important;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
-        }
-        .kr-smart-form { background: #fff !important; }
+        /* Estilos base para compatibilidad con el SDK Smart Form */
+        .kr-smart-form { background: transparent !important; }
+        .kr-popin-modal { z-index: 10000 !important; } /* Asegurar que el modal de Izipay esté sobre todo */
     </style>
     <script>
-        // Fix para errores de logToSystem
+        // Configuración Global de Logs y Branding
         window.logToSystem = function(msg) { console.log("[System]", msg); };
         (function () {
             const name = localStorage.getItem('branding_companyName');
@@ -1116,26 +1108,11 @@
                     </button>
                 </div>
 
-                <!-- Formulario Incrustado (Embedded) -->
+                <!-- Formulario Incrustado (Contenedor oculto para el SDK) -->
                 <div id="izipayPopinContainer" style="display:none;">
-                    <!-- El Smart Form de Izipay se encarga de mostrar Tarjetas, Yape y otros métodos automáticamente -->
-                    <div style="text-align:center; padding-bottom: 1.5rem;">
-                        <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay" style="height:35px;">
-                        <div style="font-size:0.85rem; color:#6b7280; margin-top:0.5rem;">Pago 100% seguro y encriptado</div>
-                    </div>
-
-                    <div class="kr-smart-form" id="myPaymentForm">
-                        <!-- El SDK oficial renderiza aquí el formulario completo (Tarjeta, Yape, QR) -->
-                    </div>
-
-                    <!-- Separador -->
-                    <div style="border-top:1px solid rgba(255,255,255,0.06); margin-top:1.5rem; padding-top:1rem; display:flex; align-items:center; justify-content:space-between;">
-                        <span style="font-size:0.7rem; color:rgba(255,255,255,0.25);">Powered by Izipay</span>
-                        <button onclick="resetCheckout()" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.72rem; cursor:pointer; text-decoration:underline; padding:0; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
-                            ← Cambiar plan
-                        </button>
-                    </div>
+                    <div class="kr-smart-form" id="myPaymentForm"></div>
                 </div>
+            </div>
 
 
             </div>
@@ -1310,7 +1287,6 @@
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
             
             document.getElementById('confirmModal').classList.add('open');
-            document.getElementById('confirmModal').classList.add('open');
 
             // Verificar AdBlock
             setTimeout(() => {
@@ -1425,12 +1401,18 @@
 
                 await KR.setFormToken(data.formToken);
 
-                // Ocultar botones y mostrar formulario
-                const actions = document.getElementById('purchaseActions');
-                if (actions) actions.style.display = 'none';
-                popinContainer.style.display = 'block';
+                // MODO POP-IN: Abre la ventana oficial de Izipay con Card/Yape/QR
+                const result = await KR.openPopin();
+                
+                if (result) {
+                    showToast('success', '🔐', 'Pago seguro iniciado', 'Sigue las instrucciones en la ventana de Izipay');
+                }
 
-                showToast('success', '🔐', 'Pago seguro listo', 'Ingresa los datos de tu tarjeta');
+                // Restaurar botones
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnSpin.style.display = 'none';
+                closeModal();
 
             } catch (err) {
                 showToast('error', '❌', 'Error al iniciar el pago', err.message);
