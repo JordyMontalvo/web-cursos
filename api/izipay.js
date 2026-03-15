@@ -221,5 +221,70 @@ module.exports = async (req, res) => {
         }
     }
 
+    // ── POST /api/payments/izipay-return (Retorno de pago exitoso desde Izipay) ──
+    // Izipay hace POST aquí tras pago exitoso. Validamos, activamos membresía y redirigimos.
+    if (url.includes('izipay-return') || url.includes('izipay-success')) {
+        if (req.method === 'GET') {
+            // Redirigir directamente si es GET (acceso manual)
+            return res.writeHead(302, { Location: '/perfil?payment=success' }).end();
+        }
+        if (req.method !== 'POST') return res.status(405).end();
+
+        const { 'kr-answer': krAnswer, 'kr-hash': krHash } = req.body || {};
+
+        if (!krAnswer || !krHash) {
+            console.warn('[IZIPAY] izipay-return: faltan kr-answer o kr-hash');
+            return res.writeHead(302, { Location: '/perfil?payment=pending' }).end();
+        }
+
+        const answerStr = typeof krAnswer === 'string' ? krAnswer : JSON.stringify(krAnswer);
+        const hmacValid = verifyHash(answerStr, krHash, IZIPAY_HMAC_KEY);
+
+        if (!hmacValid) {
+            console.error('[IZIPAY] izipay-return: HMAC inválido');
+            return res.writeHead(302, { Location: '/perfil?payment=error' }).end();
+        }
+
+        const answer = typeof answerStr === 'string' ? JSON.parse(answerStr) : answerStr;
+        console.log('[IZIPAY] izipay-return: orderStatus =', answer.orderStatus, '| orderID =', answer.orderDetails?.orderId);
+
+        if (answer.orderStatus !== 'PAID') {
+            return res.writeHead(302, { Location: '/perfil?payment=pending' }).end();
+        }
+
+        // ── Activar membresía ────────────────────────────────────────────
+        try {
+            await connectDB();
+            const parts = (answer.orderDetails?.orderId || '').split('_');
+            // orderId format: TEST_XXXXXX_membershipId (ej: TEST_425903_74ce)
+            // El userId lo guardamos en customer.reference
+            const customerRef = answer.customer?.reference || '';
+            const membershipId = answer.orderDetails?.metadata?.membershipId || parts[parts.length - 1];
+
+            const user = await User.findById(customerRef);
+            const membership = await Membership.findById(membershipId);
+
+            if (user && membership) {
+                const expiresAt = (!membership.durationDays || membership.durationDays === 0)
+                    ? new Date('2099-12-31')
+                    : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+
+                user.activeMembership = membership._id;
+                user.membershipExpiresAt = expiresAt;
+                user.membershipPlan = membership.name;
+                user.updatedAt = new Date();
+                await user.save();
+                console.log('[IZIPAY] ✅ Membresía activada para usuario:', customerRef);
+            } else {
+                console.warn('[IZIPAY] izipay-return: usuario o membresía no encontrada', { customerRef, membershipId });
+            }
+        } catch (err) {
+            console.error('[IZIPAY] izipay-return DB error:', err.message);
+        }
+
+        // Siempre redirigir al perfil tras un pago PAID
+        return res.writeHead(302, { Location: '/perfil?payment=success' }).end();
+    }
+
     return res.status(404).end();
 };
