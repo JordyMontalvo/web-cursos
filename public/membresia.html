@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membresía Premium - IATIBET ZUREON</title>
     <!-- SDK de Izipay oficial V4 -->
-    <!-- SDK de Izipay oficial V4 -->
     <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
             kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCxYUiT2ai"
             kr-post-url-success="/api/payments/izipay-return"
@@ -25,41 +24,52 @@
         #izipayModal {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.9) !important;
+            backdrop-filter: blur(12px);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 11000;
-            padding: 1rem;
+            padding: 1.5rem;
         }
         #izipayModal.open { display: flex; }
         .izipay-content {
-            background: #ffffff;
+            background: #ffffff !important;
             width: 100%;
-            max-width: 450px;
-            border-radius: 16px;
-            padding: 2.5rem 1.5rem 1.5rem;
+            max-width: 480px;
+            min-height: 520px;
+            border-radius: 20px;
+            padding: 3rem 1.5rem 2rem;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: modalFadeUp 0.3s ease-out;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            animation: modalFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #1f2937 !important; /* Texto oscuro para el fondo blanco */
         }
+        
+        /* BLOQUEAR INTERFERENCIAS DE ESTILOS GLOBALES */
+        .izipay-content * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif !important;
+        }
+        .izipay-content label { color: #4b5563 !important; font-size: 14px !important; margin-bottom: 8px !important; display: block; }
+        .izipay-content input { color: #111827 !important; border-radius: 8px !important; }
+
         .izipay-logo-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
         .izipay-logo-header img {
-            height: 35px;
+            height: 38px;
             width: auto;
         }
         .close-izipay {
             position: absolute;
-            top: 1.25rem;
-            right: 1.25rem;
+            top: 1.5rem;
+            right: 1.5rem;
             background: #f3f4f6;
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             color: #6b7280;
             cursor: pointer;
@@ -68,12 +78,13 @@
             justify-content: center;
             transition: all 0.2s;
             font-size: 1.2rem;
+            z-index: 10;
         }
-        .close-izipay:hover { background: #e5e7eb; color: #111827; }
-        .kr-smart-form { background: #fff !important; min-height: 250px; }
+        .close-izipay:hover { background: #e5e7eb; color: #111827; transform: scale(1.1); }
+        .kr-smart-form { background: #fff !important; min-height: 350px !important; }
         
         @keyframes modalFadeUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -1151,8 +1162,14 @@
                 <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
             </div>
             <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
-                <!-- Contenedor para el Smart Form nativo de Izipay (Aquí se movió al nuevo modal) -->
+            <div class="modal-actions" id="purchaseActions" style="display: flex; gap: 0.75rem;">
+                <button class="btn-cancel-modal" onclick="closeModal()" style="flex:1;">Cancelar</button>
+                <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()" style="flex:1;">
+                    <span id="confirmBtnText">💳 Pagar con tarjeta</span>
+                    <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
+                </button>
             </div>
+        </div>
         </div>
     </div>
 
@@ -1461,6 +1478,11 @@
                 closeModal();
                 const iModal = document.getElementById('izipayModal');
                 iModal.classList.add('open');
+
+                // Forzamos la apertura del Popin oficial (Lightbox) si el modo Smart Form lo requiere
+                KR.openPopin().catch(err => {
+                    console.log("Normal flow, Popin already handled by Smart Form rendering");
+                });
 
                 showToast('success', '🔐', 'Pasarela lista', 'Ingresa tus datos de pago');
 
