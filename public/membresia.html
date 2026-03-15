@@ -1107,16 +1107,16 @@
                         <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
                     </button>
                 </div>
-
-                <!-- Formulario Incrustado (Contenedor oculto para el SDK) -->
-                <div id="izipayPopinContainer" style="display:none;">
-                    <div class="kr-smart-form" id="myPaymentForm"></div>
-                </div>
             </div>
 
 
             </div>
         </div>
+    </div>
+
+    <!-- Contenedor Oficial para el Pop-in de Izipay (Fuera de modales) -->
+    <div id="izipayPopinContainer">
+        <div class="kr-smart-form" kr-popin id="myPaymentForm"></div>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -1401,18 +1401,20 @@
 
                 await KR.setFormToken(data.formToken);
 
-                // MODO POP-IN: Abre la ventana oficial de Izipay con Card/Yape/QR
-                const result = await KR.openPopin();
-                
-                if (result) {
-                    showToast('success', '🔐', 'Pago seguro iniciado', 'Sigue las instrucciones en la ventana de Izipay');
-                }
-
-                // Restaurar botones
-                btn.disabled = false;
-                btnText.style.display = 'inline';
-                btnSpin.style.display = 'none';
-                closeModal();
+                // MODO POP-IN: Abre la ventana oficial de Izipay (Lightbox)
+                KR.openPopin().then(function(result) {
+                    // Si abre, cerramos nuestro modal de confirmación pequeño
+                    closeModal();
+                    // Restaurar botones del modal para cuando regrese
+                    btn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnSpin.style.display = 'none';
+                }).catch(function(err) {
+                    showToast('error', '❌', 'Error al abrir ventana de pago', 'Intenta de nuevo o desactiva bloqueadores de pop-ups');
+                    btn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnSpin.style.display = 'none';
+                });
 
             } catch (err) {
                 showToast('error', '❌', 'Error al iniciar el pago', err.message);
