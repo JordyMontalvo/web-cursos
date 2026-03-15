@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membresía Premium - IATIBET ZUREON</title>
-    <!-- SDK de Izipay: cargado ESTÁTICO en head según documentación oficial -->
-    <!-- SDK de Izipay: cargado ESTÁTICO en head según documentación oficial -->
+    <!-- SDK de Izipay oficial V4 -->
+    <!-- SDK de Izipay oficial V4 -->
     <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
             kr-public-key="57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCxYUiT2ai"
             kr-post-url-success="/api/payments/izipay-return"
@@ -21,9 +21,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
-        /* Estilos base para compatibilidad con el SDK Smart Form */
+        /* Estilos base para el Pop-in ajustable */
         .kr-smart-form { background: transparent !important; }
-        .kr-popin-modal { z-index: 10000 !important; } /* Asegurar que el modal de Izipay esté sobre todo */
+        .kr-popin-modal { z-index: 10000 !important; } 
     </style>
     <script>
         // Configuración Global de Logs y Branding
@@ -1109,16 +1109,14 @@
                         <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
                     </button>
                 </div>
-            </div>
 
-
+                <!-- Contenedor para el Smart Form nativo de Izipay -->
+                <div id="izipayPopinContainer" style="display:none; margin-top: 1rem;">
+                    <div class="kr-smart-form" kr-popin id="myPaymentForm"></div>
+                    <p style="font-size: 0.7rem; color: rgba(255,255,255,0.3); text-align: center; margin-top: 0.5rem;">Presiona el botón oficial para abrir la ventana de pago seguro.</p>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Contenedor para el Smart Form en modo Pop-in (Lightbox oficial) -->
-    <div style="display:none;">
-        <div class="kr-smart-form" kr-popin id="myPaymentForm"></div>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -1403,20 +1401,11 @@
 
                 await KR.setFormToken(data.formToken);
 
-                // MODO POP-IN PROGRAMÁTICO: Abre el Lightbox oficial
-                KR.showForm().then((result) => {
-                    closeModal(); // Cerramos nuestro modal de info
-                    // Restaurar UI
-                    btn.disabled = false;
-                    btnText.style.display = 'inline';
-                    btnSpin.style.display = 'none';
-                }).catch((err) => {
-                    console.error("error opening popin:", err);
-                    showToast('error', '❌', 'Error al abrir pago', 'Intenta de nuevo');
-                    btn.disabled = false;
-                    btnText.style.display = 'inline';
-                    btnSpin.style.display = 'none';
-                });
+                // Mostramos el botón oficial de Izipay y ocultamos el nuestro
+                document.getElementById('purchaseActions').style.display = 'none';
+                document.getElementById('izipayPopinContainer').style.display = 'block';
+
+                showToast('info', '✅', 'Orden generada', 'Presiona el botón de Izipay para pagar');
 
             } catch (err) {
                 showToast('error', '❌', 'Error al iniciar el pago', err.message);
