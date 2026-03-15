@@ -100,6 +100,37 @@
     </div>
   </section>
 
+  <!-- ── Continuar donde lo dejaste ───────────────────────────────── -->
+  <div id="continueSection" style="display:none; padding: 0.5rem 0 0;">
+    <div class="container" style="max-width:1200px; margin:0 auto; padding:0 1.5rem;">
+      <div id="continueCard" style="background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(79,255,176,0.06)); border:1px solid rgba(124,58,237,0.25); border-radius:18px; padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.25rem; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden;" onclick="goToContinue()" onmouseover="this.style.borderColor='rgba(124,58,237,0.5)';this.style.background='linear-gradient(135deg,rgba(124,58,237,0.18),rgba(79,255,176,0.1))'" onmouseout="this.style.borderColor='rgba(124,58,237,0.25)';this.style.background='linear-gradient(135deg,rgba(124,58,237,0.12),rgba(79,255,176,0.06))'">
+        <!-- Glow decorativo -->
+        <div style="position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.15),transparent);pointer-events:none;"></div>
+        <!-- Thumbnail -->
+        <div id="continueThumbnail" style="width:80px;height:55px;border-radius:10px;background:linear-gradient(135deg,#2D1B4E,#1a0a3a);flex-shrink:0;background-size:cover;background-position:center;overflow:hidden;"></div>
+        <!-- Info -->
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.45);margin-bottom:3px;display:flex;align-items:center;gap:0.35rem;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Continuar donde lo dejaste
+          </div>
+          <div id="continueCourseName" style="font-size:0.95rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px;"></div>
+          <div style="background:rgba(255,255,255,0.08);border-radius:100px;height:3px;overflow:hidden;">
+            <div id="continueProgressBar" style="height:100%;background:linear-gradient(90deg,#7C3AED,#4FFFB0);border-radius:100px;transition:width 0.5s ease;width:0%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span id="continueEpName" style="font-size:0.72rem;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;"></span>
+            <span id="continueProgress" style="font-size:0.72rem;color:#4FFFB0;font-weight:600;flex-shrink:0;"></span>
+          </div>
+        </div>
+        <!-- Botón -->
+        <div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#5B21B6);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(124,58,237,0.4);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Cursos Online Section -->
   <section class="courses-section">
     <div class="container">
@@ -202,6 +233,32 @@
     })();
   </script>
   <script src="script.js"></script>
+
+  <script>
+    // ── Continuar donde lo dejaste ──────────────────────────────────
+    (function() {
+      try {
+        const last = JSON.parse(localStorage.getItem('lastPlayedCourse') || 'null');
+        if (!last || !last.courseId) return;
+        const section = document.getElementById('continueSection');
+        document.getElementById('continueCourseName').textContent = last.courseName || 'Curso';
+        document.getElementById('continueEpName').textContent = last.lastEpisodeName ? `▶ ${last.lastEpisodeName}` : '';
+        document.getElementById('continueProgress').textContent = `${last.progress || 0}% completado`;
+        document.getElementById('continueProgressBar').style.width = (last.progress || 0) + '%';
+        if (last.courseThumbnail) {
+          document.getElementById('continueThumbnail').style.backgroundImage = `url('${last.courseThumbnail}')`;
+        }
+        section.style.display = 'block';
+      } catch(e) {}
+    })();
+
+    function goToContinue() {
+      try {
+        const last = JSON.parse(localStorage.getItem('lastPlayedCourse') || 'null');
+        if (last?.courseId) window.location.href = `/curso/${last.courseId}`;
+      } catch(e) {}
+    }
+  </script>
 
   <!-- ── Notificación Premium de Pago Exitoso ──────────────────────── -->
   <div id="paymentSuccessOverlay" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(5,3,20,0.85); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; padding:1rem; opacity:0; transition:opacity 0.4s ease;">

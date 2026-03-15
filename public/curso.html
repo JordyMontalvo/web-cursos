@@ -347,6 +347,73 @@
             justify-content: center;
             color: #A78BFA;
             opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        /* Episodio completado */
+        .episode-item.completed .episode-check {
+            color: #4FFFB0;
+            opacity: 1;
+        }
+        .episode-item.completed .episode-title {
+            color: rgba(255,255,255,0.6);
+        }
+        .episode-item.completed .episode-thumb::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            background: #4FFFB0;
+        }
+        /* Barra de progreso del capítulo */
+        .chapter-progress-bar {
+            height: 3px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 100px;
+            margin: 0.25rem 0 0.5rem;
+            overflow: hidden;
+        }
+        .chapter-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7C3AED, #4FFFB0);
+            border-radius: 100px;
+            transition: width 0.5s ease;
+        }
+        /* Preview badge */
+        .preview-badge {
+            background: linear-gradient(135deg,#F59E0B,#D97706);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+        /* Botón marcar completado */
+        .btn-mark-complete {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(79,255,176,0.1);
+            border: 1px solid rgba(79,255,176,0.25);
+            color: #4FFFB0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-mark-complete:hover {
+            background: rgba(79,255,176,0.18);
+            border-color: rgba(79,255,176,0.5);
+        }
+        .btn-mark-complete.done {
+            background: rgba(79,255,176,0.15);
+            border-color: #4FFFB0;
         }
 
         /* Active State */
@@ -599,10 +666,20 @@
                                     <span id="episodeCount">-</span>
                                     <span class="separator">·</span>
                                     <span id="chapterCount">-</span>
+                                    <span class="separator">·</span>
+                                    <span id="progressLabel" style="color:#4FFFB0; font-weight:700;">0% completado</span>
+                                </div>
+                                <!-- Barra de progreso global -->
+                                <div style="margin-top:0.5rem; background:rgba(255,255,255,0.07); border-radius:100px; height:5px; overflow:hidden; max-width:400px;">
+                                    <div id="globalProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg,#7C3AED,#4FFFB0); border-radius:100px; transition:width 0.5s ease;"></div>
                                 </div>
                                 <p id="nowPlaying" style="display:none;"></p>
                             </div>
                             <div class="course-navigation">
+                                <button class="btn-mark-complete" id="btnMarkComplete" onclick="toggleMarkComplete()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    <span id="markCompleteText">Marcar completado</span>
+                                </button>
                                 <button class="btn-nav btn-prev" id="btnPrev" onclick="prevEpisode()">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -635,6 +712,68 @@
         let course = null;
         let allEpisodes = [];
         let currentEpisodeIndex = 0;
+        let courseId = null;
+        let userHasMembership = false;
+
+        // ── Progress stored in localStorage per course ──────────────────
+        function getProgressKey() { return `progress_${courseId}`; }
+        function getProgress() {
+            try { return JSON.parse(localStorage.getItem(getProgressKey()) || '{}'); }
+            catch(e) { return {}; }
+        }
+        function saveProgress(data) {
+            localStorage.setItem(getProgressKey(), JSON.stringify(data));
+        }
+        function isEpisodeWatched(idx) {
+            return !!getProgress()[`ep_${idx}`];
+        }
+        function markEpisodeWatched(idx, watched = true) {
+            const p = getProgress();
+            if (watched) p[`ep_${idx}`] = true;
+            else delete p[`ep_${idx}`];
+            p.lastEpisode = currentEpisodeIndex;
+            saveProgress(p);
+            updateGlobalProgress();
+            renderProgress();
+        }
+        function updateGlobalProgress() {
+            const total = allEpisodes.length;
+            if (!total) return;
+            const done = allEpisodes.filter((_, i) => isEpisodeWatched(i)).length;
+            const pct = Math.round((done / total) * 100);
+            const bar = document.getElementById('globalProgressBar');
+            const lbl = document.getElementById('progressLabel');
+            if (bar) bar.style.width = pct + '%';
+            if (lbl) lbl.textContent = `${pct}% completado`;
+            // Guardar en last-played global para el home
+            const lastPlayed = JSON.parse(localStorage.getItem('lastPlayedCourse') || '{}');
+            lastPlayed.courseId = courseId;
+            lastPlayed.courseName = course?.name || '';
+            lastPlayed.courseThumbnail = course?.thumbnail || '';
+            lastPlayed.lastEpisodeIdx = currentEpisodeIndex;
+            lastPlayed.progress = pct;
+            lastPlayed.lastEpisodeName = allEpisodes[currentEpisodeIndex]?.episode?.title || '';
+            localStorage.setItem('lastPlayedCourse', JSON.stringify(lastPlayed));
+        }
+        function renderProgress() {
+            allEpisodes.forEach((_, i) => {
+                const el = document.getElementById(`ep-item-${i}`);
+                if (!el) return;
+                if (isEpisodeWatched(i)) el.classList.add('completed');
+                else el.classList.remove('completed');
+            });
+            // Chapter progress bars
+            let flatIdx = 0;
+            (course?.chapters || []).forEach((ch, ci) => {
+                const eps = ch.episodes || [];
+                const chStart = flatIdx;
+                const chEnd = flatIdx + eps.length;
+                flatIdx = chEnd;
+                const done = allEpisodes.slice(chStart, chEnd).filter((_, i) => isEpisodeWatched(chStart + i)).length;
+                const fill = document.getElementById(`ch-fill-${ci}`);
+                if (fill) fill.style.width = (eps.length ? Math.round(done/eps.length*100) : 0) + '%';
+            });
+        }
 
         // ── Auth Header ──────────────────────────────────────────────────────────
         function updateHeader() {
@@ -691,7 +830,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             updateHeader();
             const parts = window.location.pathname.split('/');
-            const courseId = parts[parts.length - 1];
+            courseId = parts[parts.length - 1];
 
             if (!courseId) {
                 document.getElementById('loadingState').innerHTML = '<p style="color:#f87171;">ID de curso no encontrado</p>';
@@ -723,11 +862,11 @@
 
                 const accessData = await accessRes.json();
                 console.log('[AccessData]:', accessData);
+                userHasMembership = accessData.hasMembership || accessData.hasAccess || false;
 
                 if (!accessData.success || !accessData.hasAccess) {
-                    // Sin acceso: mostrar pantalla de bloqueo
-                    const lockScreen = document.getElementById('lockScreen');
-                    if (lockScreen) lockScreen.classList.remove('hidden');
+                    // Sin acceso: cargar el curso de todas formas para mostrar el ep.1 gratis
+                    userHasMembership = false;
 
                     // Cargar datos mínimos del curso para el botón de membresía
                     try {
@@ -797,14 +936,40 @@
             });
 
             renderChaptersList();
+            updateGlobalProgress();
+            renderProgress();
 
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('courseContent').style.display = 'block';
 
-            // Auto-play first episode
+            // ✅ Reanudar desde el último episodio visto
+            const saved = getProgress();
+            const resumeIdx = (typeof saved.lastEpisode === 'number' && saved.lastEpisode < allEpisodes.length)
+                ? saved.lastEpisode : 0;
             if (allEpisodes.length > 0) {
-                playEpisode(0);
+                playEpisode(resumeIdx);
+                if (resumeIdx > 0) {
+                    // Mostrar toast de reanudación
+                    setTimeout(() => showResumeToast(resumeIdx), 800);
+                }
             }
+        }
+
+        function showResumeToast(idx) {
+            const ep = allEpisodes[idx]?.episode;
+            if (!ep) return;
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a0a3a,#0f0520);border:1px solid rgba(124,58,237,0.4);border-radius:14px;padding:0.875rem 1.25rem;display:flex;align-items:center;gap:0.75rem;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;min-width:280px;max-width:90vw;';
+            toast.innerHTML = `
+                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#4FFFB0);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">▶️</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);margin-bottom:2px;">Continuar donde lo dejaste</div>
+                    <div style="font-size:0.85rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ep.title}</div>
+                </div>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:1rem;padding:0;">✕</button>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
         }
 
         // ── Render sidebar ────────────────────────────────────────────────────────
@@ -823,23 +988,26 @@
 
                 const episodes = episodesInfo.map((ep, ei) => {
                     const idx = flatIndex++;
-                    const isCompleted = false; // logic goes here when progress is saved.
+                    const isFirst = idx === 0; // Primer episodio = preview gratuito
+                    const previewBadge = isFirst ? '<span class="preview-badge">GRATIS</span>' : '';
                     return `
                     <div class="episode-item" id="ep-item-${idx}" onclick="playEpisode(${idx})">
                         <div class="episode-thumb" style="background-image: url('${defaultThumb}')">
                             <span class="episode-thumb-overlay">${ep.duration || '0:00'}</span>
                         </div>
                         <div class="episode-info">
-                            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
                                 <span class="episode-title">${ep.title}</span>
-                                <div class="episode-check">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0;">
+                                    ${previewBadge}
+                                    <div class="episode-check">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="episode-duration-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
                                 <span>${ep.duration || '0:00'}</span>
-                                <span style="margin-left:auto; opacity:0; font-size:0.75rem" class="total-duration">${ep.duration || '0:00'}</span> 
                             </div>
                         </div>
                     </div>
@@ -852,6 +1020,7 @@
                         <span>Cap. ${ci + 1}: ${ch.title}</span>
                         <span class="ep-count">· ${episodesInfo.length} ep.</span>
                     </div>
+                    <div class="chapter-progress-bar"><div class="chapter-progress-fill" id="ch-fill-${ci}" style="width:0%"></div></div>
                     ${episodes}
                 </div>
             `;
@@ -861,15 +1030,25 @@
         // ── Play episode ──────────────────────────────────────────────────────────
         function playEpisode(index) {
             if (index < 0 || index >= allEpisodes.length) return;
-            currentEpisodeIndex = index;
 
-            const { episode, chapter, chapterIndex, episodeIndex } = allEpisodes[index];
+            // 🔒 Preview: solo el ep.0 es gratis para usuarios sin membresía
+            if (index > 0 && !userHasMembership) {
+                document.getElementById('lockScreen').classList.remove('hidden');
+                return;
+            }
+
+            currentEpisodeIndex = index;
+            const { episode, chapter } = allEpisodes[index];
+
+            // Guardar último episodio visto
+            const p = getProgress();
+            p.lastEpisode = index;
+            saveProgress(p);
+            updateGlobalProgress();
 
             // Update video
             const container = document.getElementById('videoContainer');
             const videoUrl = episode.videoUrl || '';
-
-            // Convert YouTube watch URL to embed if needed
             const embedUrl = toEmbedUrl(videoUrl);
 
             if (embedUrl) {
@@ -884,7 +1063,16 @@
             }
 
             // Update now playing
-            document.getElementById('nowPlaying').textContent = `▶ ${chapter.title} · ${episode.title}`;
+            const np = document.getElementById('nowPlaying');
+            np.textContent = `▶ ${chapter.title} · ${episode.title}`;
+            np.style.display = 'block';
+
+            // Update nav buttons
+            document.getElementById('btnPrev').disabled = index === 0;
+            document.getElementById('btnNext').disabled = index === allEpisodes.length - 1;
+
+            // Update marcar completado button
+            updateMarkCompleteBtn();
 
             // Update active state in sidebar
             document.querySelectorAll('.episode-item').forEach(el => el.classList.remove('active'));
@@ -892,6 +1080,25 @@
             if (activeEl) {
                 activeEl.classList.add('active');
                 activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function updateMarkCompleteBtn() {
+            const btn = document.getElementById('btnMarkComplete');
+            const txt = document.getElementById('markCompleteText');
+            if (!btn || !txt) return;
+            const done = isEpisodeWatched(currentEpisodeIndex);
+            btn.classList.toggle('done', done);
+            txt.textContent = done ? '✓ Completado' : 'Marcar completado';
+        }
+
+        function toggleMarkComplete() {
+            const done = isEpisodeWatched(currentEpisodeIndex);
+            markEpisodeWatched(currentEpisodeIndex, !done);
+            updateMarkCompleteBtn();
+            // Auto-avanzar al siguiente si marcamos completado
+            if (!done && currentEpisodeIndex < allEpisodes.length - 1) {
+                setTimeout(() => playEpisode(currentEpisodeIndex + 1), 400);
             }
         }
 
