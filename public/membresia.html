@@ -21,9 +21,61 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
-        /* Estilos base para el Pop-in ajustable */
-        .kr-smart-form { background: transparent !important; }
-        .kr-popin-modal { z-index: 10000 !important; } 
+        /* Estilos para el Modal Oficial de Izipay (Tema Blanco) */
+        #izipayModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 11000;
+            padding: 1rem;
+        }
+        #izipayModal.open { display: flex; }
+        .izipay-content {
+            background: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 16px;
+            padding: 2.5rem 1.5rem 1.5rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalFadeUp 0.3s ease-out;
+        }
+        .izipay-logo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .izipay-logo-header img {
+            height: 35px;
+            width: auto;
+        }
+        .close-izipay {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: #f3f4f6;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+        .close-izipay:hover { background: #e5e7eb; color: #111827; }
+        .kr-smart-form { background: #fff !important; min-height: 250px; }
+        
+        @keyframes modalFadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
     <script>
         // Configuración Global de Logs y Branding
@@ -1099,22 +1151,26 @@
                 <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
             </div>
             <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
-            <!-- Área de Acción de Pago -->
-            <div id="paymentActionArea" style="margin-top: 0.5rem;">
-                <!-- Botones Iniciales -->
-                <div class="modal-actions" id="purchaseActions" style="display: flex; gap: 0.75rem;">
-                    <button class="btn-cancel-modal" onclick="closeModal()" style="flex:1;">Cancelar</button>
-                    <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()" style="flex:1;">
-                        <span id="confirmBtnText">💳 Pagar con tarjeta</span>
-                        <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
-                    </button>
-                </div>
+                <!-- Contenedor para el Smart Form nativo de Izipay (Aquí se movió al nuevo modal) -->
+            </div>
+        </div>
+    </div>
 
-                <!-- Contenedor para el Smart Form nativo de Izipay -->
-                <div id="izipayPopinContainer" style="display:none; margin-top: 1rem;">
-                    <div class="kr-smart-form" kr-popin id="myPaymentForm"></div>
-                    <p style="font-size: 0.7rem; color: rgba(255,255,255,0.3); text-align: center; margin-top: 0.5rem;">Presiona el botón oficial para abrir la ventana de pago seguro.</p>
-                </div>
+    <!-- MODAL OFICIAL IZIPAY (WHITE THEME) -->
+    <div id="izipayModal">
+        <div class="izipay-content">
+            <button class="close-izipay" onclick="closeIzipayModal()">✕</button>
+            <div class="izipay-logo-header">
+                <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay">
+                <div style="font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem; font-weight: 500;">Pago 100% seguro</div>
+            </div>
+            
+            <div class="kr-smart-form" id="myPaymentForm">
+                <!-- El SDK de Izipay inyectará aquí Card, Yape, QR, etc. -->
+            </div>
+
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; text-align: center;">
+                <span style="font-size: 0.7rem; color: #9ca3af;">Encriptación SSL de 256 bits · Powered by Izipay</span>
             </div>
         </div>
     </div>
@@ -1401,11 +1457,17 @@
 
                 await KR.setFormToken(data.formToken);
 
-                // Mostramos el botón oficial de Izipay y ocultamos el nuestro
-                document.getElementById('purchaseActions').style.display = 'none';
-                document.getElementById('izipayPopinContainer').style.display = 'block';
+                // Cerramos el modal oscuro y abrimos el modal oficial de Izipay
+                closeModal();
+                const iModal = document.getElementById('izipayModal');
+                iModal.classList.add('open');
 
-                showToast('info', '✅', 'Orden generada', 'Presiona el botón de Izipay para pagar');
+                showToast('success', '🔐', 'Pasarela lista', 'Ingresa tus datos de pago');
+
+                // Resetear botones por si cierra el modal y vuelve a intentar
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnSpin.style.display = 'none';
 
             } catch (err) {
                 showToast('error', '❌', 'Error al iniciar el pago', err.message);
@@ -1413,6 +1475,10 @@
                 btnText.style.display = 'inline';
                 btnSpin.style.display = 'none';
             }
+        }
+
+        function closeIzipayModal() {
+            document.getElementById('izipayModal').classList.remove('open');
         }
 
         // ── Init ─────────────────────────────────────────────────────────
