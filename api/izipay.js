@@ -5,12 +5,17 @@ const https = require('https');
 const crypto = require('crypto');
 
 const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').trim();
-const IZIPAY_SHOP_ID = process.env.IZIPAY_SHOP_ID || '57935063';
-const IZIPAY_TEST_KEY = process.env.IZIPAY_TEST_KEY || 'testpassword_DWeSvCxTjoB8Shejukp5cXJb8ylevIdvRUOGj93Bh62aS';
-const IZIPAY_HMAC_KEY = process.env.IZIPAY_HMAC_SHA256 || 'EQeRVnjiJjzgPtuFCvrdUTyIfKPyO1zl84VCBfPfvTbek';
+const IZIPAY_SHOP_ID = process.env.IZIPAY_SHOP_ID || '38106701';
+const IZIPAY_TEST_KEY = process.env.IZIPAY_TEST_KEY || 'testpassword_m2Sz4S5Ep7ZYZm5Q03BMaDhZ3gmApebfsc7csfWSlu3OG';
+const IZIPAY_HMAC_KEY = process.env.IZIPAY_HMAC_SHA256 || 'o5ZB4cpULuVjVxyYU1TkVfDLqVjwj6SEFv8SmgowOnatK';
 // Clave pública: debe coincidir EXACTAMENTE con el Back Office (incluyendo mayúsculas/minúsculas)
-const IZIPAY_PUBLIC_KEY = process.env.IZIPAY_PUBLIC_KEY || `${IZIPAY_SHOP_ID}:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCxYUiT2ai`;
+const IZIPAY_PUBLIC_KEY = process.env.IZIPAY_PUBLIC_KEY || '38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh';
 const IZIPAY_CLIENT_KEY_RAW = IZIPAY_TEST_KEY;
+
+// Producción (para referencia):
+// IZIPAY_PROD_KEY: 'prodpassword_RiCr6ANjvjNPQQUKhmtWweI6QNlALNFoNRtKMONdTM35A'
+// IZIPAY_PROD_HMAC: 'DA2xEqXoOOcGolGonwqXxSx4Z1M2OAuZATrk3q58QE7gk'
+// IZIPAY_PROD_PUBLIC: '38106701:publickey_LMehGwExkzW8Fqx1V9IzONSVEi5ERAFfuqwIDFPy2Ztcc'
 
 // Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
 function normalizeShopId(id) {

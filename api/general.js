@@ -22,11 +22,11 @@ module.exports = async (req, res) => {
     // ── /api/config ────────────────────────────────────────────────
     // Respondemos si la ruta contiene config o si es la raíz de esta función (vía rewrite)
     if (url.includes('config') || url === '/api/general') {
-        const testPubKey = '57935063:testpublickey_r0030fnTePqqIuQckwi9GF3N4vyFJ9w8c6IoCxYUiT2ai';
+        const testPubKey = '38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh';
         return res.json({
             apiUrl: process.env.BACKEND_URL || '',
             izipayPublicKey: testPubKey,
-            izipayShopId: '57935063'
+            izipayShopId: '38106701'
         });
     }
 
