@@ -161,6 +161,10 @@ module.exports = async (req, res) => {
             // ORDER_ID: Acortado para máxima compatibilidad
             const orderId = `TEST_${Date.now().toString().slice(-6)}_${membershipId.slice(-4)}`;
             
+            const mode = 'TEST';
+            const sId = normalizeShopId(IZIPAY_SHOP_ID);
+            const key = IZIPAY_KEY;
+
             const basePostData = {
                 amount: amount,
                 currency: mode === 'TEST' ? 'USD' : 'PEN', // Cambiamos a USD en TEST para evitar error PSP_610 (No merchant acceptance agreement for PEN)
@@ -175,10 +179,6 @@ module.exports = async (req, res) => {
                     platform: 'IATIBET_ZUREON'
                 }
             };
-
-            const mode = 'TEST';
-            const sId = normalizeShopId(IZIPAY_SHOP_ID);
-            const key = IZIPAY_KEY;
 
             console.log(`[IZIPAY] DIAGNOSTIC: Mode=${mode} | ShopID="${sId}" | PubKey="${IZIPAY_PUBLIC?.slice(0, 20)}..."`);
 
