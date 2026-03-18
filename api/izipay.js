@@ -4,18 +4,26 @@ const jwt = require('jsonwebtoken');
 const https = require('https');
 const crypto = require('crypto');
 
-const JWT_SECRET = (process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024').trim();
-const IZIPAY_SHOP_ID = process.env.IZIPAY_SHOP_ID || '38106701';
-const IZIPAY_TEST_KEY = process.env.IZIPAY_TEST_KEY || 'testpassword_m2Sz4S5Ep7ZYZm5Q03BMaDhZ3gmApebfsc7csfWSlu3OG';
-const IZIPAY_HMAC_KEY = process.env.IZIPAY_HMAC_SHA256 || 'o5ZB4cpULuVjVxyYU1TkVfDLqVjwj6SEFv8SmgowOnatK';
-// Clave pública: debe coincidir EXACTAMENTE con el Back Office (incluyendo mayúsculas/minúsculas)
-const IZIPAY_PUBLIC_KEY = process.env.IZIPAY_PUBLIC_KEY || '38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh';
-const IZIPAY_CLIENT_KEY_RAW = IZIPAY_TEST_KEY;
+const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
 
-// Producción (para referencia):
-// IZIPAY_PROD_KEY: 'prodpassword_RiCr6ANjvjNPQQUKhmtWweI6QNlALNFoNRtKMONdTM35A'
-// IZIPAY_PROD_HMAC: 'DA2xEqXoOOcGolGonwqXxSx4Z1M2OAuZATrk3q58QE7gk'
-// IZIPAY_PROD_PUBLIC: '38106701:publickey_LMehGwExkzW8Fqx1V9IzONSVEi5ERAFfuqwIDFPy2Ztcc'
+// CREDENCIALES TEST (BACK OFFICE)
+const IZIPAY_TEST_SHOP_ID = '38106701';
+const IZIPAY_TEST_KEY     = 'testpassword_m2Sz4S5Ep7ZYZm5Q03BMaDhZ3gmApebfsc7csfWSlu3OG';
+const IZIPAY_TEST_HMAC    = 'o5ZB4cpULuVjVxyYU1TkVfDLqVjwj6SEFv8SmgowOnatK';
+const IZIPAY_TEST_PUBLIC  = '38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh';
+
+// CREDENCIALES PRODUCCIÓN (Para cuando se habiliten)
+const IZIPAY_PROD_SHOP_ID = process.env.IZIPAY_SHOP_ID;
+const IZIPAY_PROD_KEY     = process.env.IZIPAY_CLIENT_KEY;
+const IZIPAY_PROD_HMAC    = process.env.IZIPAY_HMAC_SHA256;
+const IZIPAY_PROD_PUBLIC  = process.env.IZIPAY_PUBLIC_KEY;
+
+// Selección Dinámica
+const IS_PRODUCTION = false; // Forzado a FALSE por solicitud del usuario
+const IZIPAY_SHOP_ID = IS_PRODUCTION ? IZIPAY_PROD_SHOP_ID : IZIPAY_TEST_SHOP_ID;
+const IZIPAY_KEY     = IS_PRODUCTION ? IZIPAY_PROD_KEY     : IZIPAY_TEST_KEY;
+const IZIPAY_HMAC    = IS_PRODUCTION ? IZIPAY_PROD_HMAC    : IZIPAY_TEST_HMAC;
+const IZIPAY_PUBLIC  = IS_PRODUCTION ? IZIPAY_PROD_PUBLIC  : IZIPAY_TEST_PUBLIC;
 
 // Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
 function normalizeShopId(id) {
@@ -96,9 +104,23 @@ try { Membership = mongoose.model('Membership'); } catch {
 
 function verifyToken(req) {
     const auth = req.headers['authorization'];
+    if (!auth) {
+        console.warn('[IZIPAY] No Authorization header found');
+        return null;
+    }
     const token = auth && auth.split(' ')[1];
-    if (!token) return null;
-    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
+    if (!token) {
+        console.warn('[IZIPAY] No token found in Authorization header');
+        return null;
+    }
+    try { 
+        const decoded = jwt.verify(token, JWT_SECRET); 
+        console.log('[IZIPAY] Token verified successfuly for user:', decoded.id);
+        return decoded;
+    } catch (err) { 
+        console.error('[IZIPAY] Token verification failed:', err.message);
+        return null; 
+    }
 }
 
 function verifyHash(answer, hash, key) {
@@ -114,23 +136,18 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const url = req.url.split('?')[0];
-    console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method}`);
+    console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method} | Auth: ${req.headers['authorization']?.slice(0, 20)}...`);
 
     // ── POST /api/izipay (Checkout) ──────────────────────────────────
     if (req.method === 'POST' && (url.includes('/checkout') || !req.body?.['kr-answer'])) {
         const decoded = verifyToken(req);
         if (!decoded) {
-            console.warn('[IZIPAY] Unauthorized attempt');
+            console.warn('[IZIPAY] Unauthorized attempt: decoded is null');
             return res.status(401).json({ success: false, message: 'No autorizado' });
         }
 
         try {
             console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
-            
-            // ANALÍSIS DE CREDENCIALES (Hexadecimal)
-            const idHex = Buffer.from(IZIPAY_SHOP_ID).toString('hex');
-            const keyHex = Buffer.from(IZIPAY_CLIENT_KEY_RAW.slice(0, 15)).toString('hex');
-            console.log(`[IZIPAY] DIAGNOSTIC: ShopID="${IZIPAY_SHOP_ID}" (Hex:${idHex}) | KeyLen=${IZIPAY_CLIENT_KEY_RAW.length} (Hex_15:${keyHex})`);
             
             await connectDB();
             const { membershipId } = req.body;
@@ -159,10 +176,11 @@ module.exports = async (req, res) => {
                 }
             };
 
-            // MODO TEST FORZADO
             const mode = 'TEST';
             const sId = normalizeShopId(IZIPAY_SHOP_ID);
-            const key = IZIPAY_TEST_KEY;
+            const key = IZIPAY_KEY;
+
+            console.log(`[IZIPAY] DIAGNOSTIC: Mode=${mode} | ShopID="${sId}" | PubKey="${IZIPAY_PUBLIC?.slice(0, 20)}..."`);
 
             const finalBody = { 
                 ...basePostData, 
@@ -182,7 +200,7 @@ module.exports = async (req, res) => {
                 return res.json({ 
                     success: true, 
                     formToken: iziRes.answer.formToken,
-                    publicKey: IZIPAY_PUBLIC_KEY  // Clave pública pareada con este token
+                    publicKey: IZIPAY_PUBLIC  // Clave pública pareada con este token
                 });
             } else {
                 console.error('[IZIPAY] Izipay API Final Error Response:', iziRes);
@@ -201,7 +219,7 @@ module.exports = async (req, res) => {
 
         const answerStr = (typeof krAnswer === 'string') ? krAnswer : JSON.stringify(krAnswer);
         // Intentar verificar con HMAC key y también con password (Izipay puede usar cualquiera)
-        const hmacValid = IZIPAY_HMAC_KEY && verifyHash(answerStr, krHash, IZIPAY_HMAC_KEY);
+        const hmacValid = IZIPAY_HMAC && verifyHash(answerStr, krHash, IZIPAY_HMAC);
         const passValid = verifyHash(answerStr, krHash, IZIPAY_TEST_KEY);
         if (!hmacValid && !passValid) {
             console.error('[IZIPAY] Webhook: Hash inválido con HMAC y con password');
@@ -257,13 +275,13 @@ module.exports = async (req, res) => {
         const krHashAlgo = (req.body['kr-hash-algorithm'] || 'sha256').toLowerCase();
 
         // Izipay puede firmar con la clave HMAC o con la password — intentamos ambas
-        const hmacValid    = verifyHash(answerStr, krHash, IZIPAY_HMAC_KEY);
+        const hmacValid    = verifyHash(answerStr, krHash, IZIPAY_HMAC);
         const passwordValid = verifyHash(answerStr, krHash, IZIPAY_TEST_KEY);
         const isValid = hmacValid || passwordValid;
 
         console.log(`[IZIPAY] izipay-return: hmacValid=${hmacValid} | passwordValid=${passwordValid} | algo=${krHashAlgo}`);
         console.log(`[IZIPAY] izipay-return: kr-hash recibido=${krHash?.slice(0,20)}...`);
-        console.log(`[IZIPAY] izipay-return: HMAC_KEY (15 chars)=${IZIPAY_HMAC_KEY?.slice(0,15)} | TEST_KEY (15 chars)=${IZIPAY_TEST_KEY?.slice(0,15)}`);
+        console.log(`[IZIPAY] izipay-return: HMAC_KEY (15 chars)=${IZIPAY_HMAC?.slice(0,15)} | TEST_KEY (15 chars)=${IZIPAY_TEST_KEY?.slice(0,15)}`);
 
         if (!isValid) {
             // En TEST mode no bloqueamos al usuario — redirigimos igual pero logueamos el error
