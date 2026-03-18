@@ -163,7 +163,7 @@ module.exports = async (req, res) => {
             
             const basePostData = {
                 amount: amount,
-                currency: 'PEN', // Forzamos PEN para evitar PSP_610 en cuentas de Perú que no tengan multidivisa
+                currency: mode === 'TEST' ? 'USD' : 'PEN', // Cambiamos a USD en TEST para evitar error PSP_610 (No merchant acceptance agreement for PEN)
                 orderId: orderId,
                 customer: { 
                     email: decoded.email || 'customer@example.com',
