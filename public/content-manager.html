@@ -549,11 +549,15 @@ function selectChapter(chapterId) {
                 <div class="add-episode-grid">
                     <div class="field">
                         <label>Título del Episodio *</label>
-                        <input type="text" id="epTitle-${chapterId}" placeholder="Ej: Introducción al módulo">
+                        <input type="text" id="epTitle-${chapterId}" placeholder="Ej: Introducción">
                     </div>
                     <div class="field">
                         <label>URL del Video *</label>
-                        <input type="text" id="epUrl-${chapterId}" placeholder="https://youtube.com/embed/...">
+                        <input type="text" id="epUrl-${chapterId}" placeholder="YouTube, Vimeo, etc.">
+                    </div>
+                    <div class="field">
+                        <label>Duración</label>
+                        <input type="text" id="epDur-${chapterId}" placeholder="Ej: 12:45">
                     </div>
                     <button class="btn btn-success" onclick="addEpisode('${chapterId}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -763,13 +767,14 @@ async function deleteChapter(e, chapterId) {
 async function addEpisode(chapterId) {
     const title = document.getElementById(`epTitle-${chapterId}`)?.value.trim();
     const videoUrl = document.getElementById(`epUrl-${chapterId}`)?.value.trim();
+    const duration = document.getElementById(`epDur-${chapterId}`)?.value.trim();
     if (!title || !videoUrl) { showToast('Título y URL son obligatorios', 'error'); return; }
 
     try {
         const res = await fetch(apiUrl(`/api/courses/${courseId}/chapters/${chapterId}/episodes`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, videoUrl })
+            body: JSON.stringify({ title, videoUrl, duration })
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         showSaved();

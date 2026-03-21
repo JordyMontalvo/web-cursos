@@ -503,7 +503,7 @@
                                 <div class="ep-name">${epObj.title || 'Sin título'}</div>
                                 <div class="ep-meta">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    ${epObj.duration || '10:00'}
+                                    ${epObj.duration || ''}
                                 </div>
                             </div>
                         </div>
@@ -526,11 +526,20 @@
             // Actualizar video
             const videoContainer = document.getElementById('videoContainer');
             if (ep.videoUrl) {
-                // Si es bunny.net o vimeo o youtube, manejamos iframe
                 let embedUrl = ep.videoUrl;
+                
+                // YouTube: https://www.youtube.com/watch?v=ID o https://youtu.be/ID
                 if (embedUrl.includes('youtube.com/watch?v=')) {
                     embedUrl = embedUrl.replace('watch?v=', 'embed/');
+                } else if (embedUrl.includes('youtu.be/')) {
+                    embedUrl = 'https://www.youtube.com/embed/' + embedUrl.split('/').pop();
                 }
+                
+                // Vimeo: https://vimeo.com/ID
+                if (embedUrl.includes('vimeo.com/') && !embedUrl.includes('player.vimeo.com')) {
+                    embedUrl = 'https://player.vimeo.com/video/' + embedUrl.split('/').pop();
+                }
+
                 videoContainer.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
             } else {
                 videoContainer.innerHTML = `<div style="padding:3rem;text-align:center;color:rgba(255,255,255,0.4);">Video no disponible para este episodio.</div>`;
