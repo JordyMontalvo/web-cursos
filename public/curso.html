@@ -527,20 +527,35 @@
             const videoContainer = document.getElementById('videoContainer');
             if (ep.videoUrl) {
                 let embedUrl = ep.videoUrl;
-                
-                // YouTube: https://www.youtube.com/watch?v=ID o https://youtu.be/ID
+                let videoId = '';
+
+                // YouTube
                 if (embedUrl.includes('youtube.com/watch?v=')) {
-                    embedUrl = embedUrl.replace('watch?v=', 'embed/');
+                    videoId = embedUrl.split('v=')[1].split('&')[0];
+                    embedUrl = 'https://www.youtube.com/embed/' + videoId;
                 } else if (embedUrl.includes('youtu.be/')) {
-                    embedUrl = 'https://www.youtube.com/embed/' + embedUrl.split('/').pop();
-                }
-                
-                // Vimeo: https://vimeo.com/ID
-                if (embedUrl.includes('vimeo.com/') && !embedUrl.includes('player.vimeo.com')) {
-                    embedUrl = 'https://player.vimeo.com/video/' + embedUrl.split('/').pop();
+                    videoId = embedUrl.split('/').pop().split('?')[0];
+                    embedUrl = 'https://www.youtube.com/embed/' + videoId;
+                } else if (embedUrl.includes('youtube.com/embed/')) {
+                    // Ya es embed, pero limpiamos parámetros extra
+                    videoId = embedUrl.split('embed/')[1].split('?')[0].split('&')[0];
+                    embedUrl = 'https://www.youtube.com/embed/' + videoId;
                 }
 
-                videoContainer.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+                // Vimeo
+                if (embedUrl.includes('vimeo.com/')) {
+                    videoId = embedUrl.split('/').pop().split('?')[0];
+                    embedUrl = 'https://player.vimeo.com/video/' + videoId;
+                }
+
+                videoContainer.innerHTML = `
+                    <iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                    <div style="position:absolute; bottom:1rem; right:1rem;">
+                        <a href="${ep.videoUrl}" target="_blank" style="color:var(--purple); font-size:0.7rem; font-weight:600; text-decoration:none; background:rgba(0,0,0,0.6); padding:0.4rem 0.8rem; border-radius:100px; border:1px solid var(--purple);">
+                            Ver en YouTube/Plataforma original
+                        </a>
+                    </div>
+                `;
             } else {
                 videoContainer.innerHTML = `<div style="padding:3rem;text-align:center;color:rgba(255,255,255,0.4);">Video no disponible para este episodio.</div>`;
             }
