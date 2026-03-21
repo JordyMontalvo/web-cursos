@@ -263,6 +263,81 @@
             .player-header { padding: 0 1rem; }
         }
 
+        @media (max-width: 768px) {
+            /* Header */
+            .player-header {
+                padding: 0 0.75rem;
+                height: 56px;
+            }
+            .back-link .back-text { display: none; } /* Hide text, keep arrow */
+
+            /* Content area */
+            .content-info {
+                padding: 1.25rem 1rem;
+            }
+
+            .episode-main-title {
+                font-size: 1.35rem;
+                margin-bottom: 1rem;
+            }
+
+            .course-meta-row {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+                padding-bottom: 1.25rem;
+            }
+
+            /* Buttons — stack vertically on small screens */
+            .stage-controls {
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1.25rem;
+            }
+
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+                padding: 0.85rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            /* "Marcar como visto" was pushed to the right — reset on mobile */
+            #btnMarkComplete {
+                margin-left: 0 !important;
+            }
+
+            /* Sidebar */
+            .sidebar-header {
+                padding: 1rem;
+            }
+
+            .sidebar-title {
+                font-size: 1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .ep-thumb {
+                width: 80px;
+                height: 48px;
+            }
+
+            .ep-item {
+                padding: 0.75rem 1rem;
+                gap: 0.75rem;
+            }
+
+            .ep-name {
+                font-size: 0.85rem;
+            }
+
+            /* Lock card */
+            .lock-card {
+                padding: 2rem 1.25rem;
+                border-radius: 20px;
+            }
+        }
+
         /* ── Lock Screen ── */
         .lock-screen {
             position: fixed;
@@ -300,7 +375,7 @@
     <header class="player-header">
         <a href="/" class="back-link">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Volver a Cursos
+            <span class="back-text">Volver a Cursos</span>
         </a>
         <div class="logo" style="display:flex;align-items:center;gap:0.75rem;">
             <div class="logo-icon-sm" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--green));"></div>
