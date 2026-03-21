@@ -399,7 +399,20 @@
         // ── Navigation Logic ──
         function getProgressKey() { return `progress_${courseId}`; }
         function getProgress() { try { return JSON.parse(localStorage.getItem(getProgressKey()) || '{}'); } catch(e) { return {}; } }
-        function saveProgress(data) { localStorage.setItem(getProgressKey(), JSON.stringify(data)); }
+        async function saveProgress(data) { 
+            localStorage.setItem(getProgressKey(), JSON.stringify(data));
+            // Sync with DB
+            try {
+                await fetch(apiUrl('/api/auth/progress'), {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ courseId, progressData: data })
+                });
+            } catch(e) { console.error('Error syncing progress:', e); }
+        }
 
         function isEpisodeWatched(idx) { return !!getProgress()[`ep_${idx}`]; }
 
@@ -450,6 +463,11 @@
                 if (!acc.hasAccess) {
                     document.getElementById('lockScreen').classList.add('active');
                     return;
+                }
+                
+                // Sync progress from DB to LocalStorage
+                if (acc.progress && acc.progress[courseId]) {
+                    localStorage.setItem(getProgressKey(), JSON.stringify(acc.progress[courseId]));
                 }
 
                 // Load Course

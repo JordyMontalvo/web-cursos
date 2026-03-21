@@ -82,6 +82,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    // Progreso de cursos del usuario (Objeto plano: {courseId: {ep_0: true, ...}})
+    progress: {
+        type: Object,
+        default: {}
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -113,6 +113,7 @@ try { User = mongoose.model('User'); } catch {
         membershipPlan:      { type: String, default: null },
         resetPasswordToken:  { type: String },
         resetPasswordExpires:{ type: Date },
+        progress:            { type: Object, default: {} },
         createdAt:   { type: Date, default: Date.now },
         updatedAt:   { type: Date, default: Date.now }
     });
@@ -159,7 +160,8 @@ function formatUser(user) {
         avatar: user.avatar || null,
         provider: user.provider || 'local',
         hasMembership: user.hasMembership ? user.hasMembership() : false,
-        membershipPlan: user.membershipPlan
+        membershipPlan: user.membershipPlan,
+        progress: user.progress || {}
     };
 }
 
@@ -365,7 +367,28 @@ module.exports = async (req, res) => {
         if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
         const hasMem = user.hasMembership();
         const hasAccess = hasMem || user.role === 'admin';
-        return res.json({ success: true, hasAccess, hasMembership: hasMem, membershipPlan: user.membershipPlan, role: user.role });
+        return res.json({ success: true, hasAccess, hasMembership: hasMem, membershipPlan: user.membershipPlan, role: user.role, progress: user.progress || {} });
+    }
+
+    // ── POST /api/auth/progress ──────────────────────────────────
+    if (req.method === 'POST' && url.endsWith('/progress')) {
+        const decoded = verifyToken(req);
+        if (!decoded) return res.status(401).json({ success: false, message: 'No autenticado' });
+        
+        const { courseId, progressData } = req.body;
+        if (!courseId || !progressData) return res.status(400).json({ success: false, message: 'Datos insuficientes' });
+
+        const user = await User.findById(decoded.id);
+        if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+
+        const p = user.progress || {};
+        p[courseId] = progressData;
+        
+        user.progress = p;
+        user.markModified('progress');
+        await user.save();
+
+        return res.json({ success: true, message: 'Progreso guardado' });
     }
 
     // ── POST /api/auth/google ─────────────────────────────────────
