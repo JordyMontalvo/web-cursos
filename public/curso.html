@@ -434,7 +434,7 @@
             lastPlayed.courseName = course?.name || '';
             lastPlayed.courseThumbnail = course?.thumbnail || '';
             lastPlayed.progress = pct;
-            lastPlayed.lastEpisodeName = allEpisodes[currentEpisodeIndex]?.episode?.title || '';
+            lastPlayed.lastEpisodeName = allEpisodes[currentEpisodeIndex]?.title || '';
             localStorage.setItem('lastPlayedCourse', JSON.stringify(lastPlayed));
         }
 
@@ -483,14 +483,14 @@
                 html += `
                     <div class="chapter-group">
                         <div class="chapter-title-btn">
-                            ${ch.name}
+                            ${ch.title}
                             <span style="font-size:0.7rem; opacity:0.5;">${ch.episodes?.length || 0} CLASES</span>
                         </div>
                         <div class="ep-list">
                 `;
                 (ch.episodes || []).forEach(epObj => {
                     const idx = allEpisodes.length;
-                    allEpisodes.push({ ...epObj, chapterName: ch.name });
+                    allEpisodes.push({ ...epObj, chapterName: ch.title });
                     html += `
                         <div class="ep-item" id="ep-item-${idx}" onclick="playEpisode(${idx})">
                             <div class="ep-thumb">
@@ -500,10 +500,10 @@
                                 </div>
                             </div>
                             <div class="ep-info">
-                                <div class="ep-name">${epObj.episode?.title || 'Sin título'}</div>
+                                <div class="ep-name">${epObj.title || 'Sin título'}</div>
                                 <div class="ep-meta">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    ${epObj.episode?.duration || '10:00'}
+                                    ${epObj.duration || '10:00'}
                                 </div>
                             </div>
                         </div>
@@ -520,14 +520,14 @@
             const ep = allEpisodes[idx];
             
             document.getElementById('curChapterLabel').textContent = ep.chapterName;
-            document.getElementById('curEpisodeTitle').textContent = ep.episode?.title;
-            document.getElementById('curDuration').textContent = ep.episode?.duration || '--:--';
+            document.getElementById('curEpisodeTitle').textContent = ep.title;
+            document.getElementById('curDuration').textContent = ep.duration || '--:--';
 
             // Actualizar video
             const videoContainer = document.getElementById('videoContainer');
-            if (ep.episode?.videoUrl) {
+            if (ep.videoUrl) {
                 // Si es bunny.net o vimeo o youtube, manejamos iframe
-                let embedUrl = ep.episode.videoUrl;
+                let embedUrl = ep.videoUrl;
                 if (embedUrl.includes('youtube.com/watch?v=')) {
                     embedUrl = embedUrl.replace('watch?v=', 'embed/');
                 }
