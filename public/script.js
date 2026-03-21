@@ -364,49 +364,71 @@ function setupMobileMenu() {
 // Search Functionality
 // ===================================
 function setupSearch() {
+    // Shared search logic
+    function doSearch(term, dropdown) {
+        if (!dropdown) return;
+        if (term.length < 2) {
+            dropdown.classList.remove('active');
+            return;
+        }
+        const filtered = coursesData.filter(c =>
+            c.name.toLowerCase().includes(term) ||
+            (c.category && c.category.toLowerCase().includes(term))
+        ).slice(0, 5);
+
+        if (filtered.length > 0) {
+            dropdown.innerHTML = filtered.map(c => `
+                <a href="/curso/${c._id || c.id}" class="search-result-item">
+                    <div class="search-result-thumb" style="background-image:url('${c.thumbnail || '/uploads/default-course.jpg'}')"></div>
+                    <div class="search-result-info">
+                        <span class="search-result-name">${c.name}</span>
+                        <span class="search-result-category">${c.category || 'Curso'}</span>
+                    </div>
+                </a>
+            `).join('');
+        } else {
+            dropdown.innerHTML = '<div style="padding:1rem; text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4);">No se encontraron cursos</div>';
+        }
+        dropdown.classList.add('active');
+    }
+
+    // ── Desktop search ──────────────────────────────────
     const searchInput = document.getElementById('globalSearchInput');
     const resultsDropdown = document.getElementById('searchResultsDropdown');
 
     if (searchInput && resultsDropdown) {
         searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            
-            if (searchTerm.length < 2) {
-                resultsDropdown.classList.remove('active');
-                return;
-            }
-
-            const filtered = coursesData.filter(c => 
-                c.name.toLowerCase().includes(searchTerm) || 
-                (c.category && c.category.toLowerCase().includes(searchTerm))
-            ).slice(0, 5);
-
-            if (filtered.length > 0) {
-                resultsDropdown.innerHTML = filtered.map(c => `
-                    <a href="/curso/${c._id || c.id}" class="search-result-item">
-                        <div class="search-result-thumb" style="background-image:url('${c.thumbnail || '/uploads/default-course.jpg'}')"></div>
-                        <div class="search-result-info">
-                            <span class="search-result-name">${c.name}</span>
-                            <span class="search-result-category">${c.category || 'Curso'}</span>
-                        </div>
-                    </a>
-                `).join('');
-                resultsDropdown.classList.add('active');
-            } else {
-                resultsDropdown.innerHTML = '<div style="padding:1rem; text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4);">No se encontraron cursos</div>';
-                resultsDropdown.classList.add('active');
-            }
+            doSearch(e.target.value.toLowerCase().trim(), resultsDropdown);
         });
-
-        // Cerrar al hacer click fuera
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !resultsDropdown.contains(e.target)) {
                 resultsDropdown.classList.remove('active');
             }
         });
-
         searchInput.addEventListener('focus', () => {
             if (searchInput.value.length >= 2) resultsDropdown.classList.add('active');
+        });
+    }
+
+    // ── Mobile search (above filters) ──────────────────
+    const mobileInput = document.getElementById('mobileSearchInput');
+    if (mobileInput) {
+        // Create a dropdown for mobile results
+        const mobileDropdown = document.createElement('div');
+        mobileDropdown.id = 'mobileSearchResultsDropdown';
+        mobileDropdown.className = 'search-results-dropdown';
+        mobileInput.parentElement.appendChild(mobileDropdown);
+
+        mobileInput.addEventListener('input', (e) => {
+            doSearch(e.target.value.toLowerCase().trim(), mobileDropdown);
+        });
+        document.addEventListener('click', (e) => {
+            if (!mobileInput.contains(e.target) && !mobileDropdown.contains(e.target)) {
+                mobileDropdown.classList.remove('active');
+            }
+        });
+        mobileInput.addEventListener('focus', () => {
+            if (mobileInput.value.length >= 2) mobileDropdown.classList.add('active');
         });
     }
 }

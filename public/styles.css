@@ -562,6 +562,25 @@ body {
   color: var(--text-light);
 }
 
+/* Mobile search bar above filters — hidden on desktop */
+.mobile-search-bar {
+  display: none;
+  margin-bottom: 1.5rem;
+}
+
+.mobile-search-bar .header-search {
+  flex: 1;
+  max-width: 100%;
+  order: unset;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .mobile-search-bar {
+    display: block;
+  }
+}
+
 /* ===================================
    Filters
    =================================== */
@@ -873,12 +892,9 @@ body {
     --section-spacing: 3rem;
   }
 
-  .header-search {
-    order: 10;
-    /* Move to its own line below */
-    flex: 1 1 100%;
-    max-width: none;
-    margin-top: 0.25rem;
+  /* Hide header search on mobile, it moves below 'Cursos Online' title */
+  .header-search-desktop {
+    display: none;
   }
 
   .menu-btn {

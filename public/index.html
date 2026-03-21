@@ -47,7 +47,7 @@
           <a href="/membresia" class="nav-link" id="navMembresia" style="display:none;">Mi Membresía</a>
         </nav>
 
-        <div class="header-search">
+        <div class="header-search header-search-desktop">
           <input type="search" placeholder="Búsqueda..." class="search-input" id="globalSearchInput" autocomplete="off" />
           <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path
@@ -136,6 +136,17 @@
   <section class="courses-section">
     <div class="container">
       <h2 class="section-title">Cursos Online</h2>
+
+      <!-- Buscador solo visible en móvil -->
+      <div class="mobile-search-bar">
+        <div class="header-search" style="position:relative; width:100%;">
+          <input type="search" placeholder="Búsqueda..." class="search-input" id="mobileSearchInput" autocomplete="off" />
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M19 19L14.65 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+      </div>
 
       <div class="filters">
         <select class="filter-select">
