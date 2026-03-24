@@ -7,12 +7,10 @@
     <title>Membresía Premium - IATIBET ZUREON</title>
     <!-- SDK de Izipay oficial V4 -->
     <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
-            kr-public-key="38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh"
-            kr-post-url-success="/api/payments/izipay-return"
-            kr-client-domain="https://api.micuentaweb.pe"
-            kr-language="es-PE"
-            kr-theme="classic">
-    </script>
+        kr-public-key="38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh"
+        kr-post-url-success="/api/payments/izipay-return" kr-client-domain="https://api.micuentaweb.pe"
+        kr-language="es-PE" kr-theme="classic">
+        </script>
     <meta name="description"
         content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,31 +30,37 @@
             z-index: 100000;
             padding: 1rem;
         }
-        #izipayOfficialModal.open { display: flex; }
-        
+
+        #izipayOfficialModal.open {
+            display: flex;
+        }
+
         .izipay-white-container {
             background: #ffffff !important;
             width: 100%;
-            max-width: 380px; /* Más pequeño para que sea elegante */
+            max-width: 380px;
+            /* Más pequeño para que sea elegante */
             border-radius: 16px;
             padding: 1.5rem 1.25rem 1.25rem;
             position: relative;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
             animation: iziSlideUp 0.3s ease-out;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
-        
+
         .izipay-header-logo {
             text-align: center;
             margin-bottom: 1.25rem;
             display: flex;
             justify-content: center;
         }
+
         .izipay-header-logo img {
-            height: 32px; /* Logo más pequeño */
+            height: 32px;
+            /* Logo más pequeño */
             width: auto;
         }
-        
+
         .izi-close {
             position: absolute;
             top: 0.75rem;
@@ -74,7 +78,11 @@
             transition: all 0.2s;
             z-index: 10;
         }
-        .izi-close:hover { background: #e2e8f0; color: #1e293b; }
+
+        .izi-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
 
         /* AISLAMIENTO TOTAL Y COMPACTACIÓN */
         .izipay-white-container * {
@@ -85,14 +93,16 @@
         }
 
         /* Corregir distorsión de inputs y campos */
-        .kr-smart-form, .kr-smart-form * {
+        .kr-smart-form,
+        .kr-smart-form * {
             max-width: 100% !important;
             margin-left: 0 !important;
             margin-right: 0 !important;
         }
-        
+
         .kr-smart-form .kr-field-wrapper {
-            margin-bottom: 8px !important; /* Espacio mínimo */
+            margin-bottom: 8px !important;
+            /* Espacio mínimo */
             padding: 0 !important;
         }
 
@@ -109,7 +119,8 @@
         .kr-smart-form select {
             font-size: 14px !important;
             color: #1e293b !important;
-            height: 42px !important; /* Altura fija oficial */
+            height: 42px !important;
+            /* Altura fija oficial */
             border-radius: 8px !important;
             border: 1px solid #cbd5e1 !important;
             background: #fff !important;
@@ -129,13 +140,20 @@
         }
 
         @keyframes iziSlideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
     <script>
         // Configuración Global de Logs y Branding
-        window.logToSystem = function(msg) { console.log("[System]", msg); };
+        window.logToSystem = function (msg) { console.log("[System]", msg); };
         (function () {
             const name = localStorage.getItem('branding_companyName');
             const logo = localStorage.getItem('branding_logoUrl');
@@ -1221,9 +1239,10 @@
     <div id="izipayOfficialModal">
         <div class="izipay-white-container">
             <button class="izi-close" onclick="closeIziModal()">✕</button>
-            
+
             <div class="izipay-header-logo">
-                <img src="/assets/izipay-logo.png" alt="Izipay" onerror="this.onerror=null; this.src='https://static.micuentaweb.pe/static/img/izipay-logo.png'">
+                <img src="/assets/izipay-logo.png" alt="Izipay"
+                    onerror="this.onerror=null; this.src='https://static.micuentaweb.pe/static/img/izipay-logo.png'">
             </div>
 
             <div class="kr-smart-form" id="myPaymentForm">
@@ -1306,6 +1325,7 @@
                 document.getElementById('plansGrid').innerHTML = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">Error al cargar los planes. Intenta de nuevo.</div>`;
             }
         }
+
 
         function getDurationLabel(days) {
             if (!days || days === 0) return 'De por vida';
@@ -1404,14 +1424,14 @@
             document.getElementById('modalPlanName').textContent = name;
             document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
-            
+
             document.getElementById('confirmModal').classList.add('open');
 
             // Verificar AdBlock
             setTimeout(() => {
                 if (!window.KR) {
                     const ad = document.getElementById('adblockWarning');
-                    if(ad) ad.style.display = 'block';
+                    if (ad) ad.style.display = 'block';
                 }
             }, 1000);
         }
@@ -1530,7 +1550,7 @@
                 document.getElementById('izipayOfficialModal').classList.add('open');
 
                 showToast('success', '🔐', 'Redirigiendo a pago seguro...', 'Se abrirá el formulario oficial de Izipay');
-                
+
                 // Forzamos el renderizado del formulario si fuera necesario
                 KR.showForm();
 
