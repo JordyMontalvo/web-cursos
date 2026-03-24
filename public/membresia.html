@@ -1309,6 +1309,7 @@
 
         function getDurationLabel(days) {
             if (!days || days === 0) return 'De por vida';
+            if (days === 1095) return 'por 3 años';
             if (days === 365) return 'por año';
             if (days === 30) return 'por mes';
             if (days === 90) return 'por 3 meses';
@@ -1318,6 +1319,7 @@
         }
         function getDurationLabelFull(days) {
             if (!days || days === 0) return 'Acceso de por vida';
+            if (days === 1095) return '3 años de acceso';
             if (days === 365) return '1 año de acceso';
             if (days === 30) return '1 mes de acceso';
             if (days === 90) return '3 meses de acceso';

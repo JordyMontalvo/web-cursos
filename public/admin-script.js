@@ -917,6 +917,7 @@ async function loadMemberships() {
 
 function getDurationLabel(days) {
     if (days === 0) return 'De por vida';
+    if (days === 1095) return '3 años';
     if (days === 365) return '1 año';
     if (days === 30) return '1 mes';
     if (days === 90) return '3 meses';
