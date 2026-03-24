@@ -7,6 +7,7 @@ let featuredCourses = [];
 let bannersData = [];
 let currentBannerIndex = 0;
 let carouselInterval = null;
+let categoriesData = []; // Store categories globally
 
 // Fetch courses from API
 async function fetchCourses() {
@@ -24,6 +25,35 @@ async function fetchCourses() {
     } catch (error) {
         console.error('Error fetching courses:', error);
         return [];
+    }
+}
+
+// Fetch categories from API
+async function fetchCategories() {
+    try {
+        await configReady;
+        const response = await fetch(apiUrl('/api/categories'));
+        const data = await response.json();
+        if (data.success) {
+            categoriesData = data.categories;
+            renderCategoryFilter();
+            return data.categories;
+        }
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        return [];
+    }
+}
+
+function renderCategoryFilter() {
+    // There are 3 .filter-select elements. The first one is usually for categories.
+    // Based on index.html: 1st is course/category, 2nd is specialization, 3rd is pricing.
+    const filterSelects = document.querySelectorAll('.filter-select');
+    if (filterSelects.length > 0) {
+        const catSelect = filterSelects[0];
+        const defaultValue = catSelect.options[0].text;
+        catSelect.innerHTML = `<option value="">${defaultValue}</option>` + 
+            categoriesData.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
     }
 }
 
@@ -323,12 +353,17 @@ function setupFilters() {
     const filterSelects = document.querySelectorAll('.filter-select');
     const resetBtn = document.querySelector('.btn-reset');
 
-    filterSelects.forEach(select => {
+    filterSelects.forEach((select, index) => {
         select.addEventListener('change', (e) => {
-            console.log('Filter changed:', e.target.value);
-            // Here you would implement actual filtering logic
-            // For now, we'll just re-render the courses
-            renderCourses();
+            const val = e.target.value;
+            console.log('Filter changed:', val);
+            
+            // If it's the category filter (index 0)
+            if (index === 0) {
+                // Descripcion logic removed
+            }
+
+            filterAndRenderCourses();
         });
     });
 
@@ -337,8 +372,30 @@ function setupFilters() {
             filterSelects.forEach(select => {
                 select.selectedIndex = 0;
             });
-            renderCourses();
+            filterAndRenderCourses();
         });
+    }
+}
+
+function filterAndRenderCourses() {
+    const filterSelects = document.querySelectorAll('.filter-select');
+    const catVal = filterSelects[0]?.value;
+    // ... specialized logic for other filters can be added here
+    
+    let filtered = [...coursesData];
+    if (catVal) {
+        filtered = filtered.filter(c => c.category === catVal);
+    }
+    
+    const coursesGrid = document.getElementById('coursesGrid');
+    if (coursesGrid) {
+        coursesGrid.innerHTML = '';
+        filtered.forEach(course => {
+            coursesGrid.appendChild(createCourseCard(course));
+        });
+        
+        // Re-setup animations for new cards
+        setTimeout(setupScrollAnimations, 100);
     }
 }
 
@@ -583,7 +640,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadBanners();
 
     // Render content
-    await renderCourses();
+    await Promise.all([
+        renderCourses(),
+        fetchCategories()
+    ]);
     renderEpisodes();
 
     // Setup interactivity

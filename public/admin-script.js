@@ -4,9 +4,11 @@
 
 let allCourses = [];
 let lastFetchTime = 0;
-const CACHE_DURATION = 30000; // 30 segundos de caché
+const CACHE_DURATION = 30000;
 let editingCourseId = null;
 let currentContentCourseId = null;
+let categoriesData = [];
+let editingCategoryId = null;
 
 // ===================================
 // API Functions
@@ -208,13 +210,21 @@ function renderCoursesTable(courses) {
 }
 
 function updateStats() {
-    const totalCourses = allCourses.length;
-    const featuredCourses = allCourses.filter(c => c.featured).length;
-    const categories = [...new Set(allCourses.map(c => c.category))].length;
+    try {
+        const totalCourses = allCourses ? allCourses.length : 0;
+        const featuredCourses = allCourses ? allCourses.filter(c => c.featured).length : 0;
+        const categoriesCount = categoriesData ? categoriesData.length : (allCourses ? [...new Set(allCourses.map(c => c.category))].length : 0);
 
-    document.getElementById('totalCourses').textContent = totalCourses;
-    document.getElementById('featuredCourses').textContent = featuredCourses;
-    document.getElementById('totalCategories').textContent = categories;
+        const elTotal = document.getElementById('totalCourses');
+        const elFeatured = document.getElementById('featuredCourses');
+        const elCat = document.getElementById('totalCategories');
+
+        if (elTotal) elTotal.textContent = totalCourses;
+        if (elFeatured) elFeatured.textContent = featuredCourses;
+        if (elCat) elCat.textContent = categoriesCount;
+    } catch (err) {
+        console.error('Error in updateStats:', err);
+    }
 }
 
 // ===================================
@@ -227,6 +237,7 @@ function openAddCourseModal() {
     document.getElementById('courseForm').reset();
     document.getElementById('imagePreview').innerHTML = '';
     document.getElementById('imagePreview').classList.remove('active');
+    populateCategorySelect();
     document.getElementById('courseModal').classList.add('active');
 }
 
@@ -250,6 +261,9 @@ function editCourse(id) {
     document.getElementById('courseVideoUrl').value = course.videoUrl || '';
     document.getElementById('thumbnailUrl').value = course.thumbnail || '';
     document.getElementById('courseFeatured').checked = course.featured;
+
+    // Populate and select category
+    populateCategorySelect(course.category);
 
     // Show thumbnail preview
     const preview = document.getElementById('imagePreview');
@@ -706,7 +720,7 @@ const usersPerPage = 10;
 let selectedUserIdForDetails = null;
 
 function switchTab(tab) {
-    ['courses', 'memberships', 'banners', 'users', 'logo'].forEach(t => {
+    ['courses', 'memberships', 'banners', 'users', 'logo', 'categories'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         if (section) section.style.display = t === tab ? '' : 'none';
 
@@ -720,7 +734,9 @@ function switchTab(tab) {
     const btnNewCourse = document.getElementById('btnNewCourse');
     if (btnNewCourse) btnNewCourse.style.display = tab === 'courses' ? '' : 'none';
 
+    if (tab === 'courses') fetchCourses();
     if (tab === 'memberships') loadMemberships();
+    if (tab === 'categories') loadCategories();
     if (tab === 'banners' || tab === 'logo') {
         // Solo cargamos settings la primera vez, luego se preserva el estado local
         if (!settingsLoaded) loadSettings();
@@ -732,6 +748,152 @@ function switchTab(tab) {
         if (tab === 'banners') loadBanners();
     }
     if (tab === 'users') loadUsers();
+}
+
+// ===================================
+// CATEGORIES ADMIN
+// ===================================
+
+async function loadCategories() {
+    try {
+        const res = await fetch(apiUrl('/api/admin/categories'), { headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+            categoriesData = data.categories;
+            renderCategoriesTable(data.categories);
+            updateStats();
+        } else {
+            showToast(data.message || 'Error al cargar categorías', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function renderCategoriesTable(categories) {
+    const tbody = document.getElementById('categoriesTableBody');
+    if (!categories || categories.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="loading-row"><p>No hay categorías creadas</p></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = categories.map(cat => `
+        <tr>
+            <td><strong>${cat.name}</strong></td>
+            <td>
+                <div class="table-actions-cell">
+                    <button class="btn-icon btn-edit" onclick="openCategoryModal('${cat._id}')" title="Editar">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.333 2.00004C11.5081 1.82494 11.716 1.68605 11.9447 1.59129C12.1735 1.49653 12.4187 1.44775 12.6663 1.44775L5.33301 13.3334L1.33301 14.6667L2.66634 10.6667L11.333 2.00004Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <button class="btn-icon btn-delete" onclick="deleteCategory('${cat._id}', '${cat.name}')">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.33301 4.00004V2.66671C5.33301 2.31309 5.47348 1.97395 5.72353 1.7239C5.97358 1.47385 6.31272 1.33337 6.66634 1.33337H9.33301C9.68663 1.33337 10.0258 1.47385 10.2758 1.7239C10.5259 1.97395 10.6663 2.31309 10.6663 2.66671V4.00004M12.6663 4.00004V13.3334C12.6663 13.687 12.5259 14.0261 12.2758 14.2762C12.0258 14.5262 11.6866 14.6667 11.333 14.6667H4.66634C4.31272 14.6667 3.97358 14.5262 3.72353 14.2762C3.47348 14.0261 3.33301 13.687 3.33301 13.3334V4.00004H12.6663Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openCategoryModal(id) {
+    editingCategoryId = id || null;
+    document.getElementById('categoryModalTitle').textContent = id ? 'Editar Categoría' : 'Nueva Categoría';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryId').value = id || '';
+    
+    if (id) {
+        const cat = categoriesData.find(c => c._id === id);
+        if (cat) {
+            document.getElementById('catName').value = cat.name;
+        }
+    }
+    
+    document.getElementById('categoryModal').classList.add('active');
+}
+
+function closeCategoryModal() {
+    document.getElementById('categoryModal').classList.remove('active');
+    editingCategoryId = null;
+}
+
+async function saveCategory(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const submitText = document.getElementById('catSubmitText');
+    const spinner = document.getElementById('catSubmitSpinner');
+
+    btn.disabled = true;
+    submitText.style.display = 'none';
+    spinner.style.display = 'inline-block';
+
+    const formData = {
+        name: document.getElementById('catName').value.trim()
+    };
+
+    try {
+        const url = editingCategoryId ? `/api/admin/categories/${editingCategoryId}` : '/api/admin/categories';
+        const method = editingCategoryId ? 'PUT' : 'POST';
+
+        const res = await fetch(apiUrl(url), {
+            method,
+            headers: authHeaders(),
+            body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            showToast(editingCategoryId ? 'Categoría actualizada' : 'Categoría creada');
+            closeCategoryModal();
+            loadCategories();
+        } else {
+            showToast(data.message || 'Error al guardar categoría', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        submitText.style.display = 'inline';
+        spinner.style.display = 'none';
+    }
+}
+
+async function deleteCategory(id, name) {
+    if (!confirm(`¿Estás seguro de eliminar la categoría "${name}"?`)) return;
+    try {
+        const res = await fetch(apiUrl(`/api/admin/categories/${id}`), {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Categoría eliminada');
+            loadCategories();
+        } else {
+            showToast(data.message || 'Error al eliminar', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+async function populateCategorySelect(selectedValue = '') {
+    const select = document.getElementById('courseCategory');
+    if (!select) return;
+
+    try {
+        // Si no hay datos, los cargamos
+        if (categoriesData.length === 0) {
+            const res = await fetch(apiUrl('/api/categories'));
+            const data = await res.json();
+            if (data.success) {
+                categoriesData = data.categories;
+            }
+        }
+
+        select.innerHTML = '<option value="">Seleccionar...</option>' + 
+            categoriesData.map(cat => `<option value="${cat.name}" ${cat.name === selectedValue ? 'selected' : ''}>${cat.name}</option>`).join('');
+    } catch (err) {
+        console.error('Error populating categories:', err);
+        select.innerHTML = '<option value="">Error al cargar categorías</option>';
+    }
 }
 
 // ===================================
@@ -1614,10 +1776,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('adminUserName').textContent = `👤 ${user.name}`;
 
     // Modo tab inicial
-    switchTab('courses');
-    fetchCourses();
-    setupSearch();
-    document.getElementById('courseForm').addEventListener('submit', handleFormSubmit);
+    try {
+        switchTab('courses');
+        fetchCourses();
+        setupSearch();
+    } catch (err) {
+        console.error('Error during initial tab setup:', err);
+    }
+    
+    const courseForm = document.getElementById('courseForm');
+    if (courseForm) courseForm.addEventListener('submit', handleFormSubmit);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -1627,7 +1795,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeUserMembershipModal();
             closeUserDetailsModal();
             closeBannerModal();
+            closeCategoryModal();
         }
+    });
+
+    // Close modals on outside click
+    document.getElementById('categoryModal')?.addEventListener('click', e => {
+        if (e.target.id === 'categoryModal') closeCategoryModal();
     });
 
     // Close modals on outside click

@@ -13,6 +13,7 @@ const User = require('./models/User');
 const Membership = require('./models/Membership');
 const Banner = require('./models/Banner');
 const Settings = require('./models/Settings');
+const Category = require('./models/Category');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -180,6 +181,21 @@ async function seedDatabase() {
             });
             await defaultSettings.save();
             console.log('⚙️  Configuración inicial creada.');
+        }
+
+        // Crear categorías iniciales si no existen
+        const categoryCount = await Category.countDocuments();
+        if (categoryCount === 0) {
+            const initialCategories = [
+                { name: 'FINANZA' },
+                { name: 'DESARROLLO' },
+                { name: 'MARKETING' },
+                { name: 'DISEÑO' },
+                { name: 'NEGOCIOS' },
+                { name: 'PERSONAL' }
+            ];
+            await Category.insertMany(initialCategories);
+            console.log('📋 Categorías iniciales creadas.');
         }
     } catch (error) {
         console.error('❌ Error sembrando base de datos:', error);
@@ -714,6 +730,78 @@ app.get('/api/auth/check-access', authMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error('[AccessCheck] Error:', error);
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// ===================================
+// RUTAS DE CATEGORÍAS (ADMIN)
+// ===================================
+
+// Obtener todas las categorías (admin)
+app.get('/api/admin/categories', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const categories = await Category.find().sort({ name: 1 });
+        res.json({ success: true, categories });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Crear categoría
+app.post('/api/admin/categories', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name) return res.status(400).json({ success: false, message: 'El nombre es requerido' });
+        
+        const existing = await Category.findOne({ name: name.toUpperCase() });
+        if (existing) return res.status(400).json({ success: false, message: 'La categoría ya existe' });
+
+        const category = new Category({
+            name: name.toUpperCase()
+        });
+        await category.save();
+        res.json({ success: true, category });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error creando categoría', error: error.message });
+    }
+});
+
+// Actualizar categoría
+app.put('/api/admin/categories/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { name } = req.body;
+        const updateData = { updatedAt: Date.now() };
+        if (name) updateData.name = name.toUpperCase();
+
+        const category = await Category.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        if (!category) return res.status(404).json({ success: false, message: 'Categoría no encontrada' });
+        res.json({ success: true, category });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error actualizando categoría', error: error.message });
+    }
+});
+
+// Eliminar categoría
+app.delete('/api/admin/categories/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const category = await Category.findByIdAndDelete(req.params.id);
+        if (!category) return res.status(404).json({ success: false, message: 'Categoría no encontrada' });
+        res.json({ success: true, message: 'Categoría eliminada' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error eliminando categoría', error: error.message });
+    }
+});
+
+// ===================================
+// RUTAS DE CATEGORÍAS (PÚBLICAS)
+// ===================================
+
+app.get('/api/categories', async (req, res) => {
+    try {
+        const categories = await Category.find().sort({ name: 1 });
+        res.json({ success: true, categories });
+    } catch (error) {
         res.status(500).json({ success: false, message: 'Error', error: error.message });
     }
 });

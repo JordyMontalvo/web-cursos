@@ -81,6 +81,8 @@
                     Banners</button>
                 <button class="admin-tab" id="tab-users" onclick="switchTab('users')">👥
                     Usuarios</button>
+                <button class="admin-tab" id="tab-categories" onclick="switchTab('categories')">📋
+                    Categorías</button>
                 <button class="admin-tab" id="tab-logo" onclick="switchTab('logo')">🎨
                     Logo</button>
             </div>
@@ -364,9 +366,75 @@
                 </div>
             </div>
             <!-- /section-logo -->
+            
+            <!-- CATEGORIES SECTION -->
+            <div id="section-categories" style="display:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                    <div>
+                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Categorías</h2>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra las categorías disponibles para los cursos</p>
+                    </div>
+                    <button class="btn-primary" onclick="openCategoryModal()">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
+                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        Nueva Categoría
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table class="courses-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <tr>
+                                    <td colspan="4" class="loading-row">
+                                        <div class="spinner"></div>
+                                        <p>Cargando categorías...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- /section-categories -->
 
         </div><!-- /container -->
     </div><!-- /admin-container -->
+
+    <!-- Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="categoryModalTitle">Nueva Categoría</h2>
+                <button class="modal-close" onclick="closeCategoryModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <form id="categoryForm" class="course-form" onsubmit="saveCategory(event)">
+                <input type="hidden" id="categoryId">
+                <div class="form-group">
+                    <label for="catName">Nombre de la Categoría *</label>
+                    <input type="text" id="catName" required placeholder="Ejem: FINANZAS">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeCategoryModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <span id="catSubmitText">Guardar Categoría</span>
+                        <div class="btn-spinner" id="catSubmitSpinner" style="display:none;"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 
     <!-- Membership Modal -->
@@ -608,13 +676,7 @@
                     <div class="form-group">
                         <label for="courseCategory">Categoría *</label>
                         <select id="courseCategory" name="category" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="FINANZA">FINANZA</option>
-                            <option value="DESARROLLO">DESARROLLO</option>
-                            <option value="MARKETING">MARKETING</option>
-                            <option value="DISEÑO">DISEÑO</option>
-                            <option value="NEGOCIOS">NEGOCIOS</option>
-                            <option value="PERSONAL">PERSONAL</option>
+                            <option value="">Cargando categorías...</option>
                         </select>
                     </div>
 
