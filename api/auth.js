@@ -391,6 +391,7 @@ module.exports = async (req, res) => {
         return res.json({ success: true, message: 'Progreso guardado' });
     }
 
+    /*
     // ── POST /api/auth/google ─────────────────────────────────────
     if (req.method === 'POST' && url.endsWith('/google')) {
         const { token: idToken } = req.body;
@@ -414,6 +415,7 @@ module.exports = async (req, res) => {
             return res.status(500).json({ success: false, message: 'Error al procesar login con Google', error: err.message });
         }
     }
+    */
 
     // ── GET /api/auth/github ── inicia el flujo OAuth redirect ───
     if (req.method === 'GET' && url.endsWith('/github')) {

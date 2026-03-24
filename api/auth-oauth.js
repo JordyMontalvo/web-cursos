@@ -229,6 +229,7 @@ module.exports = async (req, res) => {
 
     const url = req.url.split('?')[0];
 
+    /*
     // ── POST /api/auth/google ──────────────────────────────────
     if (req.method === 'POST' && url.endsWith('/google')) {
         const { token: idToken } = req.body;
@@ -276,6 +277,7 @@ module.exports = async (req, res) => {
             return res.status(500).json({ success: false, message: 'Error procesando autenticación con Google', error: err.message });
         }
     }
+    */
 
     // ── GET /api/auth/github ── inicia el flujo OAuth ──────────
     if (req.method === 'GET' && url.endsWith('/github')) {
