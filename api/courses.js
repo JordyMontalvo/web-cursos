@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
 
     // ─── GET /api/courses ───────────────────────────────────────────────────────
     if (req.method === 'GET' && !id) {
-        const courses = await Course.find().sort({ createdAt: -1, order: 1 });
+        const courses = await Course.find().sort({ order: 1, createdAt: 1 });
         return res.json({ success: true, courses });
     }
 
@@ -41,7 +41,8 @@ module.exports = async (req, res) => {
             videoUrl: req.body.videoUrl || '',
             thumbnail: req.body.thumbnail || '/images/default-course.jpg',
             description: req.body.description || '',
-            featured: req.body.featured === 'true' || req.body.featured === true
+            featured: req.body.featured === 'true' || req.body.featured === true,
+            order: Number(req.body.order) || 0
         });
         await course.save();
         return res.json({ success: true, course });
@@ -56,6 +57,7 @@ module.exports = async (req, res) => {
             thumbnail: req.body.thumbnail,
             description: req.body.description,
             featured: req.body.featured === 'true' || req.body.featured === true,
+            order: req.body.order !== undefined ? Number(req.body.order) : undefined,
             updatedAt: Date.now()
         };
         Object.keys(update).forEach(k => update[k] === undefined && delete update[k]);

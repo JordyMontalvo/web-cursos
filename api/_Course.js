@@ -23,6 +23,7 @@ const courseSchema = new mongoose.Schema({
     videoUrl: { type: String, default: '' },
     featured: { type: Boolean, default: false },
     chapters: [chapterSchema],
+    order: { type: Number, default: 0 },
     totalChapters: { type: Number, default: 0 },
     totalEpisodes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },

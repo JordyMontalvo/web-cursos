@@ -235,6 +235,7 @@ function openAddCourseModal() {
     editingCourseId = null;
     document.getElementById('modalTitle').textContent = 'Nuevo Curso';
     document.getElementById('courseForm').reset();
+    document.getElementById('courseOrder').value = 0;
     document.getElementById('imagePreview').innerHTML = '';
     document.getElementById('imagePreview').classList.remove('active');
     populateCategorySelect();
@@ -260,7 +261,8 @@ function editCourse(id) {
     document.getElementById('courseDescription').value = course.description || '';
     document.getElementById('courseVideoUrl').value = course.videoUrl || '';
     document.getElementById('thumbnailUrl').value = course.thumbnail || '';
-    document.getElementById('courseFeatured').checked = course.featured;
+    document.getElementById('courseFeatured').checked = (course.featured === true || course.featured === 'true');
+    document.getElementById('courseOrder').value = course.order || 0;
 
     // Populate and select category
     populateCategorySelect(course.category);
@@ -307,7 +309,8 @@ async function handleFormSubmit(e) {
         description: document.getElementById('courseDescription').value,
         videoUrl: document.getElementById('courseVideoUrl').value,
         thumbnail: document.getElementById('thumbnailUrl').value || '/uploads/default-course.jpg',
-        featured: document.getElementById('courseFeatured').checked
+        featured: document.getElementById('courseFeatured').checked,
+        order: Number(document.getElementById('courseOrder').value) || 0
     };
 
     try {
