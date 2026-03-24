@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
 
     // ─── GET /api/courses ───────────────────────────────────────────────────────
     if (req.method === 'GET' && !id) {
-        const courses = await Course.find().sort({ createdAt: -1 });
+        const courses = await Course.find().sort({ createdAt: -1, order: 1 });
         return res.json({ success: true, courses });
     }
 

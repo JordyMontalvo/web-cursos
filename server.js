@@ -812,7 +812,7 @@ app.get('/api/categories', async (req, res) => {
 
 app.get('/api/courses', async (req, res) => {
     try {
-        const courses = await Course.find().sort({ createdAt: -1 });
+        const courses = await Course.find().sort({ createdAt: -1, order: 1 });
         res.json({ success: true, courses });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error obteniendo cursos', error: error.message });
@@ -821,7 +821,7 @@ app.get('/api/courses', async (req, res) => {
 
 app.get('/api/courses/featured', async (req, res) => {
     try {
-        const featured = await Course.find({ featured: true }).sort({ createdAt: -1 });
+        const featured = await Course.find({ featured: true }).sort({ createdAt: -1, order: 1 });
         res.json({ success: true, courses: featured });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error', error: error.message });
