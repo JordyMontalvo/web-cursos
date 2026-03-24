@@ -1,5 +1,5 @@
 // ===================================
-// Admin Panel JavaScript
+// Admin Panel JavaScript - v2.2 (Categorías Dinámicas)
 // ===================================
 
 let allCourses = [];
