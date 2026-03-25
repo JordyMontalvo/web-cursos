@@ -245,7 +245,7 @@ const upload = multer({
 // Registro
 app.post('/api/auth/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, country, phone } = req.body;
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: 'Todos los campos son requeridos' });
         }
@@ -263,7 +263,7 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(409).json({ success: false, message: 'Este correo ya está registrado' });
         }
 
-        const user = new User({ name, email, password });
+        const user = new User({ name, email, password, country, phone });
         await user.save();
 
         const token = jwt.sign(
