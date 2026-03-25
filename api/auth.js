@@ -231,14 +231,14 @@ module.exports = async (req, res) => {
 
     // ── POST /api/auth/register ──────────────────────────────────
     if (req.method === 'POST' && url.endsWith('/register')) {
-        const { name, email, password } = req.body;
+        const { name, email, password, country, phone } = req.body;
         if (!name || !email || !password)
             return res.status(400).json({ success: false, message: 'Todos los campos son requeridos' });
         if (password.length < 6)
             return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 6 caracteres' });
         const exists = await User.findOne({ email });
         if (exists) return res.status(409).json({ success: false, message: 'El email ya está registrado' });
-        const user = new User({ name, email, password });
+        const user = new User({ name, email, password, country, phone });
         await user.save();
         
         // Enviar correo de bienvenida esperando su resolución (necesario en Serverless)
