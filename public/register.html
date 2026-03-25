@@ -591,6 +591,28 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label" for="regCountry">País</label>
+                    <select id="regCountry" class="form-input" style="appearance: auto; cursor: pointer; background-color: #1a1a2e; color: #fff;" required>
+                        <option value="" disabled selected>Selecciona tu país</option>
+                        <option value="Perú">Perú</option>
+                        <option value="Argentina">Argentina</option>
+                        <option value="Bolivia">Bolivia</option>
+                        <option value="Brasil">Brasil</option>
+                        <option value="Chile">Chile</option>
+                        <option value="Colombia">Colombia</option>
+                        <option value="Ecuador">Ecuador</option>
+                        <option value="España">España</option>
+                        <option value="Estados Unidos">Estados Unidos</option>
+                        <option value="México">México</option>
+                        <option value="Paraguay">Paraguay</option>
+                        <option value="Uruguay">Uruguay</option>
+                        <option value="Venezuela">Venezuela</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                    <div class="field-error" id="countryError">Por favor selecciona un país</div>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label" for="regPhone">Número de celular</label>
                     <div class="phone-group">
                         <select id="regCountryCode" class="country-code-select" autocomplete="tel-country-code">
@@ -800,6 +822,7 @@
 
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
+            const country = document.getElementById('regCountry').value;
             const phone = document.getElementById('regPhone').value.trim();
             const countryCode = document.getElementById('regCountryCode').value;
             const password = document.getElementById('regPassword').value;
@@ -817,6 +840,11 @@
             document.getElementById('regEmailError').style.display = emailErr ? 'block' : 'none';
             document.getElementById('regEmail').classList.toggle('error', emailErr);
             if (emailErr) valid = false;
+
+            const countryErr = !country;
+            document.getElementById('countryError').style.display = countryErr ? 'block' : 'none';
+            document.getElementById('regCountry').classList.toggle('error', countryErr);
+            if (countryErr) valid = false;
 
             const phoneErr = phone && !/^[0-9\s\-\(\)]{6,15}$/.test(phone) ? true : false;
             document.getElementById('phoneError').style.display = phoneErr ? 'block' : 'none';
@@ -848,7 +876,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        name, email, password,
+                        name, email, password, country,
                         phone: phone ? `${countryCode}${phone.replace(/\s/g, '')}` : ''
                     })
                 });
