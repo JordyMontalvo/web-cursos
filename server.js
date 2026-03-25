@@ -598,7 +598,7 @@ app.get('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, r
 // Crear plan
 app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, currency, durationDays, badge, color, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
         if (!name || price === undefined || price === null) {
             return res.status(400).json({ success: false, message: 'Nombre y precio son requeridos' });
         }
@@ -606,7 +606,7 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
             name, description, price: Number(price),
             currency: currency || 'PEN',
             durationDays: Number(durationDays) || 30,
-            badge, color, features: Array.isArray(features) ? features : [],
+            badge, color, buttonColor, features: Array.isArray(features) ? features : [],
             isActive: isActive !== false,
             order: Number(order) || 0
         });
@@ -620,7 +620,7 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
 // Actualizar plan
 app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, currency, durationDays, badge, color, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
         const id = req.params.id;
         const updateData = { updatedAt: Date.now() };
 
@@ -633,6 +633,7 @@ app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (re
         if (durationDays !== undefined) updateData.durationDays = Number(durationDays);
         if (badge !== undefined) updateData.badge = badge;
         if (color !== undefined) updateData.color = color;
+        if (buttonColor !== undefined) updateData.buttonColor = buttonColor;
         if (features !== undefined) updateData.features = Array.isArray(features) ? features : [];
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);

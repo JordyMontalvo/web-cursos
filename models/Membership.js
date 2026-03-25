@@ -36,6 +36,11 @@ const membershipSchema = new mongoose.Schema({
         type: String,
         default: '#7C3AED'
     },
+    // Color del botón de selección (para la UI)
+    buttonColor: {
+        type: String,
+        default: '#7C3AED'
+    },
     // Features / beneficios del plan
     features: [{
         type: String

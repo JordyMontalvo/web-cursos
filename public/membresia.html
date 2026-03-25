@@ -1367,6 +1367,7 @@
             document.getElementById('plansGrid').innerHTML = sorted.map((plan, i) => {
                 const isFeatured = plan.badge && (plan.badge.toLowerCase().includes('popular') || plan.badge.toLowerCase().includes('pro'));
                 const color = plan.color || '#7C3AED';
+                const btnBg = plan.buttonColor || color;
                 const icon = ICONS[i % ICONS.length];
                 const iconBg = ICON_BG[i % ICON_BG.length];
                 const btnClass = isFeatured ? 'btn-plan-primary' : 'btn-plan-outline';
@@ -1392,7 +1393,7 @@
             </div>
             <div class="plan-divider"></div>
             <ul class="plan-features">${featuresHtml}</ul>
-            <button class="btn-plan ${btnClass}" onclick="selectPlan('${plan._id}','${plan.name}',${plan.price},${plan.durationDays})" style="${isFeatured ? `background:linear-gradient(135deg,${color},${color}cc);` : `color:${color};border-color:${color}40;`}">
+            <button class="btn-plan ${btnClass}" onclick="selectPlan('${plan._id}','${plan.name}',${plan.price},${plan.durationDays})" style="${isFeatured ? `background:linear-gradient(135deg,${btnBg},${btnBg}cc);` : `color:${btnBg};border-color:${btnBg}40;`}">
                 Elegir ${plan.name}
             </button>
             <div class="plan-note">Sin contratos · Cancela fácilmente</div>

@@ -14,6 +14,7 @@ try { Membership = mongoose.model('Membership'); } catch {
         durationDays: { type: Number, required: true, default: 30 },
         badge: { type: String, default: '' },
         color: { type: String, default: '#7C3AED' },
+        buttonColor: { type: String, default: '#7C3AED' },
         features: [{ type: String }],
         isActive: { type: Boolean, default: true },
         order: { type: Number, default: 0 },
@@ -74,13 +75,13 @@ module.exports = async (req, res) => {
 
     // POST /api/admin/memberships
     if (req.method === 'POST') {
-        const { name, description, price, currency, durationDays, badge, color, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
         if (!name || price === undefined) return res.status(400).json({ success: false, message: 'Nombre y precio requeridos' });
         const m = new Membership({
             name, description, price: Number(price),
             currency: currency || 'PEN',
             durationDays: Number(durationDays) || 30,
-            badge, color, features: Array.isArray(features) ? features : [],
+            badge, color, buttonColor, features: Array.isArray(features) ? features : [],
             isActive: isActive !== false,
             order: Number(order) || 0
         });
@@ -90,7 +91,7 @@ module.exports = async (req, res) => {
 
     // PUT /api/admin/memberships/:id
     if (req.method === 'PUT' && id) {
-        const { name, description, price, currency, durationDays, badge, color, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
         const updateData = { updatedAt: Date.now() };
         if (name !== undefined) updateData.name = name;
         if (description !== undefined) updateData.description = description;
@@ -99,6 +100,7 @@ module.exports = async (req, res) => {
         if (durationDays !== undefined) updateData.durationDays = Number(durationDays);
         if (badge !== undefined) updateData.badge = badge;
         if (color !== undefined) updateData.color = color;
+        if (buttonColor !== undefined) updateData.buttonColor = buttonColor;
         if (features !== undefined) updateData.features = Array.isArray(features) ? features : [];
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);

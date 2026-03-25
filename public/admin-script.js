@@ -961,6 +961,7 @@ function openMembershipModal(id) {
     document.getElementById('membershipForm').reset();
     document.getElementById('membershipId').value = '';
     document.getElementById('membColor').value = '#7C3AED';
+    document.getElementById('membButtonColor').value = '#7C3AED';
     document.getElementById('membActive').checked = true;
     document.getElementById('featuresContainer').innerHTML = `
         <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
@@ -979,6 +980,7 @@ function openMembershipModal(id) {
             document.getElementById('membBadge').value = plan.badge || '';
             document.getElementById('membDesc').value = plan.description || '';
             document.getElementById('membColor').value = plan.color || '#7C3AED';
+            document.getElementById('membButtonColor').value = plan.buttonColor || plan.color || '#7C3AED';
             document.getElementById('membActive').checked = plan.isActive;
 
             // Features
@@ -1033,6 +1035,7 @@ async function saveMembership(e) {
         badge: document.getElementById('membBadge').value,
         description: document.getElementById('membDesc').value,
         color: document.getElementById('membColor').value,
+        buttonColor: document.getElementById('membButtonColor').value,
         isActive: document.getElementById('membActive').checked,
         features
     };
