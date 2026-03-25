@@ -199,6 +199,7 @@
         }
         .form-input:focus { border-color: var(--purple); background: rgba(124, 58, 237, 0.05); outline: none; box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
         .form-input:disabled { opacity: 0.6; cursor: not-allowed; }
+        #profileCountry option { background: #1a1a2e; color: #fff; }
 
         .btn-premium {
             background: linear-gradient(135deg, var(--purple), #5B21B6);
@@ -339,7 +340,7 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">País</label>
-                                <select class="form-input" id="profileCountry">
+                                <select class="form-input" id="profileCountry" style="appearance: none; -webkit-appearance: none; cursor: pointer; color: #fff; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 1.2rem center; padding-right: 2.5rem;">
                                     <option value="">Selecciona tu país</option>
                                     <option value="Perú">🇵🇪 Perú</option>
                                     <option value="México">🇲🇽 México</option>
