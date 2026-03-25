@@ -817,6 +817,32 @@
             document.getElementById('registerAlertMsg').textContent = msg;
         }
 
+        const countryToPhoneCode = {
+            "Perú": "+51",
+            "Estados Unidos": "+1",
+            "España": "+34",
+            "México": "+52",
+            "Colombia": "+57",
+            "Argentina": "+54",
+            "Chile": "+56",
+            "Ecuador": "+593",
+            "Bolivia": "+591",
+            "Paraguay": "+595",
+            "Uruguay": "+598",
+            "Venezuela": "+58",
+            "Brasil": "+55",
+            "Reino Unido": "+44",
+            "Francia": "+33",
+            "Alemania": "+49"
+        };
+
+        document.getElementById('regCountry').addEventListener('change', function() {
+            const code = countryToPhoneCode[this.value];
+            if (code) {
+                document.getElementById('regCountryCode').value = code;
+            }
+        });
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
