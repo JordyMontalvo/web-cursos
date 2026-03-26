@@ -898,12 +898,16 @@
 
             try {
                 await configReady;
+                const params = new URLSearchParams(window.location.search);
+                const ref = params.get('ref') || '';
+                
                 const res = await fetch(apiUrl('/api/auth/register'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         name, email, password, country,
-                        phone: phone ? `${countryCode}${phone.replace(/\s/g, '')}` : ''
+                        phone: phone ? `${countryCode}${phone.replace(/\s/g, '')}` : '',
+                        ref
                     })
                 });
                 const data = await res.json();

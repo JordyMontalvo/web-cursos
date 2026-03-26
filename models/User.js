@@ -65,10 +65,31 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'vendedor'],
         default: 'user'
     },
-    // Membresía activa del usuario
+    // Referral code (only for sellers)
+    sellerCode: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    // Who referred this user
+    referredBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    // Balance and metrics for sellers
+    sellerBalance: {
+        type: Number,
+        default: 0
+    },
+    sellerCommission: {
+        type: Number,
+        default: 10 // default 10%
+    },
+    // Membership active of user
     activeMembership: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Membership',
@@ -82,7 +103,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    // Progreso de cursos del usuario (Objeto plano: {courseId: {ep_0: true, ...}})
+    // User progress
     progress: {
         type: Object,
         default: {}
