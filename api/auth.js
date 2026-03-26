@@ -118,6 +118,7 @@ try { User = mongoose.model('User'); } catch {
         resetPasswordToken:  { type: String },
         resetPasswordExpires:{ type: Date },
         progress:            { type: Object, default: {} },
+        permissions:         { type: [String], default: [] },
         createdAt:   { type: Date, default: Date.now },
         updatedAt:   { type: Date, default: Date.now }
     });

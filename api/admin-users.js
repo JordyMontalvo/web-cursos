@@ -22,6 +22,7 @@ if (mongoose.models.User) {
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
+        permissions: { type: [String], default: [] }, // New
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
     });
@@ -87,7 +88,7 @@ module.exports = async (req, res) => {
 
         // POST /api/admin/users
         if (req.method === 'POST') {
-            const { name, lastName, email, phone, country, password, role, sellerCode } = req.body;
+            const { name, lastName, email, phone, country, password, role, sellerCode, permissions } = req.body;
             
             const existingUser = await User.findOne({ email });
             if (existingUser) {
@@ -102,7 +103,8 @@ module.exports = async (req, res) => {
                 country,
                 password,
                 role: role || 'user',
-                sellerCode: sellerCode || undefined
+                sellerCode: sellerCode || undefined,
+                permissions: permissions || []
             });
 
             await user.save();
@@ -144,16 +146,26 @@ module.exports = async (req, res) => {
                 });
                 return res.json({ success: true, message: 'Membresía asignada' });
             } else {
-                // General Update (Password, etc)
-                const { password } = req.body;
-                if (password) {
-                    const user = await User.findById(userId);
-                    if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-                    user.password = password;
-                    await user.save();
-                    return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
-                }
-                return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
+                // General Update (Password, Role, Permissions, etc)
+            const { password, role, permissions } = req.body;
+            const updateData = {};
+            if (password) {
+                const user = await User.findById(userId);
+                if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+                user.password = password;
+                await user.save();
+                return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
+            }
+            
+            if (role) updateData.role = role;
+            if (permissions) updateData.permissions = permissions;
+            
+            if (Object.keys(updateData).length > 0) {
+                await User.findByIdAndUpdate(userId, { ...updateData, updatedAt: Date.now() });
+                return res.json({ success: true, message: 'Usuario actualizado con éxito' });
+            }
+
+            return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
             }
         }
 

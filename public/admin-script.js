@@ -1171,11 +1171,14 @@ function renderUsersTable(users) {
             <td style="font-size:.8rem;color:#1a1a1a;">${isActive ? expDate : '-'}</td>
             <td>
                 <div style="display: flex; gap: 0.5rem;">
-                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
-                        💎 Membresía
+                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" title="Membresía" style="padding:.4rem .7rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:1rem;">
+                        💎
                     </button>
-                    <button onclick="openUserDetailsModal('${u._id}')" style="padding:.45rem .9rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
-                        👁️ Detalles
+                    <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}')" title="Permisos/Rol" style="padding:.4rem .7rem;background:rgba(255,165,0,.15);border:1px solid rgba(255,165,0,.3);color:#FFA500;border-radius:8px;cursor:pointer;font-size:1rem;">
+                        🔑
+                    </button>
+                    <button onclick="openUserDetailsModal('${u._id}')" title="Detalles/Pass" style="padding:.4rem .7rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:1rem;">
+                        ⚙️
                     </button>
                 </div>
             </td>
@@ -1834,7 +1837,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/admin-login';
         return;
     }
-    // Verificar rol
+    // Verificar rol y permisos
     const user = JSON.parse(localStorage.getItem('authUser') || '{}');
     if (user.role !== 'admin') {
         window.location.href = '/admin-login';
@@ -1842,10 +1845,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     document.getElementById('adminUserName').textContent = `👤 ${user.name}`;
 
+    // Aplicar permisos de vista si existen
+    applyViewPermissions(user);
+
     // Modo tab inicial
     try {
-        switchTab('courses');
-        fetchCourses();
+        // Intentar abrir la primera tab permitida
+        const firstTab = getFirstAllowedTab(user);
+        switchTab(firstTab);
+        
+        if (firstTab === 'courses') fetchCourses();
         setupSearch();
     } catch (err) {
         console.error('Error during initial tab setup:', err);
@@ -1863,32 +1872,172 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeUserDetailsModal();
             closeBannerModal();
             closeCategoryModal();
-            closeCreateSellerModal();
+            closeCreateUserModal();
         }
     });
 
-    // Close modals on outside click
-    document.getElementById('categoryModal')?.addEventListener('click', e => {
-        if (e.target.id === 'categoryModal') closeCategoryModal();
-    });
-
-    // Close modals on outside click
-    document.getElementById('membershipModal')?.addEventListener('click', e => {
-        if (e.target.id === 'membershipModal') closeMembershipModal();
-    });
-    document.getElementById('userMembershipModal')?.addEventListener('click', e => {
-        if (e.target.id === 'userMembershipModal') closeUserMembershipModal();
-    });
-    document.getElementById('userDetailsModal')?.addEventListener('click', e => {
-        if (e.target.id === 'userDetailsModal') closeUserDetailsModal();
-    });
-    document.getElementById('bannerModal')?.addEventListener('click', e => {
-        if (e.target.id === 'bannerModal') closeBannerModal();
-    });
-    document.getElementById('createSellerModal')?.addEventListener('click', e => {
-        if (e.target.id === 'createSellerModal') closeCreateSellerModal();
+    document.getElementById('createUserModal')?.addEventListener('click', e => {
+        if (e.target.id === 'createUserModal') closeCreateUserModal();
     });
 
     console.log('✅ Admin Panel initialized!');
 });
+
+// ===================================
+// GESTIÓN DE PERMISOS Y USUARIOS
+// ===================================
+
+function applyViewPermissions(user) {
+    // Si no tiene permisos definidos (admin total antiguo), permitir todo
+    if (!user.permissions || user.permissions.length === 0) return;
+
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo'];
+    allTabs.forEach(tab => {
+        const menuItem = document.querySelector(`.sidebar-menu li[onclick*="switchTab('${tab}')"]`);
+        if (menuItem && !user.permissions.includes(tab)) {
+            menuItem.style.display = 'none';
+        }
+    });
+}
+
+function getFirstAllowedTab(user) {
+    if (!user.permissions || user.permissions.length === 0) return 'courses';
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo'];
+    for (const tab of allTabs) {
+        if (user.permissions.includes(tab)) return tab;
+    }
+    return 'courses'; // Fallback
+}
+
+function openCreateUserModal() {
+    document.getElementById('createUserModal').classList.add('active');
+    document.getElementById('createUserForm').reset();
+    togglePermissionsUI();
+}
+
+function closeCreateUserModal() {
+    document.getElementById('createUserModal').classList.remove('active');
+}
+
+function togglePermissionsUI() {
+    const role = document.getElementById('ucRole').value;
+    const permSection = document.getElementById('ucPermissionsFields');
+    const sellerSection = document.getElementById('ucSellerFields');
+    
+    // Solo mostrar permisos si es Admin (para restringirle vistas)
+    permSection.style.display = (role === 'admin') ? 'block' : 'none';
+    
+    // Solo mostrar campos de vendedor si es Vendedor
+    sellerSection.style.display = (role === 'vendedor') ? 'block' : 'none';
+}
+
+async function handleCreateUser(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btnSaveUser');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const role = document.getElementById('ucRole').value;
+    const permissions = [];
+    if (role === 'admin') {
+        document.querySelectorAll('input[name="ucPerm"]:checked').forEach(cb => {
+            permissions.push(cb.value);
+        });
+    }
+
+    const userData = {
+        name: document.getElementById('ucName').value,
+        lastName: document.getElementById('ucLastName').value,
+        email: document.getElementById('ucEmail').value,
+        password: document.getElementById('ucPassword').value,
+        role: role,
+        permissions: permissions
+    };
+
+    if (role === 'vendedor') {
+        userData.sellerCode = document.getElementById('ucSellerCode').value || undefined;
+    }
+
+    try {
+        const res = await fetch(apiUrl('/api/admin/users'), {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify(userData)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast('Usuario creado correctamente');
+            closeCreateUserModal();
+            if (activeTab === 'users') fetchUsers();
+        } else {
+            showToast(data.message || 'Error al crear usuario', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear Usuario';
+    }
+}
+
+// EDITAR PERMISOS
+let currentEditUserId = null;
+
+function openEditPermissionsModal(userId, fullName, role, permissionsStr) {
+    currentEditUserId = userId;
+    document.getElementById('editPermissionsModal').classList.add('active');
+    document.getElementById('epUserName').textContent = `Usuario: ${fullName}`;
+    document.getElementById('epRole').value = role;
+    
+    // Reset checkboxes
+    const perms = permissionsStr ? permissionsStr.split(',') : [];
+    document.querySelectorAll('input[name="epPerm"]').forEach(cb => {
+        cb.checked = perms.includes(cb.value);
+    });
+    
+    toggleEditPermissionsUI();
+}
+
+function closeEditPermissionsModal() {
+    document.getElementById('editPermissionsModal').classList.remove('active');
+}
+
+function toggleEditPermissionsUI() {
+    const role = document.getElementById('epRole').value;
+    document.getElementById('epPermissionsSection').style.display = (role === 'admin') ? 'block' : 'none';
+}
+
+async function savePermissionsChanges() {
+    if (!currentEditUserId) return;
+    
+    const role = document.getElementById('epRole').value;
+    const permissions = [];
+    if (role === 'admin') {
+        document.querySelectorAll('input[name="epPerm"]:checked').forEach(cb => {
+            permissions.push(cb.value);
+        });
+    }
+
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users?id=${currentEditUserId}`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ role, permissions })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Rol y permisos actualizados');
+            closeEditPermissionsModal();
+            loadUsers();
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
 

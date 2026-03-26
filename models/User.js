@@ -108,6 +108,11 @@ const userSchema = new mongoose.Schema({
         type: Object,
         default: {}
     },
+    // Admin Permissions (specific tabs)
+    permissions: {
+        type: [String],
+        default: []
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -631,54 +631,82 @@
         </div>
     </div>
 
-    <!-- Modal: Crear Vendedor -->
-    <div class="modal" id="createSellerModal">
-        <div class="modal-content" style="max-width:500px; max-height: 90vh; overflow-y: auto; background: #1a1a2e; color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+    <!-- Modal: Crear Usuario/Administrador -->
+    <div class="modal" id="createUserModal">
+        <div class="modal-content" style="max-width:550px; max-height: 90vh; overflow-y: auto; background: #1a1a2e; color: #fff;">
             <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <h2 style="color: #fff;">Registrar Nuevo Vendedor</h2>
-                <button class="modal-close" onclick="closeCreateSellerModal()" style="background: rgba(255,255,255,0.05); color: #fff;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    </svg>
+                <h2 style="color: #fff;">Registrar Nuevo Usuario/Administrador</h2>
+                <button class="modal-close" onclick="closeCreateUserModal()" style="background: rgba(255,255,255,0.05); color: #fff;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                 </button>
             </div>
-            <form id="createSellerForm" onsubmit="handleCreateSeller(event)" style="padding: 2rem;">
+            <form id="createUserForm" onsubmit="handleCreateUser(event)" style="padding: 2rem;">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label style="color: #fff;">Nombre *</label>
-                        <input type="text" id="sellerName" required placeholder="Nombre" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                        <label>Nombre *</label>
+                        <input type="text" id="ucName" required placeholder="Nombre" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     </div>
                     <div class="form-group">
-                        <label style="color: #fff;">Apellido</label>
-                        <input type="text" id="sellerLastName" placeholder="Apellido" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                        <label>Apellido</label>
+                        <input type="text" id="ucLastName" placeholder="Apellido" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom:1.5rem;">
-                    <label style="color: #fff;">Email *</label>
-                    <input type="email" id="sellerEmail" required placeholder="email@ejemplo.com" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%;">
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Email *</label>
+                    <input type="email" id="ucEmail" required placeholder="email@ejemplo.com" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width:100%;">
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label style="color: #fff;">Teléfono</label>
-                        <input type="tel" id="sellerPhone" placeholder="+51 987..." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                        <label>Rol del Usuario *</label>
+                        <select id="ucRole" required onchange="togglePermissionsUI()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                            <option value="user">Usuario Regular</option>
+                            <option value="vendedor">Vendedor</option>
+                            <option value="admin">Administrador (Personalizado)</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label style="color: #fff;">País</label>
-                        <input type="text" id="sellerCountry" placeholder="Perú" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                        <label>Contraseña *</label>
+                        <input type="password" id="ucPassword" required placeholder="Min. 6 carac." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom:1.5rem;">
-                    <label style="color: #fff;">Contraseña *</label>
-                    <input type="password" id="sellerPassword" required placeholder="Min. 6 caracteres" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%;">
+
+                <!-- Seller specific fields -->
+                <div id="ucSellerFields" style="display:none; margin-top:1rem;">
+                    <div class="form-group">
+                        <label>Código de Vendedor (Opcional)</label>
+                        <input type="text" id="ucSellerCode" placeholder="Ej: VDR-01" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width:100%;">
+                    </div>
                 </div>
-                <div class="form-group" style="margin-bottom:1.5rem;">
-                    <label style="color: #fff;">Código de Vendedor (Opcional)</label>
-                    <input type="text" id="sellerCodeInput" placeholder="Ej: VDR-01" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%;">
-                    <small style="color:rgba(255,255,255,0.5); display:block; margin-top:0.25rem;">Se generará automáticamente si queda vacío.</small>
+
+                <!-- Admin specific permissions -->
+                <div id="ucPermissionsFields" style="display:none; margin-top:1.5rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:10px;">
+                    <p style="font-weight:700; font-size:0.9rem; margin-bottom:1rem; color:#7C3AED;">Permisos de Acceso (Vistas)</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="courses"> Cursos
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="memberships"> Membresías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="banners"> Banners
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="users"> Usuarios
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="categories"> Categorías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="logo"> Logo/Marca
+                        </label>
+                    </div>
+                    <small style="display:block; margin-top:1rem; opacity:0.6;">Si eres Admin Total, deja todos marcados.</small>
                 </div>
+
                 <div class="form-actions" style="margin-top:2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-                    <button type="button" class="btn-secondary" onclick="closeCreateSellerModal()" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
-                    <button type="submit" class="btn-primary" id="btnSaveSeller" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">Crear Vendedor</button>
+                    <button type="button" class="btn-secondary" onclick="closeCreateUserModal()" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSaveUser" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">Crear Usuario</button>
                 </div>
             </form>
         </div>
@@ -708,6 +736,58 @@
                         </div>
                         <small style="color: #666; display: block; margin-top: 0.5rem;">Esto cambiará la contraseña inmediatamente.</small>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Rol y Permisos -->
+    <div class="modal" id="editPermissionsModal">
+        <div class="modal-content" style="max-width:480px; background: #1a1a2e; color: #fff;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="color: #fff;">Editar Rol y Accesos</h2>
+                <button class="modal-close" onclick="closeEditPermissionsModal()" style="background: rgba(255,255,255,0.05); color: #fff;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                </button>
+            </div>
+            <div style="padding: 2rem;">
+                <p id="epUserName" style="font-weight:700; font-size:1.1rem; margin-bottom:1.5rem; color:#7C3AED;">Usuario: ...</p>
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label>Rol del Usuario</label>
+                    <select id="epRole" onchange="toggleEditPermissionsUI()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                        <option value="user">Usuario Regular</option>
+                        <option value="vendedor">Vendedor</option>
+                        <option value="admin">Administrador (Personalizado)</option>
+                    </select>
+                </div>
+
+                <div id="epPermissionsSection" style="display:none; background:rgba(0,0,0,0.2); padding:1rem; border-radius:10px;">
+                    <p style="font-weight:700; font-size:0.9rem; margin-bottom:1rem; color:#fff;">Vistas Permitidas</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="courses"> Cursos
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="memberships"> Membresías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="banners"> Banners
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="users"> Usuarios
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="categories"> Categorías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="logo"> Logo/Marca
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top:2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <button type="button" class="btn-secondary" onclick="closeEditPermissionsModal()" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
+                    <button type="button" class="btn-primary" onclick="savePermissionsChanges()" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">Guardar Cambios</button>
                 </div>
             </div>
         </div>
