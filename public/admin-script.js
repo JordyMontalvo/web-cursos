@@ -1156,30 +1156,30 @@ function renderUsersTable(users) {
         const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
         return `
         <tr>
-            <td><strong>${u.name}</strong> ${u.lastName || ''}</td>
-            <td style="font-size:.875rem;color:#1a1a1a;">${u.email}</td>
-            <td style="font-size:.875rem;color:#1a1a1a;">${u.phone || '-'}</td>
-            <td style="font-size:.875rem;color:#1a1a1a;">${u.country || '-'}</td>
+            <td><strong style="color:#fff;">${u.name}</strong> <span style="color:rgba(255,255,255,0.5);font-size:.8rem;">${u.lastName || ''}</span></td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,0.75);">${u.email}</td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,0.6);">${u.phone || '-'}</td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,0.6);">${u.country || '-'}</td>
             <td>
-                ${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.15);color:#FFD700;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">ADMIN</span>' : 
-                  u.role === 'vendedor' ? '<span style="background:rgba(124,58,237,.15);color:#7C3AED;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">VENDEDOR</span>' : 
-                  '<span style="background:rgba(0,0,0,0.05);color:#1a1a1a;font-size:.75rem;padding:.2rem .6rem;border-radius:100px;">Usuario</span>'}
+                ${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.2);color:#FFD700;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,215,0,.4);">ADMIN</span>' : 
+                  u.role === 'vendedor' ? '<span style="background:rgba(124,58,237,.3);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(124,58,237,.5);">VENDEDOR</span>' : 
+                  '<span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:.75rem;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,255,255,0.15);">Usuario</span>'}
             </td>
             <td>
-                ${u.sellerCode ? `<code style="background:rgba(0,0,0,0.05);padding:.2rem .4rem;border-radius:4px;font-size:.75rem;font-weight:600;color:#1a1a1a;">${u.sellerCode}</code>` : '-'}
+                ${u.sellerCode ? `<code style="background:rgba(124,58,237,.2);padding:.2rem .5rem;border-radius:6px;font-size:.75rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);">${u.sellerCode}</code>` : '<span style="color:rgba(255,255,255,0.3);">-</span>'}
             </td>
-            <td>${isActive ? `<span style="background:rgba(79,255,176,.1);color:#1a1a1a;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:#666;font-size:.85rem;">Sin membresía</span>'}</td>
-            <td style="font-size:.8rem;color:#1a1a1a;">${u.birthDate || '-'}</td>
-            <td style="font-size:.8rem;color:#1a1a1a;">${isActive ? expDate : '-'}</td>
+            <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,0.3);font-size:.8rem;">Sin membresía</span>'}</td>
+            <td style="font-size:.8rem;color:rgba(255,255,255,0.5);">${u.birthDate || '-'}</td>
+            <td style="font-size:.8rem;color:rgba(255,255,255,0.5);">${isActive ? expDate : '-'}</td>
             <td>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" title="Membresía" style="padding:.4rem .7rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:1rem;">
+                <div style="display:flex;gap:.4rem;flex-wrap:nowrap;">
+                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" title="Membresía" style="padding:.35rem .6rem;background:rgba(124,58,237,.3);border:1px solid rgba(124,58,237,.5);color:#c4b5fd;border-radius:8px;cursor:pointer;font-size:.9rem;">
                         💎
                     </button>
-                    <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}','${u.canCreate}','${u.canEdit}')" title="Permisos/Rol" style="padding:.4rem .7rem;background:rgba(255,165,0,.15);border:1px solid rgba(255,165,0,.3);color:#FFA500;border-radius:8px;cursor:pointer;font-size:1rem;">
+                    <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}','${u.canCreate}','${u.canEdit}')" title="Permisos/Rol" style="padding:.35rem .6rem;background:rgba(255,165,0,.2);border:1px solid rgba(255,165,0,.4);color:#FFA500;border-radius:8px;cursor:pointer;font-size:.9rem;">
                         🔑
                     </button>
-                    <button onclick="openUserDetailsModal('${u._id}')" title="Editar Perfil" style="padding:.4rem .7rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:1rem;">
+                    <button onclick="openUserDetailsModal('${u._id}')" title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;font-size:.9rem;">
                         📝
                     </button>
                 </div>

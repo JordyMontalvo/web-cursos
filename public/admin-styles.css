@@ -132,10 +132,11 @@
    Table Container
    =================================== */
 .table-container {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.07);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .table-header {
@@ -183,18 +184,19 @@
 }
 
 .courses-table thead {
-    background: #f9f9f9;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .courses-table th {
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.25rem;
     text-align: left;
     font-weight: 700;
-    color: var(--text-dark);
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
 }
 
 /* Selector de filtro de estado */
@@ -270,9 +272,11 @@
 }
 
 .courses-table td {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #f0f0f0;
-    color: var(--text-dark);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    vertical-align: middle;
 }
 
 .courses-table tbody tr {
@@ -280,7 +284,7 @@
 }
 
 .courses-table tbody tr:hover {
-    background: #f9f9f9;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .thumbnail-cell {
