@@ -83,9 +83,12 @@ let User;
 try { User = mongoose.model('User'); } catch {
     const schema = new mongoose.Schema({
         name: String, email: String,
-        activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership' },
-        membershipExpiresAt: Date,
-        membershipPlan: String,
+        role: { type: String, enum: ['user', 'admin', 'vendedor'], default: 'user' },
+        sellerCode: { type: String, unique: true, sparse: true, default: null },
+        referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
+        membershipExpiresAt: { type: Date, default: null },
+        membershipPlan: { type: String, default: null },
         updatedAt: { type: Date, default: Date.now }
     });
     User = mongoose.model('User', schema);
@@ -300,10 +303,11 @@ module.exports = async (req, res) => {
         try {
             await connectDB();
             const parts = (answer.orderDetails?.orderId || '').split('_');
-            // orderId format: TEST_XXXXXX_membershipId (ej: TEST_425903_74ce)
-            // El userId lo guardamos en customer.reference
-            const customerRef = answer.customer?.reference || '';
+            // Intentar obtener el userId de varias fuentes: reference o metadata
+            const customerRef = answer.customer?.reference || answer.orderDetails?.metadata?.userId || '';
             const membershipId = answer.orderDetails?.metadata?.membershipId || parts[parts.length - 1];
+
+            console.log(`[IZIPAY] Proyectando activación: user=${customerRef} | membership=${membershipId}`);
 
             const user = await User.findById(customerRef);
             const membership = await Membership.findById(membershipId);
@@ -317,10 +321,16 @@ module.exports = async (req, res) => {
                 user.membershipExpiresAt = expiresAt;
                 user.membershipPlan = membership.name;
                 user.updatedAt = new Date();
+                
                 await user.save();
-                console.log('[IZIPAY] ✅ Membresía activada para usuario:', customerRef);
+                console.log('[IZIPAY] ✅ Membresía activada exitosamente para:', user.email);
             } else {
-                console.warn('[IZIPAY] izipay-return: usuario o membresía no encontrada', { customerRef, membershipId });
+                console.warn('[IZIPAY] ⚠️ Error en activación local: ', { 
+                    userFound: !!user, 
+                    membershipFound: !!membership, 
+                    userId_used: customerRef, 
+                    planId_used: membershipId 
+                });
             }
         } catch (err) {
             console.error('[IZIPAY] izipay-return DB error:', err.message);
