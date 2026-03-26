@@ -701,6 +701,33 @@ app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) =>
     }
 });
 
+app.post('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { name, lastName, email, phone, country, password, role, sellerCode } = req.body;
+        
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
+        }
+
+        const user = new User({
+            name,
+            lastName,
+            email,
+            phone,
+            country,
+            password,
+            role: role || 'user',
+            sellerCode: sellerCode || undefined
+        });
+
+        await user.save();
+        res.json({ success: true, message: 'Usuario creado exitosamente', userId: user._id });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al crear usuario', error: error.message });
+    }
+});
+
 // Actualizar membresía de un usuario (admin)
 app.put('/api/admin/users/:id/membership', authMiddleware, adminMiddleware, async (req, res) => {
     try {

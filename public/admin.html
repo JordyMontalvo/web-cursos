@@ -270,8 +270,11 @@
                         <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
                         <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
                     </div>
-                    <div class="table-actions">
-                        <select id="userStatusFilter" onchange="handleUserFilterChange(this.value)" class="status-filter-select">
+                    <div class="table-actions" style="display:flex; gap:1rem; align-items:center;">
+                        <button class="btn-primary" onclick="openCreateSellerModal()" style="padding:.5rem 1rem; font-size:.875rem; background:linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
+                            + Nuevo Vendedor
+                        </button>
+                        <select id="userStatusFilter" onchange="handleUserFilterChange(this.value)" class="status-filter-select" style="margin:0;">
                             <option value="all">Todos los usuarios</option>
                             <option value="active">Usuarios Activos</option>
                             <option value="inactive">Usuarios Inactivos</option>
@@ -625,6 +628,59 @@
                     <button class="btn-primary" onclick="assignUserMembership()">Asignar</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal: Crear Vendedor -->
+    <div class="modal" id="createSellerModal">
+        <div class="modal-content" style="max-width:500px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>Registrar Nuevo Vendedor</h2>
+                <button class="modal-close" onclick="closeCreateSellerModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <form id="createSellerForm" onsubmit="handleCreateSeller(event)">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="sellerName" required placeholder="Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido</label>
+                        <input type="text" id="sellerLastName" placeholder="Apellido">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Email *</label>
+                    <input type="email" id="sellerEmail" required placeholder="email@ejemplo.com">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="sellerPhone" placeholder="+51 987...">
+                    </div>
+                    <div class="form-group">
+                        <label>País</label>
+                        <input type="text" id="sellerCountry" placeholder="Perú">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Contraseña *</label>
+                    <input type="password" id="sellerPassword" required placeholder="Min. 6 caracteres">
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Código de Vendedor (Opcional)</label>
+                    <input type="text" id="sellerCodeInput" placeholder="Ej: VDR-01">
+                    <small style="color:rgba(0,0,0,0.5); display:block; margin-top:0.25rem;">Se generará automáticamente si queda vacío.</small>
+                </div>
+                <div class="form-actions" style="margin-top:2rem; display:flex; gap:1rem; justify-content:flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeCreateSellerModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSaveSeller">Crear Vendedor</button>
+                </div>
+            </form>
         </div>
     </div>
 

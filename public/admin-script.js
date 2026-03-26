@@ -1317,6 +1317,59 @@ async function revokeUserMembership() {
 }
 
 // ===================================
+// SELLER CREATION
+// ===================================
+
+function openCreateSellerModal() {
+    document.getElementById('createSellerForm').reset();
+    document.getElementById('createSellerModal').classList.add('active');
+}
+
+function closeCreateSellerModal() {
+    document.getElementById('createSellerModal').classList.remove('active');
+}
+
+async function handleCreateSeller(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSaveSeller');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const formData = {
+        name: document.getElementById('sellerName').value,
+        lastName: document.getElementById('sellerLastName').value,
+        email: document.getElementById('sellerEmail').value,
+        phone: document.getElementById('sellerPhone').value,
+        country: document.getElementById('sellerCountry').value,
+        password: document.getElementById('sellerPassword').value,
+        role: 'vendedor',
+        sellerCode: document.getElementById('sellerCodeInput').value || `VDR-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
+    };
+
+    try {
+        const res = await fetch(apiUrl('/api/admin/users'), {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Vendedor creado exitosamente');
+            closeCreateSellerModal();
+            loadUsers(); // Recargar lista
+        } else {
+            showToast(data.message || 'Error al crear vendedor', 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear Vendedor';
+    }
+}
+
+// ===================================
 // SETTINGS ADMIN
 // ===================================
 
@@ -1810,6 +1863,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeUserDetailsModal();
             closeBannerModal();
             closeCategoryModal();
+            closeCreateSellerModal();
         }
     });
 
@@ -1830,6 +1884,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('bannerModal')?.addEventListener('click', e => {
         if (e.target.id === 'bannerModal') closeBannerModal();
+    });
+    document.getElementById('createSellerModal')?.addEventListener('click', e => {
+        if (e.target.id === 'createSellerModal') closeCreateSellerModal();
     });
 
     console.log('✅ Admin Panel initialized!');
