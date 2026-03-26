@@ -1393,7 +1393,7 @@
             </div>
             <div class="plan-divider"></div>
             <ul class="plan-features">${featuresHtml}</ul>
-            <button class="btn-plan ${btnClass}" onclick="selectPlan('${plan._id}','${plan.name}',${plan.price},${plan.durationDays})" style="${isFeatured ? `background:linear-gradient(135deg,${btnBg},${btnBg}cc);` : `color:${btnBg};border-color:${btnBg}40;`}">
+            <button class="btn-plan ${btnClass}" onclick="selectPlan('${plan._id}','${plan.name}',${plan.price},${plan.durationDays})" style="background:linear-gradient(135deg,${btnBg},${btnBg}cc); color:#ffffff !important; border:none; box-shadow: 0 4px 15px ${btnBg}40;">
                 Elegir ${plan.name}
             </button>
             <div class="plan-note">Sin contratos · Cancela fácilmente</div>
@@ -1425,6 +1425,14 @@
             document.getElementById('modalPlanName').textContent = name;
             document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
+            
+            // Sincronizar color del botón de pago con el plan seleccionado
+            const btnBg = (currPlan && currPlan.buttonColor) ? currPlan.buttonColor : ((currPlan && currPlan.color) ? currPlan.color : '#7C3AED');
+            const btnConfirm = document.getElementById('btnConfirm');
+            if (btnConfirm) {
+                btnConfirm.style.background = `linear-gradient(135deg, ${btnBg}, ${btnBg}cc)`;
+                btnConfirm.style.boxShadow = `0 8px 25px ${btnBg}40`;
+            }
 
             document.getElementById('confirmModal').classList.add('open');
 
