@@ -633,52 +633,52 @@
 
     <!-- Modal: Crear Vendedor -->
     <div class="modal" id="createSellerModal">
-        <div class="modal-content" style="max-width:500px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header">
-                <h2>Registrar Nuevo Vendedor</h2>
-                <button class="modal-close" onclick="closeCreateSellerModal()">
+        <div class="modal-content" style="max-width:500px; max-height: 90vh; overflow-y: auto; background: #1a1a2e; color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="color: #fff;">Registrar Nuevo Vendedor</h2>
+                <button class="modal-close" onclick="closeCreateSellerModal()" style="background: rgba(255,255,255,0.05); color: #fff;">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
                 </button>
             </div>
-            <form id="createSellerForm" onsubmit="handleCreateSeller(event)">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+            <form id="createSellerForm" onsubmit="handleCreateSeller(event)" style="padding: 2rem;">
+                <div class="form-grid">
                     <div class="form-group">
-                        <label>Nombre *</label>
-                        <input type="text" id="sellerName" required placeholder="Nombre">
+                        <label style="color: #fff;">Nombre *</label>
+                        <input type="text" id="sellerName" required placeholder="Nombre" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     </div>
                     <div class="form-group">
-                        <label>Apellido</label>
-                        <input type="text" id="sellerLastName" placeholder="Apellido">
+                        <label style="color: #fff;">Apellido</label>
+                        <input type="text" id="sellerLastName" placeholder="Apellido" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom:1rem;">
-                    <label>Email *</label>
-                    <input type="email" id="sellerEmail" required placeholder="email@ejemplo.com">
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label style="color: #fff;">Email *</label>
+                    <input type="email" id="sellerEmail" required placeholder="email@ejemplo.com" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%;">
                 </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                <div class="form-grid">
                     <div class="form-group">
-                        <label>Teléfono</label>
-                        <input type="tel" id="sellerPhone" placeholder="+51 987...">
+                        <label style="color: #fff;">Teléfono</label>
+                        <input type="tel" id="sellerPhone" placeholder="+51 987..." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     </div>
                     <div class="form-group">
-                        <label>País</label>
-                        <input type="text" id="sellerCountry" placeholder="Perú">
+                        <label style="color: #fff;">País</label>
+                        <input type="text" id="sellerCountry" placeholder="Perú" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom:1rem;">
-                    <label>Contraseña *</label>
-                    <input type="password" id="sellerPassword" required placeholder="Min. 6 caracteres">
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label style="color: #fff;">Contraseña *</label>
+                    <input type="password" id="sellerPassword" required placeholder="Min. 6 caracteres" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%;">
                 </div>
-                <div class="form-group" style="margin-bottom:1rem;">
-                    <label>Código de Vendedor (Opcional)</label>
-                    <input type="text" id="sellerCodeInput" placeholder="Ej: VDR-01">
-                    <small style="color:rgba(0,0,0,0.5); display:block; margin-top:0.25rem;">Se generará automáticamente si queda vacío.</small>
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label style="color: #fff;">Código de Vendedor (Opcional)</label>
+                    <input type="text" id="sellerCodeInput" placeholder="Ej: VDR-01" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%;">
+                    <small style="color:rgba(255,255,255,0.5); display:block; margin-top:0.25rem;">Se generará automáticamente si queda vacío.</small>
                 </div>
-                <div class="form-actions" style="margin-top:2rem; display:flex; gap:1rem; justify-content:flex-end;">
-                    <button type="button" class="btn-secondary" onclick="closeCreateSellerModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary" id="btnSaveSeller">Crear Vendedor</button>
+                <div class="form-actions" style="margin-top:2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <button type="button" class="btn-secondary" onclick="closeCreateSellerModal()" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSaveSeller" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">Crear Vendedor</button>
                 </div>
             </form>
         </div>
