@@ -1844,7 +1844,7 @@ function applyViewPermissions(user) {
 
     const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo'];
     allTabs.forEach(tab => {
-        const menuItem = document.querySelector(`.sidebar-menu li[onclick*="switchTab('${tab}')"]`);
+        const menuItem = document.getElementById(`tab-${tab}`);
         if (menuItem && !user.permissions.includes(tab)) {
             menuItem.style.display = 'none';
         }
