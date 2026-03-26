@@ -18,7 +18,7 @@ if (mongoose.models.User) {
         country: String,
         birthDate: String,
         role: { type: String, default: 'user' },
-        sellerCode: { type: String, default: null }, // Added field
+        sellerCode: { type: String, unique: true, sparse: true, default: null }, // Added unique/sparse
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
@@ -26,11 +26,10 @@ if (mongoose.models.User) {
         updatedAt: { type: Date, default: Date.now }
     });
 
-    schema.pre('save', async function (next) { // Added next to be safe
-        if (!this.isModified('password')) return next();
+    schema.pre('save', async function () {
+        if (!this.isModified('password')) return;
         this.password = await bcrypt.hash(this.password, 12);
         this.updatedAt = Date.now();
-        next();
     });
 
     User = mongoose.model('User', schema);
@@ -71,7 +70,7 @@ module.exports = async (req, res) => {
     if (!admin) return res.status(403).json({ success: false, message: 'Acceso denegado' });
 
     try { await connectDB(); } catch (err) {
-        return res.status(500).json({ success: false, message: 'DB error' });
+        return res.status(500).json({ success: false, message: 'DB error', error: err.message });
     }
 
     const url = req.url.split('?')[0];
@@ -79,83 +78,88 @@ module.exports = async (req, res) => {
     const userId = req.query.id || (parts.length >= 4 ? parts[3] : null);
     const isMembershipAction = req.query.membership === 'true' || parts[parts.length - 1] === 'membership';
 
-    // GET /api/admin/users
-    if (req.method === 'GET') {
-        const users = await User.find().select('-password').sort({ createdAt: -1 });
-        return res.json({ success: true, users });
-    }
-
-    // POST /api/admin/users
-    if (req.method === 'POST') {
-        const { name, lastName, email, phone, country, password, role, sellerCode } = req.body;
-        
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
+    try {
+        // GET /api/admin/users
+        if (req.method === 'GET') {
+            const users = await User.find().select('-password').sort({ createdAt: -1 });
+            return res.json({ success: true, users });
         }
 
-        const user = new User({
-            name,
-            lastName,
-            email,
-            phone,
-            country,
-            password,
-            role: role || 'user',
-            sellerCode: sellerCode || undefined
-        });
+        // POST /api/admin/users
+        if (req.method === 'POST') {
+            const { name, lastName, email, phone, country, password, role, sellerCode } = req.body;
+            
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
+            }
 
-        await user.save();
-        return res.json({ success: true, message: 'Usuario creado exitosamente', userId: user._id });
-    }
+            const user = new User({
+                name,
+                lastName,
+                email,
+                phone,
+                country,
+                password,
+                role: role || 'user',
+                sellerCode: sellerCode || undefined
+            });
 
-    // PUT /api/admin/users/:id
-    if (req.method === 'PUT' && userId) {
-        // Handle password update separately or in general PUT
-        if (isMembershipAction) {
-            const { membershipId, action } = req.body;
+            await user.save();
+            return res.json({ success: true, message: 'Usuario creado exitosamente', userId: user._id });
+        }
 
-            if (action === 'revoke') {
+        // PUT /api/admin/users/:id
+        if (req.method === 'PUT' && userId) {
+            // Handle password update separately or in general PUT
+            if (isMembershipAction) {
+                const { membershipId, action } = req.body;
+
+                if (action === 'revoke') {
+                    await User.findByIdAndUpdate(userId, {
+                        activeMembership: null,
+                        membershipExpiresAt: null,
+                        membershipPlan: null,
+                        updatedAt: Date.now()
+                    });
+                    return res.json({ success: true, message: 'Membresía revocada' });
+                }
+
+                if (!membershipId) return res.status(400).json({ success: false, message: 'membershipId requerido' });
+                const membership = await Membership.findById(membershipId);
+                if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+
+                let expiresAt;
+                if (!membership.durationDays || membership.durationDays === 0) {
+                    expiresAt = new Date('2099-12-31');
+                } else {
+                    expiresAt = new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+                }
+
                 await User.findByIdAndUpdate(userId, {
-                    activeMembership: null,
-                    membershipExpiresAt: null,
-                    membershipPlan: null,
+                    activeMembership: membership._id,
+                    membershipExpiresAt: expiresAt,
+                    membershipPlan: membership.name,
                     updatedAt: Date.now()
                 });
-                return res.json({ success: true, message: 'Membresía revocada' });
-            }
-
-            if (!membershipId) return res.status(400).json({ success: false, message: 'membershipId requerido' });
-            const membership = await Membership.findById(membershipId);
-            if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
-
-            let expiresAt;
-            if (!membership.durationDays || membership.durationDays === 0) {
-                expiresAt = new Date('2099-12-31');
+                return res.json({ success: true, message: 'Membresía asignada' });
             } else {
-                expiresAt = new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+                // General Update (Password, etc)
+                const { password } = req.body;
+                if (password) {
+                    const user = await User.findById(userId);
+                    if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+                    user.password = password;
+                    await user.save();
+                    return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
+                }
+                return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
             }
-
-            await User.findByIdAndUpdate(userId, {
-                activeMembership: membership._id,
-                membershipExpiresAt: expiresAt,
-                membershipPlan: membership.name,
-                updatedAt: Date.now()
-            });
-            return res.json({ success: true, message: 'Membresía asignada' });
-        } else {
-            // General Update (Password, etc)
-            const { password } = req.body;
-            if (password) {
-                const user = await User.findById(userId);
-                if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-                user.password = password;
-                await user.save();
-                return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
-            }
-            return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
         }
-    }
 
-    return res.status(405).json({ success: false, message: 'Método no permitido' });
+        return res.status(405).json({ success: false, message: 'Método no permitido' });
+    } catch (error) {
+        console.error('API Error:', error);
+        return res.status(500).json({ success: false, message: 'Error interno del servidor', error: error.message });
+    }
 };
