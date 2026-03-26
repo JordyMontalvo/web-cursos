@@ -284,8 +284,8 @@
                         </select>
                     </div>
                 </div>
-                <div class="table-container">
-                    <div class="table-wrapper">
+                <div class="table-container" style="overflow-x: auto; background: rgba(0,0,0,0.1); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1.5rem;">
+                    <div class="table-wrapper" style="min-width: 1250px;">
                         <table class="courses-table">
                             <thead>
                                 <tr>
@@ -724,29 +724,56 @@
         </div>
     </div>
 
-    <!-- Modal: Detalle de Usuario -->
+    <!-- Modal: Editar Usuario Completo -->
     <div id="userDetailsModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h2>Detalles del Usuario</h2>
-                <button class="modal-close" onclick="closeUserDetailsModal()">&times;</button>
+        <div class="modal-content" style="max-width: 600px; background: #fff; color: #1a1a1a;">
+            <div class="modal-header" style="border-bottom: 1px solid #eee;">
+                <h2 style="color: #1a1a1a;">Editar Perfil de Usuario</h2>
+                <button class="modal-close" onclick="closeUserDetailsModal()" style="color: #666;">&times;</button>
             </div>
             <div class="modal-body" style="padding: 2rem;">
-                <div id="userDetailContent" style="margin-bottom: 2rem; color: #1a1a1a;">
-                    <!-- Se llena con JS -->
-                </div>
+                <!-- Formulario de edición -->
+                <form id="editUserForm" onsubmit="handleEditUserSubmit(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label style="color: #333;">Nombre *</label>
+                            <input type="text" id="edName" required style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #333;">Apellido</label>
+                            <input type="text" id="edLastName" style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:1rem;">
+                        <label style="color: #333;">Email *</label>
+                        <input type="email" id="edEmail" required style="border:1px solid #ddd; padding: 0.75rem; width:100%;">
+                    </div>
+                    <div class="form-grid" style="margin-top:1rem;">
+                        <div class="form-group">
+                            <label style="color: #333;">Teléfono</label>
+                            <input type="tel" id="edPhone" style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #333;">País</label>
+                            <input type="text" id="edCountry" style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; text-align: right;">
+                        <button type="submit" id="btnUpdateUser" class="btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
 
-                <div style="border-top: 1px solid #eee; padding-top: 2rem;">
-                    <h3 style="margin-bottom: 1rem; color: #1a1a1a;">Seguridad</h3>
+                <div style="border-top: 1px solid #eee; margin-top: 2rem; padding-top: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem; color: #1a1a1a; font-size: 1.1rem;">Seguridad (Contraseña)</h3>
                     <div class="form-group">
-                        <label style="color: #1a1a1a;">Nueva Contraseña</label>
-                        <div class="security-form-group">
-                            <input type="text" id="newAdminUserPassword" placeholder="Escribe la nueva contraseña...">
-                            <button onclick="updateUserPassword()" class="btn-primary">
+                        <label style="color: #333; font-size: 0.85rem;">Nueva Contraseña</label>
+                        <div class="security-form-group" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+                            <input type="text" id="newAdminUserPassword" placeholder="Escribe la nueva contraseña..." style="flex:1; border:1px solid #ddd; padding: 0.5rem;">
+                            <button type="button" onclick="updateUserPassword()" class="btn-primary" style="padding: 0.5rem 1rem;">
                                 Actualizar
                             </button>
                         </div>
-                        <small style="color: #666; display: block; margin-top: 0.5rem;">Esto cambiará la contraseña inmediatamente.</small>
+                        <small style="color: #666; display: block; margin-top: 0.5rem;">Cambia la contraseña inmediatamente.</small>
                     </div>
                 </div>
             </div>

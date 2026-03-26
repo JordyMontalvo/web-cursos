@@ -1179,8 +1179,8 @@ function renderUsersTable(users) {
                     <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}','${u.canCreate}','${u.canEdit}')" title="Permisos/Rol" style="padding:.4rem .7rem;background:rgba(255,165,0,.15);border:1px solid rgba(255,165,0,.3);color:#FFA500;border-radius:8px;cursor:pointer;font-size:1rem;">
                         🔑
                     </button>
-                    <button onclick="openUserDetailsModal('${u._id}')" title="Detalles/Pass" style="padding:.4rem .7rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:1rem;">
-                        ⚙️
+                    <button onclick="openUserDetailsModal('${u._id}')" title="Editar Perfil" style="padding:.4rem .7rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:1rem;">
+                        📝
                     </button>
                 </div>
             </td>
@@ -1699,52 +1699,74 @@ function editBanner(id) {
 }
 
 // ===================================
-// USER DETAILS & PASSWORD Reset
+// USER PROFILE & PASSWORD Reset
 // ===================================
 
-function openUserDetailsModal(userId) {
-    const user = usersData.find(u => u._id === userId);
-    if (!user) return;
+let currentEditingUserId = null;
 
-    selectedUserIdForDetails = userId;
-    const content = document.getElementById('userDetailContent');
-    
-    content.innerHTML = `
-        <div class="user-details-grid">
-            <div class="user-detail-item">
-                <p>Nombre</p>
-                <p>${user.name} ${user.lastName || ''}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Email</p>
-                <p>${user.email}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Celular</p>
-                <p>${user.phone || '-'}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>País</p>
-                <p>${user.country || '-'}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Fecha de Nacimiento</p>
-                <p>${user.birthDate || '-'}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Rol</p>
-                <p><span class="badge">${user.role.toUpperCase()}</span></p>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('newAdminUserPassword').value = '';
+async function openUserDetailsModal(userId) {
+    currentEditingUserId = userId;
     document.getElementById('userDetailsModal').classList.add('active');
+    document.getElementById('editUserForm').reset();
+    document.getElementById('newAdminUserPassword').value = '';
+
+    try {
+        const res = await fetch(apiUrl('/api/admin/users'), { headers: authHeaders() });
+        const data = await res.json();
+        const user = data.users.find(u => u._id === userId);
+        
+        if (user) {
+            document.getElementById('edName').value = user.name || '';
+            document.getElementById('edLastName').value = user.lastName || '';
+            document.getElementById('edEmail').value = user.email || '';
+            document.getElementById('edPhone').value = user.phone || '';
+            document.getElementById('edCountry').value = user.country || '';
+        }
+    } catch (err) {
+        console.error('Error loading user data:', err);
+    }
 }
 
 function closeUserDetailsModal() {
     document.getElementById('userDetailsModal').classList.remove('active');
-    selectedUserIdForDetails = null;
+    currentEditingUserId = null;
+}
+
+async function handleEditUserSubmit(e) {
+    e.preventDefault();
+    if (!currentEditingUserId) return;
+
+    const btn = document.getElementById('btnUpdateUser');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const updateData = {
+        name: document.getElementById('edName').value,
+        lastName: document.getElementById('edLastName').value,
+        email: document.getElementById('edEmail').value,
+        phone: document.getElementById('edPhone').value,
+        country: document.getElementById('edCountry').value
+    };
+
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users?id=${currentEditingUserId}`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify(updateData)
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Perfil actualizado correctamente');
+            loadUsers();
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar Cambios';
+    }
 }
 
 async function updateUserPassword() {
@@ -1757,7 +1779,7 @@ async function updateUserPassword() {
     if (!confirm('¿Seguro que deseas cambiar la contraseña de este usuario?')) return;
 
     try {
-        const res = await fetch(apiUrl(`/api/admin/users/${selectedUserIdForDetails}`), {
+        const res = await fetch(apiUrl(`/api/admin/users/${currentEditingUserId}`), {
             method: 'PUT',
             headers: authHeaders(),
             body: JSON.stringify({ password: newPassword })
@@ -1765,7 +1787,7 @@ async function updateUserPassword() {
         const data = await res.json();
         if (data.success) {
             showToast('Contraseña actualizada con éxito');
-            closeUserDetailsModal();
+            document.getElementById('newAdminUserPassword').value = '';
         } else {
             showToast(data.message || 'Error al actualizar', 'error');
         }
