@@ -266,7 +266,7 @@ module.exports = async (req, res) => {
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
         return res.json({
             success: true, token,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role, hasMembership: false }
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, hasMembership: false, permissions: user.permissions || [], canCreate: user.canCreate, canEdit: user.canEdit }
         });
     }
 
@@ -283,7 +283,7 @@ module.exports = async (req, res) => {
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
         return res.json({
             success: true, token,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role, hasMembership: hasMem, membershipPlan: user.membershipPlan }
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, hasMembership: hasMem, membershipPlan: user.membershipPlan, permissions: user.permissions || [], canCreate: user.canCreate, canEdit: user.canEdit }
         });
     }
 
