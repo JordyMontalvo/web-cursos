@@ -264,12 +264,11 @@
         .btn-action.primary { background: var(--purple); border: none; box-shadow: 0 10px 20px var(--purple-glow); }
         .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* ── Mobile Logic ── */
         @media (max-width: 1000px) {
             .player-main { grid-template-columns: minmax(0, 1fr); height: auto; width: 100vw; overflow-x: hidden; }
             .sidebar { border-left: none; border-top: 1px solid var(--glass-border); height: auto; overflow: visible; }
             .content-view { overflow-y: visible; height: auto; min-width: 0; width: 100%; }
-            body { overflow-x: hidden; height: auto; }
+            body { overflow-x: hidden; overflow-y: auto; height: auto; }
             .player-header { padding: 0 1rem; width: 100%; box-sizing: border-box; }
         }
 
