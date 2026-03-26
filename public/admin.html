@@ -270,9 +270,12 @@
                         <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
                         <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
                     </div>
-                    <div class="table-actions" style="display:flex; gap:1rem; align-items:center;">
-                        <button class="btn-primary" onclick="openCreateSellerModal()" style="padding:.5rem 1rem; font-size:.875rem; background:linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
+                    <div class="table-actions" style="display:flex; gap:0.75rem; align-items:center;">
+                        <button class="btn-primary" onclick="openCreateUserModal('vendedor')" style="padding:.5rem 1rem; font-size:.8rem; background:#7C3AED; border-radius:10px;">
                             + Nuevo Vendedor
+                        </button>
+                        <button class="btn-primary" onclick="openCreateUserModal('admin')" style="padding:.5rem 1rem; font-size:.8rem; background:#4F46E5; border-radius:10px;">
+                            + Nuevo Administrador
                         </button>
                         <select id="userStatusFilter" onchange="handleUserFilterChange(this.value)" class="status-filter-select" style="margin:0;">
                             <option value="all">Todos los usuarios</option>
