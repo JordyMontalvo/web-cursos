@@ -18,12 +18,15 @@ if (mongoose.models.User) {
         country: String,
         birthDate: String,
         role: { type: String, default: 'user' },
-        sellerCode: { type: String, unique: true, sparse: true, default: null }, // Added unique/sparse
+        sellerCode: { type: String, unique: true, sparse: true }, // Removed default: null to allow sparse index to work
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
-        permissions: { type: [String], default: [] }, // New
-        createdAt: { type: Date, default: Date.now },
+        progress:            { type: Object, default: {} },
+        permissions:         { type: [String], default: [] },
+        canCreate:           { type: Boolean, default: true },
+        canEdit:             { type: Boolean, default: true },
+        createdAt:   { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
     });
 
@@ -88,7 +91,7 @@ module.exports = async (req, res) => {
 
         // POST /api/admin/users
         if (req.method === 'POST') {
-            const { name, lastName, email, phone, country, password, role, sellerCode, permissions } = req.body;
+            const { name, lastName, email, phone, country, password, role, sellerCode, permissions, canCreate, canEdit } = req.body;
             
             const existingUser = await User.findOne({ email });
             if (existingUser) {
@@ -104,7 +107,9 @@ module.exports = async (req, res) => {
                 password,
                 role: role || 'user',
                 sellerCode: sellerCode || undefined,
-                permissions: permissions || []
+                permissions: permissions || [],
+                canCreate: canCreate !== undefined ? canCreate : true,
+                canEdit: canEdit !== undefined ? canEdit : true
             });
 
             await user.save();
@@ -147,7 +152,7 @@ module.exports = async (req, res) => {
                 return res.json({ success: true, message: 'Membresía asignada' });
             } else {
                 // General Update (Password, Role, Permissions, etc)
-            const { password, role, permissions } = req.body;
+            const { password, role, permissions, canCreate, canEdit } = req.body;
             const updateData = {};
             if (password) {
                 const user = await User.findById(userId);
@@ -159,6 +164,8 @@ module.exports = async (req, res) => {
             
             if (role) updateData.role = role;
             if (permissions) updateData.permissions = permissions;
+            if (canCreate !== undefined) updateData.canCreate = canCreate;
+            if (canEdit !== undefined) updateData.canEdit = canEdit;
             
             if (Object.keys(updateData).length > 0) {
                 await User.findByIdAndUpdate(userId, { ...updateData, updatedAt: Date.now() });

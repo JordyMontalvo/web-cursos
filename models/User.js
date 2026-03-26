@@ -113,6 +113,8 @@ const userSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    canCreate: { type: Boolean, default: true },
+    canEdit: { type: Boolean, default: true },
     createdAt: {
         type: Date,
         default: Date.now

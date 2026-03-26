@@ -9,6 +9,7 @@ let editingCourseId = null;
 let currentContentCourseId = null;
 let categoriesData = [];
 let editingCategoryId = null;
+let activeTab = 'courses';
 
 // ===================================
 // API Functions
@@ -723,6 +724,7 @@ const usersPerPage = 10;
 let selectedUserIdForDetails = null;
 
 function switchTab(tab) {
+    activeTab = tab;
     ['courses', 'memberships', 'banners', 'users', 'logo', 'categories'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         if (section) section.style.display = t === tab ? '' : 'none';
@@ -1174,7 +1176,7 @@ function renderUsersTable(users) {
                     <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" title="Membresía" style="padding:.4rem .7rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:1rem;">
                         💎
                     </button>
-                    <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}')" title="Permisos/Rol" style="padding:.4rem .7rem;background:rgba(255,165,0,.15);border:1px solid rgba(255,165,0,.3);color:#FFA500;border-radius:8px;cursor:pointer;font-size:1rem;">
+                    <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}','${u.canCreate}','${u.canEdit}')" title="Permisos/Rol" style="padding:.4rem .7rem;background:rgba(255,165,0,.15);border:1px solid rgba(255,165,0,.3);color:#FFA500;border-radius:8px;cursor:pointer;font-size:1rem;">
                         🔑
                     </button>
                     <button onclick="openUserDetailsModal('${u._id}')" title="Detalles/Pass" style="padding:.4rem .7rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:1rem;">
@@ -1904,7 +1906,9 @@ async function handleCreateUser(event) {
         email: document.getElementById('ucEmail').value,
         password: document.getElementById('ucPassword').value,
         role: role,
-        permissions: permissions
+        permissions: permissions,
+        canCreate: document.getElementById('ucCanCreate').checked,
+        canEdit: document.getElementById('ucCanEdit').checked
     };
 
     if (role === 'vendedor') {
@@ -1925,7 +1929,7 @@ async function handleCreateUser(event) {
         if (data.success) {
             showToast('Usuario creado correctamente');
             closeCreateUserModal();
-            if (activeTab === 'users') fetchUsers();
+            if (activeTab === 'users') loadUsers();
         } else {
             showToast(data.message || 'Error al crear usuario', 'error');
         }
@@ -1940,7 +1944,7 @@ async function handleCreateUser(event) {
 // EDITAR PERMISOS
 let currentEditUserId = null;
 
-function openEditPermissionsModal(userId, fullName, role, permissionsStr) {
+function openEditPermissionsModal(userId, fullName, role, permissionsStr, canCreate, canEdit) {
     currentEditUserId = userId;
     document.getElementById('editPermissionsModal').classList.add('active');
     document.getElementById('epUserName').textContent = `Usuario: ${fullName}`;
@@ -1951,6 +1955,9 @@ function openEditPermissionsModal(userId, fullName, role, permissionsStr) {
     document.querySelectorAll('input[name="epPerm"]').forEach(cb => {
         cb.checked = perms.includes(cb.value);
     });
+
+    document.getElementById('epCanCreate').checked = (canCreate === 'true' || canCreate === true);
+    document.getElementById('epCanEdit').checked = (canEdit === 'true' || canEdit === true);
     
     toggleEditPermissionsUI();
 }
@@ -1969,6 +1976,9 @@ async function savePermissionsChanges() {
     
     const role = document.getElementById('epRole').value;
     const permissions = [];
+    const canCreate = document.getElementById('epCanCreate').checked;
+    const canEdit = document.getElementById('epCanEdit').checked;
+
     if (role === 'admin') {
         document.querySelectorAll('input[name="epPerm"]:checked').forEach(cb => {
             permissions.push(cb.value);
@@ -1979,7 +1989,7 @@ async function savePermissionsChanges() {
         const res = await fetch(apiUrl(`/api/admin/users?id=${currentEditUserId}`), {
             method: 'PUT',
             headers: authHeaders(),
-            body: JSON.stringify({ role, permissions })
+            body: JSON.stringify({ role, permissions, canCreate, canEdit })
         });
         const data = await res.json();
         if (data.success) {
