@@ -713,6 +713,9 @@
                     if (data.user.role === 'admin') {
                         showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
                         setTimeout(() => window.location.href = '/admin', 800);
+                    } else if (data.user.role === 'vendedor') {
+                        showAlert('¡Sesión iniciada! Redirigiendo al panel de vendedor...', 'success');
+                        setTimeout(() => window.location.href = '/vendedor', 800);
                     } else if (!data.user.hasMembership) {
                         showAlert('Tu plan está inactivo o vencido. Redirigiendo a membresías...', 'error');
                         setTimeout(() => window.location.href = '/membresia', 1200);

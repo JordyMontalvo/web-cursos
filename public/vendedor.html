@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Vendedor - IATIBET ZUREON</title>
+    <meta name="description" content="Panel de control para colaboradores y vendedores">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-seller: #10B981; /* Verde esmeralda para vendedores */
+            --bg-darker: #0A0A0F;
+            --card-bg: rgba(20, 20, 35, 0.85);
+        }
+
+        .seller-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-seller);
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .referral-link-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .link-input-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .link-input-group input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .btn-copy {
+            background: var(--primary-seller);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .membership-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active { color: #10B981; }
+        .status-inactive { color: rgba(255, 255, 255, 0.3); }
+
+        .sidebar-vendedor {
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 15, 25, 0.95);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon" style="background: linear-gradient(135deg, #10B981, #3B82F6);"></div>
+                    <span class="logo-text">VENDEDOR PANEL</span>
+                </div>
+
+                <nav class="nav">
+                    <a href="/" class="nav-link">Ver Sitio</a>
+                    <a href="/vendedor" class="nav-link active">Mi Panel</a>
+                </nav>
+
+                <div class="header-actions">
+                    <span id="sellerName" style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin-right:0.5rem;"></span>
+                    <button class="btn-secondary" onclick="sellerLogout()">🚪 Salir</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <div class="container">
+            <div class="admin-header">
+                <div style="display:flex; align-items:center; gap: 1rem; margin-bottom: 0.5rem;">
+                    <h1 class="admin-title">Bienvenido, <span id="welcomeName">Vendedor</span></h1>
+                    <span class="seller-badge">Promotor Oficial</span>
+                </div>
+                <p class="admin-description">Monitorea tus referidos, comisiones y enlace de afiliado</p>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="sellerBalance">S/ 0.00</div>
+                        <div class="stat-label">Saldo Acumulado</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="referralsCount">0</div>
+                        <div class="stat-label">Referidos Totales</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="sellerCodeDisplay">---</div>
+                        <div class="stat-label">Tu Código</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referral Link -->
+            <div class="referral-link-card">
+                <div style="flex-shrink:0;">
+                    <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.25rem;">Enlace de Referido</h3>
+                    <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Comparte este link para ganar comisiones</p>
+                </div>
+                <div class="link-input-group">
+                    <input type="text" id="referralUrl" readonly value="Cargando link...">
+                </div>
+                <button class="btn-copy" onclick="copyLink()">Copiar Link</button>
+            </div>
+
+            <!-- Referrals Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <div style="display:flex; align-items:center; gap:1.5rem;">
+                        <h2>Tus Referidos</h2>
+                        <div class="table-actions" style="margin-left:auto; display:flex; gap:1rem;">
+                            <input type="text" id="referralSearch" oninput="handleSearch(this.value)" placeholder="Buscar por nombre, email o código..." class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none; width:300px;">
+                            <select id="referralFilter" onchange="filterReferrals()" class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none;">
+                                <option value="all">Todos los referidos</option>
+                                <option value="active">Solo con Membresía Activa</option>
+                                <option value="inactive">Sin Membresía</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="courses-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Contacto</th>
+                                <th>Ubicación</th>
+                                <th>Fecha Registro</th>
+                                <th>Membresía</th>
+                                <th>Estado</th>
+                                <th>Código Membresía</th>
+                            </tr>
+                        </thead>
+                        <tbody id="referralsTableBody">
+                            <tr>
+                                <td colspan="7" class="loading-row">
+                                    <div class="spinner"></div>
+                                    <p>Cargando lista...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/config.js"></script>
+    <script>
+        // Auth Check
+        window.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            const user = JSON.parse(localStorage.getItem('authUser') || '{}');
+
+            if (!token || (user.role !== 'vendedor' && user.role !== 'admin')) {
+                window.location.href = '/login';
+                return;
+            }
+
+            document.getElementById('sellerName').textContent = user.name;
+            document.getElementById('welcomeName').textContent = user.name;
+            
+            await loadSellerData();
+        });
+
+        let allReferrals = [];
+
+        async function loadSellerData() {
+            try {
+                await configReady;
+                const token = localStorage.getItem('authToken');
+
+                // Load Stats
+                const statsRes = await fetch(apiUrl('/api/seller/stats'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const statsData = await statsRes.json();
+
+                if (statsData.success) {
+                    const stats = statsData.stats;
+                    document.getElementById('sellerBalance').textContent = `S/ ${stats.balance.toFixed(2)}`;
+                    document.getElementById('referralsCount').textContent = stats.referralsCount;
+                    document.getElementById('sellerCodeDisplay').textContent = stats.code || 'N/A';
+                    
+                    const refUrl = `${window.location.origin}/register?ref=${stats.code}`;
+                    document.getElementById('referralUrl').value = refUrl;
+                }
+
+                // Load Referrals
+                const refRes = await fetch(apiUrl('/api/seller/referrals'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const refData = await refRes.json();
+
+                if (refData.success) {
+                    allReferrals = refData.referrals;
+                    renderReferrals(allReferrals);
+                } else {
+                    const tableBody = document.getElementById('referralsTableBody');
+                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;opacity:0.4;">Ocurrió un error al cargar los datos.</td></tr>';
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderReferrals(referrals) {
+            const tableBody = document.getElementById('referralsTableBody');
+            if (referrals.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;opacity:0.4;">Aún no tienes referidos registrados.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = referrals.map(u => {
+                const isMember = u.hasMembership;
+                const userFullName = `${u.name} ${u.lastName || ''}`;
+                // Membership Code: MEM- + UserID tail or something unique
+                const membershipCode = isMember ? `MEM-${u._id.substring(18).toUpperCase()}` : '---';
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;border:1px solid rgba(255,255,255,0.1);">
+                                    ${u.name.charAt(0)}
+                                </div>
+                                <div style="display:flex; flex-direction:column;">
+                                    <span style="font-weight:600;">${userFullName}</span>
+                                    <span style="opacity:0.4; font-size:0.7rem;">ID: ${u._id.substring(18)}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex; flex-direction:column; gap:0.25rem;">
+                                <span style="font-size:0.85rem;">${u.email}</span>
+                                ${u.phone ? `<span style="opacity:0.5; font-size:0.75rem;">📞 ${u.phone}</span>` : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <span style="opacity:0.6;font-size:0.85rem;">${u.country || 'No especificado'}</span>
+                        </td>
+                        <td><span style="opacity:0.6;font-size:0.85rem;">${new Date(u.createdAt).toLocaleDateString()}</span></td>
+                        <td>
+                            <span style="font-size:0.85rem;font-weight:600;color:var(--primary-purple);">${u.membershipPlan || 'Sin Plan'}</span>
+                        </td>
+                        <td>
+                            <div class="membership-status ${isMember ? 'status-active' : 'status-inactive'}">
+                                <span style="width:8px;height:8px;border-radius:50%;background:currentColor;"></span>
+                                ${isMember ? 'Activo' : 'Inactivo'}
+                            </div>
+                        </td>
+                        <td>
+                            <code style="background:rgba(255,255,255,0.05);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.75rem; color:${isMember ? '#10B981' : 'rgba(255,255,255,0.4)'}; letter-spacing:0.05em; font-weight:700;">${membershipCode}</code>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterReferrals() {
+            const filterValue = document.getElementById('referralFilter').value;
+            const searchValue = document.getElementById('referralSearch').value.toLowerCase();
+            
+            let filtered = allReferrals.filter(u => {
+                const userFullName = `${u.name} ${u.lastName || ''}`.toLowerCase();
+                const userEmail = u.email.toLowerCase();
+                const isMember = u.hasMembership;
+                const membershipCode = isMember ? `MEM-${u._id.substring(18).toUpperCase()}` : '---';
+                
+                // Membership filter
+                if (filterValue === 'active' && !isMember) return false;
+                if (filterValue === 'inactive' && isMember) return false;
+                
+                // Search filter
+                if (searchValue && 
+                    !userFullName.includes(searchValue) && 
+                    !userEmail.includes(searchValue) && 
+                    !membershipCode.toLowerCase().includes(searchValue)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            renderReferrals(filtered);
+        }
+
+        // Search event handler
+        function handleSearch() {
+            filterReferrals(); // Uses the same filter but considers everything.
+        }
+
+        function copyLink() {
+            const input = document.getElementById('referralUrl');
+            input.select();
+            document.execCommand('copy');
+            
+            const btn = document.querySelector('.btn-copy');
+            const originalText = btn.textContent;
+            btn.textContent = '¡Copiado!';
+            btn.style.background = '#059669';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }
+
+        function sellerLogout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('authUser');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+
+</html>

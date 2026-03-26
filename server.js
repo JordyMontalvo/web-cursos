@@ -53,6 +53,14 @@ function adminMiddleware(req, res, next) {
     next();
 }
 
+// Middleware de vendedor
+function sellerMiddleware(req, res, next) {
+    if (req.user.role !== 'vendedor' && req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de vendedor.' });
+    }
+    next();
+}
+
 // Función para sembrar la base de datos
 async function seedDatabase() {
     try {
@@ -245,7 +253,7 @@ const upload = multer({
 // Registro
 app.post('/api/auth/register', async (req, res) => {
     try {
-        const { name, email, password, country, phone } = req.body;
+        const { name, email, password, country, phone, ref } = req.body;
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: 'Todos los campos son requeridos' });
         }
@@ -263,7 +271,23 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(409).json({ success: false, message: 'Este correo ya está registrado' });
         }
 
-        const user = new User({ name, email, password, country, phone });
+        // Buscar si hay un código de referido
+        let referredById = null;
+        if (ref) {
+            const seller = await User.findOne({ sellerCode: ref, role: 'vendedor' });
+            if (seller) {
+                referredById = seller._id;
+            }
+        }
+
+        const user = new User({ 
+            name, 
+            email: email.toLowerCase(), 
+            password, 
+            country, 
+            phone,
+            referredBy: referredById
+        });
         await user.save();
 
         const token = jwt.sign(
@@ -1013,6 +1037,110 @@ app.get('/admin-login', (req, res) => res.sendFile(path.join(__dirname, 'public'
 app.get('/curso/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'curso.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/content/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'content-manager.html')));
+app.get('/vendedor', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor.html')));
+
+// ===================================
+// RUTAS DE VENDEDORES (SELLER PANEL)
+// ===================================
+
+// Estadísticas del vendedor
+app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) => {
+    try {
+        const seller = await User.findById(req.user.id);
+        if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+
+        const count = await User.countDocuments({ referredBy: seller._id });
+        
+        res.json({
+            success: true,
+            stats: {
+                balance: seller.sellerBalance || 0,
+                referralsCount: count,
+                code: seller.sellerCode,
+                commission: seller.sellerCommission || 10
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Lista de referidos del vendedor
+app.get('/api/seller/referrals', authMiddleware, sellerMiddleware, async (req, res) => {
+    try {
+        const referrals = await User.find({ referredBy: req.user.id })
+            .select('name lastName email phone country createdAt membershipPlan membershipExpiresAt activeMembership')
+            .sort({ createdAt: -1 });
+        
+        const results = referrals.map(u => ({
+            ...u.toObject(),
+            hasMembership: !!(u.activeMembership && u.membershipExpiresAt && new Date() < u.membershipExpiresAt)
+        }));
+
+        res.json({ success: true, referrals: results });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// ===================================
+// RUTAS DE ADMINISTRACIÓN DE VENDEDORES
+// ===================================
+
+// Obtener todos los vendedores
+app.get('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const vendedores = await User.find({ role: 'vendedor' }).select('-password').sort({ createdAt: -1 });
+        res.json({ success: true, vendedores });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Crear un vendedor
+app.post('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { name, email, password, sellerCode, sellerCommission } = req.body;
+        
+        if (!name || !email || !password || !sellerCode) {
+            return res.status(400).json({ success: false, message: 'Todos los campos son requeridos' });
+        }
+
+        const existing = await User.findOne({ email: email.toLowerCase() });
+        if (existing) return res.status(400).json({ success: false, message: 'El correo ya existe' });
+
+        const existingCode = await User.findOne({ sellerCode });
+        if (existingCode) return res.status(400).json({ success: false, message: 'El código de vendedor ya está en uso' });
+
+        const hashedPw = await bcrypt.hash(password, 12);
+        const vendedor = new User({
+            name,
+            email: email.toLowerCase(),
+            password: hashedPw,
+            role: 'vendedor',
+            sellerCode,
+            sellerCommission: Number(sellerCommission) || 10
+        });
+
+        await vendedor.save();
+        res.json({ success: true, vendedor: { id: vendedor._id, name: vendedor.name, email: vendedor.email, sellerCode: vendedor.sellerCode } });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error creando vendedor', error: error.message });
+    }
+});
+
+// Eliminar/Desactivar vendedor
+app.delete('/api/admin/vendedores/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user || user.role !== 'vendedor') return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+        
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Vendedor eliminado' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`
