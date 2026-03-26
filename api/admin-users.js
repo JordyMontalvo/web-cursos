@@ -18,6 +18,7 @@ if (mongoose.models.User) {
         country: String,
         birthDate: String,
         role: { type: String, default: 'user' },
+        sellerCode: { type: String, default: null }, // Added field
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
@@ -25,10 +26,11 @@ if (mongoose.models.User) {
         updatedAt: { type: Date, default: Date.now }
     });
 
-    schema.pre('save', async function () {
-        if (!this.isModified('password')) return;
+    schema.pre('save', async function (next) { // Added next to be safe
+        if (!this.isModified('password')) return next();
         this.password = await bcrypt.hash(this.password, 12);
         this.updatedAt = Date.now();
+        next();
     });
 
     User = mongoose.model('User', schema);
@@ -81,6 +83,30 @@ module.exports = async (req, res) => {
     if (req.method === 'GET') {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
         return res.json({ success: true, users });
+    }
+
+    // POST /api/admin/users
+    if (req.method === 'POST') {
+        const { name, lastName, email, phone, country, password, role, sellerCode } = req.body;
+        
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
+        }
+
+        const user = new User({
+            name,
+            lastName,
+            email,
+            phone,
+            country,
+            password,
+            role: role || 'user',
+            sellerCode: sellerCode || undefined
+        });
+
+        await user.save();
+        return res.json({ success: true, message: 'Usuario creado exitosamente', userId: user._id });
     }
 
     // PUT /api/admin/users/:id
