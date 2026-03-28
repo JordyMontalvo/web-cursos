@@ -46,7 +46,7 @@
     padding: 0.75rem 1.5rem;
     background: none !important;
     border: none !important;
-    color: rgba(255, 255, 255, 0.5);
+    color: #ffffff;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -153,7 +153,7 @@
 .table-header h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: var(--text-light);
     margin: 0;
 }
 
@@ -275,7 +275,7 @@
 .courses-table td {
     padding: 0.85rem 1rem;
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    color: rgba(255, 255, 255, 0.88);
+    color: #ffffff;
     font-size: 0.84rem;
     vertical-align: middle;
 }
@@ -359,6 +359,31 @@
 .btn-edit:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+}
+
+/* Button Variants */
+.btn-vendedor {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%) !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.btn-vendedor:hover {
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+.btn-admin {
+    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%) !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.btn-admin:hover {
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5) !important;
+    transform: translateY(-2px);
 }
 
 .btn-delete {

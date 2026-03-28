@@ -1156,21 +1156,21 @@ function renderUsersTable(users) {
         const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
         return `
         <tr>
-            <td><strong style="color:#fff;">${u.name}</strong> <span style="color:rgba(255,255,255,0.5);font-size:.8rem;">${u.lastName || ''}</span></td>
-            <td style="font-size:.85rem;color:rgba(255,255,255,0.75);">${u.email}</td>
-            <td class="col-celular" style="font-size:.85rem;color:rgba(255,255,255,0.6);">${u.phone || '-'}</td>
-            <td class="col-pais" style="font-size:.85rem;color:rgba(255,255,255,0.6);">${u.country || '-'}</td>
+            <td><strong style="color:#fff;">${u.name}</strong> <span style="color:#fff;font-size:.8rem;">${u.lastName || ''}</span></td>
+            <td style="font-size:.85rem;color:#fff;">${u.email}</td>
+            <td class="col-celular" style="font-size:.85rem;color:#fff;">${u.phone || '-'}</td>
+            <td class="col-pais" style="font-size:.85rem;color:#fff;">${u.country || '-'}</td>
             <td>
                 ${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.2);color:#FFD700;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,215,0,.4);">ADMIN</span>' : 
                   u.role === 'vendedor' ? '<span style="background:rgba(124,58,237,.3);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(124,58,237,.5);">VENDEDOR</span>' : 
                   '<span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:.75rem;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,255,255,0.15);">Usuario</span>'}
             </td>
             <td class="col-vendedor">
-                ${u.sellerCode ? `<code style="background:rgba(124,58,237,.2);padding:.2rem .5rem;border-radius:6px;font-size:.75rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);">${u.sellerCode}</code>` : '<span style="color:rgba(255,255,255,0.3);">-</span>'}
+                ${u.sellerCode ? `<code style="background:rgba(124,58,237,.2);padding:.2rem .5rem;border-radius:6px;font-size:.75rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);">${u.sellerCode}</code>` : '<span style="color:#fff;">-</span>'}
             </td>
-            <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,0.3);font-size:.8rem;">Sin membresía</span>'}</td>
-            <td class="col-nacimiento" style="font-size:.8rem;color:rgba(255,255,255,0.5);">${u.birthDate || '-'}</td>
-            <td class="col-expira" style="font-size:.8rem;color:rgba(255,255,255,0.5);">${isActive ? expDate : '-'}</td>
+            <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:#fff;font-size:.8rem;">Sin membresía</span>'}</td>
+            <td class="col-nacimiento" style="font-size:.8rem;color:#fff;">${u.birthDate || '-'}</td>
+            <td class="col-expira" style="font-size:.8rem;color:#fff;">${isActive ? expDate : '-'}</td>
             <td>
                 <div style="display:flex;gap:.4rem;flex-wrap:nowrap;">
                     <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" title="Membresía" style="padding:.35rem .6rem;background:rgba(124,58,237,.3);border:1px solid rgba(124,58,237,.5);color:#c4b5fd;border-radius:8px;cursor:pointer;font-size:.9rem;">
