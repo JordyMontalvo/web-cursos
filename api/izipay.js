@@ -161,8 +161,9 @@ module.exports = async (req, res) => {
 
             const amount = Math.round(membership.price * 100);
             
-            // ORDER_ID: Acortado para máxima compatibilidad
-            const orderId = `TEST_${Date.now().toString().slice(-6)}_${membershipId.slice(-4)}`;
+            // ORDER_ID: Embebemos el membershipId completo tras '--' para recuperarlo en el retorno
+            // Izipay no preserva el metadata en el redirect POST, pero sí devuelve el orderId completo
+            const orderId = `T${Date.now().toString().slice(-6)}--${membershipId}`;
             
             const mode = 'TEST';
             const sId = normalizeShopId(IZIPAY_SHOP_ID);
@@ -305,9 +306,22 @@ module.exports = async (req, res) => {
             const parts = (answer.orderDetails?.orderId || '').split('_');
             // Intentar obtener el userId de varias fuentes: reference o metadata
             const customerRef = answer.customer?.reference || answer.orderDetails?.metadata?.userId || '';
-            const membershipId = answer.orderDetails?.metadata?.membershipId || parts[parts.length - 1];
+            console.log(`[IZIPAY] Proyectando activación: user=${customerRef} | orderId=${answer.orderDetails?.orderId}`);
 
-            console.log(`[IZIPAY] Proyectando activación: user=${customerRef} | membership=${membershipId}`);
+            // Extraer membershipId: primero de metadata, luego del orderId (busca '--{objectId}')
+            let membershipId = answer.orderDetails?.metadata?.membershipId;
+            if (!membershipId) {
+                const rawOrderId = answer.orderDetails?.orderId || '';
+                // Formato nuevo: T123456--<24-char-objectId>
+                const sepIdx = rawOrderId.indexOf('--');
+                if (sepIdx !== -1) {
+                    membershipId = rawOrderId.slice(sepIdx + 2);
+                } else {
+                    // Formato legacy: TEST_XXXX_lastFourChars — no podemos recuperar el ObjectId completo
+                    console.error('[IZIPAY] No se puede extraer membershipId del orderId:', rawOrderId);
+                }
+            }
+            console.log(`[IZIPAY] membershipId resuelto: ${membershipId}`);
 
             const user = await User.findById(customerRef);
             const membership = await Membership.findById(membershipId);
