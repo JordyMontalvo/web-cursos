@@ -22,6 +22,8 @@ if (mongoose.models.User) {
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
+        sellerBalance: { type: Number, default: 0 },
+        sellerCommission: { type: Number, default: 10 },
         progress:            { type: Object, default: {} },
         permissions:         { type: [String], default: [] },
         canCreate:           { type: Boolean, default: true },
