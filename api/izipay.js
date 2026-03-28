@@ -86,6 +86,8 @@ try { User = mongoose.model('User'); } catch {
         role: { type: String, enum: ['user', 'admin', 'vendedor'], default: 'user' },
         sellerCode: { type: String, unique: true, sparse: true },
         referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        sellerBalance: { type: Number, default: 0 },
+        sellerCommission: { type: Number, default: 10 },
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
@@ -236,12 +238,21 @@ module.exports = async (req, res) => {
         try {
             await connectDB();
             const customerRef = answer.customer?.reference || '';
-            const parts = (answer.orderDetails?.orderId || '').split('_');
-            const membershipId = parts[parts.length - 1];
+            const rawOrderId = answer.orderDetails?.orderId || '';
+
+            // Extraer Id de membresía con nuevo formato
+            let membershipId = null;
+            const sepIdx = rawOrderId.indexOf('--');
+            if (sepIdx !== -1) {
+                membershipId = rawOrderId.slice(sepIdx + 2);
+            } else {
+                const parts = rawOrderId.split('_');
+                membershipId = parts[parts.length - 1];
+            }
 
             const user = await User.findById(customerRef);
             const membership = await Membership.findById(membershipId);
-            if (!user || !membership) throw new Error('Not found');
+            if (!user || !membership) throw new Error('Not found user or membership');
 
             const expiresAt = (!membership.durationDays || membership.durationDays === 0) 
                 ? new Date('2099-12-31') 
@@ -250,12 +261,25 @@ module.exports = async (req, res) => {
             user.activeMembership = membership._id;
             user.membershipExpiresAt = expiresAt;
             user.membershipPlan = membership.name;
-            user.updatedAt = new Date();
+            user.updatedAt = Date.now();
             await user.save();
             console.log('[IZIPAY] ✅ Webhook: Membresía activada para:', customerRef);
 
+            // LOGICA DE COMISION (WEBHOOK)
+            if (user.referredBy) {
+                const seller = await User.findById(user.referredBy);
+                if (seller) {
+                    const commissionPct = seller.sellerCommission || 10;
+                    const amount = (membership.price * commissionPct) / 100;
+                    seller.sellerBalance = (seller.sellerBalance || 0) + amount;
+                    await seller.save();
+                    console.log(`[IZIPAY] 💰 Comisión pagada al vendedor ${seller.email}: S/ ${amount.toFixed(2)} (${commissionPct}%)`);
+                }
+            }
+
             return res.status(200).json({ success: true });
         } catch (err) {
+            console.error('[IZIPAY] Webhook activation error:', err.message);
             return res.status(500).send(err.message);
         }
     }
@@ -335,9 +359,20 @@ module.exports = async (req, res) => {
                 user.membershipExpiresAt = expiresAt;
                 user.membershipPlan = membership.name;
                 user.updatedAt = new Date();
-                
                 await user.save();
                 console.log('[IZIPAY] ✅ Membresía activada exitosamente para:', user.email);
+
+                // LOGICA DE COMISION (REDIRECT RETURN)
+                if (user.referredBy) {
+                    const seller = await User.findById(user.referredBy);
+                    if (seller) {
+                        const commissionPct = seller.sellerCommission || 10;
+                        const amount = (membership.price * commissionPct) / 100;
+                        seller.sellerBalance = (seller.sellerBalance || 0) + amount;
+                        await seller.save();
+                        console.log(`[IZIPAY] 💰 Comisión pagada al vendedor ${seller.email}: S/ ${amount.toFixed(2)} (${commissionPct}%)`);
+                    }
+                }
             } else {
                 console.warn('[IZIPAY] ⚠️ Error en activación local: ', { 
                     userFound: !!user, 

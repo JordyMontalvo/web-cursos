@@ -630,6 +630,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Auth & Header
     updateHeader();
 
+    // Refresh user data if payment was successful
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            try {
+                const res = await fetch(apiUrl('/api/auth/check-access'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const user = JSON.parse(localStorage.getItem('authUser') || '{}');
+                    user.hasMembership = data.hasMembership;
+                    user.membershipPlan = data.membershipPlan;
+                    localStorage.setItem('authUser', JSON.stringify(user));
+                    updateHeader();
+                    
+                    if (window.showToast) {
+                        showToast('¡Pago exitoso! Tu membresía ya está activa.', 'success');
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Pago exitoso!',
+                            text: 'Tu membresía ya está activa.',
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        alert('¡Pago exitoso! Tu membresía ya está activa.');
+                    }
+                    
+                    // Limpiar URL sin recargar
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } catch (err) {
+                console.error('Error refreshing user data after payment', err);
+            }
+        }
+    }
+
     // Add mobile styles
     addMobileStyles();
 
