@@ -84,7 +84,7 @@ try { User = mongoose.model('User'); } catch {
     const schema = new mongoose.Schema({
         name: String, email: String,
         role: { type: String, enum: ['user', 'admin', 'vendedor'], default: 'user' },
-        sellerCode: { type: String, unique: true, sparse: true, default: null },
+        sellerCode: { type: String, unique: true, sparse: true },
         referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },

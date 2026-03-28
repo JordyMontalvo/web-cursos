@@ -98,6 +98,32 @@ module.exports = async (req, res) => {
                 return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
             }
 
+            // Autogenerar sellerCode si el rol es vendedor y no se proporcionó uno
+            let finalSellerCode = undefined;
+            if (role === 'vendedor') {
+                if (sellerCode && sellerCode.trim()) {
+                    // Usar el código proporcionado por el admin
+                    finalSellerCode = sellerCode.trim().toUpperCase();
+                } else {
+                    // Autogenerar: primeras 5 letras del nombre + 4 chars aleatorios
+                    const nameBase = name.replace(/\s+/g, '').toUpperCase().slice(0, 5);
+                    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                    let generated;
+                    let attempts = 0;
+                    do {
+                        const rand = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                        generated = `${nameBase}-${rand}`;
+                        attempts++;
+                    } while (await User.findOne({ sellerCode: generated }) && attempts < 10);
+                    finalSellerCode = generated;
+                }
+                // Verificar que el código no esté ya en uso
+                const codeExists = await User.findOne({ sellerCode: finalSellerCode });
+                if (codeExists) {
+                    return res.status(400).json({ success: false, message: `El código de vendedor "${finalSellerCode}" ya está en uso` });
+                }
+            }
+
             const user = new User({
                 name,
                 lastName,
@@ -106,14 +132,14 @@ module.exports = async (req, res) => {
                 country,
                 password,
                 role: role || 'user',
-                sellerCode: sellerCode || undefined,
+                sellerCode: finalSellerCode,
                 permissions: permissions || [],
                 canCreate: canCreate !== undefined ? canCreate : true,
                 canEdit: canEdit !== undefined ? canEdit : true
             });
 
             await user.save();
-            return res.json({ success: true, message: 'Usuario creado exitosamente', userId: user._id });
+            return res.json({ success: true, message: 'Usuario creado exitosamente', userId: user._id, sellerCode: finalSellerCode });
         }
 
         // PUT /api/admin/users/:id

@@ -265,55 +265,107 @@
             <!-- USERS SECTION -->
             <div id="section-users" style="display:none;">
 
+                <!-- Header -->
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
                     <div>
-                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
+                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Usuarios</h2>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra usuarios, vendedores y administradores de la plataforma</p>
                     </div>
-                    <div class="table-actions" style="display:flex; gap:0.75rem; align-items:center;">
-                        <button class="btn-primary" onclick="openCreateUserModal('vendedor')" style="padding:.5rem 1rem; font-size:.8rem; background:#7C3AED; border-radius:10px;">
-                            + Nuevo Vendedor
-                        </button>
-                        <button class="btn-primary" onclick="openCreateUserModal('admin')" style="padding:.5rem 1rem; font-size:.8rem; background:#4F46E5; border-radius:10px;">
-                            + Nuevo Administrador
-                        </button>
-                        <select id="userStatusFilter" onchange="handleUserFilterChange(this.value)" class="status-filter-select" style="margin:0;">
-                            <option value="all">Todos los usuarios</option>
-                            <option value="active">Usuarios Activos</option>
-                            <option value="inactive">Usuarios Inactivos</option>
-                        </select>
+                    <button class="btn-primary" id="btnNewUserMain" onclick="openCreateUserModal()" style="background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:12px;padding:.6rem 1.4rem;font-weight:700;display:flex;align-items:center;gap:.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Nuevo Usuario
+                    </button>
+                </div>
+
+                <!-- Sub-tabs -->
+                <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;background:rgba(0,0,0,0.2);padding:.4rem;border-radius:14px;width:fit-content;">
+                    <button id="usub-tab-user" onclick="switchUserSubTab('user')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:rgba(79,255,176,.15);color:#4FFFB0;">👤 Usuarios</button>
+                    <button id="usub-tab-vendedor" onclick="switchUserSubTab('vendedor')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.5);">🏷️ Vendedores</button>
+                    <button id="usub-tab-admin" onclick="switchUserSubTab('admin')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.5);">🛡️ Admins</button>
+                </div>
+
+                <!-- Stats rápidas -->
+                <div id="usersStatsBar" style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;"></div>
+
+                <!-- Search bar -->
+                <div style="margin-bottom:1rem;">
+                    <input type="text" id="usersSearchInput" placeholder="🔍 Buscar por nombre o email..." oninput="filterUsersTable(this.value)"
+                        style="width:100%;max-width:400px;padding:.6rem 1rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:inherit;font-size:.875rem;">
+                </div>
+
+                <!-- SUB-SECTION: Usuarios normales -->
+                <div id="usersub-user">
+                    <div class="table-container" style="overflow-x:auto;background:rgba(0,0,0,0.1);border-radius:15px;border:1px solid rgba(255,255,255,.05);">
+                        <div class="table-wrapper" style="min-width:900px;">
+                            <table class="courses-table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>País</th>
+                                        <th>Referido por</th>
+                                        <th>Plan activo</th>
+                                        <th>Expira</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr><td colspan="8" class="loading-row"><div class="spinner"></div><p>Cargando usuarios...</p></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="usersPagination" class="pagination-container"></div>
                     </div>
                 </div>
-                <div class="table-container" style="overflow-x: auto; background: rgba(0,0,0,0.1); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1.5rem;">
-                    <div class="table-wrapper" style="min-width: 1250px;">
-                        <table class="courses-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Email</th>
-                                    <th class="col-celular">Celular</th>
-                                    <th class="col-pais">País</th>
-                                    <th>Rol</th>
-                                    <th class="col-vendedor">Cod. Vendedor</th>
-                                    <th>Plan activo</th>
-                                    <th class="col-nacimiento">Nacimiento</th>
-                                    <th class="col-expira">Expira</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTableBody">
-                                <tr>
-                                    <td colspan="10" class="loading-row">
-                                        <div class="spinner"></div>
-                                        <p>Cargando usuarios...</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                <!-- SUB-SECTION: Vendedores -->
+                <div id="usersub-vendedor" style="display:none;">
+                    <div class="table-container" style="overflow-x:auto;background:rgba(0,0,0,0.1);border-radius:15px;border:1px solid rgba(255,255,255,.05);">
+                        <div class="table-wrapper" style="min-width:800px;">
+                            <table class="courses-table">
+                                <thead>
+                                    <tr>
+                                        <th>Vendedor</th>
+                                        <th>Email</th>
+                                        <th>Código</th>
+                                        <th>Comisión</th>
+                                        <th>Balance</th>
+                                        <th>Referidos</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendedoresTableBody">
+                                    <tr><td colspan="7" class="loading-row"><div class="spinner"></div><p>Cargando vendedores...</p></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <!-- Paginación de usuarios -->
-                    <div id="usersPagination" class="pagination-container"></div>
                 </div>
+
+                <!-- SUB-SECTION: Admins -->
+                <div id="usersub-admin" style="display:none;">
+                    <div class="table-container" style="overflow-x:auto;background:rgba(0,0,0,0.1);border-radius:15px;border:1px solid rgba(255,255,255,.05);">
+                        <div class="table-wrapper" style="min-width:800px;">
+                            <table class="courses-table">
+                                <thead>
+                                    <tr>
+                                        <th>Administrador</th>
+                                        <th>Email</th>
+                                        <th>Vistas permitidas</th>
+                                        <th>Puede Crear</th>
+                                        <th>Puede Editar</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminsTableBody">
+                                    <tr><td colspan="6" class="loading-row"><div class="spinner"></div><p>Cargando administradores...</p></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <!-- /section-users -->
 
@@ -634,91 +686,120 @@
         </div>
     </div>
 
-    <!-- Modal: Crear Usuario/Administrador -->
+    <!-- Modal: Crear Usuario (Role-Driven) -->
     <div class="modal" id="createUserModal">
-        <div class="modal-content" style="max-width:550px; max-height: 90vh; overflow-y: auto; background: #1a1a2e; color: #fff;">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <h2 style="color: #fff;">Registrar Nuevo Usuario/Administrador</h2>
-                <button class="modal-close" onclick="closeCreateUserModal()" style="background: rgba(255,255,255,0.05); color: #fff;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-                </button>
+        <div class="modal-content" style="max-width:580px;max-height:92vh;overflow-y:auto;background:linear-gradient(145deg,#12122a,#1a1a35);color:#fff;border:1px solid rgba(124,58,237,.3);border-radius:20px;">
+
+            <!-- Header con indicador de rol -->
+            <div style="padding:1.5rem 2rem;border-bottom:1px solid rgba(255,255,255,.07);">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <h2 id="createUserModalTitle" style="font-size:1.25rem;font-weight:800;margin:0;color:#fff;">Nuevo Usuario</h2>
+                        <p id="createUserModalSub" style="margin:.25rem 0 0;font-size:.8rem;color:rgba(255,255,255,.4);">Completa los datos según el tipo de cuenta</p>
+                    </div>
+                    <button onclick="closeCreateUserModal()" style="background:rgba(255,255,255,.06);border:none;color:#fff;border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;">✕</button>
+                </div>
+
+                <!-- Selector de rol tipo pill -->
+                <div style="display:flex;gap:.5rem;margin-top:1.25rem;">
+                    <button type="button" id="roleBtn-user" onclick="selectCreateRole('user')" style="flex:1;padding:.55rem .5rem;border-radius:10px;border:2px solid rgba(79,255,176,.5);background:rgba(79,255,176,.12);color:#4FFFB0;font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .2s;">👤 Usuario</button>
+                    <button type="button" id="roleBtn-vendedor" onclick="selectCreateRole('vendedor')" style="flex:1;padding:.55rem .5rem;border-radius:10px;border:2px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .2s;">🏷️ Vendedor</button>
+                    <button type="button" id="roleBtn-admin" onclick="selectCreateRole('admin')" style="flex:1;padding:.55rem .5rem;border-radius:10px;border:2px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .2s;">🛡️ Admin</button>
+                </div>
+                <input type="hidden" id="ucRole" value="user">
             </div>
-            <form id="createUserForm" onsubmit="handleCreateUser(event)" style="padding: 2rem;">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Nombre *</label>
-                        <input type="text" id="ucName" required placeholder="Nombre" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+
+            <form id="createUserForm" onsubmit="handleCreateUser(event)" style="padding:1.75rem 2rem;">
+
+                <!-- Datos básicos (siempre visibles) -->
+                <div style="margin-bottom:1rem;">
+                    <p style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.75rem;">Datos Personales</p>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label style="font-size:.8rem;color:rgba(255,255,255,.6);">Nombre *</label>
+                            <input type="text" id="ucName" required placeholder="Nombre"
+                                style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;width:100%;font-family:inherit;">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:.8rem;color:rgba(255,255,255,.6);">Apellido</label>
+                            <input type="text" id="ucLastName" placeholder="Apellido"
+                                style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;width:100%;font-family:inherit;">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Apellido</label>
-                        <input type="text" id="ucLastName" placeholder="Apellido" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                    <div style="margin-top:.75rem;">
+                        <label style="font-size:.8rem;color:rgba(255,255,255,.6);">Email *</label>
+                        <input type="email" id="ucEmail" required placeholder="correo@ejemplo.com"
+                            style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;width:100%;font-family:inherit;margin-top:.35rem;">
                     </div>
-                </div>
-                <div class="form-group" style="margin-bottom:1rem;">
-                    <label>Email *</label>
-                    <input type="email" id="ucEmail" required placeholder="email@ejemplo.com" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width:100%;">
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Rol del Usuario *</label>
-                        <select id="ucRole" required onchange="togglePermissionsUI()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
-                            <option value="user">Usuario Regular</option>
-                            <option value="vendedor">Vendedor</option>
-                            <option value="admin">Administrador (Personalizado)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Contraseña *</label>
-                        <input type="password" id="ucPassword" required placeholder="Min. 6 carac." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                    <div style="margin-top:.75rem;">
+                        <label style="font-size:.8rem;color:rgba(255,255,255,.6);">Contraseña *</label>
+                        <input type="password" id="ucPassword" required placeholder="Mínimo 6 caracteres"
+                            style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;width:100%;font-family:inherit;margin-top:.35rem;">
                     </div>
                 </div>
 
-                <!-- Seller specific fields -->
-                <div id="ucSellerFields" style="display:none; margin-top:1rem;">
-                    <div class="form-group">
-                        <label>Código de Vendedor (Opcional)</label>
-                        <input type="text" id="ucSellerCode" placeholder="Ej: VDR-01" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width:100%;">
+                <!-- === BLOQUE VENDEDOR === -->
+                <div id="ucSellerFields" style="display:none;margin-top:1.25rem;padding:1.25rem;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-radius:14px;">
+                    <p style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a78bfa;margin-bottom:.75rem;">🏷️ Configuración de Vendedor</p>
+                    <div>
+                        <label style="font-size:.8rem;color:rgba(255,255,255,.6);">Código de Referido <span style="color:rgba(255,255,255,.3);">(opcional — se autogenera si lo dejas vacío)</span></label>
+                        <input type="text" id="ucSellerCode" placeholder="Ej: JUAN-AB3C"
+                            style="background:rgba(255,255,255,.05);border:1px solid rgba(124,58,237,.3);border-radius:10px;color:#fff;padding:.7rem 1rem;width:100%;font-family:inherit;margin-top:.35rem;text-transform:uppercase;">
+                        <small style="color:rgba(255,255,255,.3);font-size:.75rem;margin-top:.3rem;display:block;">💡 Si lo dejas en blanco, el sistema generará un código único automáticamente.</small>
+                    </div>
+                    <div style="margin-top:.75rem;">
+                        <label style="font-size:.8rem;color:rgba(255,255,255,.6);">Comisión (%)</label>
+                        <input type="number" id="ucSellerCommission" placeholder="10" min="0" max="100" value="10"
+                            style="background:rgba(255,255,255,.05);border:1px solid rgba(124,58,237,.3);border-radius:10px;color:#fff;padding:.7rem 1rem;width:100%;font-family:inherit;margin-top:.35rem;">
                     </div>
                 </div>
 
-                <!-- Admin specific permissions -->
-                <div id="ucPermissionsFields" style="display:none; margin-top:1.5rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:10px;">
-                    <p style="font-weight:700; font-size:0.9rem; margin-bottom:1rem; color:#7C3AED;">Permisos de Acceso (Vistas)</p>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" name="ucPerm" value="courses"> Cursos
+                <!-- === BLOQUE ADMIN === -->
+                <div id="ucPermissionsFields" style="display:none;margin-top:1.25rem;padding:1.25rem;background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.25);border-radius:14px;">
+                    <p style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#818cf8;margin-bottom:.75rem;">🛡️ Permisos del Administrador</p>
+                    <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:1rem;">Selecciona las secciones a las que tendrá acceso este admin:</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.25rem;">
+                        <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
+                            <input type="checkbox" name="ucPerm" value="courses"> 📚 Cursos
                         </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" name="ucPerm" value="memberships"> Membresías
+                        <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
+                            <input type="checkbox" name="ucPerm" value="memberships"> 💎 Membresías
                         </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" name="ucPerm" value="banners"> Banners
+                        <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
+                            <input type="checkbox" name="ucPerm" value="banners"> 🖼️ Banners
                         </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" name="ucPerm" value="users"> Usuarios
+                        <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
+                            <input type="checkbox" name="ucPerm" value="users"> 👥 Usuarios
                         </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" name="ucPerm" value="categories"> Categorías
+                        <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
+                            <input type="checkbox" name="ucPerm" value="categories"> 📋 Categorías
                         </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" name="ucPerm" value="logo"> Logo/Marca
-                        </label>
-                    </div>
-                    <p style="font-weight:700; font-size:0.9rem; margin-top:1.5rem; margin-bottom:1rem; color:#7C3AED;">Permisos de Acción</p>
-                    <div style="display:flex; gap:1.5rem;">
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" id="ucCanCreate" checked> Crear Contenido
-                        </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" id="ucCanEdit" checked> Editar Contenido
+                        <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
+                            <input type="checkbox" name="ucPerm" value="logo"> 🎨 Logo/Marca
                         </label>
                     </div>
-                    <small style="display:block; margin-top:1rem; opacity:0.6;">Si eres Admin Total, deja todos marcados.</small>
+                    <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:1rem;">
+                        <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:.75rem;">Permisos de acción:</p>
+                        <div style="display:flex;gap:1.5rem;">
+                            <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;">
+                                <input type="checkbox" id="ucCanCreate" checked> ✏️ Crear contenido
+                            </label>
+                            <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;">
+                                <input type="checkbox" id="ucCanEdit" checked> 🔧 Editar contenido
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-actions" style="margin-top:2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-                    <button type="button" class="btn-secondary" onclick="closeCreateUserModal()" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
-                    <button type="submit" class="btn-primary" id="btnSaveUser" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">Crear Usuario</button>
+                <!-- Botones -->
+                <div style="margin-top:1.75rem;display:flex;gap:.75rem;justify-content:flex-end;border-top:1px solid rgba(255,255,255,.07);padding-top:1.5rem;">
+                    <button type="button" onclick="closeCreateUserModal()"
+                        style="padding:.65rem 1.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.7);font-family:inherit;font-weight:600;cursor:pointer;">Cancelar</button>
+                    <button type="submit" id="btnSaveUser"
+                        style="padding:.65rem 1.75rem;background:linear-gradient(135deg,#7C3AED,#4F46E5);border:none;border-radius:10px;color:#fff;font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;">
+                        <span id="btnSaveUserText">Crear Usuario</span>
+                        <div class="btn-spinner" id="btnSaveUserSpinner" style="display:none;"></div>
+                    </button>
                 </div>
             </form>
         </div>

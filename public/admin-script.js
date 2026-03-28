@@ -1098,13 +1098,43 @@ async function deleteMembership(id, name) {
 // USERS ADMIN
 // ===================================
 
+// ===================================
+// GESTIÓN DE USUARIOS (3 sub-tabs)
+// ===================================
+
+let activeUserSubTab = 'user'; // 'user' | 'vendedor' | 'admin'
+
+function switchUserSubTab(type) {
+    activeUserSubTab = type;
+    ['user', 'vendedor', 'admin'].forEach(t => {
+        const tab = document.getElementById(`usub-tab-${t}`);
+        const section = document.getElementById(`usersub-${t}`);
+        if (t === type) {
+            tab.style.background = t === 'user' ? 'rgba(79,255,176,.15)' : t === 'vendedor' ? 'rgba(124,58,237,.2)' : 'rgba(79,70,229,.2)';
+            tab.style.color = t === 'user' ? '#4FFFB0' : t === 'vendedor' ? '#c4b5fd' : '#818cf8';
+            section.style.display = 'block';
+        } else {
+            tab.style.background = 'transparent';
+            tab.style.color = 'rgba(255,255,255,.5)';
+            section.style.display = 'none';
+        }
+    });
+    // Update button text for "Nuevo Usuario"
+    const btn = document.getElementById('btnNewUserMain');
+    if (btn) {
+        const labels = { user: 'Nuevo Usuario', vendedor: 'Nuevo Vendedor', admin: 'Nuevo Admin' };
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type]}`;
+        btn.onclick = () => openCreateUserModal(type);
+    }
+}
+
 async function loadUsers() {
     try {
         const res = await fetch(apiUrl('/api/admin/users'), { headers: authHeaders() });
         const data = await res.json();
         if (data.success) {
             usersData = data.users;
-            renderUsersTable(data.users);
+            renderAllUserTables(data.users);
         } else {
             showToast(data.message || 'Error', 'error');
         }
@@ -1113,140 +1143,166 @@ async function loadUsers() {
     }
 }
 
+function renderAllUserTables(users) {
+    const normalUsers = users.filter(u => u.role === 'user');
+    const vendors = users.filter(u => u.role === 'vendedor');
+    const admins = users.filter(u => u.role === 'admin');
+
+    renderUsersTable(normalUsers);
+    renderVendedoresTable(vendors);
+    renderAdminsTable(admins);
+    renderUserStatsBar(normalUsers.length, vendors.length, admins.length);
+}
+
+function filterUsersTable(query) {
+    if (!usersData) return;
+    const q = query.toLowerCase();
+    const filtered = usersData.filter(u =>
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.lastName?.toLowerCase().includes(q) ||
+        u.sellerCode?.toLowerCase().includes(q)
+    );
+    renderAllUserTables(filtered);
+}
+
+function renderUserStatsBar(users, vendors, admins) {
+    const bar = document.getElementById('usersStatsBar');
+    if (!bar) return;
+    bar.innerHTML = [
+        { label: 'Usuarios', count: users, color: '#4FFFB0', bg: 'rgba(79,255,176,.1)', border: 'rgba(79,255,176,.2)' },
+        { label: 'Vendedores', count: vendors, color: '#c4b5fd', bg: 'rgba(124,58,237,.1)', border: 'rgba(124,58,237,.3)' },
+        { label: 'Admins', count: admins, color: '#818cf8', bg: 'rgba(79,70,229,.1)', border: 'rgba(79,70,229,.3)' },
+        { label: 'Total', count: users + vendors + admins, color: '#fff', bg: 'rgba(255,255,255,.05)', border: 'rgba(255,255,255,.1)' },
+    ].map(s => `
+        <div style="padding:.6rem 1.25rem;background:${s.bg};border:1px solid ${s.border};border-radius:10px;min-width:90px;">
+            <div style="font-size:1.5rem;font-weight:800;color:${s.color};">${s.count}</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:.1rem;">${s.label}</div>
+        </div>
+    `).join('');
+}
+
 function renderUsersTable(users) {
     const tbody = document.getElementById('usersTableBody');
     const paginationContainer = document.getElementById('usersPagination');
-    
     if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
     const now = new Date();
-
-    // 1. Filtramos según el estado seleccionado
-    const filteredUsers = users.filter(u => {
-        const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
-        if (currentUserFilter === 'active') return isActive;
-        if (currentUserFilter === 'inactive') return !isActive;
-        return true;
-    });
-
-    if (filteredUsers.length === 0) {
-        const msg = currentUserFilter === 'active' ? 'No hay usuarios activos' : 'No hay usuarios inactivos';
-        tbody.innerHTML = `<tr><td colspan="10" class="loading-row"><p>${msg}</p></td></tr>`;
-        if (paginationContainer) paginationContainer.innerHTML = '';
-        return;
-    }
-
-    // 2. Aplicamos paginación
-    const totalFiltered = filteredUsers.length;
-    const totalPages = Math.ceil(totalFiltered / usersPerPage);
-    
-    // Asegurar que la página actual no exceda el total
+    const totalPages = Math.ceil(users.length / usersPerPage);
     if (usersCurrentPage > totalPages) usersCurrentPage = totalPages || 1;
-    
     const start = (usersCurrentPage - 1) * usersPerPage;
-    const end = start + usersPerPage;
-    const paginatedUsers = filteredUsers.slice(start, end);
+    const paginated = users.slice(start, start + usersPerPage);
 
-    // 3. Renderizamos la tabla
-    tbody.innerHTML = paginatedUsers.map(u => {
+    tbody.innerHTML = paginated.map(u => {
         const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
         const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
         return `
         <tr>
-            <td><strong style="color:#fff;">${u.name}</strong> <span style="color:rgba(255,255,255,0.5);font-size:.8rem;">${u.lastName || ''}</span></td>
-            <td style="font-size:.85rem;color:rgba(255,255,255,0.75);">${u.email}</td>
-            <td class="col-celular" style="font-size:.85rem;color:rgba(255,255,255,0.6);">${u.phone || '-'}</td>
-            <td class="col-pais" style="font-size:.85rem;color:rgba(255,255,255,0.6);">${u.country || '-'}</td>
+            <td><strong style="color:#fff;">${u.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${u.lastName || ''}</span></td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,.75);">${u.email}</td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,.6);">${u.phone || '-'}</td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,.6);">${u.country || '-'}</td>
+            <td style="font-size:.8rem;color:rgba(255,255,255,.5);">${u.referredBy ? '<span style="color:#c4b5fd;">Sí</span>' : '-'}</td>
+            <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin membresía</span>'}</td>
+            <td style="font-size:.8rem;color:rgba(255,255,255,.5);">${isActive ? expDate : '-'}</td>
             <td>
-                ${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.2);color:#FFD700;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,215,0,.4);">ADMIN</span>' : 
-                  u.role === 'vendedor' ? '<span style="background:rgba(124,58,237,.3);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(124,58,237,.5);">VENDEDOR</span>' : 
-                  '<span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:.75rem;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,255,255,0.15);">Usuario</span>'}
-            </td>
-            <td class="col-vendedor">
-                ${u.sellerCode ? `<code style="background:rgba(124,58,237,.2);padding:.2rem .5rem;border-radius:6px;font-size:.75rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);">${u.sellerCode}</code>` : '<span style="color:rgba(255,255,255,0.3);">-</span>'}
-            </td>
-            <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,0.3);font-size:.8rem;">Sin membresía</span>'}</td>
-            <td class="col-nacimiento" style="font-size:.8rem;color:rgba(255,255,255,0.5);">${u.birthDate || '-'}</td>
-            <td class="col-expira" style="font-size:.8rem;color:rgba(255,255,255,0.5);">${isActive ? expDate : '-'}</td>
-            <td>
-                <div style="display:flex;gap:.4rem;flex-wrap:nowrap;">
-                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" title="Membresía" style="padding:.35rem .6rem;background:rgba(124,58,237,.3);border:1px solid rgba(124,58,237,.5);color:#c4b5fd;border-radius:8px;cursor:pointer;font-size:.9rem;">
-                        💎
-                    </button>
-                    <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}','${u.canCreate}','${u.canEdit}')" title="Permisos/Rol" style="padding:.35rem .6rem;background:rgba(255,165,0,.2);border:1px solid rgba(255,165,0,.4);color:#FFA500;border-radius:8px;cursor:pointer;font-size:.9rem;">
-                        🔑
-                    </button>
-                    <button onclick="openUserDetailsModal('${u._id}')" title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;font-size:.9rem;">
-                        📝
-                    </button>
+                <div style="display:flex;gap:.4rem;">
+                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')"
+                        title="Membresía" style="padding:.35rem .6rem;background:rgba(124,58,237,.3);border:1px solid rgba(124,58,237,.5);color:#c4b5fd;border-radius:8px;cursor:pointer;">💎</button>
+                    <button onclick="openUserDetailsModal('${u._id}')"
+                        title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">📝</button>
                 </div>
             </td>
         </tr>`;
     }).join('');
+    renderUsersPagination(users.length);
+}
 
-    // 4. Renderizamos los controles de paginación
-    renderUsersPagination(totalFiltered);
+function renderVendedoresTable(vendors) {
+    const tbody = document.getElementById('vendedoresTableBody');
+    if (!vendors || vendors.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
+        return;
+    }
+    tbody.innerHTML = vendors.map(v => `
+        <tr>
+            <td><strong style="color:#fff;">${v.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${v.lastName || ''}</span></td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,.75);">${v.email}</td>
+            <td>${v.sellerCode
+                ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
+                : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
+            </td>
+            <td style="color:#4FFFB0;font-weight:700;">${v.sellerCommission ?? 10}%</td>
+            <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
+            <td style="color:rgba(255,255,255,.6);">${v.referralCount ?? 0}</td>
+            <td>
+                <div style="display:flex;gap:.4rem;">
+                    <button onclick="openEditPermissionsModal('${v._id}','${v.name.replace(/'/g, "\\'") } ${v.lastName?.replace(/'/g, "\\'") || ''}','${v.role}','${(v.permissions||[]).join(',')}','${v.canCreate}','${v.canEdit}')"
+                        title="Editar Rol" style="padding:.35rem .6rem;background:rgba(255,165,0,.2);border:1px solid rgba(255,165,0,.4);color:#FFA500;border-radius:8px;cursor:pointer;">🔑</button>
+                    <button onclick="openUserDetailsModal('${v._id}')"
+                        title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;cursor:pointer;">📝</button>
+                </div>
+            </td>
+        </tr>`).join('');
+}
+
+function renderAdminsTable(admins) {
+    const tbody = document.getElementById('adminsTableBody');
+    if (!admins || admins.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay administradores registrados</p></td></tr>';
+        return;
+    }
+    const permLabels = { courses:'📚 Cursos', memberships:'💎 Members', banners:'🖼️ Banners', users:'👥 Usuarios', categories:'📋 Categ.', logo:'🎨 Logo' };
+    tbody.innerHTML = admins.map(a => {
+        const perms = (a.permissions || []).map(p => permLabels[p] || p).join(', ') || '<span style="color:#4FFFB0;">Acceso Total</span>';
+        return `
+        <tr>
+            <td><strong style="color:#fff;">${a.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${a.lastName || ''}</span></td>
+            <td style="font-size:.85rem;color:rgba(255,255,255,.75);">${a.email}</td>
+            <td style="font-size:.8rem;color:rgba(255,255,255,.6);">${perms}</td>
+            <td>${a.canCreate !== false ? '<span style="color:#4FFFB0;">✔</span>' : '<span style="color:#FF6B70;">✘</span>'}</td>
+            <td>${a.canEdit !== false ? '<span style="color:#4FFFB0;">✔</span>' : '<span style="color:#FF6B70;">✘</span>'}</td>
+            <td>
+                <div style="display:flex;gap:.4rem;">
+                    <button onclick="openEditPermissionsModal('${a._id}','${a.name.replace(/'/g, "\\'") } ${a.lastName?.replace(/'/g, "\\'") || ''}','${a.role}','${(a.permissions||[]).join(',')}','${a.canCreate}','${a.canEdit}')"
+                        title="Editar Permisos" style="padding:.35rem .6rem;background:rgba(255,165,0,.2);border:1px solid rgba(255,165,0,.4);color:#FFA500;border-radius:8px;cursor:pointer;">🔑</button>
+                    <button onclick="openUserDetailsModal('${a._id}')"
+                        title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;cursor:pointer;">📝</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
 }
 
 function renderUsersPagination(totalUsers) {
     const paginationContainer = document.getElementById('usersPagination');
     if (!paginationContainer) return;
-
     const totalPages = Math.ceil(totalUsers / usersPerPage);
-    if (totalPages <= 1) {
-        paginationContainer.innerHTML = '';
-        return;
-    }
-
-    let html = `
-        <button class="pagination-btn" onclick="changeUsersPage(${usersCurrentPage - 1})" ${usersCurrentPage === 1 ? 'disabled' : ''}>
-            &laquo;
-        </button>
-    `;
-
-    // Botones de números
+    if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
+    let html = `<button class="pagination-btn" onclick="changeUsersPage(${usersCurrentPage - 1})" ${usersCurrentPage === 1 ? 'disabled' : ''}>&laquo;</button>`;
     for (let i = 1; i <= totalPages; i++) {
-        // Lógica para no mostrar demasiados números si hay muchas páginas
-        if (totalPages > 7) {
-            if (i > 1 && i < totalPages && (i < usersCurrentPage - 1 || i > usersCurrentPage + 1)) {
-                if (i === usersCurrentPage - 2 || i === usersCurrentPage + 2) {
-                    html += `<span style="color:rgba(0,0,0,0.3)">...</span>`;
-                }
-                continue;
-            }
-        }
-
-        html += `
-            <button class="pagination-btn ${usersCurrentPage === i ? 'active' : ''}" onclick="changeUsersPage(${i})">
-                ${i}
-            </button>
-        `;
+        html += `<button class="pagination-btn ${usersCurrentPage === i ? 'active' : ''}" onclick="changeUsersPage(${i})">${i}</button>`;
     }
-
-    html += `
-        <button class="pagination-btn" onclick="changeUsersPage(${usersCurrentPage + 1})" ${usersCurrentPage === totalPages ? 'disabled' : ''}>
-            &raquo;
-        </button>
-    `;
-
+    html += `<button class="pagination-btn" onclick="changeUsersPage(${usersCurrentPage + 1})" ${usersCurrentPage === totalPages ? 'disabled' : ''}>&raquo;</button>`;
     paginationContainer.innerHTML = html;
 }
 
 function changeUsersPage(page) {
     usersCurrentPage = page;
-    renderUsersTable(usersData);
-    // Hacer scroll al principio de la sección de usuarios para ver la nueva página si es necesario
+    const q = document.getElementById('usersSearchInput')?.value || '';
+    filterUsersTable(q);
     document.getElementById('section-users').scrollIntoView({ behavior: 'smooth' });
 }
 
 function handleUserFilterChange(val) {
     currentUserFilter = val;
-    usersCurrentPage = 1; // RESET DE PÁGINA AL FILTRAR
-    renderUsersTable(usersData);
+    usersCurrentPage = 1;
+    renderUsersTable(usersData.filter(u => u.role === 'user'));
 }
+
 
 async function openUserMembershipModal(userId, userName) {
     editingUserId = userId;
@@ -1885,12 +1941,51 @@ function getFirstAllowedTab(user) {
 function openCreateUserModal(role = 'user') {
     document.getElementById('createUserModal').classList.add('active');
     document.getElementById('createUserForm').reset();
-    
-    // Asignar el rol inicial
-    document.getElementById('ucRole').value = role;
-    
-    togglePermissionsUI();
+    selectCreateRole(role);
 }
+
+function selectCreateRole(role) {
+    // Update hidden input
+    document.getElementById('ucRole').value = role;
+
+    // Pill button styles
+    const styles = {
+        user:     { border:'rgba(79,255,176,.5)',  bg:'rgba(79,255,176,.12)',    color:'#4FFFB0' },
+        vendedor: { border:'rgba(124,58,237,.5)', bg:'rgba(124,58,237,.18)',   color:'#c4b5fd' },
+        admin:    { border:'rgba(79,70,229,.5)',  bg:'rgba(79,70,229,.18)',    color:'#818cf8' },
+    };
+    ['user', 'vendedor', 'admin'].forEach(r => {
+        const btn = document.getElementById(`roleBtn-${r}`);
+        if (r === role) {
+            btn.style.border = `2px solid ${styles[r].border}`;
+            btn.style.background = styles[r].bg;
+            btn.style.color = styles[r].color;
+        } else {
+            btn.style.border = '2px solid rgba(255,255,255,.1)';
+            btn.style.background = 'transparent';
+            btn.style.color = 'rgba(255,255,255,.4)';
+        }
+    });
+
+    // Show/hide exclusive blocks
+    document.getElementById('ucSellerFields').style.display     = role === 'vendedor' ? 'block' : 'none';
+    document.getElementById('ucPermissionsFields').style.display = role === 'admin'    ? 'block' : 'none';
+
+    // Update modal title & subtitle
+    const titles = { user: 'Nuevo Usuario', vendedor: 'Nuevo Vendedor', admin: 'Nuevo Administrador' };
+    const subs   = {
+        user:     'Datos básicos de cuenta de acceso a la plataforma',
+        vendedor: 'El código de referido se autogenera si lo dejas vacío',
+        admin:    'Define qué secciones del panel puede gestionar este admin',
+    };
+    document.getElementById('createUserModalTitle').textContent = titles[role];
+    document.getElementById('createUserModalSub').textContent   = subs[role];
+
+    // Save button label
+    const btnLabels = { user: 'Crear Usuario', vendedor: 'Crear Vendedor', admin: 'Crear Admin' };
+    document.getElementById('btnSaveUserText').textContent = btnLabels[role];
+}
+
 
 function closeCreateUserModal() {
     document.getElementById('createUserModal').classList.remove('active');
@@ -1911,8 +2006,11 @@ function togglePermissionsUI() {
 async function handleCreateUser(event) {
     event.preventDefault();
     const btn = document.getElementById('btnSaveUser');
+    const btnText = document.getElementById('btnSaveUserText');
+    const btnSpinner = document.getElementById('btnSaveUserSpinner');
     btn.disabled = true;
-    btn.textContent = 'Guardando...';
+    if (btnText) btnText.style.display = 'none';
+    if (btnSpinner) btnSpinner.style.display = 'inline-block';
 
     const role = document.getElementById('ucRole').value;
     const permissions = [];
@@ -1935,7 +2033,9 @@ async function handleCreateUser(event) {
 
     if (role === 'vendedor') {
         userData.sellerCode = document.getElementById('ucSellerCode').value || undefined;
+        userData.sellerCommission = parseInt(document.getElementById('ucSellerCommission')?.value || '10');
     }
+
 
     try {
         const res = await fetch(apiUrl('/api/admin/users'), {
@@ -1949,9 +2049,18 @@ async function handleCreateUser(event) {
 
         const data = await res.json();
         if (data.success) {
-            showToast('Usuario creado correctamente');
+            if (role === 'vendedor' && data.sellerCode) {
+                showToast(`✅ Vendedor creado — Código: ${data.sellerCode}`, 'success');
+                // Mostrar alert para que el admin lo copie fácilmente
+                setTimeout(() => alert(`✅ Vendedor creado exitosamente.\n\nCódigo de referido: ${data.sellerCode}\n\nGuarda este código para compartirlo con el vendedor.`), 500);
+            } else {
+                showToast('Usuario creado correctamente');
+            }
             closeCreateUserModal();
-            if (activeTab === 'users') loadUsers();
+            if (activeTab === 'users') {
+                await loadUsers();
+                switchUserSubTab(role);
+            }
         } else {
             showToast(data.message || 'Error al crear usuario', 'error');
         }
@@ -1959,7 +2068,8 @@ async function handleCreateUser(event) {
         showToast('Error de conexión', 'error');
     } finally {
         btn.disabled = false;
-        btn.textContent = 'Crear Usuario';
+        if (btnText) { btnText.style.display = 'inline'; }
+        if (btnSpinner) { btnSpinner.style.display = 'none'; }
     }
 }
 

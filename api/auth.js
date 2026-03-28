@@ -108,7 +108,7 @@ try { User = mongoose.model('User'); } catch {
         avatar:      { type: String, default: null },
         provider:    { type: String, enum: ['local', 'google', 'github'], default: 'local' },
         role:        { type: String, enum: ['user', 'admin', 'vendedor'], default: 'user' },
-        sellerCode:  { type: String, unique: true, sparse: true, default: null },
+        sellerCode:  { type: String, unique: true, sparse: true },
         referredBy:  { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
         sellerBalance: { type: Number, default: 0 },
         sellerCommission: { type: Number, default: 10 },
