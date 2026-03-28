@@ -24,5 +24,5 @@ const configReady = (async () => {
 })();
 
 function apiUrl(path) {
-    return `${API_BASE}${path}`;
+return `${API_BASE}${path}`;
 }
