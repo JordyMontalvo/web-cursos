@@ -1968,10 +1968,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ===================================
 
 function applyViewPermissions(user) {
-    // Si no tiene permisos definidos (admin total antiguo), permitir todo
     if (!user.permissions || user.permissions.length === 0) return;
-
-    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo'];
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo', 'commissions'];
     allTabs.forEach(tab => {
         const menuItem = document.getElementById(`tab-${tab}`);
         if (menuItem && !user.permissions.includes(tab)) {
@@ -1982,11 +1980,11 @@ function applyViewPermissions(user) {
 
 function getFirstAllowedTab(user) {
     if (!user.permissions || user.permissions.length === 0) return 'courses';
-    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo'];
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo', 'commissions'];
     for (const tab of allTabs) {
         if (user.permissions.includes(tab)) return tab;
     }
-    return 'courses'; // Fallback
+    return 'courses';
 }
 
 function openCreateUserModal(role = 'user') {
