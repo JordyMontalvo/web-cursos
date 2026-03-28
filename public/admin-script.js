@@ -1205,7 +1205,13 @@ function renderUsersTable(users) {
             <td style="font-size:.85rem;color:rgba(255,255,255,.75);">${u.email}</td>
             <td style="font-size:.85rem;color:rgba(255,255,255,.6);">${u.phone || '-'}</td>
             <td style="font-size:.85rem;color:rgba(255,255,255,.6);">${u.country || '-'}</td>
-            <td style="font-size:.8rem;color:rgba(255,255,255,.5);">${u.referredBy ? '<span style="color:#c4b5fd;">Sí</span>' : '-'}</td>
+            <td style="font-size:.8rem;">${(() => {
+                if (!u.referredBy) return '<span style="color:rgba(255,255,255,.3);">-</span>';
+                // Buscar el vendedor por su _id en usersData
+                const seller = usersData && usersData.find(s => s._id === u.referredBy || s._id?.toString() === u.referredBy?.toString());
+                if (seller) return `<span style="color:#c4b5fd;font-weight:600;">${seller.name} ${seller.lastName || ''}</span><br><code style="font-size:.7rem;color:rgba(196,181,253,.6);">${seller.sellerCode || ''}</code>`;
+                return '<span style="color:rgba(196,181,253,.5);font-size:.75rem;">Referido</span>';
+            })()}</td>
             <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin membresía</span>'}</td>
             <td style="font-size:.8rem;color:rgba(255,255,255,.5);">${isActive ? expDate : '-'}</td>
             <td>
@@ -1235,7 +1241,21 @@ function renderVendedoresTable(vendors) {
                 ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
                 : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
             </td>
-            <td style="color:#4FFFB0;font-weight:700;">${v.sellerCommission ?? 10}%</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:.4rem;">
+                    <input
+                        type="number" min="0" max="100"
+                        id="comm-${v._id}"
+                        value="${v.sellerCommission ?? 10}"
+                        style="width:60px;padding:.3rem .4rem;background:rgba(79,255,176,.07);border:1px solid rgba(79,255,176,.25);border-radius:7px;color:#4FFFB0;font-weight:700;font-size:.85rem;font-family:inherit;text-align:center;"
+                        onkeydown="if(event.key==='Enter')saveVendorCommission('${v._id}')"
+                    >
+                    <span style="color:rgba(79,255,176,.7);font-weight:700;">%</span>
+                    <button onclick="saveVendorCommission('${v._id}')"
+                        title="Guardar comisión"
+                        style="padding:.25rem .5rem;background:rgba(79,255,176,.15);border:1px solid rgba(79,255,176,.35);color:#4FFFB0;border-radius:7px;cursor:pointer;font-size:.75rem;font-weight:700;">✓</button>
+                </div>
+            </td>
             <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
             <td style="color:rgba(255,255,255,.6);">${v.referralCount ?? 0}</td>
             <td>
@@ -1247,6 +1267,36 @@ function renderVendedoresTable(vendors) {
                 </div>
             </td>
         </tr>`).join('');
+}
+
+async function saveVendorCommission(vendorId) {
+    const input = document.getElementById(`comm-${vendorId}`);
+    if (!input) return;
+    const val = parseFloat(input.value);
+    if (isNaN(val) || val < 0 || val > 100) {
+        showToast('La comisión debe ser entre 0 y 100', 'error');
+        return;
+    }
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users?id=${vendorId}`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ sellerCommission: val })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(`✅ Comisión actualizada a ${val}%`);
+            // Actualizar el valor en usersData para reflejar sin recargar
+            if (usersData) {
+                const v = usersData.find(u => u._id === vendorId);
+                if (v) v.sellerCommission = val;
+            }
+        } else {
+            showToast(data.message || 'Error al guardar', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
 }
 
 function renderAdminsTable(admins) {

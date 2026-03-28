@@ -177,28 +177,43 @@ module.exports = async (req, res) => {
                 });
                 return res.json({ success: true, message: 'Membresía asignada' });
             } else {
-                // General Update (Password, Role, Permissions, etc)
-            const { password, role, permissions, canCreate, canEdit } = req.body;
-            const updateData = {};
-            if (password) {
-                const user = await User.findById(userId);
-                if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-                user.password = password;
-                await user.save();
-                return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
-            }
-            
-            if (role) updateData.role = role;
-            if (permissions) updateData.permissions = permissions;
-            if (canCreate !== undefined) updateData.canCreate = canCreate;
-            if (canEdit !== undefined) updateData.canEdit = canEdit;
-            
-            if (Object.keys(updateData).length > 0) {
-                await User.findByIdAndUpdate(userId, { ...updateData, updatedAt: Date.now() });
-                return res.json({ success: true, message: 'Usuario actualizado con éxito' });
-            }
+                // General Update (Password, Role, Permissions, sellerCommission, etc)
+                const { password, role, permissions, canCreate, canEdit, sellerCommission, sellerCode } = req.body;
+                const updateData = {};
+                if (password) {
+                    const user = await User.findById(userId);
+                    if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+                    user.password = password;
+                    await user.save();
+                    return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
+                }
 
-            return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
+                if (role) updateData.role = role;
+                if (permissions) updateData.permissions = permissions;
+                if (canCreate !== undefined) updateData.canCreate = canCreate;
+                if (canEdit !== undefined) updateData.canEdit = canEdit;
+
+                // Campos exclusivos de vendedor
+                if (sellerCommission !== undefined && sellerCommission !== null) {
+                    updateData.sellerCommission = Number(sellerCommission);
+                }
+                if (sellerCode !== undefined) {
+                    // Validar que el código no esté en uso por otro usuario
+                    if (sellerCode && sellerCode.trim()) {
+                        const codeInUse = await User.findOne({ sellerCode: sellerCode.trim().toUpperCase(), _id: { $ne: userId } });
+                        if (codeInUse) return res.status(400).json({ success: false, message: `El código "${sellerCode}" ya está en uso` });
+                        updateData.sellerCode = sellerCode.trim().toUpperCase();
+                    } else {
+                        updateData.$unset = { sellerCode: '' };
+                    }
+                }
+
+                if (Object.keys(updateData).length > 0 || updateData.$unset) {
+                    await User.findByIdAndUpdate(userId, { ...updateData, updatedAt: Date.now() });
+                    return res.json({ success: true, message: 'Usuario actualizado con éxito' });
+                }
+
+                return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
             }
         }
 
