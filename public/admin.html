@@ -208,34 +208,31 @@
 
             <!-- BANNERS SECTION -->
             <div id="section-banners" style="display:none;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-                    <div>
-                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Banners Carrusel</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona las imágenes promocionales
-                            de la página principal</p>
+                <div class="table-container" style="box-shadow: 0 10px 40px rgba(79, 255, 176, 0.08); border-color: rgba(79, 255, 176, 0.15);">
+                    <div class="table-header">
+                        <div>
+                            <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Banners Carrusel</h2>
+                            <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona las imágenes promocionales de la página principal</p>
+                        </div>
+                        <button class="btn-primary" onclick="openBannerModal()">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
+                                <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            Nuevo Banner
+                        </button>
                     </div>
-                    <button class="btn-primary" onclick="openBannerModal()">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
-                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                        Nuevo Banner
-                    </button>
-                </div>
 
-                <div
-                    style="background:rgba(20,20,35,.85);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.5rem;margin-bottom:2rem;">
-                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">🎥 Video de Presentación</h3>
-                    <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1rem;">Ingresa el enlace del
-                        video (Ej. YouTube) que aparecerá debajo del carrusel en la página principal.</p>
-                    <form id="settingsForm" onsubmit="saveSettings(event)" style="display:flex;gap:1rem;">
-                        <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..."
-                            style="flex:1;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;"
-                            required>
-                        <button type="submit" class="btn-primary" style="white-space:nowrap;">Guardar Link</button>
-                    </form>
-                </div>
+                    <div style="background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.05); padding:1.5rem;">
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:#fff;">🎥 Video de Presentación</h3>
+                        <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1rem;">Ingresa el enlace del video (Ej. YouTube) que aparecerá debajo del carrusel en la página principal.</p>
+                        <form id="settingsForm" onsubmit="saveSettings(event)" style="display:flex;gap:1rem;">
+                            <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..."
+                                style="flex:1;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;"
+                                required>
+                            <button type="submit" class="btn-primary" style="white-space:nowrap;">Guardar Link</button>
+                        </form>
+                    </div>
 
-                <div class="table-container">
                     <div class="table-wrapper">
                         <table class="courses-table">
                             <thead>
@@ -428,20 +425,20 @@
             
             <!-- CATEGORIES SECTION -->
             <div id="section-categories" style="display:none;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-                    <div>
-                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Categorías</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra las categorías disponibles para los cursos</p>
+                <div class="table-container" style="box-shadow: 0 10px 40px rgba(79, 70, 229, 0.12); border-color: rgba(79, 70, 229, 0.2);">
+                    <div class="table-header">
+                        <div>
+                            <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Categorías</h2>
+                            <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra las categorías disponibles para los cursos</p>
+                        </div>
+                        <button class="btn-primary" onclick="openCategoryModal()">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
+                                <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            Nueva Categoría
+                        </button>
                     </div>
-                    <button class="btn-primary" onclick="openCategoryModal()">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
-                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                        Nueva Categoría
-                    </button>
-                </div>
 
-                <div class="table-container">
                     <div class="table-wrapper">
                         <table class="courses-table">
                             <thead>
