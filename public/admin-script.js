@@ -2221,7 +2221,7 @@ async function loadCommissionsData() {
 async function fetchAllTransactions() {
     try {
         const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
-        const res = await fetch(apiUrl('/api/admin-transactions'), {
+        const res = await fetch(apiUrl('/api/admin-users/transactions'), {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -2236,7 +2236,7 @@ async function fetchAllTransactions() {
 async function fetchWithdrawalRequests() {
     try {
         const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
-        const res = await fetch(apiUrl('/api/admin-transactions/withdrawals'), {
+        const res = await fetch(apiUrl('/api/admin-users/withdrawals'), {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -2318,7 +2318,7 @@ async function processWithdrawal(id, status) {
 
     try {
         const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
-        const res = await fetch(apiUrl('/api/admin-transactions/withdrawals'), {
+        const res = await fetch(apiUrl('/api/admin-users/withdrawals'), {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ transactionId: id, status })

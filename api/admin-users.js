@@ -50,6 +50,19 @@ if (mongoose.models.Membership) {
     Membership = mongoose.model('Membership', schema);
 }
 
+let Transaction;
+try { Transaction = mongoose.model('Transaction'); } catch {
+    const schema = new mongoose.Schema({
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        type: { type: String, enum: ['commission', 'withdrawal'], default: 'commission' },
+        amount: { type: Number, required: true },
+        status: { type: String, enum: ['pending', 'completed', 'approved', 'rejected'], default: 'completed' },
+        description: String,
+        createdAt: { type: Date, default: Date.now }
+    });
+    Transaction = mongoose.model('Transaction', schema);
+}
+
 function setCORS(res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -83,10 +96,26 @@ module.exports = async (req, res) => {
     const isMembershipAction = req.query.membership === 'true' || parts[parts.length - 1] === 'membership';
 
     try {
-        // GET /api/admin/users
-        if (req.method === 'GET') {
+        // GET /api/admin-users (All Users)
+        if (req.method === 'GET' && !url.includes('/transactions') && !url.includes('/withdrawals')) {
             const users = await User.find().select('-password').sort({ createdAt: -1 });
             return res.json({ success: true, users });
+        }
+
+        // NEW: GET /api/admin-users/transactions
+        if (req.method === 'GET' && url.includes('/transactions')) {
+            const transactions = await Transaction.find()
+                .populate('userId', 'name lastName email')
+                .sort({ createdAt: -1 });
+            return res.json({ success: true, transactions });
+        }
+
+        // NEW: GET /api/admin-users/withdrawals
+        if (req.method === 'GET' && url.includes('/withdrawals')) {
+            const withdrawals = await Transaction.find({ type: 'withdrawal' })
+                .populate('userId', 'name lastName email sellerBalance')
+                .sort({ createdAt: -1 });
+            return res.json({ success: true, withdrawals });
         }
 
         // POST /api/admin/users
@@ -102,10 +131,8 @@ module.exports = async (req, res) => {
             let finalSellerCode = undefined;
             if (role === 'vendedor') {
                 if (sellerCode && sellerCode.trim()) {
-                    // Usar el código proporcionado por el admin
                     finalSellerCode = sellerCode.trim().toUpperCase();
                 } else {
-                    // Autogenerar: primeras 5 letras del nombre + 4 chars aleatorios
                     const nameBase = name.replace(/\s+/g, '').toUpperCase().slice(0, 5);
                     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
                     let generated;
@@ -117,7 +144,6 @@ module.exports = async (req, res) => {
                     } while (await User.findOne({ sellerCode: generated }) && attempts < 10);
                     finalSellerCode = generated;
                 }
-                // Verificar que el código no esté ya en uso
                 const codeExists = await User.findOne({ sellerCode: finalSellerCode });
                 if (codeExists) {
                     return res.status(400).json({ success: false, message: `El código de vendedor "${finalSellerCode}" ya está en uso` });
@@ -125,12 +151,7 @@ module.exports = async (req, res) => {
             }
 
             const user = new User({
-                name,
-                lastName,
-                email,
-                phone,
-                country,
-                password,
+                name, lastName, email, phone, country, password,
                 role: role || 'user',
                 sellerCode: finalSellerCode,
                 permissions: permissions || [],
@@ -142,42 +163,59 @@ module.exports = async (req, res) => {
             return res.json({ success: true, message: 'Usuario creado exitosamente', userId: user._id, sellerCode: finalSellerCode });
         }
 
-        // PUT /api/admin/users/:id
+        // PUT /api/admin-users/withdrawals (Approve/Reject)
+        if (req.method === 'PUT' && url.includes('/withdrawals')) {
+            const { transactionId, status } = req.body;
+            if (!transactionId || !['approved', 'rejected'].includes(status)) {
+                return res.status(400).json({ success: false, message: 'Invalid data' });
+            }
+
+            const trans = await Transaction.findById(transactionId);
+            if (!trans || trans.type !== 'withdrawal') {
+                return res.status(404).json({ success: false, message: 'Withdrawal not found' });
+            }
+
+            if (trans.status !== 'pending') {
+                return res.status(400).json({ success: false, message: 'Already processed' });
+            }
+
+            const seller = await User.findById(trans.userId);
+            if (!seller) return res.status(404).json({ success: false, message: 'Seller not found' });
+
+            if (status === 'approved') {
+                if ((seller.sellerBalance || 0) < trans.amount) {
+                    return res.status(400).json({ success: false, message: 'Insufficient balance' });
+                }
+                seller.sellerBalance -= trans.amount;
+                await seller.save();
+                trans.status = 'approved';
+            } else {
+                trans.status = 'rejected';
+            }
+
+            await trans.save();
+            return res.json({ success: true, message: `Withdrawal ${status}` });
+        }
+
+        // PUT /api/admin/users/:id (General Update or Membership)
         if (req.method === 'PUT' && userId) {
-            // Handle password update separately or in general PUT
             if (isMembershipAction) {
                 const { membershipId, action } = req.body;
-
                 if (action === 'revoke') {
-                    await User.findByIdAndUpdate(userId, {
-                        activeMembership: null,
-                        membershipExpiresAt: null,
-                        membershipPlan: null,
-                        updatedAt: Date.now()
-                    });
+                    await User.findByIdAndUpdate(userId, { activeMembership: null, membershipExpiresAt: null, membershipPlan: null, updatedAt: Date.now() });
                     return res.json({ success: true, message: 'Membresía revocada' });
                 }
-
                 if (!membershipId) return res.status(400).json({ success: false, message: 'membershipId requerido' });
                 const membership = await Membership.findById(membershipId);
                 if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
 
-                let expiresAt;
-                if (!membership.durationDays || membership.durationDays === 0) {
-                    expiresAt = new Date('2099-12-31');
-                } else {
-                    expiresAt = new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
-                }
+                let expiresAt = (!membership.durationDays || membership.durationDays === 0) 
+                    ? new Date('2099-12-31') 
+                    : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
 
-                await User.findByIdAndUpdate(userId, {
-                    activeMembership: membership._id,
-                    membershipExpiresAt: expiresAt,
-                    membershipPlan: membership.name,
-                    updatedAt: Date.now()
-                });
+                await User.findByIdAndUpdate(userId, { activeMembership: membership._id, membershipExpiresAt: expiresAt, membershipPlan: membership.name, updatedAt: Date.now() });
                 return res.json({ success: true, message: 'Membresía asignada' });
             } else {
-                // General Update (Password, Role, Permissions, sellerCommission, etc)
                 const { password, role, permissions, canCreate, canEdit, sellerCommission, sellerCode } = req.body;
                 const updateData = {};
                 if (password) {
@@ -185,20 +223,14 @@ module.exports = async (req, res) => {
                     if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
                     user.password = password;
                     await user.save();
-                    return res.json({ success: true, message: 'Contraseña actualizada con éxito' });
+                    return res.json({ success: true, message: 'Contraseña actualizada' });
                 }
-
                 if (role) updateData.role = role;
                 if (permissions) updateData.permissions = permissions;
                 if (canCreate !== undefined) updateData.canCreate = canCreate;
                 if (canEdit !== undefined) updateData.canEdit = canEdit;
-
-                // Campos exclusivos de vendedor
-                if (sellerCommission !== undefined && sellerCommission !== null) {
-                    updateData.sellerCommission = Number(sellerCommission);
-                }
+                if (sellerCommission !== undefined) updateData.sellerCommission = Number(sellerCommission);
                 if (sellerCode !== undefined) {
-                    // Validar que el código no esté en uso por otro usuario
                     if (sellerCode && sellerCode.trim()) {
                         const codeInUse = await User.findOne({ sellerCode: sellerCode.trim().toUpperCase(), _id: { $ne: userId } });
                         if (codeInUse) return res.status(400).json({ success: false, message: `El código "${sellerCode}" ya está en uso` });
@@ -207,19 +239,14 @@ module.exports = async (req, res) => {
                         updateData.$unset = { sellerCode: '' };
                     }
                 }
-
-                if (Object.keys(updateData).length > 0 || updateData.$unset) {
-                    await User.findByIdAndUpdate(userId, { ...updateData, updatedAt: Date.now() });
-                    return res.json({ success: true, message: 'Usuario actualizado con éxito' });
-                }
-
-                return res.status(400).json({ success: false, message: 'Datos insuficientes para la actualización' });
+                await User.findByIdAndUpdate(userId, { ...updateData, updatedAt: Date.now() });
+                return res.json({ success: true, message: 'Usuario actualizado' });
             }
         }
 
         return res.status(405).json({ success: false, message: 'Método no permitido' });
     } catch (error) {
         console.error('API Error:', error);
-        return res.status(500).json({ success: false, message: 'Error interno del servidor', error: error.message });
+        return res.status(500).json({ success: false, message: 'Error interno', error: error.message });
     }
 };
