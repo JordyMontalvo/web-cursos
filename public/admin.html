@@ -1114,25 +1114,28 @@
                     <!-- Chapters will be injected here -->
                 </div>
 
-                <button class="add-chapter-btn" onclick="openAddChapterInput()">
+                <button class="add-chapter-btn-premium" onclick="openAddChapterInput()">
                     + Agregar Nuevo Capítulo
                 </button>
 
                 <div id="newChapterInput"
-                    style="display: none; margin-top: 1rem; border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
+                    style="display: none; margin-top: 1.5rem; border: 1px solid rgba(124,58,237,0.3); padding: 1.5rem; border-radius: 12px; background: rgba(124,58,237,0.05);">
+                    <p style="font-size: 0.75rem; font-weight: 800; color: #7C3AED; text-transform: uppercase; margin-bottom: 1rem;">🏷️ Detalles del Capítulo</p>
                     <div class="form-group">
-                        <label>Título del Capítulo</label>
-                        <input type="text" id="newChapterTitle" placeholder="Ej: Introducción">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Título del Capítulo</label>
+                        <input type="text" id="newChapterTitle" placeholder="Ej: Introducción al curso" 
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.7rem;">
                     </div>
-                    <div class="form-group" style="margin-top: 0.5rem;">
-                        <label>Descripción (Opcional)</label>
-                        <input type="text" id="newChapterDesc" placeholder="Breve descripción">
+                    <div class="form-group" style="margin-top: 0.75rem;">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Descripción (Opcional)</label>
+                        <input type="text" id="newChapterDesc" placeholder="Breve descripción del contenido" 
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.7rem;">
                     </div>
                     <div class="form-actions"
-                        style="margin-top: 1rem; padding-top: 0; border: none; justify-content: flex-start;">
-                        <button class="btn-primary btn-small" onclick="saveNewChapter()">Guardar</button>
+                        style="margin-top: 1.5rem; padding-top: 0; border: none; justify-content: flex-start;">
+                        <button class="btn-primary btn-small" onclick="saveNewChapter()" style="background: #7C3AED;">Guardar</button>
                         <button class="btn-secondary btn-small"
-                            onclick="document.getElementById('newChapterInput').style.display='none'">Cancelar</button>
+                            onclick="document.getElementById('newChapterInput').style.display='none'" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
                     </div>
                 </div>
             </div>

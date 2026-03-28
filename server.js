@@ -1002,6 +1002,7 @@ app.post('/api/courses/:courseId/chapters/:chapterId/episodes', async (req, res)
             videoUrl: req.body.videoUrl,
             duration: req.body.duration,
             description: req.body.description,
+            thumbnail: req.body.thumbnail || '',
             order: req.body.order || (chapter.episodes.length + 1)
         });
         await course.save();
@@ -1021,8 +1022,9 @@ app.put('/api/courses/:courseId/chapters/:chapterId/episodes/:episodeId', async 
         if (!episode) return res.status(404).json({ success: false, message: 'Episodio no encontrado' });
         if (req.body.title) episode.title = req.body.title;
         if (req.body.videoUrl) episode.videoUrl = req.body.videoUrl;
-        if (req.body.duration) episode.duration = req.body.duration;
-        if (req.body.description) episode.description = req.body.description;
+        if (req.body.duration !== undefined) episode.duration = req.body.duration;
+        if (req.body.description !== undefined) episode.description = req.body.description;
+        if (req.body.thumbnail !== undefined) episode.thumbnail = req.body.thumbnail;
         if (req.body.order) episode.order = req.body.order;
         await course.save();
         res.json({ success: true, episode, course });

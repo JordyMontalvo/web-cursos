@@ -5,6 +5,7 @@ const episodeSchema = new mongoose.Schema({
     videoUrl: { type: String, required: true },
     duration: { type: String, default: '' },
     description: { type: String, default: '' },
+    thumbnail: { type: String, default: '' },
     order: { type: Number, default: 0 }
 });
 

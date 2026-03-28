@@ -405,46 +405,67 @@ function renderChapters(course) {
     const container = document.getElementById('chaptersList');
 
     if (!course.chapters || course.chapters.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">No hay capítulos creados aún.</p>';
+        container.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.3); padding: 3rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">No hay capítulos creados aún.</div>';
         return;
     }
 
-    // ... (renderChapters function)
-    container.innerHTML = course.chapters.map((chapter, index) => `
+    container.innerHTML = course.chapters.map((chapter, index) => {
+        const episodeCount = chapter.episodes ? chapter.episodes.length : 0;
+        
+        return `
         <div class="chapter-item ${index === 0 ? 'active' : ''}" id="chapter-${chapter._id}">
             <div class="chapter-header" onclick="toggleChapter(event, '${chapter._id}')">
-                <div class="chapter-info">
-                    <h3>${index + 1}. ${chapter.title}</h3>
-                    ${chapter.description ? `<small style="color: #666;">${chapter.description}</small>` : ''}
+                <div class="chapter-title-group">
+                    <div style="width: 32px; height: 32px; background: rgba(124,58,237,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #7C3AED; font-weight: 800; font-size: 0.8rem;">
+                        ${index + 1}
+                    </div>
+                    <div>
+                        <h3>${chapter.title}</h3>
+                        ${chapter.description ? `<p style="margin: 0.2rem 0 0; font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 400;">${chapter.description}</p>` : ''}
+                    </div>
                 </div>
-                <div class="chapter-actions">
-                    <button class="btn-icon btn-edit btn-small" onclick="editChapter(event, '${chapter._id}', '${chapter.title}', '${chapter.description || ''}')" title="Editar Capítulo">
-                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                    </button>
-                    <button class="btn-icon btn-delete btn-small" onclick="deleteChapter(event, '${chapter._id}')" title="Eliminar Capítulo">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div class="chapter-badge-count">
+                        ${episodeCount}
+                        <span>CLASES</span>
+                    </div>
+                    <div class="chapter-actions">
+                        <button class="btn-icon btn-edit btn-small" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);" onclick="editChapter(event, '${chapter._id}', '${chapter.title}', '${chapter.description || ''}')" title="Editar Capítulo">
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon btn-delete btn-small" style="background: rgba(255,75,85,0.1); border: 1px solid rgba(255,75,85,0.2); color: #FF4B55;" onclick="deleteChapter(event, '${chapter._id}')" title="Eliminar Capítulo">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="episodes-list">
                 ${chapter.episodes && chapter.episodes.length > 0
-            ? chapter.episodes.map((episode, epIndex) => `
+                ? chapter.episodes.map((episode, epIndex) => `
                         <div class="episode-item">
-                            <div class="episode-info">
-                                <strong>Ep. ${epIndex + 1}:</strong> ${episode.title}
-                                ${episode.duration ? `<small>(${episode.duration})</small>` : ''}
+                            <div class="episode-thumb-container">
+                                ${episode.thumbnail ? `<img src="${episode.thumbnail}" alt="">` : '<i>🎬</i>'}
                             </div>
-                            <div class="episode-actions">
-                                <button class="btn-icon btn-edit btn-small" style="width: 28px; height: 28px;" onclick="editEpisode(event, '${chapter._id}', '${episode._id}', '${episode.title}', '${episode.videoUrl}')" title="Editar Episodio">
+                            <div class="episode-content-info">
+                                <div class="episode-title-row">
+                                    EPISODIO ${index + 1} CAPITULO ${epIndex + 1}: ${episode.title}
+                                </div>
+                                <div class="episode-meta-row">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    ${episode.duration || '0:00'}
+                                </div>
+                            </div>
+                            <div class="episode-actions-inline">
+                                <button class="btn-icon btn-edit btn-small" style="width: 32px; height: 32px; background: rgba(255,255,255,0.05);" onclick="editEpisode(event, '${chapter._id}', '${episode._id}', '${episode.title}', '${episode.videoUrl}', '${episode.duration || ''}', '${episode.thumbnail || ''}')" title="Editar Episodio">
                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                     </svg>
                                 </button>
-                                <button class="btn-icon btn-delete btn-small" style="width: 28px; height: 28px;" onclick="deleteEpisode(event, '${chapter._id}', '${episode._id}')" title="Eliminar Episodio">
+                                <button class="btn-icon btn-delete btn-small" style="width: 32px; height: 32px; background: rgba(255,75,85,0.05); color: #FF4B55;" onclick="deleteEpisode(event, '${chapter._id}', '${episode._id}')" title="Eliminar Episodio">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
@@ -452,19 +473,25 @@ function renderChapters(course) {
                             </div>
                         </div>
                     `).join('')
-            : '<p style="font-size: 0.85rem; color: #999; padding: 0.5rem; text-align: center;">No hay episodios.</p>'
-        }
+                : '<p style="font-size: 0.8rem; color: rgba(255,255,255,0.2); padding: 1.5rem; text-align: center; background: rgba(0,0,0,0.1); border-radius: 8px;">No hay episodios en este capítulo.</p>'
+                }
                 
-                <div class="add-episode-form" style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #eee;">
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <input type="text" placeholder="Título Episodio" id="ep-title-${chapter._id}" style="flex: 1; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px;">
-                        <input type="text" placeholder="URL Video" id="ep-url-${chapter._id}" style="flex: 1; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="add-episode-form-premium">
+                    <p style="font-size: 0.7rem; font-weight: 800; color: #7C3AED; text-transform: uppercase; margin-bottom: 0.75rem;">+ Nuevo Episodio</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <input type="text" placeholder="Título Episodio" id="ep-title-${chapter._id}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem;">
+                        <input type="text" placeholder="URL Video (Embed)" id="ep-url-${chapter._id}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem;">
                     </div>
-                    <button class="btn-primary btn-small" onclick="addEpisode('${chapter._id}')" style="width: 100%;">+ Añadir Episodio</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                        <input type="text" placeholder="Duración (Ej: 12:45)" id="ep-dur-${chapter._id}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem;">
+                        <input type="text" placeholder="URL Imagen Fondo (Opcional)" id="ep-thumb-${chapter._id}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem;">
+                    </div>
+                    <button class="btn-primary btn-small" onclick="addEpisode('${chapter._id}')" style="width: 100%; padding: 0.7rem; background: #7C3AED; font-weight: 700;">Añadir Episodio</button>
                 </div>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Funciones para editar (Implementación básica inline por ahora)
@@ -494,23 +521,26 @@ async function editChapter(e, chapterId, currentTitle, currentDesc) {
     }
 }
 
-async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl) {
+async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl, currentDur, currentThumb) {
     if (e) e.stopPropagation();
     const newTitle = prompt('Nuevo título del episodio:', currentTitle);
     if (newTitle === null) return;
     const newUrl = prompt('Nueva URL del video:', currentUrl);
     if (newUrl === null) return;
+    const newDur = prompt('Nueva duración:', currentDur);
+    if (newDur === null) return;
+    const newThumb = prompt('Nueva URL de imagen fondo:', currentThumb);
+    if (newThumb === null) return;
 
     try {
         const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/${episodeId}`), {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: newTitle, videoUrl: newUrl })
+            headers: authHeaders(),
+            body: JSON.stringify({ title: newTitle, videoUrl: newUrl, duration: newDur, thumbnail: newThumb })
         });
         if (response.ok) {
             showToast('Episodio actualizado');
             openContentManager(currentContentCourseId);
-            // fetchCourses(); // Eliminado redundante
         } else {
             showToast('Error al actualizar', 'error');
         }
@@ -521,8 +551,8 @@ async function editEpisode(e, chapterId, episodeId, currentTitle, currentUrl) {
 }
 
 function toggleChapter(e, chapterId) {
-    // Si se hace click en acciones, no hacer nada
-    if (e.target.closest('.chapter-actions') || e.target.closest('.add-episode-form') || e.target.closest('.episode-actions')) return;
+    // Si se hace click en acciones o inputs, no hacer nada
+    if (e.target.closest('.chapter-actions') || e.target.closest('.add-episode-form-premium') || e.target.closest('.episode-actions-inline') || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
 
     // Toggle active
     const item = document.getElementById(`chapter-${chapterId}`);
@@ -596,11 +626,10 @@ async function deleteChapter(e, chapterId) {
 }
 
 async function addEpisode(chapterId) {
-    const titleInput = document.getElementById(`ep-title-${chapterId}`);
-    const urlInput = document.getElementById(`ep-url-${chapterId}`);
-
-    const title = titleInput.value;
-    const videoUrl = urlInput.value;
+    const title = document.getElementById(`ep-title-${chapterId}`).value;
+    const videoUrl = document.getElementById(`ep-url-${chapterId}`).value;
+    const duration = document.getElementById(`ep-dur-${chapterId}`).value;
+    const thumbnail = document.getElementById(`ep-thumb-${chapterId}`).value;
 
     if (!title || !videoUrl) {
         showToast('Título y URL son obligatorios', 'error');
@@ -608,24 +637,20 @@ async function addEpisode(chapterId) {
     }
 
     try {
-        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes`), {
+        const response = await fetch(apiUrl(`/api/courses/${currentContentCourseId}/chapters/${chapterId}/episodes/new`), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, videoUrl })
+            headers: authHeaders(),
+            body: JSON.stringify({ title, videoUrl, duration, thumbnail })
         });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showToast('Episodio agregado');
+        if (response.ok) {
+            showToast('Episodio añadido');
             openContentManager(currentContentCourseId);
-            // fetchCourses(); // Eliminado redundante
         } else {
-            showToast(data.message, 'error');
+            showToast('Error al añadir episodio', 'error');
         }
-    } catch (error) {
-        console.error(error);
-        showToast('Error al agregar episodio', 'error');
+    } catch (err) {
+        console.error(err);
+        showToast('Error de conexión', 'error');
     }
 }
 

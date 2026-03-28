@@ -119,6 +119,7 @@ module.exports = async (req, res) => {
             title: req.body.title,
             videoUrl: req.body.videoUrl,
             duration: req.body.duration || '',
+            thumbnail: req.body.thumbnail || '',
             order: chapter.episodes.length + 1
         });
         await course.save();
@@ -137,6 +138,7 @@ module.exports = async (req, res) => {
         if (req.body.title) episode.title = req.body.title;
         if (req.body.videoUrl) episode.videoUrl = req.body.videoUrl;
         if (req.body.duration !== undefined) episode.duration = req.body.duration;
+        if (req.body.thumbnail !== undefined) episode.thumbnail = req.body.thumbnail;
         await course.save();
         return res.json({ success: true, episode, course });
     }

@@ -11,6 +11,7 @@ const episodeSchema = new mongoose.Schema({
     },
     duration: String,
     description: String,
+    thumbnail: { type: String, default: '' },
     order: Number
 });
 
