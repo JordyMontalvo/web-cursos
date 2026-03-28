@@ -9,6 +9,7 @@ let editingCourseId = null;
 let currentContentCourseId = null;
 let categoriesData = [];
 let editingCategoryId = null;
+let activeTab = 'courses';
 
 // ===================================
 // API Functions
@@ -723,6 +724,7 @@ const usersPerPage = 10;
 let selectedUserIdForDetails = null;
 
 function switchTab(tab) {
+    activeTab = tab;
     ['courses', 'memberships', 'banners', 'users', 'logo', 'categories'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         if (section) section.style.display = t === tab ? '' : 'none';
@@ -1116,7 +1118,7 @@ function renderUsersTable(users) {
     const paginationContainer = document.getElementById('usersPagination');
     
     if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -1132,7 +1134,7 @@ function renderUsersTable(users) {
 
     if (filteredUsers.length === 0) {
         const msg = currentUserFilter === 'active' ? 'No hay usuarios activos' : 'No hay usuarios inactivos';
-        tbody.innerHTML = `<tr><td colspan="9" class="loading-row"><p>${msg}</p></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="loading-row"><p>${msg}</p></td></tr>`;
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -1154,21 +1156,31 @@ function renderUsersTable(users) {
         const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
         return `
         <tr>
-            <td><strong>${u.name}</strong> ${u.lastName || ''}</td>
-            <td style="font-size:.875rem;color:#1a1a1a;">${u.email}</td>
-            <td style="font-size:.875rem;color:#1a1a1a;">${u.phone || '-'}</td>
-            <td style="font-size:.875rem;color:#1a1a1a;">${u.country || '-'}</td>
-            <td>${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.15);color:#FFD700;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">ADMIN</span>' : '<span style="background:rgba(0,0,0,0.05);color:#1a1a1a;font-size:.75rem;padding:.2rem .6rem;border-radius:100px;">Usuario</span>'}</td>
-            <td>${isActive ? `<span style="background:rgba(79,255,176,.1);color:#1a1a1a;font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:#666;font-size:.85rem;">Sin membresía</span>'}</td>
-            <td style="font-size:.8rem;color:#1a1a1a;">${u.birthDate || '-'}</td>
-            <td style="font-size:.8rem;color:#1a1a1a;">${isActive ? expDate : '-'}</td>
+            <td><strong style="color:#fff;">${u.name}</strong> <span style="color:#fff;font-size:.8rem;">${u.lastName || ''}</span></td>
+            <td style="font-size:.85rem;color:#fff;">${u.email}</td>
+            <td class="col-celular" style="font-size:.85rem;color:#fff;">${u.phone || '-'}</td>
+            <td class="col-pais" style="font-size:.85rem;color:#fff;">${u.country || '-'}</td>
             <td>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" style="padding:.45rem .9rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#7C3AED;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
-                        💎 Membresía
+                ${u.role === 'admin' ? '<span style="background:rgba(255,215,0,.2);color:#FFD700;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,215,0,.4);">ADMIN</span>' : 
+                  u.role === 'vendedor' ? '<span style="background:rgba(124,58,237,.3);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(124,58,237,.5);">VENDEDOR</span>' : 
+                  '<span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:.75rem;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(255,255,255,0.15);">Usuario</span>'}
+            </td>
+            <td class="col-vendedor">
+                ${u.sellerCode ? `<code style="background:rgba(124,58,237,.2);padding:.2rem .5rem;border-radius:6px;font-size:.75rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);">${u.sellerCode}</code>` : '<span style="color:#fff;">-</span>'}
+            </td>
+            <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:#fff;font-size:.8rem;">Sin membresía</span>'}</td>
+            <td class="col-nacimiento" style="font-size:.8rem;color:#fff;">${u.birthDate || '-'}</td>
+            <td class="col-expira" style="font-size:.8rem;color:#fff;">${isActive ? expDate : '-'}</td>
+            <td>
+                <div style="display:flex;gap:.4rem;flex-wrap:nowrap;">
+                    <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')" title="Membresía" style="padding:.35rem .6rem;background:rgba(124,58,237,.3);border:1px solid rgba(124,58,237,.5);color:#c4b5fd;border-radius:8px;cursor:pointer;font-size:.9rem;">
+                        💎
                     </button>
-                    <button onclick="openUserDetailsModal('${u._id}')" style="padding:.45rem .9rem;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;">
-                        👁️ Detalles
+                    <button onclick="openEditPermissionsModal('${u._id}','${u.name.replace(/'/g, "\\'")} ${u.lastName?.replace(/'/g, "\\'") || ''}','${u.role}','${(u.permissions || []).join(',')}','${u.canCreate}','${u.canEdit}')" title="Permisos/Rol" style="padding:.35rem .6rem;background:rgba(255,165,0,.2);border:1px solid rgba(255,165,0,.4);color:#FFA500;border-radius:8px;cursor:pointer;font-size:.9rem;">
+                        🔑
+                    </button>
+                    <button onclick="openUserDetailsModal('${u._id}')" title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;font-size:.9rem;">
+                        📝
                     </button>
                 </div>
             </td>
@@ -1308,6 +1320,8 @@ async function revokeUserMembership() {
         showToast('Error de conexión', 'error');
     }
 }
+
+// Los usuarios ahora se crean vía openCreateUserModal()
 
 // ===================================
 // SETTINGS ADMIN
@@ -1685,52 +1699,74 @@ function editBanner(id) {
 }
 
 // ===================================
-// USER DETAILS & PASSWORD Reset
+// USER PROFILE & PASSWORD Reset
 // ===================================
 
-function openUserDetailsModal(userId) {
-    const user = usersData.find(u => u._id === userId);
-    if (!user) return;
+let currentEditingUserId = null;
 
-    selectedUserIdForDetails = userId;
-    const content = document.getElementById('userDetailContent');
-    
-    content.innerHTML = `
-        <div class="user-details-grid">
-            <div class="user-detail-item">
-                <p>Nombre</p>
-                <p>${user.name} ${user.lastName || ''}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Email</p>
-                <p>${user.email}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Celular</p>
-                <p>${user.phone || '-'}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>País</p>
-                <p>${user.country || '-'}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Fecha de Nacimiento</p>
-                <p>${user.birthDate || '-'}</p>
-            </div>
-            <div class="user-detail-item">
-                <p>Rol</p>
-                <p><span class="badge">${user.role.toUpperCase()}</span></p>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('newAdminUserPassword').value = '';
+async function openUserDetailsModal(userId) {
+    currentEditingUserId = userId;
     document.getElementById('userDetailsModal').classList.add('active');
+    document.getElementById('editUserForm').reset();
+    document.getElementById('newAdminUserPassword').value = '';
+
+    try {
+        const res = await fetch(apiUrl('/api/admin/users'), { headers: authHeaders() });
+        const data = await res.json();
+        const user = data.users.find(u => u._id === userId);
+        
+        if (user) {
+            document.getElementById('edName').value = user.name || '';
+            document.getElementById('edLastName').value = user.lastName || '';
+            document.getElementById('edEmail').value = user.email || '';
+            document.getElementById('edPhone').value = user.phone || '';
+            document.getElementById('edCountry').value = user.country || '';
+        }
+    } catch (err) {
+        console.error('Error loading user data:', err);
+    }
 }
 
 function closeUserDetailsModal() {
     document.getElementById('userDetailsModal').classList.remove('active');
-    selectedUserIdForDetails = null;
+    currentEditingUserId = null;
+}
+
+async function handleEditUserSubmit(e) {
+    e.preventDefault();
+    if (!currentEditingUserId) return;
+
+    const btn = document.getElementById('btnUpdateUser');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const updateData = {
+        name: document.getElementById('edName').value,
+        lastName: document.getElementById('edLastName').value,
+        email: document.getElementById('edEmail').value,
+        phone: document.getElementById('edPhone').value,
+        country: document.getElementById('edCountry').value
+    };
+
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users?id=${currentEditingUserId}`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify(updateData)
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Perfil actualizado correctamente');
+            loadUsers();
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar Cambios';
+    }
 }
 
 async function updateUserPassword() {
@@ -1743,7 +1779,7 @@ async function updateUserPassword() {
     if (!confirm('¿Seguro que deseas cambiar la contraseña de este usuario?')) return;
 
     try {
-        const res = await fetch(apiUrl(`/api/admin/users/${selectedUserIdForDetails}`), {
+        const res = await fetch(apiUrl(`/api/admin/users/${currentEditingUserId}`), {
             method: 'PUT',
             headers: authHeaders(),
             body: JSON.stringify({ password: newPassword })
@@ -1751,7 +1787,7 @@ async function updateUserPassword() {
         const data = await res.json();
         if (data.success) {
             showToast('Contraseña actualizada con éxito');
-            closeUserDetailsModal();
+            document.getElementById('newAdminUserPassword').value = '';
         } else {
             showToast(data.message || 'Error al actualizar', 'error');
         }
@@ -1774,7 +1810,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/admin-login';
         return;
     }
-    // Verificar rol
+    // Verificar rol y permisos
     const user = JSON.parse(localStorage.getItem('authUser') || '{}');
     if (user.role !== 'admin') {
         window.location.href = '/admin-login';
@@ -1782,10 +1818,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     document.getElementById('adminUserName').textContent = `👤 ${user.name}`;
 
+    // Aplicar permisos de vista si existen
+    applyViewPermissions(user);
+
     // Modo tab inicial
     try {
-        switchTab('courses');
-        fetchCourses();
+        // Intentar abrir la primera tab permitida
+        const firstTab = getFirstAllowedTab(user);
+        switchTab(firstTab);
+        
+        if (firstTab === 'courses') fetchCourses();
         setupSearch();
     } catch (err) {
         console.error('Error during initial tab setup:', err);
@@ -1803,28 +1845,184 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeUserDetailsModal();
             closeBannerModal();
             closeCategoryModal();
+            closeCreateUserModal();
         }
     });
 
-    // Close modals on outside click
-    document.getElementById('categoryModal')?.addEventListener('click', e => {
-        if (e.target.id === 'categoryModal') closeCategoryModal();
-    });
-
-    // Close modals on outside click
-    document.getElementById('membershipModal')?.addEventListener('click', e => {
-        if (e.target.id === 'membershipModal') closeMembershipModal();
-    });
-    document.getElementById('userMembershipModal')?.addEventListener('click', e => {
-        if (e.target.id === 'userMembershipModal') closeUserMembershipModal();
-    });
-    document.getElementById('userDetailsModal')?.addEventListener('click', e => {
-        if (e.target.id === 'userDetailsModal') closeUserDetailsModal();
-    });
-    document.getElementById('bannerModal')?.addEventListener('click', e => {
-        if (e.target.id === 'bannerModal') closeBannerModal();
+    document.getElementById('createUserModal')?.addEventListener('click', e => {
+        if (e.target.id === 'createUserModal') closeCreateUserModal();
     });
 
     console.log('✅ Admin Panel initialized!');
 });
+
+// ===================================
+// GESTIÓN DE PERMISOS Y USUARIOS
+// ===================================
+
+function applyViewPermissions(user) {
+    // Si no tiene permisos definidos (admin total antiguo), permitir todo
+    if (!user.permissions || user.permissions.length === 0) return;
+
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo'];
+    allTabs.forEach(tab => {
+        const menuItem = document.getElementById(`tab-${tab}`);
+        if (menuItem && !user.permissions.includes(tab)) {
+            menuItem.style.display = 'none';
+        }
+    });
+}
+
+function getFirstAllowedTab(user) {
+    if (!user.permissions || user.permissions.length === 0) return 'courses';
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo'];
+    for (const tab of allTabs) {
+        if (user.permissions.includes(tab)) return tab;
+    }
+    return 'courses'; // Fallback
+}
+
+function openCreateUserModal(role = 'user') {
+    document.getElementById('createUserModal').classList.add('active');
+    document.getElementById('createUserForm').reset();
+    
+    // Asignar el rol inicial
+    document.getElementById('ucRole').value = role;
+    
+    togglePermissionsUI();
+}
+
+function closeCreateUserModal() {
+    document.getElementById('createUserModal').classList.remove('active');
+}
+
+function togglePermissionsUI() {
+    const role = document.getElementById('ucRole').value;
+    const permSection = document.getElementById('ucPermissionsFields');
+    const sellerSection = document.getElementById('ucSellerFields');
+    
+    // Solo mostrar permisos si es Admin (para restringirle vistas)
+    permSection.style.display = (role === 'admin') ? 'block' : 'none';
+    
+    // Solo mostrar campos de vendedor si es Vendedor
+    sellerSection.style.display = (role === 'vendedor') ? 'block' : 'none';
+}
+
+async function handleCreateUser(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btnSaveUser');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const role = document.getElementById('ucRole').value;
+    const permissions = [];
+    if (role === 'admin') {
+        document.querySelectorAll('input[name="ucPerm"]:checked').forEach(cb => {
+            permissions.push(cb.value);
+        });
+    }
+
+    const userData = {
+        name: document.getElementById('ucName').value,
+        lastName: document.getElementById('ucLastName').value,
+        email: document.getElementById('ucEmail').value,
+        password: document.getElementById('ucPassword').value,
+        role: role,
+        permissions: permissions,
+        canCreate: document.getElementById('ucCanCreate').checked,
+        canEdit: document.getElementById('ucCanEdit').checked
+    };
+
+    if (role === 'vendedor') {
+        userData.sellerCode = document.getElementById('ucSellerCode').value || undefined;
+    }
+
+    try {
+        const res = await fetch(apiUrl('/api/admin/users'), {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify(userData)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast('Usuario creado correctamente');
+            closeCreateUserModal();
+            if (activeTab === 'users') loadUsers();
+        } else {
+            showToast(data.message || 'Error al crear usuario', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear Usuario';
+    }
+}
+
+// EDITAR PERMISOS
+let currentEditUserId = null;
+
+function openEditPermissionsModal(userId, fullName, role, permissionsStr, canCreate, canEdit) {
+    currentEditUserId = userId;
+    document.getElementById('editPermissionsModal').classList.add('active');
+    document.getElementById('epUserName').textContent = `Usuario: ${fullName}`;
+    document.getElementById('epRole').value = role;
+    
+    // Reset checkboxes
+    const perms = permissionsStr ? permissionsStr.split(',') : [];
+    document.querySelectorAll('input[name="epPerm"]').forEach(cb => {
+        cb.checked = perms.includes(cb.value);
+    });
+
+    document.getElementById('epCanCreate').checked = (canCreate === 'true' || canCreate === true);
+    document.getElementById('epCanEdit').checked = (canEdit === 'true' || canEdit === true);
+    
+    toggleEditPermissionsUI();
+}
+
+function closeEditPermissionsModal() {
+    document.getElementById('editPermissionsModal').classList.remove('active');
+}
+
+function toggleEditPermissionsUI() {
+    const role = document.getElementById('epRole').value;
+    document.getElementById('epPermissionsSection').style.display = (role === 'admin') ? 'block' : 'none';
+}
+
+async function savePermissionsChanges() {
+    if (!currentEditUserId) return;
+    
+    const role = document.getElementById('epRole').value;
+    const permissions = [];
+    const canCreate = document.getElementById('epCanCreate').checked;
+    const canEdit = document.getElementById('epCanEdit').checked;
+
+    if (role === 'admin') {
+        document.querySelectorAll('input[name="epPerm"]:checked').forEach(cb => {
+            permissions.push(cb.value);
+        });
+    }
+
+    try {
+        const res = await fetch(apiUrl(`/api/admin/users?id=${currentEditUserId}`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ role, permissions, canCreate, canEdit })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Rol y permisos actualizados');
+            closeEditPermissionsModal();
+            loadUsers();
+        } else {
+            showToast(data.message || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
 

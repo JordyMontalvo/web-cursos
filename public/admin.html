@@ -208,34 +208,31 @@
 
             <!-- BANNERS SECTION -->
             <div id="section-banners" style="display:none;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-                    <div>
-                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Banners Carrusel</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona las imágenes promocionales
-                            de la página principal</p>
+                <div class="table-container" style="box-shadow: 0 10px 40px rgba(79, 255, 176, 0.08); border-color: rgba(79, 255, 176, 0.15);">
+                    <div class="table-header">
+                        <div>
+                            <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Banners Carrusel</h2>
+                            <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona las imágenes promocionales de la página principal</p>
+                        </div>
+                        <button class="btn-primary" onclick="openBannerModal()">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
+                                <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            Nuevo Banner
+                        </button>
                     </div>
-                    <button class="btn-primary" onclick="openBannerModal()">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
-                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                        Nuevo Banner
-                    </button>
-                </div>
 
-                <div
-                    style="background:rgba(20,20,35,.85);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.5rem;margin-bottom:2rem;">
-                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">🎥 Video de Presentación</h3>
-                    <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1rem;">Ingresa el enlace del
-                        video (Ej. YouTube) que aparecerá debajo del carrusel en la página principal.</p>
-                    <form id="settingsForm" onsubmit="saveSettings(event)" style="display:flex;gap:1rem;">
-                        <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..."
-                            style="flex:1;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;"
-                            required>
-                        <button type="submit" class="btn-primary" style="white-space:nowrap;">Guardar Link</button>
-                    </form>
-                </div>
+                    <div style="background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.05); padding:1.5rem;">
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:#fff;">🎥 Video de Presentación</h3>
+                        <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1rem;">Ingresa el enlace del video (Ej. YouTube) que aparecerá debajo del carrusel en la página principal.</p>
+                        <form id="settingsForm" onsubmit="saveSettings(event)" style="display:flex;gap:1rem;">
+                            <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..."
+                                style="flex:1;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;"
+                                required>
+                            <button type="submit" class="btn-primary" style="white-space:nowrap;">Guardar Link</button>
+                        </form>
+                    </div>
 
-                <div class="table-container">
                     <div class="table-wrapper">
                         <table class="courses-table">
                             <thead>
@@ -264,39 +261,45 @@
 
             <!-- USERS SECTION -->
             <div id="section-users" style="display:none;">
-
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-                    <div>
-                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Usuarios Registrados</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
+                <div class="table-container" style="box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15); border-color: rgba(124, 58, 237, 0.2);">
+                    <div class="table-header">
+                        <div>
+                            <h2>Usuarios Registrados</h2>
+                            <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los usuarios y sus membresías activas</p>
+                        </div>
+                        <div class="table-actions" style="display:flex; gap:0.75rem; align-items:center;">
+                            <button class="btn-vendedor" onclick="openCreateUserModal('vendedor')" style="padding:.5rem 1rem; font-size:.8rem; border-radius:10px;">
+                                + Nuevo Vendedor
+                            </button>
+                            <button class="btn-admin" onclick="openCreateUserModal('admin')" style="padding:.5rem 1rem; font-size:.8rem; border-radius:10px;">
+                                + Nuevo Administrador
+                            </button>
+                            <select id="userStatusFilter" onchange="handleUserFilterChange(this.value)" class="status-filter-select" style="margin:0;">
+                                <option value="all">Todos los usuarios</option>
+                                <option value="active">Usuarios Activos</option>
+                                <option value="inactive">Usuarios Inactivos</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="table-actions">
-                        <select id="userStatusFilter" onchange="handleUserFilterChange(this.value)" class="status-filter-select">
-                            <option value="all">Todos los usuarios</option>
-                            <option value="active">Usuarios Activos</option>
-                            <option value="inactive">Usuarios Inactivos</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="table-container">
                     <div class="table-wrapper">
                         <table class="courses-table">
                             <thead>
                                 <tr>
                                     <th>Usuario</th>
                                     <th>Email</th>
-                                    <th>Celular</th>
-                                    <th>País</th>
+                                    <th class="col-celular">Celular</th>
+                                    <th class="col-pais">País</th>
                                     <th>Rol</th>
+                                    <th class="col-vendedor">Cod. Vendedor</th>
                                     <th>Plan activo</th>
-                                    <th>Nacimiento</th>
-                                    <th>Expira</th>
+                                    <th class="col-nacimiento">Nacimiento</th>
+                                    <th class="col-expira">Expira</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody">
                                 <tr>
-                                    <td colspan="6" class="loading-row">
+                                    <td colspan="10" class="loading-row">
                                         <div class="spinner"></div>
                                         <p>Cargando usuarios...</p>
                                     </td>
@@ -369,20 +372,20 @@
             
             <!-- CATEGORIES SECTION -->
             <div id="section-categories" style="display:none;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-                    <div>
-                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Categorías</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra las categorías disponibles para los cursos</p>
+                <div class="table-container" style="box-shadow: 0 10px 40px rgba(79, 70, 229, 0.12); border-color: rgba(79, 70, 229, 0.2);">
+                    <div class="table-header">
+                        <div>
+                            <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Categorías</h2>
+                            <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra las categorías disponibles para los cursos</p>
+                        </div>
+                        <button class="btn-primary" onclick="openCategoryModal()">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
+                                <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            Nueva Categoría
+                        </button>
                     </div>
-                    <button class="btn-primary" onclick="openCategoryModal()">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
-                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                        Nueva Categoría
-                    </button>
-                </div>
 
-                <div class="table-container">
                     <div class="table-wrapper">
                         <table class="courses-table">
                             <thead>
@@ -627,30 +630,208 @@
         </div>
     </div>
 
-    <!-- Modal: Detalle de Usuario -->
-    <div id="userDetailsModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h2>Detalles del Usuario</h2>
-                <button class="modal-close" onclick="closeUserDetailsModal()">&times;</button>
+    <!-- Modal: Crear Usuario/Administrador -->
+    <div class="modal" id="createUserModal">
+        <div class="modal-content" style="max-width:550px; max-height: 90vh; overflow-y: auto; background: #1a1a2e; color: #fff;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="color: #fff;">Registrar Nuevo Usuario/Administrador</h2>
+                <button class="modal-close" onclick="closeCreateUserModal()" style="background: rgba(255,255,255,0.05); color: #fff;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                </button>
             </div>
-            <div class="modal-body" style="padding: 2rem;">
-                <div id="userDetailContent" style="margin-bottom: 2rem; color: #1a1a1a;">
-                    <!-- Se llena con JS -->
+            <form id="createUserForm" onsubmit="handleCreateUser(event)" style="padding: 2rem;">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="ucName" required placeholder="Nombre" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido</label>
+                        <input type="text" id="ucLastName" placeholder="Apellido" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Email *</label>
+                    <input type="email" id="ucEmail" required placeholder="email@ejemplo.com" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width:100%;">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Rol del Usuario *</label>
+                        <select id="ucRole" required onchange="togglePermissionsUI()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                            <option value="user">Usuario Regular</option>
+                            <option value="vendedor">Vendedor</option>
+                            <option value="admin">Administrador (Personalizado)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña *</label>
+                        <input type="password" id="ucPassword" required placeholder="Min. 6 carac." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                    </div>
                 </div>
 
-                <div style="border-top: 1px solid #eee; padding-top: 2rem;">
-                    <h3 style="margin-bottom: 1rem; color: #1a1a1a;">Seguridad</h3>
+                <!-- Seller specific fields -->
+                <div id="ucSellerFields" style="display:none; margin-top:1rem;">
                     <div class="form-group">
-                        <label style="color: #1a1a1a;">Nueva Contraseña</label>
-                        <div class="security-form-group">
-                            <input type="text" id="newAdminUserPassword" placeholder="Escribe la nueva contraseña...">
-                            <button onclick="updateUserPassword()" class="btn-primary">
+                        <label>Código de Vendedor (Opcional)</label>
+                        <input type="text" id="ucSellerCode" placeholder="Ej: VDR-01" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width:100%;">
+                    </div>
+                </div>
+
+                <!-- Admin specific permissions -->
+                <div id="ucPermissionsFields" style="display:none; margin-top:1.5rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:10px;">
+                    <p style="font-weight:700; font-size:0.9rem; margin-bottom:1rem; color:#7C3AED;">Permisos de Acceso (Vistas)</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="courses"> Cursos
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="memberships"> Membresías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="banners"> Banners
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="users"> Usuarios
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="categories"> Categorías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="ucPerm" value="logo"> Logo/Marca
+                        </label>
+                    </div>
+                    <p style="font-weight:700; font-size:0.9rem; margin-top:1.5rem; margin-bottom:1rem; color:#7C3AED;">Permisos de Acción</p>
+                    <div style="display:flex; gap:1.5rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" id="ucCanCreate" checked> Crear Contenido
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" id="ucCanEdit" checked> Editar Contenido
+                        </label>
+                    </div>
+                    <small style="display:block; margin-top:1rem; opacity:0.6;">Si eres Admin Total, deja todos marcados.</small>
+                </div>
+
+                <div class="form-actions" style="margin-top:2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <button type="button" class="btn-secondary" onclick="closeCreateUserModal()" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSaveUser" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">Crear Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Usuario Completo -->
+    <div id="userDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px; background: #fff; color: #1a1a1a;">
+            <div class="modal-header" style="border-bottom: 1px solid #eee;">
+                <h2 style="color: #1a1a1a;">Editar Perfil de Usuario</h2>
+                <button class="modal-close" onclick="closeUserDetailsModal()" style="color: #666;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <!-- Formulario de edición -->
+                <form id="editUserForm" onsubmit="handleEditUserSubmit(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label style="color: #333;">Nombre *</label>
+                            <input type="text" id="edName" required style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #333;">Apellido</label>
+                            <input type="text" id="edLastName" style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:1rem;">
+                        <label style="color: #333;">Email *</label>
+                        <input type="email" id="edEmail" required style="border:1px solid #ddd; padding: 0.75rem; width:100%;">
+                    </div>
+                    <div class="form-grid" style="margin-top:1rem;">
+                        <div class="form-group">
+                            <label style="color: #333;">Teléfono</label>
+                            <input type="tel" id="edPhone" style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #333;">País</label>
+                            <input type="text" id="edCountry" style="border:1px solid #ddd; padding: 0.75rem;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; text-align: right;">
+                        <button type="submit" id="btnUpdateUser" class="btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+
+                <div style="border-top: 1px solid #eee; margin-top: 2rem; padding-top: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem; color: #1a1a1a; font-size: 1.1rem;">Seguridad (Contraseña)</h3>
+                    <div class="form-group">
+                        <label style="color: #333; font-size: 0.85rem;">Nueva Contraseña</label>
+                        <div class="security-form-group" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+                            <input type="text" id="newAdminUserPassword" placeholder="Escribe la nueva contraseña..." style="flex:1; border:1px solid #ddd; padding: 0.5rem;">
+                            <button type="button" onclick="updateUserPassword()" class="btn-primary" style="padding: 0.5rem 1rem;">
                                 Actualizar
                             </button>
                         </div>
-                        <small style="color: #666; display: block; margin-top: 0.5rem;">Esto cambiará la contraseña inmediatamente.</small>
+                        <small style="color: #666; display: block; margin-top: 0.5rem;">Cambia la contraseña inmediatamente.</small>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Rol y Permisos -->
+    <div class="modal" id="editPermissionsModal">
+        <div class="modal-content" style="max-width:480px; background: #1a1a2e; color: #fff;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="color: #fff;">Editar Rol y Accesos</h2>
+                <button class="modal-close" onclick="closeEditPermissionsModal()" style="background: rgba(255,255,255,0.05); color: #fff;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                </button>
+            </div>
+            <div style="padding: 2rem;">
+                <p id="epUserName" style="font-weight:700; font-size:1.1rem; margin-bottom:1.5rem; color:#7C3AED;">Usuario: ...</p>
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label>Rol del Usuario</label>
+                    <select id="epRole" onchange="toggleEditPermissionsUI()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                        <option value="user">Usuario Regular</option>
+                        <option value="vendedor">Vendedor</option>
+                        <option value="admin">Administrador (Personalizado)</option>
+                    </select>
+                </div>
+
+                <div id="epPermissionsSection" style="display:none; background:rgba(0,0,0,0.2); padding:1rem; border-radius:10px;">
+                    <p style="font-weight:700; font-size:0.9rem; margin-bottom:1rem; color:#fff;">Vistas Permitidas</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="courses"> Cursos
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="memberships"> Membresías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="banners"> Banners
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="users"> Usuarios
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="categories"> Categorías
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" name="epPerm" value="logo"> Logo/Marca
+                        </label>
+                    </div>
+                    <p style="font-weight:700; font-size:0.9rem; margin-top:1.5rem; margin-bottom:0.75rem; color:#fff;">Permisos de Acción</p>
+                    <div style="display:flex; gap:1.5rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" id="epCanCreate"> Crear
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" id="epCanEdit"> Editar
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top:2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <button type="button" class="btn-secondary" onclick="closeEditPermissionsModal()" style="background: rgba(255,255,255,0.1); color: #fff;">Cancelar</button>
+                    <button type="button" class="btn-primary" onclick="savePermissionsChanges()" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">Guardar Cambios</button>
                 </div>
             </div>
         </div>
