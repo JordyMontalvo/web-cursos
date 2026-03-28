@@ -85,6 +85,8 @@
                     Categorías</button>
                 <button class="admin-tab" id="tab-logo" onclick="switchTab('logo')">🎨
                     Logo</button>
+                <button class="admin-tab" id="tab-commissions" onclick="switchTab('commissions')">💰
+                    Comisiones</button>
             </div>
 
             <!-- COURSES SECTION -->
@@ -365,6 +367,69 @@
 
             </div>
             <!-- /section-users -->
+
+            <!-- COMMISSIONS SECTION -->
+            <div id="section-commissions" style="display:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                    <div>
+                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Comisiones y Retiros</h2>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Audita comisiones pagadas y gestiona solicitudes de retiro de vendedores</p>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;background:rgba(0,0,0,0.2);padding:.4rem;border-radius:14px;width:fit-content;">
+                    <button id="csub-tab-all" onclick="switchCommSubTab('all')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:rgba(79,255,176,.15);color:#4FFFB0;">📖 Todas las Transacciones</button>
+                    <button id="csub-tab-withdrawals" onclick="switchCommSubTab('withdrawals')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.5);">💸 Solicitudes de Retiro</button>
+                </div>
+
+                <!-- SUB-SECTION: Todas las transacciones -->
+                <div id="comsub-all">
+                    <div class="table-container" style="overflow-x:auto;border-radius:15px;border:1px solid rgba(255,255,255,.05);">
+                        <div class="table-wrapper" style="min-width:900px;">
+                            <table class="courses-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Vendedor</th>
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                        <th>Monto</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commissionsTableBody">
+                                    <tr><td colspan="6" class="loading-row"><p>Cargando transacciones...</p></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-SECTION: Solicitudes de retiro -->
+                <div id="comsub-withdrawals" style="display:none;">
+                    <div class="table-container" style="overflow-x:auto;border-radius:15px;border:1px solid rgba(255,255,255,.05);">
+                        <div class="table-wrapper" style="min-width:900px;">
+                            <table class="courses-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Vendedor</th>
+                                        <th>Email</th>
+                                        <th>Monto solicitado</th>
+                                        <th>Saldo Actual</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="withdrawalsAdminTableBody">
+                                    <tr><td colspan="7" class="loading-row"><p>Cargando solicitudes...</p></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /section-commissions -->
 
             <!-- LOGO SECTION -->
             <div id="section-logo" style="display:none;">

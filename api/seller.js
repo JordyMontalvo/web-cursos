@@ -29,6 +29,19 @@ if (mongoose.models.User) {
     User = mongoose.model('User', schema);
 }
 
+let Transaction;
+try { Transaction = mongoose.model('Transaction'); } catch {
+    const schema = new mongoose.Schema({
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        type: { type: String, enum: ['commission', 'withdrawal'], default: 'commission' },
+        amount: { type: Number, required: true },
+        status: { type: String, enum: ['pending', 'completed', 'approved', 'rejected'], default: 'completed' },
+        description: String,
+        createdAt: { type: Date, default: Date.now }
+    });
+    Transaction = mongoose.model('Transaction', schema);
+}
+
 function verifySeller(req) {
     const auth = req.headers['authorization'];
     const token = auth && auth.split(' ')[1];
@@ -42,7 +55,7 @@ function verifySeller(req) {
 module.exports = async (req, res) => {
     // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -86,6 +99,40 @@ module.exports = async (req, res) => {
             }));
 
             return res.json({ success: true, referrals: results });
+        }
+
+        // GET /api/seller/transactions
+        if (req.method === 'GET' && url.endsWith('/transactions')) {
+            const transactions = await Transaction.find({ userId: user.id })
+                .sort({ createdAt: -1 });
+            return res.json({ success: true, transactions });
+        }
+
+        // POST /api/seller/withdraw
+        if (req.method === 'POST' && url.endsWith('/withdraw')) {
+            const { amount } = req.body;
+            if (!amount || amount <= 0) return res.status(400).json({ success: false, message: 'Monto inválido' });
+
+            const seller = await User.findById(user.id);
+            if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+
+            if ((seller.sellerBalance || 0) < amount) {
+                return res.status(400).json({ success: false, message: 'Saldo insuficiente' });
+            }
+
+            // Crear solicitud de retiro
+            await Transaction.create({
+                userId: seller._id,
+                type: 'withdrawal',
+                amount: amount,
+                status: 'pending',
+                description: `Solicitud de retiro de saldo`
+            });
+
+            // Opcional: Descontar el saldo inmediatamente o esperar a aprobación.
+            // Para ser seguros, lo descontamos al aprobar.
+            
+            return res.json({ success: true, message: 'Solicitud de retiro enviada correctamente' });
         }
 
         return res.status(404).json({ success: false, message: 'Ruta no encontrada' });

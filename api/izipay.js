@@ -106,6 +106,18 @@ try { Membership = mongoose.model('Membership'); } catch {
     });
     Membership = mongoose.model('Membership', schema);
 }
+let Transaction;
+try { Transaction = mongoose.model('Transaction'); } catch {
+    const schema = new mongoose.Schema({
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        type: { type: String, enum: ['commission', 'withdrawal'], default: 'commission' },
+        amount: { type: Number, required: true },
+        status: { type: String, enum: ['pending', 'completed', 'approved', 'rejected'], default: 'completed' },
+        description: String,
+        createdAt: { type: Date, default: Date.now }
+    });
+    Transaction = mongoose.model('Transaction', schema);
+}
 
 function verifyToken(req) {
     const auth = req.headers['authorization'];
@@ -273,6 +285,16 @@ module.exports = async (req, res) => {
                     const amount = (membership.price * commissionPct) / 100;
                     seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                     await seller.save();
+                    
+                    // Registrar Transacción
+                    await Transaction.create({
+                        userId: seller._id,
+                        type: 'commission',
+                        amount: amount,
+                        status: 'completed',
+                        description: `Comisión por venta de membresía "${membership.name}" a ${user.email}`
+                    });
+
                     console.log(`[IZIPAY] 💰 Comisión pagada al vendedor ${seller.email}: S/ ${amount.toFixed(2)} (${commissionPct}%)`);
                 }
             }
@@ -370,6 +392,16 @@ module.exports = async (req, res) => {
                         const amount = (membership.price * commissionPct) / 100;
                         seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                         await seller.save();
+
+                        // Registrar Transacción
+                        await Transaction.create({
+                            userId: seller._id,
+                            type: 'commission',
+                            amount: amount,
+                            status: 'completed',
+                            description: `Comisión por venta de membresía "${membership.name}" a ${user.email}`
+                        });
+
                         console.log(`[IZIPAY] 💰 Comisión pagada al vendedor ${seller.email}: S/ ${amount.toFixed(2)} (${commissionPct}%)`);
                     }
                 }

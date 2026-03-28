@@ -725,7 +725,7 @@ let selectedUserIdForDetails = null;
 
 function switchTab(tab) {
     activeTab = tab;
-    ['courses', 'memberships', 'banners', 'users', 'logo', 'categories'].forEach(t => {
+    ['courses', 'memberships', 'banners', 'users', 'logo', 'categories', 'commissions'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         if (section) section.style.display = t === tab ? '' : 'none';
 
@@ -753,6 +753,7 @@ function switchTab(tab) {
         if (tab === 'banners') loadBanners();
     }
     if (tab === 'users') loadUsers();
+    if (tab === 'commissions') loadCommissionsData();
 }
 
 // ===================================
@@ -2186,3 +2187,150 @@ async function savePermissionsChanges() {
     }
 }
 
+// ===================================
+// COMMISSIONS & WITHDRAWALS ADMIN
+// ===================================
+
+function switchCommSubTab(sub) {
+    document.getElementById('comsub-all').style.display = sub === 'all' ? 'block' : 'none';
+    document.getElementById('comsub-withdrawals').style.display = sub === 'withdrawals' ? 'block' : 'none';
+
+    // Update buttons
+    const btnAll = document.getElementById('csub-tab-all');
+    const btnWith = document.getElementById('csub-tab-withdrawals');
+
+    if (sub === 'all') {
+        btnAll.style.background = 'rgba(79, 255, 176, 0.15)';
+        btnAll.style.color = '#4FFFB0';
+        btnWith.style.background = 'transparent';
+        btnWith.style.color = 'rgba(255,255,255,0.5)';
+        fetchAllTransactions();
+    } else {
+        btnWith.style.background = 'rgba(79, 255, 176, 0.15)';
+        btnWith.style.color = '#4FFFB0';
+        btnAll.style.background = 'transparent';
+        btnAll.style.color = 'rgba(255,255,255,0.5)';
+        fetchWithdrawalRequests();
+    }
+}
+
+async function loadCommissionsData() {
+    switchCommSubTab('all');
+}
+
+async function fetchAllTransactions() {
+    try {
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
+        const res = await fetch(apiUrl('/api/admin-transactions'), {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            renderCommissions(data.transactions);
+        }
+    } catch (err) {
+        console.error('Error fetching transactions:', err);
+    }
+}
+
+async function fetchWithdrawalRequests() {
+    try {
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
+        const res = await fetch(apiUrl('/api/admin-transactions/withdrawals'), {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            renderWithdrawalsAdmin(data.withdrawals);
+        }
+    } catch (err) {
+        console.error('Error fetching withdrawals:', err);
+    }
+}
+
+function renderCommissions(transactions) {
+    const tbody = document.getElementById('commissionsTableBody');
+    if (!transactions || transactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:3rem; opacity:0.5;">No hay transacciones aún.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = transactions.map(t => {
+        const sellerName = t.userId ? `${t.userId.name} ${t.userId.lastName || ''}` : 'Desconocido';
+        const isComm = t.type === 'commission';
+        const statusColor = (t.status === 'completed' || t.status === 'approved') ? '#4FFFB0' : (t.status === 'pending' ? '#F59E0B' : '#EF4444');
+        return `
+            <tr>
+                <td style="font-size:0.85rem; opacity:0.6;">${new Date(t.createdAt).toLocaleString()}</td>
+                <td style="font-weight:600;">${sellerName}</td>
+                <td><span style="font-weight:800; color:${isComm ? '#4FFFB0' : '#3B82F6'};">${isComm ? 'COMISIÓN' : 'RETIRO'}</span></td>
+                <td style="font-size:0.85rem;">${t.description}</td>
+                <td style="font-weight:800; color:${isComm ? '#4FFFB0' : '#EF4444'};">${isComm ? '+' : '-'} S/ ${t.amount.toFixed(2)}</td>
+                <td>
+                    <span style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.6rem; border-radius:4px; background:${statusColor}22; color:${statusColor}; border: 1px solid ${statusColor}44;">
+                        ${t.status.toUpperCase()}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderWithdrawalsAdmin(withdrawals) {
+    const tbody = document.getElementById('withdrawalsAdminTableBody');
+    if (!withdrawals || withdrawals.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:3rem; opacity:0.5;">No hay solicitudes de retiro.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = withdrawals.map(w => {
+        const seller = w.userId || {};
+        const sellerName = `${seller.name || '---'} ${seller.lastName || ''}`;
+        const canProcess = w.status === 'pending';
+        
+        return `
+            <tr>
+                <td style="font-size:0.85rem; opacity:0.6;">${new Date(w.createdAt).toLocaleString()}</td>
+                <td style="font-weight:700;">${sellerName}</td>
+                <td style="font-size:0.85rem; opacity:0.7;">${seller.email || '---'}</td>
+                <td style="font-weight:800; color:#EF4444;">S/ ${w.amount.toFixed(2)}</td>
+                <td style="font-weight:600; color:#4FFFB0;">S/ ${(seller.sellerBalance || 0).toFixed(2)}</td>
+                <td>
+                    <span style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.6rem; border-radius:4px; background:${w.status === 'pending' ? '#F59E0B' : (w.status === 'approved' ? '#4FFFB0' : '#EF4444')}22; color:${w.status === 'pending' ? '#F59E0B' : (w.status === 'approved' ? '#4FFFB0' : '#EF4444')};">
+                        ${w.status.toUpperCase()}
+                    </span>
+                </td>
+                <td>
+                    ${canProcess ? `
+                        <div style="display:flex; gap:0.5rem;">
+                            <button onclick="processWithdrawal('${w._id}', 'approved')" class="btn-action edit" style="background:#4FFFB022; color:#4FFFB0; font-size:0.75rem; padding:0.4rem 0.8rem; border-radius:8px;">Aprobar</button>
+                            <button onclick="processWithdrawal('${w._id}', 'rejected')" class="btn-action delete" style="background:#EF444422; color:#EF4444; font-size:0.75rem; padding:0.4rem 0.8rem; border-radius:8px;">Rechazar</button>
+                        </div>
+                    ` : '<span style="opacity:0.3; font-size:0.75rem;">PROCESADA</span>'}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function processWithdrawal(id, status) {
+    if (!confirm(`¿Estás seguro de ${status === 'approved' ? 'APROBAR' : 'RECHAZAR'} este retiro?`)) return;
+
+    try {
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
+        const res = await fetch(apiUrl('/api/admin-transactions/withdrawals'), {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transactionId: id, status })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(`Solicitud ${status === 'approved' ? 'aprobada' : 'rechazada'} correctamente`);
+            fetchWithdrawalRequests();
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (err) {
+        showToast('Error al procesar retiro', 'error');
+    }
+}

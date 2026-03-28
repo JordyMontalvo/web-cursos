@@ -100,8 +100,9 @@
                     <span class="logo-text">VENDEDOR PANEL</span>
                 </div>
 
-                <nav class="nav">
-                    <a href="/vendedor" class="nav-link active">Mi Panel</a>
+                <nav class="nav" style="display:flex;gap:1rem;">
+                    <a href="#" class="nav-link active" onclick="switchView('referidos', this)">📈 Dashboard</a>
+                    <a href="#" class="nav-link" onclick="switchView('retiros', this)">💰 Retiros</a>
                 </nav>
 
                 <div class="header-actions">
@@ -114,111 +115,178 @@
 
     <div class="admin-container">
         <div class="container">
-            <div class="admin-header">
-                <div style="display:flex; align-items:center; gap: 1rem; margin-bottom: 0.5rem;">
-                    <h1 class="admin-title">Bienvenido, <span id="welcomeName">Vendedor</span></h1>
-                    <span class="seller-badge">Promotor Oficial</span>
-                </div>
-                <p class="admin-description">Monitorea tus referidos, comisiones y enlace de afiliado</p>
-            </div>
-
-            <!-- Stats Section -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                        </svg>
+            <!-- VIEW: REFERIDOS (Default) -->
+            <div id="viewReferidos" class="dashboard-view active">
+                <div class="admin-header">
+                    <div style="display:flex; align-items:center; gap: 1rem; margin-bottom: 0.5rem;">
+                        <h1 class="admin-title">Bienvenido, <span id="welcomeName">Vendedor</span></h1>
+                        <span class="seller-badge">Promotor Oficial</span>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="sellerBalance">S/ 0.00</div>
-                        <div class="stat-label">Saldo Acumulado</div>
-                    </div>
+                    <p class="admin-description">Monitorea tus referidos, comisiones y enlace de afiliado</p>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
+                <!-- Stats Section -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="sellerBalance">S/ 0.00</div>
+                            <div class="stat-label">Saldo Acumulado</div>
+                        </div>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="referralsCount">0</div>
-                        <div class="stat-label">Referidos Totales</div>
-                    </div>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                        </svg>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="referralsCount">0</div>
+                            <div class="stat-label">Referidos Totales</div>
+                        </div>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="sellerCodeDisplay">---</div>
-                        <div class="stat-label">Tu Código</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Referral Link -->
-            <div class="referral-link-card">
-                <div style="flex-shrink:0;">
-                    <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.25rem;">Enlace de Referido</h3>
-                    <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Comparte este link para ganar comisiones</p>
-                </div>
-                <div class="link-input-group">
-                    <input type="text" id="referralUrl" readonly value="Cargando link...">
-                </div>
-                <button class="btn-copy" onclick="copyLink()">Copiar Link</button>
-            </div>
-
-            <!-- Referrals Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <div style="display:flex; align-items:center; gap:1.5rem;">
-                        <h2>Tus Referidos</h2>
-                        <div class="table-actions" style="margin-left:auto; display:flex; gap:1rem;">
-                            <input type="text" id="referralSearch" oninput="handleSearch(this.value)" placeholder="Buscar por nombre, email o código..." class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none; width:300px;">
-                            <select id="referralFilter" onchange="filterReferrals()" class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none;">
-                                <option value="all">Todos los referidos</option>
-                                <option value="active">Solo con Membresía Activa</option>
-                                <option value="inactive">Sin Membresía</option>
-                            </select>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="sellerCodeDisplay">---</div>
+                            <div class="stat-label">Tu Código</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="table-wrapper">
-                    <table class="courses-table">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Contacto</th>
-                                <th>Ubicación</th>
-                                <th>Fecha Registro</th>
-                                <th>Membresía</th>
-                                <th>Estado</th>
-                                <th>Código Membresía</th>
-                            </tr>
-                        </thead>
-                        <tbody id="referralsTableBody">
-                            <tr>
-                                <td colspan="7" class="loading-row">
-                                    <div class="spinner"></div>
-                                    <p>Cargando lista...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Referral Link -->
+                <div class="referral-link-card">
+                    <div style="flex-shrink:0;">
+                        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.25rem;">Enlace de Referido</h3>
+                        <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Comparte este link para ganar comisiones</p>
+                    </div>
+                    <div class="link-input-group">
+                        <input type="text" id="referralUrl" readonly value="Cargando link...">
+                    </div>
+                    <button class="btn-copy" onclick="copyLink()">Copiar Link</button>
                 </div>
+
+                <!-- Referrals Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div style="display:flex; align-items:center; gap:1.5rem;">
+                            <h2>Tus Referidos</h2>
+                            <div class="table-actions" style="margin-left:auto; display:flex; gap:1rem;">
+                                <input type="text" id="referralSearch" oninput="handleSearch(this.value)" placeholder="Buscar por nombre, email o código..." class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none; width:300px;">
+                                <select id="referralFilter" onchange="filterReferrals()" class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none;">
+                                    <option value="all">Todos los referidos</option>
+                                    <option value="active">Solo con Membresía Activa</option>
+                                    <option value="inactive">Sin Membresía</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="courses-table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Contacto</th>
+                                    <th>Ubicación</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Membresía</th>
+                                    <th>Estado</th>
+                                    <th>Código Membresía</th>
+                                </tr>
+                            </thead>
+                            <tbody id="referralsTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading-row">
+                                        <div class="spinner"></div>
+                                        <p>Cargando lista...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: RETIROS -->
+            <div id="viewRetiros" class="dashboard-view" style="display:none;">
+                <div class="referral-link-card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);">
+                    <div>
+                        <h2 id="retiroBalanceDisplay" style="font-size:2.5rem; font-weight:900; color:var(--primary-seller);">S/ 0.00</h2>
+                        <p style="opacity:0.6; font-size:0.9rem;">Saldo disponible para retirar</p>
+                    </div>
+                    <button class="btn-copy" onclick="openWithdrawModal()" style="padding: 1rem 2rem; font-size:1.1rem;">Solicitar Retiro</button>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Historial de Movimientos</h2>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="courses-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Descripción</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                                <tr><td colspan="5" style="text-align:center; padding:3rem; opacity:0.5;">Cargando historial de transacciones...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
+
+    <!-- MODAL RETIRO -->
+    <div id="withdrawModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); z-index:2000; align-items:center; justify-content:center;">
+        <div class="modal-content" style="max-width:400px; padding:2.5rem; background:var(--bg-darker); border: 1px solid var(--glass-border); border-radius:24px; animation: modalEnter 0.3s ease-out;">
+            <h2 style="font-weight:900; margin-bottom:0.5rem;">Solicitar Retiro</h2>
+            <p style="opacity:0.6; margin-bottom:2rem; font-size:0.9rem;">Indica el monto que deseas retirar a tu cuenta bancaria configurada.</p>
+            
+            <form id="withdrawForm" onsubmit="handleWithdrawSubmit(event)">
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label style="color:rgba(255,255,255,0.5); font-size:0.8rem; font-weight:700; display:block; margin-bottom:0.8rem; text-transform:uppercase;">Monto a Retirar (S/)</label>
+                    <input type="number" id="withdrawAmount" step="0.01" required placeholder="0.00" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding:1rem; border-radius:12px; color:#fff; font-size:1.8rem; font-weight:800; text-align:center; outline:none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary-seller)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                    <button type="button" class="btn-secondary" onclick="closeWithdrawModal()" style="padding:1rem; border-radius:12px; font-weight:700;">Cancelar</button>
+                    <button type="submit" class="btn-copy" id="btnConfirmWithdraw" style="padding:1rem; border-radius:12px; font-weight:700;">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .dashboard-view { display: none; width: 100%; }
+        .dashboard-view.active { display: block; animation: fadeIn 0.4s ease-out; }
+        .nav-link { cursor: pointer; transition: all 0.2s; }
+        .nav-link:hover { color: var(--primary-seller); }
+        .nav-link.active { color: var(--primary-seller); border-bottom: 2px solid var(--primary-seller); }
+        @keyframes modalEnter { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 
     <script src="/config.js"></script>
     <script>
@@ -236,6 +304,7 @@
             document.getElementById('welcomeName').textContent = user.name;
             
             await loadSellerData();
+            loadTransactions();
         });
 
         let allReferrals = [];
@@ -253,7 +322,9 @@
 
                 if (statsData.success) {
                     const stats = statsData.stats;
-                    document.getElementById('sellerBalance').textContent = `S/ ${stats.balance.toFixed(2)}`;
+                    const balanceText = `S/ ${stats.balance.toFixed(2)}`;
+                    document.getElementById('sellerBalance').textContent = balanceText;
+                    document.getElementById('retiroBalanceDisplay').textContent = balanceText;
                     document.getElementById('referralsCount').textContent = stats.referralsCount;
                     document.getElementById('sellerCodeDisplay').textContent = stats.code || 'N/A';
                     
@@ -280,6 +351,96 @@
             }
         }
 
+        function switchView(view, btn) {
+            document.querySelectorAll('.dashboard-view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        async function loadTransactions() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const res = await fetch(apiUrl('/api/seller/transactions'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    renderTransactions(data.transactions);
+                }
+            } catch (err) { console.error('Error loading transactions', err); }
+        }
+
+        function renderTransactions(transactions) {
+            const tbody = document.getElementById('transactionsTableBody');
+            if (!transactions || transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; opacity:0.5;">No hay transacciones registradas.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transactions.map(t => {
+                const isComm = t.type === 'commission';
+                const statusColor = (t.status === 'completed' || t.status === 'approved') ? '#10B981' : (t.status === 'pending' ? '#F59E0B' : '#EF4444');
+                return `
+                    <tr>
+                        <td style="font-size:0.85rem; opacity:0.6;">${new Date(t.createdAt).toLocaleString()}</td>
+                        <td><span style="font-weight:700; color:${isComm ? '#10B981' : '#3B82F6'};">${isComm ? 'COMISIÓN' : 'RETIRO'}</span></td>
+                        <td style="font-size:0.85rem;">${t.description}</td>
+                        <td style="font-weight:800; color:${isComm ? '#10B981' : '#EF4444'};">${isComm ? '+' : '-'} S/ ${t.amount.toFixed(2)}</td>
+                        <td>
+                            <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; padding:0.2rem 0.6rem; border-radius:6px; background:${statusColor}22; color:${statusColor}; border: 1px solid ${statusColor}44;">
+                                ${t.status}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'none';
+        }
+
+        async function handleWithdrawSubmit(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            if (!amount || amount <= 0) return alert('Monto inválido');
+
+            const btn = document.getElementById('btnConfirmWithdraw');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            try {
+                const token = localStorage.getItem('authToken');
+                const res = await fetch(apiUrl('/api/seller/withdraw'), {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Solicitud de retiro enviada correctamente. El administrador la procesará pronto.');
+                    closeWithdrawModal();
+                    document.getElementById('withdrawForm').reset();
+                    loadSellerData();
+                    loadTransactions();
+                } else {
+                    alert(data.message);
+                }
+            } catch (err) {
+                alert('Error al enviar solicitud: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
         function renderReferrals(referrals) {
             const tableBody = document.getElementById('referralsTableBody');
             if (referrals.length === 0) {
@@ -290,7 +451,6 @@
             tableBody.innerHTML = referrals.map(u => {
                 const isMember = u.hasMembership;
                 const userFullName = `${u.name} ${u.lastName || ''}`;
-                // Membership Code: MEM- + UserID tail or something unique
                 const membershipCode = isMember ? `MEM-${u._id.substring(18).toUpperCase()}` : '---';
 
                 return `
@@ -361,9 +521,8 @@
             renderReferrals(filtered);
         }
 
-        // Search event handler
         function handleSearch() {
-            filterReferrals(); // Uses the same filter but considers everything.
+            filterReferrals(); 
         }
 
         function copyLink() {
@@ -389,5 +548,4 @@
         }
     </script>
 </body>
-
 </html>
