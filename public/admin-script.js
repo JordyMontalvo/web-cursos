@@ -1228,9 +1228,9 @@ function renderUsersTable(users) {
         return `
         <tr>
             <td><strong style="color:#fff;">${u.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${u.lastName || ''}</span></td>
-            <td style="font-size:.85rem;color:rgba(255,255,255,.75);">${u.email}</td>
-            <td style="font-size:.85rem;color:rgba(255,255,255,.6);">${u.phone || '-'}</td>
-            <td style="font-size:.85rem;color:rgba(255,255,255,.6);">${u.country || '-'}</td>
+            <td style="font-size:.85rem;color:#fff;">${u.email}</td>
+            <td style="font-size:.85rem;color:#fff;">${u.phone || '-'}</td>
+            <td style="font-size:.85rem;color:#fff;">${u.country || '-'}</td>
             <td style="font-size:.8rem;">${(() => {
                 if (!u.referredBy) return '<span style="color:rgba(255,255,255,.3);">-</span>';
                 // Buscar el vendedor por su _id en usersData
@@ -1239,7 +1239,7 @@ function renderUsersTable(users) {
                 return '<span style="color:rgba(196,181,253,.5);font-size:.75rem;">Referido</span>';
             })()}</td>
             <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin membresía</span>'}</td>
-            <td style="font-size:.8rem;color:rgba(255,255,255,.5);">${isActive ? expDate : '-'}</td>
+            <td style="font-size:.8rem;color:#fff;">${isActive ? expDate : '-'}</td>
             <td>
                 <div style="display:flex;gap:.4rem;">
                     <button onclick="openUserMembershipModal('${u._id}','${u.name.replace(/'/g, "\\'")}')"
@@ -1262,7 +1262,7 @@ function renderVendedoresTable(vendors) {
     tbody.innerHTML = vendors.map(v => `
         <tr>
             <td><strong style="color:#fff;">${v.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${v.lastName || ''}</span></td>
-            <td style="font-size:.85rem;color:rgba(255,255,255,.75);">${v.email}</td>
+            <td style="font-size:.85rem;color:#fff;">${v.email}</td>
             <td>${v.sellerCode
                 ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
                 : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
@@ -1283,7 +1283,7 @@ function renderVendedoresTable(vendors) {
                 </div>
             </td>
             <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
-            <td style="color:rgba(255,255,255,.6);">${v.referralCount ?? 0}</td>
+            <td style="color:#fff;">${v.referralCount ?? 0}</td>
             <td>
                 <div style="display:flex;gap:.4rem;">
                     <button onclick="openEditPermissionsModal('${v._id}','${v.name.replace(/'/g, "\\'") } ${v.lastName?.replace(/'/g, "\\'") || ''}','${v.role}','${(v.permissions||[]).join(',')}','${v.canCreate}','${v.canEdit}')"
@@ -1337,8 +1337,8 @@ function renderAdminsTable(admins) {
         return `
         <tr>
             <td><strong style="color:#fff;">${a.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${a.lastName || ''}</span></td>
-            <td style="font-size:.85rem;color:rgba(255,255,255,.75);">${a.email}</td>
-            <td style="font-size:.8rem;color:rgba(255,255,255,.6);">${perms}</td>
+            <td style="font-size:.85rem;color:#fff;">${a.email}</td>
+            <td style="font-size:.8rem;color:#fff;">${perms}</td>
             <td>${a.canCreate !== false ? '<span style="color:#4FFFB0;">✔</span>' : '<span style="color:#FF6B70;">✘</span>'}</td>
             <td>${a.canEdit !== false ? '<span style="color:#4FFFB0;">✔</span>' : '<span style="color:#FF6B70;">✘</span>'}</td>
             <td>
