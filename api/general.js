@@ -48,6 +48,7 @@ function verifyAdmin(req) {
 module.exports = async (req, res) => {
     const url = req.url.split('?')[0];
     const isAdminPath = url.includes('/admin/');
+    const route = req.query?.route;
     
     if (isAdminPath || req.method !== 'GET') {
         setCORS(res, 'GET, POST, PUT, DELETE, OPTIONS');
@@ -65,7 +66,7 @@ module.exports = async (req, res) => {
     try {
 
     // ── PUBLIC: /api/config ────────────────────────────────────────────────
-    if (url.includes('config') || (url === '/api/general' && !isAdminPath)) {
+    if (route === 'config' || (url.includes('config') && !route)) {
         const testPubKey = '38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh';
         return res.json({
             apiUrl: process.env.BACKEND_URL || '',
@@ -75,19 +76,19 @@ module.exports = async (req, res) => {
     }
 
     // ── PUBLIC: /api/banners ───────────────────────────────────────────────
-    if (url.includes('banners') && !isAdminPath) {
+    if (route === 'public-banners' || (url.includes('banners') && !isAdminPath && !route)) {
         const banners = await Banner.find({ isActive: true }).sort({ order: 1 });
         return res.json({ success: true, banners });
     }
 
     // ── PUBLIC: /api/settings ──────────────────────────────────────────────
-    if (url.includes('settings') && !isAdminPath) {
+    if (route === 'public-settings' || (url.includes('settings') && !isAdminPath && !route)) {
         let settings = await Settings.findOne() || await Settings.create({});
         return res.json({ success: true, settings });
     }
 
     // ── PUBLIC: /api/landing-config ─────────────────────────────────────────
-    if (url.includes('landing-config') && !isAdminPath) {
+    if (route === 'public-landing-config' || (url.includes('landing-config') && !isAdminPath && !route)) {
         let config = await LandingConfig.findOne() || await LandingConfig.create({});
         return res.json({ success: true, config });
     }
@@ -97,13 +98,13 @@ module.exports = async (req, res) => {
     if (!admin) return res.status(403).json({ success: false, message: 'Acceso denegado' });
 
     // ── ADMIN: /api/admin/settings (GET) ──
-    if (url.includes('settings') && req.method === 'GET') {
+    if (route === 'admin-settings' && req.method === 'GET') {
         let settings = await Settings.findOne() || await Settings.create({});
         return res.json({ success: true, settings });
     }
 
     // ── ADMIN: /api/admin/settings (PUT) ──
-    if (url.includes('settings') && req.method === 'PUT') {
+    if (route === 'admin-settings' && req.method === 'PUT') {
         const { presentationVideoUrl, companyName, logoUrl } = req.body;
         
         const updated = await Settings.findOneAndUpdate(
@@ -122,7 +123,7 @@ module.exports = async (req, res) => {
     }
 
     // ── ADMIN: /api/admin/landing-config (PUT) ──
-    if (url.includes('landing-config') && req.method === 'PUT') {
+    if ((route === 'admin-landing-config' && req.method === 'PUT') || (url.includes('landing-config') && req.method === 'PUT' && !route)) {
         const {
             featuresTitle, featuresSubtitle, features,
             faqTitle, faqSubtitle, faqs,
