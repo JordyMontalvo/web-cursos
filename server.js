@@ -589,31 +589,35 @@ app.get('/api/landing-config', async (req, res) => {
 
 app.put('/api/admin/landing-config', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        let config = await LandingConfig.findOne();
-        if (!config) config = new LandingConfig();
-
         const {
             featuresTitle, featuresSubtitle, features,
             faqTitle, faqSubtitle, faqs,
             guaranteeTitle, guaranteeDescription, guaranteeIcon
         } = req.body;
 
-        if (featuresTitle !== undefined) config.featuresTitle = featuresTitle;
-        if (featuresSubtitle !== undefined) config.featuresSubtitle = featuresSubtitle;
-        if (features !== undefined) config.features = features;
-        if (faqTitle !== undefined) config.faqTitle = faqTitle;
-        if (faqSubtitle !== undefined) config.faqSubtitle = faqSubtitle;
-        if (faqs !== undefined) config.faqs = faqs;
-        if (guaranteeTitle !== undefined) config.guaranteeTitle = guaranteeTitle;
-        if (guaranteeDescription !== undefined) config.guaranteeDescription = guaranteeDescription;
-        if (guaranteeIcon !== undefined) config.guaranteeIcon = guaranteeIcon;
+        const updated = await LandingConfig.findOneAndUpdate(
+            {},
+            {
+                $set: {
+                    featuresTitle: featuresTitle || '',
+                    featuresSubtitle: featuresSubtitle || '',
+                    features: Array.isArray(features) ? features : [],
+                    faqTitle: faqTitle || '',
+                    faqSubtitle: faqSubtitle || '',
+                    faqs: Array.isArray(faqs) ? faqs : [],
+                    guaranteeTitle: guaranteeTitle || '',
+                    guaranteeDescription: guaranteeDescription || '',
+                    guaranteeIcon: guaranteeIcon || '🛡️',
+                    updatedAt: new Date()
+                }
+            },
+            { upsert: true, new: true }
+        );
 
-        config.updatedAt = new Date();
-        await config.save();
-
-        res.json({ success: true, config });
+        res.json({ success: true, config: updated, message: 'Configuración guardada' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error updating landing config', error: error.message });
+        console.error('Save Landing Config Error:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor', error: error.message });
     }
 });
 

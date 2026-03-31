@@ -17,7 +17,7 @@ const LandingConfig = mongoose.models.LandingConfig || mongoose.model('LandingCo
     updatedAt: { type: Date, default: Date.now }
 }));
 
-function setCORS(res, methods = 'GET, OPTIONS') {
+function setCORS(res, methods = 'GET, PUT, OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', methods);
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -34,7 +34,7 @@ function verifyAdmin(req) {
 }
 
 module.exports = async (req, res) => {
-    setCORS(res, 'GET, POST, PUT, DELETE, OPTIONS');
+    setCORS(res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     try { await connectDB(); } catch (err) { 
@@ -42,16 +42,14 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // GET (Public or Admin)
         if (req.method === 'GET') {
             let config = await LandingConfig.findOne() || await LandingConfig.create({});
             return res.json({ success: true, config });
         }
 
-        // PUT (Admin only)
         if (req.method === 'PUT') {
             const admin = verifyAdmin(req);
-            if (!admin) return res.status(403).json({ success: false, message: 'Acceso denegado' });
+            if (!admin) return res.status(403).json({ success: false, message: 'No autorizado - Token de admin inválido' });
 
             const {
                 featuresTitle, featuresSubtitle, features,
@@ -63,24 +61,24 @@ module.exports = async (req, res) => {
                 {},
                 {
                     $set: {
-                        ...(featuresTitle !== undefined && { featuresTitle }),
-                        ...(featuresSubtitle !== undefined && { featuresSubtitle }),
-                        ...(features !== undefined && { features }),
-                        ...(faqTitle !== undefined && { faqTitle }),
-                        ...(faqSubtitle !== undefined && { faqSubtitle }),
-                        ...(faqs !== undefined && { faqs }),
-                        ...(guaranteeTitle !== undefined && { guaranteeTitle }),
-                        ...(guaranteeDescription !== undefined && { guaranteeDescription }),
-                        ...(guaranteeIcon !== undefined && { guaranteeIcon }),
+                        featuresTitle: featuresTitle || '',
+                        featuresSubtitle: featuresSubtitle || '',
+                        features: Array.isArray(features) ? features : [],
+                        faqTitle: faqTitle || '',
+                        faqSubtitle: faqSubtitle || '',
+                        faqs: Array.isArray(faqs) ? faqs : [],
+                        guaranteeTitle: guaranteeTitle || '',
+                        guaranteeDescription: guaranteeDescription || '',
+                        guaranteeIcon: guaranteeIcon || '🛡️',
                         updatedAt: new Date()
                     }
                 },
                 { upsert: true, new: true }
             );
-            return res.json({ success: true, config: updated });
+            return res.json({ success: true, config: updated, message: 'Guardado con éxito' });
         }
 
-        return res.status(405).json({ success: false, message: 'Method Not Allowed' });
+        return res.status(405).json({ success: false, message: 'Método no permitido' });
     } catch (error) {
         console.error('API Error in landing-config.js:', error);
         return res.status(500).json({ success: false, message: 'Server Error', error: error.message });
