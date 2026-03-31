@@ -526,9 +526,11 @@
 }
 
 #logoConfigForm .form-group label,
-#settingsForm .form-group label {
+#settingsForm .form-group label,
+#landingConfigForm .form-group label {
     color: #ffffff;
 }
+
 
 .form-group input[type="text"],
 .form-group input[type="email"],
