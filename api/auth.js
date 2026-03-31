@@ -1,4 +1,4 @@
-const { connectDB } = require('./_db');
+const { connectDB } = require('../lib/db');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');

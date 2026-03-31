@@ -1,5 +1,5 @@
-const { connectDB } = require('./_db');
-const Course = require('./_Course');
+const { connectDB } = require('../lib/db');
+const Course = require('../lib/Course');
 
 function setCORS(res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
