@@ -750,9 +750,10 @@ let selectedUserIdForDetails = null;
 
 function switchTab(tab) {
     activeTab = tab;
-    ['courses', 'memberships', 'banners', 'users', 'logo', 'categories', 'commissions'].forEach(t => {
+    ['courses', 'memberships', 'banners', 'users', 'logo', 'categories', 'commissions', 'landing'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         if (section) section.style.display = t === tab ? '' : 'none';
+
 
         const btn = document.getElementById(`tab-${t}`);
         if (btn) {
@@ -767,6 +768,8 @@ function switchTab(tab) {
     if (tab === 'courses') fetchCourses();
     if (tab === 'memberships') loadMemberships();
     if (tab === 'categories') loadCategories();
+    if (tab === 'landing') loadLandingConfig();
+
     if (tab === 'banners' || tab === 'logo') {
         // Solo cargamos settings la primera vez, luego se preserva el estado local
         if (!settingsLoaded) loadSettings();
@@ -970,8 +973,13 @@ function renderMembershipsGrid(plans) {
         <div style="background:rgba(20,20,35,.85);border:1px solid ${p.isActive ? 'rgba(124,58,237,.3)' : 'rgba(255,255,255,.08)'};border-radius:20px;padding:1.5rem;position:relative;transition:all .25s;">
             ${!p.isActive ? '<div style="position:absolute;top:1rem;right:1rem;background:rgba(255,75,85,.15);border:1px solid rgba(255,75,85,.3);color:#FF6B70;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">INACTIVO</div>' : ''}
             ${p.badge ? `<div style="position:absolute;top:1rem;right:1rem;background:${p.color || '#7C3AED'};color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .75rem;border-radius:100px;">${p.badge}</div>` : ''}
+            <div style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:.5rem;">
+                ${p.icon && (p.icon.startsWith('http') || p.icon.startsWith('data:')) ? `<img src="${p.icon}" style="width:100%;height:100%;object-fit:contain;">` : (p.icon || '🚀')}
+            </div>
             <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">${p.name}</div>
+
             <div style="font-size:2rem;font-weight:900;color:${p.color || '#7C3AED'};margin:.5rem 0;">${p.currency === 'USD' ? '$' : 'S/'} ${p.price}</div>
+
             <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-bottom:1rem;">${getDurationLabel(p.durationDays)}</div>
             ${p.description ? `<div style="font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:1rem;">${p.description}</div>` : ''}
             ${p.features && p.features.length ? `<ul style="list-style:none;margin-bottom:1rem;">${p.features.slice(0, 3).map(f => `<li style="font-size:.8rem;color:rgba(255,255,255,.6);padding:.2rem 0;">✓ ${f}</li>`).join('')}${p.features.length > 3 ? `<li style="font-size:.75rem;color:rgba(255,255,255,.3);">+${p.features.length - 3} más...</li>` : ''}</ul>` : ''}
@@ -988,7 +996,9 @@ function openMembershipModal(id) {
     document.getElementById('membershipModalTitle').textContent = id ? 'Editar Plan' : 'Nuevo Plan de Membresía';
     document.getElementById('membershipForm').reset();
     document.getElementById('membershipId').value = '';
+    document.getElementById('membIcon').value = '🚀';
     document.getElementById('membColor').value = '#7C3AED';
+
     document.getElementById('membButtonColor').value = '#7C3AED';
     document.getElementById('membActive').checked = true;
     document.getElementById('featuresContainer').innerHTML = `
@@ -1007,7 +1017,27 @@ function openMembershipModal(id) {
             document.getElementById('membDuration').value = plan.durationDays;
             document.getElementById('membBadge').value = plan.badge || '';
             document.getElementById('membDesc').value = plan.description || '';
+            
+            const iconInput = document.getElementById('membIcon');
+            if (plan.icon && (plan.icon.startsWith('http') || plan.icon.startsWith('data:'))) {
+                iconInput.value = '🖼️ Imagen Cargada';
+                iconInput.dataset.iconUrl = plan.icon;
+            } else {
+                iconInput.value = plan.icon || '🚀';
+                delete iconInput.dataset.iconUrl;
+            }
+
+            const preview = document.getElementById('membIconPreview');
+            if (preview && plan.icon && (plan.icon.startsWith('http') || plan.icon.startsWith('data:'))) {
+                preview.style.backgroundImage = `url('${plan.icon}')`;
+                preview.textContent = '';
+            } else if (preview) {
+                preview.style.backgroundImage = '';
+                preview.textContent = '📷';
+            }
+
             document.getElementById('membColor').value = plan.color || '#7C3AED';
+
             document.getElementById('membButtonColor').value = plan.buttonColor || plan.color || '#7C3AED';
             document.getElementById('membActive').checked = plan.isActive;
 
@@ -1055,6 +1085,7 @@ async function saveMembership(e) {
     const id = document.getElementById('membershipId').value;
     const features = [...document.querySelectorAll('.feature-input')].map(i => i.value.trim()).filter(Boolean);
 
+    const iconInput = document.getElementById('membIcon');
     const payload = {
         name: document.getElementById('membName').value,
         price: document.getElementById('membPrice').value,
@@ -1062,11 +1093,13 @@ async function saveMembership(e) {
         durationDays: document.getElementById('membDuration').value,
         badge: document.getElementById('membBadge').value,
         description: document.getElementById('membDesc').value,
+        icon: iconInput.dataset.iconUrl || iconInput.value,
         color: document.getElementById('membColor').value,
         buttonColor: document.getElementById('membButtonColor').value,
         isActive: document.getElementById('membActive').checked,
         features
     };
+
 
     console.log('📦 Saving Membership:', { id, payload });
 
@@ -2355,5 +2388,254 @@ async function processWithdrawal(id, status) {
         }
     } catch (err) {
         showToast('Error al procesar retiro', 'error');
+    }
+}
+
+// ===================================
+// UNIVERSAL ICON UPLOAD (Base64)
+// ===================================
+function handleIconUpload(input, targetInputId, previewId) {
+    const file = input.files[0];
+    if (file) {
+        if (file.size > 500 * 1024) { // 500KB is enough for a small icon
+            showToast('El icono es demasiado grande. Máximo 500KB.', 'error');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target.result;
+            const target = document.getElementById(targetInputId);
+            target.value = '🖼️ Imagen Cargada';
+            target.dataset.iconUrl = base64;
+            
+            const preview = document.getElementById(previewId);
+
+            if (preview) {
+                preview.style.backgroundImage = `url('${base64}')`;
+                preview.textContent = '';
+            }
+            showToast('Icono cargado', 'info');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// ===================================
+// LANDING CONFIG ADMIN
+// ===================================
+
+function switchLandingSubTab(sub, btn) {
+    // Hide all sub-sections
+    ['features', 'faq', 'guarantee'].forEach(s => {
+        const sec = document.getElementById(`landing-sub-${s}`);
+        if(sec) sec.style.display = 'none';
+    });
+    // Show selected
+    const target = document.getElementById(`landing-sub-${sub}`);
+    if(target) target.style.display = 'block';
+
+    // Update buttons
+    const buttons = btn.parentElement.querySelectorAll('.admin-tab');
+    buttons.forEach(b => {
+        b.classList.remove('active');
+        b.style.color = 'rgba(255,255,255,.5)';
+        b.style.borderBottom = '2px solid transparent';
+    });
+    btn.classList.add('active');
+    btn.style.color = '#fff';
+    btn.style.borderBottom = '2px solid #7C3AED';
+}
+
+async function loadLandingConfig() {
+    try {
+        const res = await fetch(apiUrl('/api/landing-config'), { headers: authHeaders() });
+        const data = await res.json();
+        if (data.success && data.config) {
+            const c = data.config;
+            document.getElementById('featuresTitleInput').value = c.featuresTitle || '';
+            document.getElementById('featuresSubtitleInput').value = c.featuresSubtitle || '';
+            document.getElementById('faqTitleInput').value = c.faqTitle || '';
+            document.getElementById('faqSubtitleInput').value = c.faqSubtitle || '';
+            
+            const gInput = document.getElementById('guaranteeIcon');
+            if (c.guaranteeIcon && (c.guaranteeIcon.startsWith('http') || c.guaranteeIcon.startsWith('data:'))) {
+                gInput.value = '🖼️ Imagen Cargada';
+                gInput.dataset.iconUrl = c.guaranteeIcon;
+            } else {
+                gInput.value = c.guaranteeIcon || '';
+                delete gInput.dataset.iconUrl;
+            }
+
+            const gPreview = document.getElementById('guaranteeIconPreview');
+            if (gPreview && c.guaranteeIcon && (c.guaranteeIcon.startsWith('http') || c.guaranteeIcon.startsWith('data:'))) {
+                gPreview.style.backgroundImage = `url('${c.guaranteeIcon}')`;
+                gPreview.textContent = '';
+            } else if (gPreview) {
+                gPreview.style.backgroundImage = '';
+                gPreview.textContent = '📷';
+            }
+
+            document.getElementById('guaranteeTitleInput').value = c.guaranteeTitle || '';
+            document.getElementById('guaranteeDescriptionInput').value = c.guaranteeDescription || '';
+
+            renderAdminFeatures(c.features || []);
+            renderAdminFaq(c.faqs || []);
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Error al cargar configuración de landing', 'error');
+    }
+}
+
+function renderAdminFeatures(features) {
+    const container = document.getElementById('adminFeaturesContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    features.forEach(f => addAdminFeatureRow(f));
+    if (features.length === 0) addAdminFeatureRow();
+}
+
+function addAdminFeatureRow(data = {}) {
+    const container = document.getElementById('adminFeaturesContainer');
+    if(!container) return;
+    const div = document.createElement('div');
+    div.className = 'feature-card';
+    div.style.marginBottom = '1rem';
+    div.style.padding = '1.25rem';
+    div.style.position = 'relative';
+    div.style.background = 'rgba(255,255,255,0.03)';
+    div.style.borderRadius = '12px';
+    div.style.border = '1px solid rgba(255,255,255,0.05)';
+    
+    const rowId = Date.now() + Math.floor(Math.random() * 1000);
+    div.innerHTML = `
+        <button type="button" onclick="this.parentElement.remove()" style="position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;color:#ff6b70;cursor:pointer;font-size:1.2rem;">×</button>
+        <div class="form-grid" style="display:grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Icono (Emoji o Imagen)</label>
+                <div style="display:flex;gap:.5rem;align-items:center;">
+                    <input type="text" class="feat-icon" id="featIcon-${rowId}" 
+                        value="${data.icon && (data.icon.startsWith('http') || data.icon.startsWith('data:')) ? '🖼️ Imagen Cargada' : (data.icon || '')}" 
+                        data-icon-url="${data.icon && (data.icon.startsWith('http') || data.icon.startsWith('data:')) ? data.icon : ''}"
+                        placeholder="Ej: 🚀" style="flex:1;">
+                    <div style="position:relative;width:40px;height:40px;">
+                        <input type="file" onchange="handleIconUpload(this, 'featIcon-${rowId}', 'featIconPreview-${rowId}')" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;">
+                        <div id="featIconPreview-${rowId}" style="width:40px;height:40px;border:1px dashed rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background-size:cover;background-position:center;">
+                            ${data.icon && (data.icon.startsWith('http') || data.icon.startsWith('data:')) ? '' : '📷'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Título del Beneficio</label>
+                <input type="text" class="feat-title" value="${data.title || ''}" placeholder="Ej: Cursos ilimitados">
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:0.75rem;">
+            <label>Descripción</label>
+            <textarea class="feat-desc" rows="2" placeholder="Describe brevemente este beneficio...">${data.description || ''}</textarea>
+        </div>
+    `;
+    container.appendChild(div);
+
+    if (data.icon && (data.icon.startsWith('http') || data.icon.startsWith('data:'))) {
+        const preview = document.getElementById(`featIconPreview-${rowId}`);
+        if (preview) preview.style.backgroundImage = `url('${data.icon}')`;
+    }
+}
+
+function renderAdminFaq(faqs) {
+    const container = document.getElementById('adminFaqContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    faqs.forEach(f => addAdminFaqRow(f));
+    if (faqs.length === 0) addAdminFaqRow();
+}
+
+function addAdminFaqRow(data = {}) {
+    const container = document.getElementById('adminFaqContainer');
+    if(!container) return;
+    const div = document.createElement('div');
+    div.className = 'feature-card';
+    div.style.marginBottom = '1rem';
+    div.style.padding = '1.25rem';
+    div.style.position = 'relative';
+    div.style.background = 'rgba(255,255,255,0.03)';
+    div.style.borderRadius = '12px';
+    div.style.border = '1px solid rgba(255,255,255,0.05)';
+    
+    div.innerHTML = `
+        <button type="button" onclick="this.parentElement.remove()" style="position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;color:#ff6b70;cursor:pointer;font-size:1.2rem;">×</button>
+        <div class="form-group">
+            <label>Pregunta</label>
+            <input type="text" class="faq-q" value="${data.question || ''}" placeholder="Ej: ¿Cómo cancelo mi membresía?">
+        </div>
+        <div class="form-group" style="margin-top:0.75rem;">
+            <label>Respuesta</label>
+            <textarea class="faq-a" rows="3" placeholder="Ingresa la respuesta aquí...">${data.answer || ''}</textarea>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+async function saveLandingConfig(e) {
+    e.preventDefault();
+    const btn = document.getElementById('landingSubmitText');
+    const spinner = document.getElementById('landingSubmitSpinner');
+    
+    if(btn) btn.style.display = 'none';
+    if(spinner) spinner.style.display = 'inline-block';
+
+    const features = [];
+    document.querySelectorAll('#adminFeaturesContainer .feature-card').forEach(row => {
+        const iconInput = row.querySelector('.feat-icon');
+        features.push({
+            icon: iconInput.value === '🖼️ Imagen Cargada' ? iconInput.dataset.iconUrl : iconInput.value,
+            title: row.querySelector('.feat-title').value,
+            description: row.querySelector('.feat-desc').value
+        });
+    });
+
+    const faqs = [];
+    document.querySelectorAll('#adminFaqContainer .feature-card').forEach(row => {
+        faqs.push({
+            question: row.querySelector('.faq-q').value,
+            answer: row.querySelector('.faq-a').value
+        });
+    });
+
+    const gIconInput = document.getElementById('guaranteeIcon');
+    const payload = {
+        featuresTitle: document.getElementById('featuresTitleInput').value,
+        featuresSubtitle: document.getElementById('featuresSubtitleInput').value,
+        features,
+        faqTitle: document.getElementById('faqTitleInput').value,
+        faqSubtitle: document.getElementById('faqSubtitleInput').value,
+        faqs,
+        guaranteeIcon: gIconInput.dataset.iconUrl || gIconInput.value,
+        guaranteeTitle: document.getElementById('guaranteeTitleInput').value,
+        guaranteeDescription: document.getElementById('guaranteeDescriptionInput').value
+    };
+
+    try {
+        const res = await fetch(apiUrl('/api/admin/landing-config'), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Configuración guardada correctamente');
+        } else {
+            showToast(data.message || 'Error al guardar', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Error de conexión', 'error');
+    } finally {
+        if(btn) btn.style.display = 'inline';
+        if(spinner) spinner.style.display = 'none';
     }
 }

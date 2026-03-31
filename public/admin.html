@@ -87,6 +87,9 @@
                     Logo</button>
                 <button class="admin-tab" id="tab-commissions" onclick="switchTab('commissions')">💰
                     Comisiones</button>
+                <button class="admin-tab" id="tab-landing" onclick="switchTab('landing')">📝
+                    Secciones</button>
+
             </div>
 
             <!-- COURSES SECTION -->
@@ -525,6 +528,98 @@
                 </div>
             </div>
             <!-- /section-categories -->
+            
+            <!-- LANDING SECTIONS SECTION -->
+            <div id="section-landing" style="display:none;">
+                <div style="margin-bottom:1.5rem;">
+                    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Configuración de Secciones</h2>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Edita los beneficios, preguntas frecuentes y garantía de la página de membresía</p>
+                </div>
+
+                <div class="admin-tabs" style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0;">
+                    <button class="admin-tab active" style="font-size: 0.9rem; padding: 0.75rem 1.25rem;" onclick="switchLandingSubTab('features', this)">✨ Beneficios</button>
+                    <button class="admin-tab" style="font-size: 0.9rem; padding: 0.75rem 1.25rem;" onclick="switchLandingSubTab('faq', this)">❓ FAQ</button>
+                    <button class="admin-tab" style="font-size: 0.9rem; padding: 0.75rem 1.25rem;" onclick="switchLandingSubTab('guarantee', this)">🛡️ Garantía</button>
+                </div>
+
+                <form id="landingConfigForm" onsubmit="saveLandingConfig(event)" class="course-form">
+                    <!-- FEATURES SUBSECTION -->
+                    <div id="landing-sub-features">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Título de Sección</label>
+                                <input type="text" id="featuresTitleInput" placeholder="Ej: Todo lo que obtienes...">
+                            </div>
+                            <div class="form-group">
+                                <label>Subtítulo de Sección</label>
+                                <input type="text" id="featuresSubtitleInput" placeholder="Ej: Diseñado para que aprendas...">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 1.5rem;">
+                            <label>Lista de Beneficios</label>
+                            <div id="adminFeaturesContainer"></div>
+                            <button type="button" onclick="addAdminFeatureRow()" class="btn-secondary" style="width: 100%; border: 1px dashed rgba(255,255,255,0.2); margin-top: 1rem;">
+                                + Agregar Beneficio
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- FAQ SUBSECTION -->
+                    <div id="landing-sub-faq" style="display:none;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Título de Sección FAQ</label>
+                                <input type="text" id="faqTitleInput" placeholder="Ej: Preguntas frecuentes">
+                            </div>
+                            <div class="form-group">
+                                <label>Subtítulo de Sección FAQ</label>
+                                <input type="text" id="faqSubtitleInput" placeholder="Ej: Todo lo que necesitas saber...">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 1.5rem;">
+                            <label>Preguntas y Respuestas</label>
+                            <div id="adminFaqContainer"></div>
+                            <button type="button" onclick="addAdminFaqRow()" class="btn-secondary" style="width: 100%; border: 1px dashed rgba(255,255,255,0.2); margin-top: 1rem;">
+                                + Agregar Pregunta
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- GUARANTEE SUBSECTION -->
+                    <div id="landing-sub-guarantee" style="display:none;">
+                        <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Icono de Garantía (Emoji o Imagen)</label>
+                                    <div style="display:flex;gap:.5rem;align-items:center;">
+                                        <input type="text" id="guaranteeIcon" placeholder="Ej: 🛡️" style="flex:1;">
+                                        <div style="position:relative;width:40px;height:40px;">
+                                            <input type="file" onchange="handleIconUpload(this, 'guaranteeIcon', 'guaranteeIconPreview')" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;">
+                                            <div id="guaranteeIconPreview" style="width:40px;height:40px;border:1px dashed rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background-size:cover;background-position:center;">📷</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <div class="form-group">
+                                <label>Título de Garantía</label>
+                                <input type="text" id="guaranteeTitleInput" placeholder="Ej: Garantía de satisfacción...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción de Garantía</label>
+                            <textarea id="guaranteeDescriptionInput" rows="3" placeholder="Ej: Prueba nuestra plataforma sin riesgo..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.05);">
+                        <button type="submit" class="btn-primary" style="padding: 0.75rem 2rem;">
+                            <span id="landingSubmitText">Guardar Configuración</span>
+                            <div class="btn-spinner" id="landingSubmitSpinner" style="display:none;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- /section-landing -->
+
 
         </div><!-- /container -->
     </div><!-- /admin-container -->
@@ -608,14 +703,27 @@
                     <label for="membDesc">Descripción</label>
                     <textarea id="membDesc" rows="2" placeholder="Descripción breve del plan..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="membColor">Color de acento</label>
-                    <input type="color" id="membColor" value="#7C3AED" style="height:40px;cursor:pointer;">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Icono (Emoji o Imagen)</label>
+                        <div style="display:flex;gap:.5rem;align-items:center;">
+                            <input type="text" id="membIcon" placeholder="Ej: 🚀" style="flex:1;">
+                            <div style="position:relative;width:40px;height:40px;">
+                                <input type="file" id="membIconFile" accept="image/*" onchange="handleIconUpload(this, 'membIcon', 'membIconPreview')" style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;">
+                                <div id="membIconPreview" style="width:40px;height:40px;border:1px dashed rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background-size:cover;background-position:center;">📷</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="membColor">Color de acento</label>
+                        <input type="color" id="membColor" value="#7C3AED" style="height:40px;cursor:pointer;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="membButtonColor">Color de botón</label>
                     <input type="color" id="membButtonColor" value="#7C3AED" style="height:40px;cursor:pointer;">
                 </div>
+
                 <div class="form-group">
                     <label>Beneficios del plan</label>
                     <div id="featuresContainer">

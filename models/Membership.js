@@ -41,6 +41,12 @@ const membershipSchema = new mongoose.Schema({
         type: String,
         default: '#7C3AED'
     },
+    // Icono del plan (Emoji)
+    icon: {
+        type: String,
+        default: '🚀'
+    },
+
     // Features / beneficios del plan
     features: [{
         type: String

@@ -150,7 +150,19 @@
                 transform: translateY(0);
             }
         }
+
+        /* Image Icons */
+        .icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .plan-icon img { max-width: 40px; max-height: 40px; margin: auto; }
+        .feature-icon img { max-width: 32px; max-height: 32px; margin: auto; }
+        .guarantee-icon img { max-width: 48px; max-height: 48px; margin: 0 auto 1.5rem; display: block; }
     </style>
+
     <script>
         // Configuración Global de Logs y Branding
         window.logToSystem = function (msg) { console.log("[System]", msg); };
@@ -1101,9 +1113,10 @@
     <!-- FEATURES SECTION -->
     <section class="features-section">
         <div style="max-width:1100px;margin:0 auto;">
-            <h2 class="section-title">Todo lo que obtienes con tu membresía</h2>
-            <p class="section-subtitle">Diseñado para que aprendas más rápido y avances en tu carrera</p>
-            <div class="features-grid">
+            <h2 class="section-title" id="featuresTitle">Todo lo que obtienes con tu membresía</h2>
+            <p class="section-subtitle" id="featuresSubtitle">Diseñado para que aprendas más rápido y avances en tu carrera</p>
+            <div class="features-grid" id="featuresGrid">
+
                 <div class="feature-card">
                     <div class="feature-icon">🎓</div>
                     <h3>Cursos ilimitados</h3>
@@ -1140,8 +1153,9 @@
 
     <!-- FAQ SECTION -->
     <section class="faq-section">
-        <h2 class="section-title" style="margin-bottom:0.75rem;">Preguntas frecuentes</h2>
-        <p class="section-subtitle">Todo lo que necesitas saber antes de suscribirte</p>
+        <h2 class="section-title" id="faqTitle" style="margin-bottom:0.75rem;">Preguntas frecuentes</h2>
+        <p class="section-subtitle" id="faqSubtitle">Todo lo que necesitas saber antes de suscribirte</p>
+
 
         <div id="faqList">
             <div class="faq-item">
@@ -1205,13 +1219,14 @@
 
     <!-- GUARANTEE -->
     <section style="padding: 0 1.5rem; margin-bottom: 5rem;">
-        <div class="guarantee-section">
-            <div class="guarantee-icon">🛡️</div>
-            <h3>Garantía de satisfacción de 7 días</h3>
-            <p>Prueba nuestra plataforma sin riesgo. Si dentro de los primeros 7 días no estás completamente satisfecho,
+        <div class="guarantee-section" id="guaranteeSection">
+            <div class="guarantee-icon" id="guaranteeIcon">🛡️</div>
+            <h3 id="guaranteeTitle">Garantía de satisfacción de 7 días</h3>
+            <p id="guaranteeDescription">Prueba nuestra plataforma sin riesgo. Si dentro de los primeros 7 días no estás completamente satisfecho,
                 te devolvemos el 100% de tu dinero. Sin preguntas, sin complicaciones.</p>
         </div>
     </section>
+
 
     <!-- CONFIRM MODAL -->
     <div class="modal-overlay" id="confirmModal">
@@ -1311,6 +1326,56 @@
     </a>`;
         }
 
+        (async () => {
+            renderHeader();
+            await configReady;
+            loadLandingConfig();
+            loadPlans();
+        })();
+
+        async function loadLandingConfig() {
+            try {
+                const res = await fetch('/api/landing-config');
+                const data = await res.json();
+                if (data.success && data.config) {
+                    const c = data.config;
+                    if (c.featuresTitle) document.getElementById('featuresTitle').textContent = c.featuresTitle;
+                    if (c.featuresSubtitle) document.getElementById('featuresSubtitle').textContent = c.featuresSubtitle;
+                    if (c.features && c.features.length) {
+                        document.getElementById('featuresGrid').innerHTML = c.features.map(f => `
+                            <div class="feature-card">
+                                <div class="feature-icon">${renderIcon(f.icon) || '✨'}</div>
+                                <h3>${f.title}</h3>
+                                <p>${f.description}</p>
+                            </div>
+                        `).join('');
+                    }
+
+                    if (c.faqTitle) document.getElementById('faqTitle').textContent = c.faqTitle;
+                    if (c.faqSubtitle) document.getElementById('faqSubtitle').textContent = c.faqSubtitle;
+                    if (c.faqs && c.faqs.length) {
+                        document.getElementById('faqList').innerHTML = c.faqs.map(f => `
+                            <div class="faq-item">
+                                <button class="faq-question" onclick="toggleFaq(this)">
+                                    ${f.question}
+                                    <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                                <div class="faq-answer">${f.answer}</div>
+                            </div>
+                        `).join('');
+                    }
+                    if (c.guaranteeTitle) document.getElementById('guaranteeTitle').textContent = c.guaranteeTitle;
+                    if (c.guaranteeDescription) document.getElementById('guaranteeDescription').textContent = c.guaranteeDescription;
+                    if (c.guaranteeIcon) document.getElementById('guaranteeIcon').innerHTML = renderIcon(c.guaranteeIcon);
+
+                }
+            } catch (err) {
+                console.error("Error loading landing config:", err);
+            }
+        }
+
         // ── Load plans ───────────────────────────────────────────────────
         async function loadPlans() {
             await configReady;
@@ -1351,7 +1416,16 @@
         const ICONS = ['🚀', '💎', '⚡', '🎯', '🏆', '🔥'];
         const ICON_BG = ['rgba(124,58,237,0.15)', 'rgba(79,255,176,0.1)', 'rgba(255,215,0,0.1)', 'rgba(255,107,112,0.1)', 'rgba(79,255,176,0.1)', 'rgba(255,107,112,0.1)'];
 
+        function renderIcon(val) {
+            if (!val) return '';
+            if (val.startsWith('http') || val.startsWith('data:image')) {
+                return `<img src="${val}" class="icon-img" alt="icon">`;
+            }
+            return val;
+        }
+
         function renderPlans(plans) {
+
             if (!plans.length) {
                 document.getElementById('plansGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:rgba(255,255,255,.4);">No hay planes disponibles por el momento.</div>`;
                 return;
@@ -1368,9 +1442,10 @@
                 const isFeatured = plan.badge && (plan.badge.toLowerCase().includes('popular') || plan.badge.toLowerCase().includes('pro'));
                 const color = plan.color || '#7C3AED';
                 const btnBg = plan.buttonColor || color;
-                const icon = ICONS[i % ICONS.length];
+                const iconContent = renderIcon(plan.icon || ICONS[i % ICONS.length]);
                 const iconBg = ICON_BG[i % ICON_BG.length];
                 const btnClass = isFeatured ? 'btn-plan-primary' : 'btn-plan-outline';
+
 
                 const featuresHtml = (plan.features || []).map(f =>
                     `<li><span class="check">✓</span>${f}</li>`
@@ -1381,7 +1456,8 @@
                 return `
         <div class="plan-card ${isFeatured ? 'featured' : ''}">
             ${plan.badge ? `<div class="plan-badge" style="background:linear-gradient(90deg,${color},${color}cc);">${plan.badge}</div>` : ''}
-            <div class="plan-icon" style="background:${iconBg};">${icon}</div>
+            <div class="plan-icon" style="background:${iconBg};">${iconContent}</div>
+
             <div class="plan-name" style="color:${isFeatured ? color : '#fff'};">${plan.name}</div>
             <div class="plan-desc">${plan.description || 'Acceso completo a nuestra plataforma de aprendizaje'}</div>
             <div class="plan-price-wrap">

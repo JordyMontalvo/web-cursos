@@ -14,6 +14,8 @@ const Membership = require('./models/Membership');
 const Banner = require('./models/Banner');
 const Settings = require('./models/Settings');
 const Category = require('./models/Category');
+const LandingConfig = require('./models/LandingConfig');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -205,6 +207,31 @@ async function seedDatabase() {
             await Category.insertMany(initialCategories);
             console.log('📋 Categorías iniciales creadas.');
         }
+
+        // Crear LandingConfig inicial si no existe
+        const landingCount = await LandingConfig.countDocuments();
+        if (landingCount === 0) {
+            const defaultLanding = new LandingConfig({
+                features: [
+                    { icon: '🎓', title: 'Cursos ilimitados', description: 'Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo.' },
+                    { icon: '📱', title: 'Aprende donde quieras', description: 'Acceso desde cualquier dispositivo. PC, tablet o celular. Siempre disponible 24/7.' },
+                    { icon: '🏆', title: 'Certificados verificados', description: 'Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn.' },
+                    { icon: '🔔', title: 'Notificaciones de cursos', description: 'Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas.' },
+                    { icon: '💬', title: 'Comunidad exclusiva', description: 'Únete a nuestra comunidad privada de miembros. Resuelve dudas y conecta con otros alumnos.' },
+                    { icon: '⚡', title: 'Contenido actualizado', description: 'Los cursos se actualizan constantemente con el contenido más reciente de cada industria.' }
+                ],
+                faqs: [
+                    { question: '¿Puedo cancelar mi membresía en cualquier momento?', answer: 'Sí, puedes cancelar en cualquier momento desde tu perfil. Mantendrás el acceso hasta que venza tu periodo activo.' },
+                    { question: '¿Cómo funciona la garantía de 7 días?', answer: 'Si dentro de los primeros 7 días no estás satisfecho con tu membresía, te devolvemos el dinero sin preguntas.' },
+                    { question: '¿Cuántos dispositivos puedo usar simultáneamente?', answer: 'Puedes usar tu membresía en hasta 3 dispositivos al mismo tiempo.' },
+                    { question: '¿Hay algún costo adicional por cursos nuevos?', answer: 'No. Tu membresía incluye acceso a todos los cursos presentes y futuros.' },
+                    { question: '¿Cómo puedo pagar mi membresía?', answer: 'Aceptamos Yape, Plin, transferencia bancaria y tarjetas de crédito/débito.' }
+                ]
+            });
+            await defaultLanding.save();
+            console.log('📄 LandingConfig inicial creada.');
+        }
+
     } catch (error) {
         console.error('❌ Error sembrando base de datos:', error);
     }
@@ -543,6 +570,54 @@ app.delete('/api/admin/banners/:id', authMiddleware, adminMiddleware, async (req
 });
 
 // ===================================
+// RUTAS DE LANDING CONFIG (PÚBLICAS)
+// ===================================
+
+app.get('/api/landing-config', async (req, res) => {
+    try {
+        let config = await LandingConfig.findOne();
+        if (!config) config = await LandingConfig.create({});
+        res.json({ success: true, config });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// ===================================
+// RUTAS DE LANDING CONFIG (ADMIN)
+// ===================================
+
+app.put('/api/admin/landing-config', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        let config = await LandingConfig.findOne();
+        if (!config) config = new LandingConfig();
+
+        const {
+            featuresTitle, featuresSubtitle, features,
+            faqTitle, faqSubtitle, faqs,
+            guaranteeTitle, guaranteeDescription, guaranteeIcon
+        } = req.body;
+
+        if (featuresTitle !== undefined) config.featuresTitle = featuresTitle;
+        if (featuresSubtitle !== undefined) config.featuresSubtitle = featuresSubtitle;
+        if (features !== undefined) config.features = features;
+        if (faqTitle !== undefined) config.faqTitle = faqTitle;
+        if (faqSubtitle !== undefined) config.faqSubtitle = faqSubtitle;
+        if (faqs !== undefined) config.faqs = faqs;
+        if (guaranteeTitle !== undefined) config.guaranteeTitle = guaranteeTitle;
+        if (guaranteeDescription !== undefined) config.guaranteeDescription = guaranteeDescription;
+        if (guaranteeIcon !== undefined) config.guaranteeIcon = guaranteeIcon;
+
+        config.updatedAt = new Date();
+        await config.save();
+
+        res.json({ success: true, config });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error updating landing config', error: error.message });
+    }
+});
+
+// ===================================
 // RUTAS DE MEMBRESÍAS (PÚBLICAS)
 // ===================================
 
@@ -622,7 +697,7 @@ app.get('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, r
 // Crear plan
 app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order } = req.body;
         if (!name || price === undefined || price === null) {
             return res.status(400).json({ success: false, message: 'Nombre y precio son requeridos' });
         }
@@ -630,10 +705,11 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
             name, description, price: Number(price),
             currency: currency || 'PEN',
             durationDays: Number(durationDays) || 30,
-            badge, color, buttonColor, features: Array.isArray(features) ? features : [],
+            badge, icon, color, buttonColor, features: Array.isArray(features) ? features : [],
             isActive: isActive !== false,
             order: Number(order) || 0
         });
+
         await membership.save();
         res.json({ success: true, membership });
     } catch (error) {
@@ -644,7 +720,7 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
 // Actualizar plan
 app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order } = req.body;
         const id = req.params.id;
         const updateData = { updatedAt: Date.now() };
 
@@ -656,11 +732,13 @@ app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (re
         if (currency !== undefined) updateData.currency = currency;
         if (durationDays !== undefined) updateData.durationDays = Number(durationDays);
         if (badge !== undefined) updateData.badge = badge;
+        if (icon !== undefined) updateData.icon = icon;
         if (color !== undefined) updateData.color = color;
         if (buttonColor !== undefined) updateData.buttonColor = buttonColor;
         if (features !== undefined) updateData.features = Array.isArray(features) ? features : [];
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);
+
 
         const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });
         if (!membership) {
