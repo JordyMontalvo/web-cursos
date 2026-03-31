@@ -2391,9 +2391,19 @@ async function processWithdrawal(id, status) {
     }
 }
 
+function clearIconDataset(input, previewId) {
+    if (input) delete input.dataset.iconUrl;
+    const preview = document.getElementById(previewId);
+    if (preview) {
+        preview.style.backgroundImage = '';
+        preview.textContent = '📷';
+    }
+}
+
 // ===================================
 // UNIVERSAL ICON UPLOAD (Base64)
 // ===================================
+
 function handleIconUpload(input, targetInputId, previewId) {
     const file = input.files[0];
     if (file) {
@@ -2519,8 +2529,10 @@ function addAdminFeatureRow(data = {}) {
                     <input type="text" class="feat-icon" id="featIcon-${rowId}" 
                         value="${data.icon && (data.icon.startsWith('http') || data.icon.startsWith('data:')) ? '🖼️ Imagen Cargada' : (data.icon || '')}" 
                         data-icon-url="${data.icon && (data.icon.startsWith('http') || data.icon.startsWith('data:')) ? data.icon : ''}"
-                        placeholder="Ej: 🚀" style="flex:1;">
+                        placeholder="Ej: 🚀" style="flex:1;"
+                        oninput="clearIconDataset(this, 'featIconPreview-${rowId}')">
                     <div style="position:relative;width:40px;height:40px;">
+
                         <input type="file" onchange="handleIconUpload(this, 'featIcon-${rowId}', 'featIconPreview-${rowId}')" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;">
                         <div id="featIconPreview-${rowId}" style="width:40px;height:40px;border:1px dashed rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background-size:cover;background-position:center;">
                             ${data.icon && (data.icon.startsWith('http') || data.icon.startsWith('data:')) ? '' : '📷'}
