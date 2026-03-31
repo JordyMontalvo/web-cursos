@@ -2437,26 +2437,19 @@ function handleIconUpload(input, targetInputId, previewId) {
 // ===================================
 
 function switchLandingSubTab(sub, btn) {
-    // Hide all sub-sections
-    ['features', 'faq', 'guarantee'].forEach(s => {
+    const sections = ['features', 'faq', 'guarantee'];
+    sections.forEach(s => {
         const sec = document.getElementById(`landing-sub-${s}`);
-        if(sec) sec.style.display = 'none';
+        if (sec) sec.style.display = 'none';
     });
-    // Show selected
     const target = document.getElementById(`landing-sub-${sub}`);
-    if(target) target.style.display = 'block';
+    if (target) target.style.display = 'block';
 
-    // Update buttons
     const buttons = btn.parentElement.querySelectorAll('.admin-tab');
-    buttons.forEach(b => {
-        b.classList.remove('active');
-        b.style.color = 'rgba(255,255,255,.5)';
-        b.style.borderBottom = '2px solid transparent';
-    });
+    buttons.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    btn.style.color = '#fff';
-    btn.style.borderBottom = '2px solid #7C3AED';
 }
+
 
 async function loadLandingConfig() {
     try {
@@ -2512,16 +2505,18 @@ function addAdminFeatureRow(data = {}) {
     if(!container) return;
     const div = document.createElement('div');
     div.className = 'feature-card';
-    div.style.marginBottom = '1rem';
-    div.style.padding = '1.25rem';
+    div.style.marginBottom = '1.25rem';
+    div.style.padding = '1.5rem';
     div.style.position = 'relative';
-    div.style.background = 'rgba(255,255,255,0.03)';
-    div.style.borderRadius = '12px';
-    div.style.border = '1px solid rgba(255,255,255,0.05)';
+    div.style.background = 'rgba(0,0,0,0.2)';
+    div.style.borderRadius = '14px';
+    div.style.border = '1px solid rgba(255,255,255,0.08)';
+    div.style.transition = 'all 0.3s ease';
     
     const rowId = Date.now() + Math.floor(Math.random() * 1000);
     div.innerHTML = `
-        <button type="button" onclick="this.parentElement.remove()" style="position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;color:#ff6b70;cursor:pointer;font-size:1.2rem;">×</button>
+        <button type="button" onclick="this.parentElement.remove()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(239, 68, 68, 0.1);border:none;color:#ef4444;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;">×</button>
+
         <div class="form-grid" style="display:grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
             <div class="form-group">
                 <label>Icono (Emoji o Imagen)</label>
@@ -2570,23 +2565,22 @@ function addAdminFaqRow(data = {}) {
     const container = document.getElementById('adminFaqContainer');
     if(!container) return;
     const div = document.createElement('div');
-    div.className = 'feature-card';
-    div.style.marginBottom = '1rem';
-    div.style.padding = '1.25rem';
+    div.style.marginBottom = '1.25rem';
+    div.style.padding = '1.5rem';
     div.style.position = 'relative';
-    div.style.background = 'rgba(255,255,255,0.03)';
-    div.style.borderRadius = '12px';
-    div.style.border = '1px solid rgba(255,255,255,0.05)';
+    div.style.background = 'rgba(0,0,0,0.2)';
+    div.style.borderRadius = '14px';
+    div.style.border = '1px solid rgba(255,255,255,0.08)';
     
     div.innerHTML = `
-        <button type="button" onclick="this.parentElement.remove()" style="position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;color:#ff6b70;cursor:pointer;font-size:1.2rem;">×</button>
+        <button type="button" onclick="this.parentElement.remove()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(239, 68, 68, 0.1);border:none;color:#ef4444;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;">×</button>
         <div class="form-group">
             <label>Pregunta</label>
-            <input type="text" class="faq-q" value="${data.question || ''}" placeholder="Ej: ¿Cómo cancelo mi membresía?">
+            <input type="text" class="faq-question" value="${data.question || ''}" placeholder="Ej: ¿Cómo accedo al contenido?">
         </div>
-        <div class="form-group" style="margin-top:0.75rem;">
+        <div class="form-group" style="margin-top:1rem;">
             <label>Respuesta</label>
-            <textarea class="faq-a" rows="3" placeholder="Ingresa la respuesta aquí...">${data.answer || ''}</textarea>
+            <textarea class="faq-answer" rows="3" placeholder="Ej: Una vez realices el pago...">${data.answer || ''}</textarea>
         </div>
     `;
     container.appendChild(div);
