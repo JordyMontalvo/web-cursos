@@ -15,7 +15,9 @@
 
     { "source": "/api/config",              "destination": "/api/general" },
     { "source": "/api/settings",            "destination": "/api/general" },
+    { "source": "/api/landing-config",      "destination": "/api/general" },
     { "source": "/api/banners",             "destination": "/api/general" },
+    { "source": "/api/admin/landing-config","destination": "/api/general" },
 
     { "source": "/api/seller/stats",        "destination": "/api/seller" },
     { "source": "/api/seller/referrals",    "destination": "/api/seller" },

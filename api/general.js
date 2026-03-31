@@ -16,6 +16,19 @@ const Settings = mongoose.models.Settings || mongoose.model('Settings', new mong
     updatedAt: { type: Date, default: Date.now }
 }));
 
+const LandingConfig = mongoose.models.LandingConfig || mongoose.model('LandingConfig', new mongoose.Schema({
+    featuresTitle: String,
+    featuresSubtitle: String,
+    features: [{ icon: String, title: String, description: String }],
+    faqTitle: String,
+    faqSubtitle: String,
+    faqs: [{ question: String, answer: String }],
+    guaranteeTitle: String,
+    guaranteeDescription: String,
+    guaranteeIcon: String,
+    updatedAt: { type: Date, default: Date.now }
+}));
+
 function setCORS(res, methods = 'GET, OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', methods);
@@ -68,6 +81,12 @@ module.exports = async (req, res) => {
         return res.json({ success: true, settings });
     }
 
+    // ── PUBLIC: /api/landing-config ─────────────────────────────────────────
+    if (url.includes('landing-config') && !isAdminPath) {
+        let config = await LandingConfig.findOne() || await LandingConfig.create({});
+        return res.json({ success: true, config });
+    }
+
     // ── ADMIN: Authentication required ──
     const admin = verifyAdmin(req);
     if (!admin) return res.status(403).json({ success: false, message: 'Acceso denegado' });
@@ -95,6 +114,35 @@ module.exports = async (req, res) => {
             { upsert: true, new: true }
         );
         return res.json({ success: true, settings: updated });
+    }
+
+    // ── ADMIN: /api/admin/landing-config (PUT) ──
+    if (url.includes('landing-config') && req.method === 'PUT') {
+        const {
+            featuresTitle, featuresSubtitle, features,
+            faqTitle, faqSubtitle, faqs,
+            guaranteeTitle, guaranteeDescription, guaranteeIcon
+        } = req.body;
+
+        const updated = await LandingConfig.findOneAndUpdate(
+            {},
+            {
+                $set: {
+                    ...(featuresTitle !== undefined && { featuresTitle }),
+                    ...(featuresSubtitle !== undefined && { featuresSubtitle }),
+                    ...(features !== undefined && { features }),
+                    ...(faqTitle !== undefined && { faqTitle }),
+                    ...(faqSubtitle !== undefined && { faqSubtitle }),
+                    ...(faqs !== undefined && { faqs }),
+                    ...(guaranteeTitle !== undefined && { guaranteeTitle }),
+                    ...(guaranteeDescription !== undefined && { guaranteeDescription }),
+                    ...(guaranteeIcon !== undefined && { guaranteeIcon }),
+                    updatedAt: new Date()
+                }
+            },
+            { upsert: true, new: true }
+        );
+        return res.json({ success: true, config: updated });
     }
 
     return res.status(404).end();
