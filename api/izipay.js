@@ -119,6 +119,21 @@ try { Transaction = mongoose.model('Transaction'); } catch {
     Transaction = mongoose.model('Transaction', schema);
 }
 
+let Settings;
+try { Settings = mongoose.model('Settings'); } catch {
+    const schema = new mongoose.Schema({
+        sellerCommissionGlobal: { type: Number, default: 10 },
+        updatedAt: { type: Date, default: Date.now }
+    });
+    Settings = mongoose.model('Settings', schema);
+}
+
+async function getGlobalCommissionPct() {
+    const settings = await Settings.findOne();
+    const pct = Number(settings?.sellerCommissionGlobal);
+    return Number.isFinite(pct) ? pct : 10;
+}
+
 function verifyToken(req) {
     const auth = req.headers['authorization'];
     if (!auth) {
@@ -281,7 +296,7 @@ module.exports = async (req, res) => {
             if (user.referredBy) {
                 const seller = await User.findById(user.referredBy);
                 if (seller) {
-                    const commissionPct = seller.sellerCommission || 10;
+                    const commissionPct = await getGlobalCommissionPct();
                     const amount = (membership.price * commissionPct) / 100;
                     seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                     await seller.save();
@@ -388,7 +403,7 @@ module.exports = async (req, res) => {
                 if (user.referredBy) {
                     const seller = await User.findById(user.referredBy);
                     if (seller) {
-                        const commissionPct = seller.sellerCommission || 10;
+                        const commissionPct = await getGlobalCommissionPct();
                         const amount = (membership.price * commissionPct) / 100;
                         seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                         await seller.save();

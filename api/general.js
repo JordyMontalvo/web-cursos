@@ -13,6 +13,7 @@ const Settings = mongoose.models.Settings || mongoose.model('Settings', new mong
     presentationVideoUrl: { type: String, default: '' },
     companyName: { type: String, default: 'IATIBET ZUREON' },
     logoUrl: { type: String, default: '' },
+    sellerCommissionGlobal: { type: Number, default: 10 },
     updatedAt: { type: Date, default: Date.now }
 }));
 
@@ -105,7 +106,7 @@ module.exports = async (req, res) => {
 
     // ── ADMIN: /api/admin/settings (PUT) ──
     if (route === 'admin-settings' && req.method === 'PUT') {
-        const { presentationVideoUrl, companyName, logoUrl } = req.body;
+        const { presentationVideoUrl, companyName, logoUrl, sellerCommissionGlobal } = req.body;
         
         const updated = await Settings.findOneAndUpdate(
             {},
@@ -114,6 +115,7 @@ module.exports = async (req, res) => {
                     ...(companyName !== undefined && { companyName }),
                     ...(logoUrl !== undefined && { logoUrl }),
                     ...(presentationVideoUrl !== undefined && { presentationVideoUrl }),
+                    ...(sellerCommissionGlobal !== undefined && { sellerCommissionGlobal: Number(sellerCommissionGlobal) }),
                     updatedAt: new Date()
                 }
             },

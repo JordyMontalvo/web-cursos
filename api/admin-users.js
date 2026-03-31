@@ -218,7 +218,7 @@ module.exports = async (req, res) => {
                 await User.findByIdAndUpdate(userId, { activeMembership: membership._id, membershipExpiresAt: expiresAt, membershipPlan: membership.name, updatedAt: Date.now() });
                 return res.json({ success: true, message: 'Membresía asignada' });
             } else {
-                const { password, role, permissions, canCreate, canEdit, sellerCommission, sellerCode } = req.body;
+                const { password, role, permissions, canCreate, canEdit, sellerCode } = req.body;
                 const updateData = {};
                 if (password) {
                     const user = await User.findById(userId);
@@ -231,7 +231,6 @@ module.exports = async (req, res) => {
                 if (permissions) updateData.permissions = permissions;
                 if (canCreate !== undefined) updateData.canCreate = canCreate;
                 if (canEdit !== undefined) updateData.canEdit = canEdit;
-                if (sellerCommission !== undefined) updateData.sellerCommission = Number(sellerCommission);
                 if (sellerCode !== undefined) {
                     if (sellerCode && sellerCode.trim()) {
                         const codeInUse = await User.findOne({ sellerCode: sellerCode.trim().toUpperCase(), _id: { $ne: userId } });

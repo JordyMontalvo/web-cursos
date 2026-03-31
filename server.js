@@ -496,6 +496,9 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
         if (req.body.logoUrl !== undefined) {
             settings.logoUrl = req.body.logoUrl;
         }
+        if (req.body.sellerCommissionGlobal !== undefined) {
+            settings.sellerCommissionGlobal = Number(req.body.sellerCommissionGlobal);
+        }
 
         settings.updatedAt = new Date();
         await settings.save();
@@ -1159,6 +1162,8 @@ app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) 
     try {
         const seller = await User.findById(req.user.id);
         if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+        const settings = await Settings.findOne();
+        const globalCommission = Number(settings?.sellerCommissionGlobal);
 
         const count = await User.countDocuments({ referredBy: seller._id });
         
@@ -1168,7 +1173,7 @@ app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) 
                 balance: seller.sellerBalance || 0,
                 referralsCount: count,
                 code: seller.sellerCode,
-                commission: seller.sellerCommission || 10
+                commission: Number.isFinite(globalCommission) ? globalCommission : 10
             }
         });
     } catch (error) {
@@ -1211,7 +1216,7 @@ app.get('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, re
 // Crear un vendedor
 app.post('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, email, password, sellerCode, sellerCommission } = req.body;
+        const { name, email, password, sellerCode } = req.body;
         
         if (!name || !email || !password || !sellerCode) {
             return res.status(400).json({ success: false, message: 'Todos los campos son requeridos' });
@@ -1229,8 +1234,7 @@ app.post('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, r
             email: email.toLowerCase(),
             password: hashedPw,
             role: 'vendedor',
-            sellerCode,
-            sellerCommission: Number(sellerCommission) || 10
+            sellerCode
         });
 
         await vendedor.save();

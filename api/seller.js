@@ -42,6 +42,15 @@ try { Transaction = mongoose.model('Transaction'); } catch {
     Transaction = mongoose.model('Transaction', schema);
 }
 
+let Settings;
+try { Settings = mongoose.model('Settings'); } catch {
+    const schema = new mongoose.Schema({
+        sellerCommissionGlobal: { type: Number, default: 10 },
+        updatedAt: { type: Date, default: Date.now }
+    });
+    Settings = mongoose.model('Settings', schema);
+}
+
 function verifySeller(req) {
     const auth = req.headers['authorization'];
     const token = auth && auth.split(' ')[1];
@@ -73,6 +82,8 @@ module.exports = async (req, res) => {
         if (url.endsWith('/stats')) {
             const seller = await User.findById(user.id);
             if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+            const settings = await Settings.findOne();
+            const globalCommission = Number(settings?.sellerCommissionGlobal);
 
             const count = await User.countDocuments({ referredBy: seller._id });
             
@@ -82,7 +93,7 @@ module.exports = async (req, res) => {
                     balance: seller.sellerBalance || 0,
                     referralsCount: count,
                     code: seller.sellerCode,
-                    commission: seller.sellerCommission || 10
+                    commission: Number.isFinite(globalCommission) ? globalCommission : 10
                 }
             });
         }
