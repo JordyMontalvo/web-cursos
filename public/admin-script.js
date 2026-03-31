@@ -2441,6 +2441,13 @@ const DEFAULT_FEATURES = [
     { icon: "⚡", title: "Contenido actualizado", description: "Los cursos se actualizan constantemente con el contenido más reciente de cada industria." }
 ];
 
+const DEFAULT_HERO_TRUST_ITEMS = [
+    'Cancela cuando quieras',
+    'Certificados incluidos',
+    'Acceso 24/7',
+    'Garantía 7 días'
+];
+
 const DEFAULT_FAQS = [
     { question: "¿Puedo cancelar mi membresía en cualquier momento?", answer: "Sí, puedes cancelar en cualquier momento desde tu perfil. Mantendrás el acceso hasta que venza tu periodo activo. No hay contratos ni penalidades." },
     { question: "¿Cómo funciona la garantía de 7 días?", answer: "Si dentro de los primeros 7 días no estás satisfecho con tu membresía, te devolvemos el dinero sin preguntas. Contacta a nuestro equipo de soporte para gestionar tu reembolso." },
@@ -2471,6 +2478,8 @@ async function loadLandingConfig() {
         const data = await res.json();
         if (data.success && data.config) {
             const c = data.config;
+            document.getElementById('heroTitleInput').value = c.heroTitle || '';
+            document.getElementById('heroSubtitleInput').value = c.heroSubtitle || '';
             document.getElementById('featuresTitleInput').value = c.featuresTitle || '';
             document.getElementById('featuresSubtitleInput').value = c.featuresSubtitle || '';
             document.getElementById('faqTitleInput').value = c.faqTitle || '';
@@ -2497,6 +2506,7 @@ async function loadLandingConfig() {
             document.getElementById('guaranteeTitleInput').value = c.guaranteeTitle || 'Garantía de satisfacción de 7 días';
             document.getElementById('guaranteeDescriptionInput').value = c.guaranteeDescription || 'Prueba nuestra plataforma sin riesgo. Si dentro de los primeros 7 días no estás completamente satisfecho, te devolvemos el 100% de tu dinero. Sin preguntas, sin complicaciones.';
 
+            renderAdminHeroTrustItems(c.heroTrustItems && c.heroTrustItems.length ? c.heroTrustItems : DEFAULT_HERO_TRUST_ITEMS);
             renderAdminFeatures(c.features && c.features.length ? c.features : DEFAULT_FEATURES);
             renderAdminFaq(c.faqs && c.faqs.length ? c.faqs : DEFAULT_FAQS);
 
@@ -2505,6 +2515,28 @@ async function loadLandingConfig() {
         console.error(err);
         showToast('Error al cargar configuración de landing', 'error');
     }
+}
+
+function renderAdminHeroTrustItems(items) {
+    const container = document.getElementById('adminHeroTrustItemsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    items.forEach(i => addAdminHeroTrustItemRow(i));
+}
+
+function addAdminHeroTrustItemRow(text = '') {
+    const container = document.getElementById('adminHeroTrustItemsContainer');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'hero-trust-item-row';
+    div.style.marginBottom = '.6rem';
+    div.style.display = 'flex';
+    div.style.gap = '.5rem';
+    div.innerHTML = `
+        <input type="text" class="hero-trust-item-input" value="${text || ''}" placeholder="Ej: Acceso 24/7" style="flex:1;">
+        <button type="button" onclick="this.parentElement.remove()" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#ef4444;border-radius:8px;padding:0 .7rem;cursor:pointer;">×</button>
+    `;
+    container.appendChild(div);
 }
 
 function renderAdminFeatures(features) {
@@ -2633,9 +2665,17 @@ async function saveLandingConfig(e) {
         }
     });
 
+    const heroTrustItems = [];
+    document.querySelectorAll('#adminHeroTrustItemsContainer .hero-trust-item-input').forEach(input => {
+        const val = (input.value || '').trim();
+        if (val) heroTrustItems.push(val);
+    });
 
     const gIconInput = document.getElementById('guaranteeIcon');
     const payload = {
+        heroTitle: document.getElementById('heroTitleInput').value,
+        heroSubtitle: document.getElementById('heroSubtitleInput').value,
+        heroTrustItems,
         featuresTitle: document.getElementById('featuresTitleInput').value,
         featuresSubtitle: document.getElementById('featuresSubtitleInput').value,
         features,

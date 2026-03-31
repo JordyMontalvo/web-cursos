@@ -593,6 +593,7 @@ app.get('/api/landing-config', async (req, res) => {
 app.put('/api/admin/landing-config', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const {
+            heroTitle, heroSubtitle, heroTrustItems,
             featuresTitle, featuresSubtitle, features,
             faqTitle, faqSubtitle, faqs,
             guaranteeTitle, guaranteeDescription, guaranteeIcon
@@ -602,6 +603,9 @@ app.put('/api/admin/landing-config', authMiddleware, adminMiddleware, async (req
             {},
             {
                 $set: {
+                    heroTitle: heroTitle || '',
+                    heroSubtitle: heroSubtitle || '',
+                    heroTrustItems: Array.isArray(heroTrustItems) ? heroTrustItems : [],
                     featuresTitle: featuresTitle || '',
                     featuresSubtitle: featuresSubtitle || '',
                     features: Array.isArray(features) ? features : [],

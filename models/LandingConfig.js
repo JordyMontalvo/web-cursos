@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const landingConfigSchema = new mongoose.Schema({
+    heroTitle: { type: String, default: 'Aprende sin limites, crece sin barreras' },
+    heroSubtitle: { type: String, default: 'Acceso completo a todos los cursos de la plataforma. Cancela cuando quieras. Sin contratos.' },
+    heroTrustItems: [{ type: String }],
     featuresTitle: { type: String, default: 'Todo lo que obtienes con tu membresía' },
     featuresSubtitle: { type: String, default: 'Diseñado para que aprendas más rápido y avances en tu carrera' },
     features: [{

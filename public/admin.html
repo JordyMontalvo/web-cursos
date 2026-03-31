@@ -565,6 +565,28 @@
                         <form id="landingConfigForm" onsubmit="saveLandingConfig(event)" class="course-form" style="padding:0;">
                             <!-- FEATURES SUBSECTION -->
                             <div id="landing-sub-features">
+                                <div style="margin-bottom:1.5rem;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02);">
+                                    <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">Hero de Membresía</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Título Hero</label>
+                                            <input type="text" id="heroTitleInput" placeholder="Ej: Aprende sin límites, crece sin barreras">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Subtítulo Hero</label>
+                                            <input type="text" id="heroSubtitleInput" placeholder="Ej: Acceso completo a todos los cursos...">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-top:1rem;">
+                                        <label>Beneficios Cortos (barra)</label>
+                                        <div id="adminHeroTrustItemsContainer"></div>
+                                        <button type="button" onclick="addAdminHeroTrustItemRow()" class="btn-secondary"
+                                            style="width: 100%; border: 1px dashed rgba(255,255,255,0.2); margin-top: 1rem;">
+                                            + Agregar Beneficio Corto
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label>Título de Sección</label>

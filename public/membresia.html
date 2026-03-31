@@ -1046,38 +1046,17 @@
             </svg>
             Planes de Membresía
         </div>
-        <h1>Aprende sin límites,<br>crece sin barreras</h1>
-        <p>Acceso completo a todos los cursos de la plataforma. Cancela cuando quieras. Sin contratos.</p>
+        <h1 id="heroTitle">Aprende sin límites,<br>crece sin barreras</h1>
+        <p id="heroSubtitle">Acceso completo a todos los cursos de la plataforma. Cancela cuando quieras. Sin contratos.</p>
 
         <!-- Trust bar -->
-        <div class="trust-bar">
+        <div class="trust-bar" id="heroTrustBar">
             <div class="trust-item">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
                         stroke-linejoin="round" />
                 </svg>
                 Cancela cuando quieras
-            </div>
-            <div class="trust-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-                Certificados incluidos
-            </div>
-            <div class="trust-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-                Acceso 24/7
-            </div>
-            <div class="trust-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-                Garantía 7 días
             </div>
         </div>
     </section>
@@ -1339,6 +1318,18 @@
                 const data = await res.json();
                 if (data.success && data.config) {
                     const c = data.config;
+                    if (c.heroTitle) document.getElementById('heroTitle').textContent = c.heroTitle;
+                    if (c.heroSubtitle) document.getElementById('heroSubtitle').textContent = c.heroSubtitle;
+                    if (c.heroTrustItems && c.heroTrustItems.length) {
+                        document.getElementById('heroTrustBar').innerHTML = c.heroTrustItems.map(item => `
+                            <div class="trust-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                ${item}
+                            </div>
+                        `).join('');
+                    }
                     if (c.featuresTitle) document.getElementById('featuresTitle').textContent = c.featuresTitle;
                     if (c.featuresSubtitle) document.getElementById('featuresSubtitle').textContent = c.featuresSubtitle;
                     if (c.features && c.features.length) {

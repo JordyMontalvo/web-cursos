@@ -18,6 +18,9 @@ const Settings = mongoose.models.Settings || mongoose.model('Settings', new mong
 }));
 
 const LandingConfig = mongoose.models.LandingConfig || mongoose.model('LandingConfig', new mongoose.Schema({
+    heroTitle: String,
+    heroSubtitle: String,
+    heroTrustItems: [String],
     featuresTitle: String,
     featuresSubtitle: String,
     features: [{ icon: String, title: String, description: String }],
@@ -127,6 +130,7 @@ module.exports = async (req, res) => {
     // ── ADMIN: /api/admin/landing-config (PUT) ──
     if ((route === 'admin-landing-config' && req.method === 'PUT') || (url.includes('landing-config') && req.method === 'PUT' && !route)) {
         const {
+            heroTitle, heroSubtitle, heroTrustItems,
             featuresTitle, featuresSubtitle, features,
             faqTitle, faqSubtitle, faqs,
             guaranteeTitle, guaranteeDescription, guaranteeIcon
@@ -138,6 +142,9 @@ module.exports = async (req, res) => {
                 $set: {
                     ...(featuresTitle !== undefined && { featuresTitle }),
                     ...(featuresSubtitle !== undefined && { featuresSubtitle }),
+                    ...(heroTitle !== undefined && { heroTitle }),
+                    ...(heroSubtitle !== undefined && { heroSubtitle }),
+                    ...(heroTrustItems !== undefined && { heroTrustItems: Array.isArray(heroTrustItems) ? heroTrustItems : [] }),
                     ...(features !== undefined && { features }),
                     ...(faqTitle !== undefined && { faqTitle }),
                     ...(faqSubtitle !== undefined && { faqSubtitle }),
