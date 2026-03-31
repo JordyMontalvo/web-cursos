@@ -57,7 +57,12 @@ module.exports = async (req, res) => {
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    try { await connectDB(); } catch (err) { return res.status(500).json({ success: false }); }
+    try { await connectDB(); } catch (err) { 
+        console.error('DB Connection Error:', err);
+        return res.status(500).json({ success: false, message: 'Error de conexión a base de datos' }); 
+    }
+
+    try {
 
     // ── PUBLIC: /api/config ────────────────────────────────────────────────
     if (url.includes('config') || (url === '/api/general' && !isAdminPath)) {
@@ -146,4 +151,8 @@ module.exports = async (req, res) => {
     }
 
     return res.status(404).end();
+    } catch (error) {
+        console.error('API Error in general.js:', error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+    }
 };
