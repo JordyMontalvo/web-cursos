@@ -2436,7 +2436,25 @@ function handleIconUpload(input, targetInputId, previewId) {
 // LANDING CONFIG ADMIN
 // ===================================
 
+const DEFAULT_FEATURES = [
+    { icon: "🎓", title: "Cursos ilimitados", description: "Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo." },
+    { icon: "📱", title: "Aprende donde quieras", description: "Acceso desde cualquier dispositivo. PC, tablet o celular. Siempre disponible 24/7." },
+    { icon: "🏆", title: "Certificados verificados", description: "Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn." },
+    { icon: "🔔", title: "Notificaciones de cursos", description: "Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas." },
+    { icon: "💬", title: "Comunidad exclusiva", description: "Únete a nuestra comunidad privada de miembros. Resuelve dudas y conecta con otros alumnos." },
+    { icon: "⚡", title: "Contenido actualizado", description: "Los cursos se actualizan constantemente con el contenido más reciente de cada industria." }
+];
+
+const DEFAULT_FAQS = [
+    { question: "¿Puedo cancelar mi membresía en cualquier momento?", answer: "Sí, puedes cancelar en cualquier momento desde tu perfil. Mantendrás el acceso hasta que venza tu periodo activo. No hay contratos ni penalidades." },
+    { question: "¿Cómo funciona la garantía de 7 días?", answer: "Si dentro de los primeros 7 días no estás satisfecho con tu membresía, te devolvemos el dinero sin preguntas. Contacta a nuestro equipo de soporte para gestionar tu reembolso." },
+    { question: "¿Cuántos dispositivos puedo usar simultáneamente?", answer: "Puedes usar tu membresía en hasta 3 dispositivos al mismo tiempo. PC, tablet y celular. El acceso es personal e intransferible." },
+    { question: "¿Hay algún costo adicional por cursos nuevos?", answer: "No. Tu membresía incluye acceso a todos los cursos presentes y futuros de la plataforma sin costo adicional. Siempre al mismo precio." },
+    { question: "¿Cómo puedo pagar mi membresía?", answer: "Aceptamos Yape, Plin, transferencia bancaria y tarjetas de crédito/débito. El pago es procesado de forma segura. Una vez confirmado, el acceso se activa automáticamente." }
+];
+
 function switchLandingSubTab(sub, btn) {
+
     const sections = ['features', 'faq', 'guarantee'];
     sections.forEach(s => {
         const sec = document.getElementById(`landing-sub-${s}`);
@@ -2480,11 +2498,12 @@ async function loadLandingConfig() {
                 gPreview.textContent = '📷';
             }
 
-            document.getElementById('guaranteeTitleInput').value = c.guaranteeTitle || '';
-            document.getElementById('guaranteeDescriptionInput').value = c.guaranteeDescription || '';
+            document.getElementById('guaranteeTitleInput').value = c.guaranteeTitle || 'Garantía de satisfacción de 7 días';
+            document.getElementById('guaranteeDescriptionInput').value = c.guaranteeDescription || 'Prueba nuestra plataforma sin riesgo. Si dentro de los primeros 7 días no estás completamente satisfecho, te devolvemos el 100% de tu dinero. Sin preguntas, sin complicaciones.';
 
-            renderAdminFeatures(c.features || []);
-            renderAdminFaq(c.faqs || []);
+            renderAdminFeatures(c.features && c.features.length ? c.features : DEFAULT_FEATURES);
+            renderAdminFaq(c.faqs && c.faqs.length ? c.faqs : DEFAULT_FAQS);
+
         }
     } catch (err) {
         console.error(err);
@@ -2497,8 +2516,8 @@ function renderAdminFeatures(features) {
     if(!container) return;
     container.innerHTML = '';
     features.forEach(f => addAdminFeatureRow(f));
-    if (features.length === 0) addAdminFeatureRow();
 }
+
 
 function addAdminFeatureRow(data = {}) {
     const container = document.getElementById('adminFeaturesContainer');
@@ -2558,16 +2577,18 @@ function renderAdminFaq(faqs) {
     if(!container) return;
     container.innerHTML = '';
     faqs.forEach(f => addAdminFaqRow(f));
-    if (faqs.length === 0) addAdminFaqRow();
 }
+
 
 function addAdminFaqRow(data = {}) {
     const container = document.getElementById('adminFaqContainer');
     if(!container) return;
     const div = document.createElement('div');
+    div.className = 'faq-card-admin';
     div.style.marginBottom = '1.25rem';
     div.style.padding = '1.5rem';
     div.style.position = 'relative';
+
     div.style.background = 'rgba(0,0,0,0.2)';
     div.style.borderRadius = '14px';
     div.style.border = '1px solid rgba(255,255,255,0.08)';
@@ -2605,12 +2626,17 @@ async function saveLandingConfig(e) {
     });
 
     const faqs = [];
-    document.querySelectorAll('#adminFaqContainer .feature-card').forEach(row => {
-        faqs.push({
-            question: row.querySelector('.faq-q').value,
-            answer: row.querySelector('.faq-a').value
-        });
+    document.querySelectorAll('#adminFaqContainer .faq-card-admin').forEach(row => {
+        const qInput = row.querySelector('.faq-question');
+        const aInput = row.querySelector('.faq-answer');
+        if (qInput && aInput) {
+            faqs.push({
+                question: qInput.value,
+                answer: aInput.value
+            });
+        }
     });
+
 
     const gIconInput = document.getElementById('guaranteeIcon');
     const payload = {
