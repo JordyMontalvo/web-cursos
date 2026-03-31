@@ -2652,16 +2652,35 @@ async function saveLandingConfig(e) {
     };
 
     try {
-        const res = await fetch(apiUrl('/api/admin/landing-config'), {
-            method: 'PUT',
-            headers: authHeaders(),
-            body: JSON.stringify(payload)
-        });
-        const data = await res.json();
+        const saveConfig = async (path) => {
+            const res = await fetch(apiUrl(path), {
+                method: 'PUT',
+                headers: authHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            let data = {};
+            try {
+                data = await res.json();
+            } catch {
+                data = { success: false, message: `Respuesta inválida (${res.status})` };
+            }
+
+            return { res, data };
+        };
+
+        let { res, data } = await saveConfig('/api/admin/landing-config');
+
+        // Compatibilidad con despliegues donde no existe la ruta /api/admin/landing-config
+        if (!data.success && (res.status === 404 || res.status === 405)) {
+            ({ res, data } = await saveConfig('/api/landing-config'));
+        }
+
         if (data.success) {
             showToast('Configuración guardada correctamente');
         } else {
-            showToast(data.message || 'Error al guardar', 'error');
+            const errMsg = data.message || data.error || `Error al guardar (${res.status || 'sin estado'})`;
+            showToast(errMsg, 'error');
         }
     } catch (err) {
         console.error(err);
