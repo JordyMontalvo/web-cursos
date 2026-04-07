@@ -4,7 +4,6 @@ const settingsSchema = new mongoose.Schema({
     presentationVideoUrl: { type: String, default: '' },
     companyName: { type: String, default: 'IATIBET ZUREON' },
     logoUrl: { type: String, default: '' },
-    sellerCommissionGlobal: { type: Number, default: 10 },
     updatedAt: { type: Date, default: Date.now }
 });
 

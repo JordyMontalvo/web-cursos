@@ -747,7 +747,6 @@ let currentUserFilter = 'all'; // 'all', 'active', 'inactive'
 let usersCurrentPage = 1;
 const usersPerPage = 10;
 let selectedUserIdForDetails = null;
-let globalSellerCommission = 10;
 
 function switchTab(tab) {
     activeTab = tab;
@@ -1198,7 +1197,6 @@ async function loadUsers() {
         if (data.success) {
             usersData = data.users;
             renderAllUserTables(data.users);
-            await loadGlobalSellerCommission();
         } else {
             showToast(data.message || 'Error', 'error');
         }
@@ -1301,13 +1299,12 @@ function renderVendedoresTable(vendors) {
         <tr>
             <td><strong style="color:#fff;">${v.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${v.lastName || ''}</span></td>
             <td style="font-size:.85rem;color:#fff;">${v.email}</td>
-            <td>${v.sellerCode
-                ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
-                : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
-            </td>
-            <td><span style="display:inline-block;padding:.25rem .6rem;background:rgba(79,255,176,.12);border:1px solid rgba(79,255,176,.3);border-radius:999px;color:#4FFFB0;font-weight:700;">${globalSellerCommission}%</span></td>
-            <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
-            <td style="color:#fff;">${v.referralCount ?? 0}</td>
+                <td>${v.sellerCode
+                    ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
+                    : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
+                </td>
+                <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
+                <td style="color:#fff;">${v.referralCount ?? 0}</td>
             <td>
                 <div style="display:flex;gap:.4rem;">
                     <button onclick="openEditPermissionsModal('${v._id}','${v.name.replace(/'/g, "\\'") } ${v.lastName?.replace(/'/g, "\\'") || ''}','${v.role}','${(v.permissions||[]).join(',')}','${v.canCreate}','${v.canEdit}')"
@@ -1320,42 +1317,11 @@ function renderVendedoresTable(vendors) {
 }
 
 async function loadGlobalSellerCommission() {
-    try {
-        const res = await fetch(apiUrl('/api/admin/settings'), { headers: authHeaders() });
-        const data = await res.json();
-        if (!data.success) return;
-        const val = Number(data.settings?.sellerCommissionGlobal);
-        globalSellerCommission = Number.isFinite(val) ? val : 10;
-        const input = document.getElementById('globalSellerCommissionInput');
-        if (input) input.value = globalSellerCommission;
-    } catch {}
+    // Eliminado: La comisión ahora es por membresía
 }
 
 async function saveGlobalSellerCommission() {
-    const input = document.getElementById('globalSellerCommissionInput');
-    if (!input) return;
-    const val = parseFloat(input.value);
-    if (isNaN(val) || val < 0 || val > 100) {
-        showToast('La comisión debe ser entre 0 y 100', 'error');
-        return;
-    }
-    try {
-        const res = await fetch(apiUrl('/api/admin/settings'), {
-            method: 'PUT',
-            headers: authHeaders(),
-            body: JSON.stringify({ sellerCommissionGlobal: val })
-        });
-        const data = await res.json();
-        if (data.success) {
-            globalSellerCommission = val;
-            showToast(`✅ Comisión global actualizada a ${val}%`);
-            if (usersData) renderVendedoresTable(usersData.filter(u => u.role === 'vendedor'));
-        } else {
-            showToast(data.message || 'Error al guardar', 'error');
-        }
-    } catch (err) {
-        showToast('Error de conexión', 'error');
-    }
+    // Eliminado: La comisión ahora es por membresía
 }
 
 function renderAdminsTable(admins) {

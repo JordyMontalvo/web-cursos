@@ -9,11 +9,10 @@ const Banner = mongoose.models.Banner || mongoose.model('Banner', new mongoose.S
     title: String, subtitle: String, imageUrl: String, linkUrl: String, order: Number, isActive: Boolean
 }));
 
-const Settings = mongoose.models.Settings || mongoose.model('Settings', new mongoose.Schema({
+const Settings = mongoose.models.Settings || mongoose.models.Settings || mongoose.model('Settings', new mongoose.Schema({
     presentationVideoUrl: { type: String, default: '' },
     companyName: { type: String, default: 'IATIBET ZUREON' },
     logoUrl: { type: String, default: '' },
-    sellerCommissionGlobal: { type: Number, default: 10 },
     updatedAt: { type: Date, default: Date.now }
 }));
 
@@ -109,7 +108,7 @@ module.exports = async (req, res) => {
 
     // ── ADMIN: /api/admin/settings (PUT) ──
     if (route === 'admin-settings' && req.method === 'PUT') {
-        const { presentationVideoUrl, companyName, logoUrl, sellerCommissionGlobal } = req.body;
+        const { presentationVideoUrl, companyName, logoUrl } = req.body;
         
         const updated = await Settings.findOneAndUpdate(
             {},
@@ -118,7 +117,6 @@ module.exports = async (req, res) => {
                     ...(companyName !== undefined && { companyName }),
                     ...(logoUrl !== undefined && { logoUrl }),
                     ...(presentationVideoUrl !== undefined && { presentationVideoUrl }),
-                    ...(sellerCommissionGlobal !== undefined && { sellerCommissionGlobal: Number(sellerCommissionGlobal) }),
                     updatedAt: new Date()
                 }
             },

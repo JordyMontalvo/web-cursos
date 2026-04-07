@@ -496,9 +496,6 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
         if (req.body.logoUrl !== undefined) {
             settings.logoUrl = req.body.logoUrl;
         }
-        if (req.body.sellerCommissionGlobal !== undefined) {
-            settings.sellerCommissionGlobal = Number(req.body.sellerCommissionGlobal);
-        }
 
         settings.updatedAt = new Date();
         await settings.save();
@@ -1168,8 +1165,6 @@ app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) 
     try {
         const seller = await User.findById(req.user.id);
         if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
-        const settings = await Settings.findOne();
-        const globalCommission = Number(settings?.sellerCommissionGlobal);
 
         const count = await User.countDocuments({ referredBy: seller._id });
         
@@ -1179,7 +1174,7 @@ app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) 
                 balance: seller.sellerBalance || 0,
                 referralsCount: count,
                 code: seller.sellerCode,
-                commission: Number.isFinite(globalCommission) ? globalCommission : 10
+                commission: seller.sellerCommission || 10
             }
         });
     } catch (error) {

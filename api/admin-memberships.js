@@ -17,6 +17,7 @@ try { Membership = mongoose.model('Membership'); } catch {
         buttonColor: { type: String, default: '#7C3AED' },
         features: [{ type: String }],
         isActive: { type: Boolean, default: true },
+        sellerCommission: { type: Number, default: 0 },
         order: { type: Number, default: 0 },
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
@@ -75,7 +76,7 @@ module.exports = async (req, res) => {
 
     // POST /api/admin/memberships
     if (req.method === 'POST') {
-        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, sellerCommission, order } = req.body;
         if (!name || price === undefined) return res.status(400).json({ success: false, message: 'Nombre y precio requeridos' });
         const m = new Membership({
             name, description, price: Number(price),
@@ -83,6 +84,7 @@ module.exports = async (req, res) => {
             durationDays: Number(durationDays) || 30,
             badge, color, buttonColor, features: Array.isArray(features) ? features : [],
             isActive: isActive !== false,
+            sellerCommission: Number(sellerCommission) || 0,
             order: Number(order) || 0
         });
         await m.save();
@@ -91,7 +93,7 @@ module.exports = async (req, res) => {
 
     // PUT /api/admin/memberships/:id
     if (req.method === 'PUT' && id) {
-        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, sellerCommission, order } = req.body;
         const updateData = { updatedAt: Date.now() };
         if (name !== undefined) updateData.name = name;
         if (description !== undefined) updateData.description = description;
@@ -103,6 +105,7 @@ module.exports = async (req, res) => {
         if (buttonColor !== undefined) updateData.buttonColor = buttonColor;
         if (features !== undefined) updateData.features = Array.isArray(features) ? features : [];
         if (isActive !== undefined) updateData.isActive = isActive;
+        if (sellerCommission !== undefined) updateData.sellerCommission = Number(sellerCommission);
         if (order !== undefined) updateData.order = Number(order);
 
         console.log(`[AdminMemberships] Updating Membership ${id} with:`, JSON.stringify(updateData));
