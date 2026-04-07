@@ -1304,7 +1304,19 @@ function renderVendedoresTable(vendors) {
         tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
         return;
     }
-    tbody.innerHTML = vendors.map(v => `
+    tbody.innerHTML = vendors.map(v => {
+        const fullName = `${v.name || ''} ${v.lastName || ''}`.trim();
+        const permsCsv = (v.permissions || []).join(',');
+        const editPermsArgs = [
+            v._id,
+            fullName,
+            v.role,
+            permsCsv,
+            v.canCreate,
+            v.canEdit
+        ].map(a => JSON.stringify(a ?? '')).join(',');
+
+        return `
         <tr>
             <td><strong style="color:#fff;">${v.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${v.lastName || ''}</span></td>
             <td style="font-size:.85rem;color:#fff;">${v.email}</td>
@@ -1316,14 +1328,14 @@ function renderVendedoresTable(vendors) {
                 <td style="color:#fff;">${v.referralCount ?? 0}</td>
             <td>
                 <div style="display:flex;gap:.4rem;">
-                    <button onclick="openEditPermissionsModal('${v._id}','${v.name.replace(/'/g, "\\'") } ${v.lastName?.replace(/'/g, "\\'") || ''}','${v.role}','${(v.permissions||[]).join(',')}','${v.canCreate}','${v.canEdit}')"
+                    <button onclick='openEditPermissionsModal(${editPermsArgs})'
                         title="Permisiones" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">🔑</button>
-                    <button onclick="openUserDetailsModal('${v._id}')"
+                    <button onclick='openUserDetailsModal(${JSON.stringify(v._id)})'
                         title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">📝</button>
                 </div>
             </td>
         </tr>`;
-    `).join('');
+    }).join('');
 }
 
 function renderCommissionPlansTable(plans) {
