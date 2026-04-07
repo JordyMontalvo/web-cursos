@@ -38,8 +38,12 @@
             --bg: #05050A;
             --glass: rgba(255, 255, 255, 0.04);
             --glass-border: rgba(255, 255, 255, 0.08);
-            /* Video, título y bloque FINANZAS comparten esta anchura en desktop */
+            /* Misma columna que el bloque de episodios (FINANZAS) en desktop */
             --course-col-max: 1400px;
+            /* Solo el reproductor: un poco más ancho que la columna (desktop) */
+            --course-video-max: 1464px;
+            /* Tope de altura 16:9 en desktop (menos “largo” en vertical) */
+            --course-video-max-height: 500px;
         }
 
         body {
@@ -120,10 +124,15 @@
         /* Desktop: video + título misma anchura y bordes que el bloque FINANZAS */
         @media (min-width: 769px) {
             .video-stage {
-                max-width: min(var(--course-col-max), calc(100vw - 2rem));
+                /* Ancho limitado por ancho máximo, viewport y por altura máxima (16:9) */
+                width: min(
+                    100%,
+                    min(var(--course-video-max), calc(100vw - 2rem)),
+                    calc(var(--course-video-max-height) * 16 / 9)
+                );
+                max-width: min(var(--course-video-max), calc(100vw - 2rem));
                 margin-left: auto;
                 margin-right: auto;
-                width: 100%;
                 box-sizing: border-box;
             }
             .content-info {
