@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IATIBET ZUREON - Plataforma de Cursos Online</title>
+  <title>IATIBET ZUREON - Plataforma de series online</title>
   <meta name="description" content="Un espacio para transformar tu mente, finanzas y espíritu" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -43,7 +43,7 @@
         </div>
 
         <nav class="nav">
-          <a href="/" class="nav-link">Cursos</a>
+          <a href="/" class="nav-link">Series</a>
           <a href="/membresia" class="nav-link" id="navMembresia" style="display:none;">Mi Membresía</a>
         </nav>
 
@@ -132,10 +132,10 @@
     </div>
   </div>
 
-  <!-- Cursos Online Section -->
+  <!-- Series online -->
   <section class="courses-section">
     <div class="container">
-      <h2 class="section-title">Cursos Online</h2>
+      <h2 class="section-title">Series online</h2>
 
       <!-- Buscador solo visible en móvil -->
       <div class="mobile-search-bar">
@@ -150,7 +150,7 @@
 
       <div class="filters">
         <select class="filter-select">
-          <option>Seleccionar el Curso</option>
+          <option>Seleccionar la serie</option>
           <option>Inteligencia Artificial</option>
           <option>Finanzas</option>
           <option>Marketing Digital</option>
@@ -164,7 +164,7 @@
         </select>
 
         <select class="filter-select">
-          <option>Cursos</option>
+          <option>Series</option>
           <option>Todos</option>
           <option>Gratis</option>
           <option>Premium</option>
@@ -253,7 +253,7 @@
         const last = JSON.parse(localStorage.getItem('lastPlayedCourse') || 'null');
         if (!last || !last.courseId) return;
         const section = document.getElementById('continueSection');
-        document.getElementById('continueCourseName').textContent = last.courseName || 'Curso';
+        document.getElementById('continueCourseName').textContent = last.courseName || 'Serie';
         document.getElementById('continueEpName').textContent = last.lastEpisodeName ? `▶ ${last.lastEpisodeName}` : '';
         document.getElementById('continueProgress').textContent = `${last.progress || 0}% completado`;
         document.getElementById('continueProgressBar').style.width = (last.progress || 0) + '%';
@@ -304,7 +304,7 @@
         </div>
         <div style="display:flex; align-items:center; gap:0.6rem;">
           <span style="font-size:1rem;">🎓</span>
-          <span style="font-size:0.8rem; color:rgba(255,255,255,0.6);">Ahora tienes acceso ilimitado a todos los cursos</span>
+          <span style="font-size:0.8rem; color:rgba(255,255,255,0.6);">Ahora tienes acceso ilimitado a todas las series</span>
         </div>
       </div>
 
@@ -316,7 +316,7 @@
 
       <!-- Botón -->
       <button onclick="closePaymentSuccess()" style="width:100%; padding:0.9rem 1.5rem; background:linear-gradient(135deg,#7C3AED,#5B21B6); color:#fff; border:none; border-radius:12px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; letter-spacing:0.3px; box-shadow:0 4px 20px rgba(124,58,237,0.4); transition:all 0.2s ease;">
-        🚀 Explorar Cursos
+        🚀 Explorar series
       </button>
     </div>
   </div>

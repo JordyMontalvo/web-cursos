@@ -12,7 +12,7 @@
         kr-language="es-PE" kr-theme="classic">
         </script>
     <meta name="description"
-        content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
+        content="Accede a todas las series con nuestros planes de membresía. Aprendizaje ilimitado.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
@@ -1034,7 +1034,7 @@
         </div>
         <a href="/"
             style="margin-left:auto;background:rgba(79,255,176,0.15);border:1px solid rgba(79,255,176,0.3);color:#4FFFB0;padding:0.5rem 1rem;border-radius:10px;font-size:0.85rem;font-weight:700;text-decoration:none;">Ir
-            a cursos →</a>
+            a series →</a>
     </div>
 
     <!-- HERO -->
@@ -1047,7 +1047,7 @@
             Planes de Membresía
         </div>
         <h1 id="heroTitle">Aprende sin límites,<br>crece sin barreras</h1>
-        <p id="heroSubtitle">Acceso completo a todos los cursos de la plataforma. Cancela cuando quieras. Sin contratos.</p>
+        <p id="heroSubtitle">Acceso completo a todas las series de la plataforma. Cancela cuando quieras. Sin contratos.</p>
 
         <!-- Trust bar -->
         <div class="trust-bar" id="heroTrustBar">
@@ -1098,8 +1098,8 @@
 
                 <div class="feature-card">
                     <div class="feature-icon">🎓</div>
-                    <h3>Cursos ilimitados</h3>
-                    <p>Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo.</p>
+                    <h3>Series ilimitadas</h3>
+                    <p>Accede a todas las series de la plataforma sin restricciones. Aprende a tu ritmo.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📱</div>
@@ -1109,12 +1109,12 @@
                 <div class="feature-card">
                     <div class="feature-icon">🏆</div>
                     <h3>Certificados verificados</h3>
-                    <p>Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn.</p>
+                    <p>Al completar cada serie obtienes un certificado de logro que puedes compartir en LinkedIn.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔔</div>
-                    <h3>Notificaciones de cursos</h3>
-                    <p>Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas.</p>
+                    <h3>Notificaciones de series</h3>
+                    <p>Recibe alertas cuando se publiquen nuevas series según tus intereses y categorías favoritas.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">💬</div>
@@ -1124,7 +1124,7 @@
                 <div class="feature-card">
                     <div class="feature-icon">⚡</div>
                     <h3>Contenido actualizado</h3>
-                    <p>Los cursos se actualizan constantemente con el contenido más reciente de cada industria.</p>
+                    <p>Las series se actualizan constantemente con el contenido más reciente de cada industria.</p>
                 </div>
             </div>
         </div>
@@ -1173,13 +1173,13 @@
             </div>
             <div class="faq-item">
                 <button class="faq-question" onclick="toggleFaq(this)">
-                    ¿Hay algún costo adicional por cursos nuevos?
+                    ¿Hay algún costo adicional por series nuevas?
                     <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" />
                     </svg>
                 </button>
-                <div class="faq-answer">No. Tu membresía incluye acceso a todos los cursos presentes y futuros de la
+                <div class="faq-answer">No. Tu membresía incluye acceso a todas las series presentes y futuras de la
                     plataforma sin costo adicional. Siempre al mismo precio.</div>
             </div>
             <div class="faq-item">
@@ -1441,7 +1441,7 @@
                 const featuresHtml = (plan.features || []).map(f =>
                     `<li><span class="check">✓</span>${f}</li>`
                 ).join('') || `<li><span class="check">✓</span>Acceso completo a la plataforma</li>
-         <li><span class="check">✓</span>Todos los cursos incluidos</li>
+         <li><span class="check">✓</span>Todas las series incluidas</li>
          <li><span class="check">✓</span>Certificados de logro</li>`;
 
                 return `
@@ -1472,7 +1472,7 @@
             if (!user || !user.hasMembership) return;
             const banner = document.getElementById('currentPlanBanner');
             banner.classList.add('visible');
-            document.getElementById('currentPlanInfo').textContent = `Plan ${user.membershipPlan || 'activo'} · Acceso completo a todos los cursos`;
+            document.getElementById('currentPlanInfo').textContent = `Plan ${user.membershipPlan || 'activo'} · Acceso completo a todas las series`;
         }
 
         // ── Plan selection ───────────────────────────────────────────────
@@ -1660,7 +1660,7 @@
         if (fromCourse) {
             const courseName = decodeURIComponent(new URLSearchParams(window.location.search).get('course') || '');
             setTimeout(() => {
-                showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Este curso requiere una membresía activa');
+                showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Esta serie requiere una membresía activa');
             }, 500);
         }
     </script>

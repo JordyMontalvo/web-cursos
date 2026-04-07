@@ -439,12 +439,12 @@ function setupSearch() {
                     <div class="search-result-thumb" style="background-image:url('${c.thumbnail || '/uploads/default-course.jpg'}')"></div>
                     <div class="search-result-info">
                         <span class="search-result-name">${c.name}</span>
-                        <span class="search-result-category">${c.category || 'Curso'}</span>
+                        <span class="search-result-category">${c.category || 'Serie'}</span>
                     </div>
                 </a>
             `).join('');
         } else {
-            dropdown.innerHTML = '<div style="padding:1rem; text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4);">No se encontraron cursos</div>';
+            dropdown.innerHTML = '<div style="padding:1rem; text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4);">No se encontraron series</div>';
         }
         dropdown.classList.add('active');
     }

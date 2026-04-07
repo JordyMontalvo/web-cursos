@@ -892,7 +892,7 @@ body {
     --section-spacing: 3rem;
   }
 
-  /* Hide header search on mobile, it moves below 'Cursos Online' title */
+  /* Hide header search on mobile, it moves below the main series section title */
   .header-search-desktop {
     display: none;
   }

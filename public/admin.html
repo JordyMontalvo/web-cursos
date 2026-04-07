@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - IATIBET ZUREON</title>
-    <meta name="description" content="Panel de administración para gestionar cursos">
+    <meta name="description" content="Panel de administración para gestionar series">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/admin-styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,7 +55,7 @@
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right: 0.5rem;">
                             <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                         </svg>
-                        Nuevo Curso
+                        Nueva serie
                     </button>
                     <button class="btn-secondary" onclick="adminLogout()" style="margin-left:0.5rem;">🚪 Salir</button>
                 </div>
@@ -68,13 +68,13 @@
         <div class="container">
             <div class="admin-header">
                 <h1 class="admin-title">Panel de Administración</h1>
-                <p class="admin-description">Gestiona cursos, membresías y usuarios de la plataforma</p>
+                <p class="admin-description">Gestiona series, membresías y usuarios de la plataforma</p>
             </div>
 
             <!-- Tabs -->
             <div class="admin-tabs">
                 <button class="admin-tab active" id="tab-courses" onclick="switchTab('courses')">📚
-                    Cursos</button>
+                    Series</button>
                 <button class="admin-tab" id="tab-memberships" onclick="switchTab('memberships')">💎
                     Membresías</button>
                 <button class="admin-tab" id="tab-banners" onclick="switchTab('banners')">🖼️
@@ -110,7 +110,7 @@
                         </div>
                         <div class="stat-content">
                             <div class="stat-value" id="totalCourses">0</div>
-                            <div class="stat-label">Total Cursos</div>
+                            <div class="stat-label">Total series</div>
                         </div>
                     </div>
 
@@ -147,9 +147,9 @@
                 <!-- Courses Table -->
                 <div class="table-container">
                     <div class="table-header">
-                        <h2>Lista de Cursos</h2>
+                        <h2>Lista de series</h2>
                         <div class="table-actions">
-                            <input type="search" placeholder="Buscar curso..." class="search-table" id="searchTable">
+                            <input type="search" placeholder="Buscar serie..." class="search-table" id="searchTable">
                         </div>
                     </div>
 
@@ -171,7 +171,7 @@
                                 <tr>
                                     <td colspan="8" class="loading-row">
                                         <div class="spinner"></div>
-                                        <p>Cargando cursos...</p>
+                                        <p>Cargando series...</p>
                                     </td>
                                 </tr>
                             </tbody>
@@ -528,7 +528,7 @@
                     <div class="table-header">
                         <div>
                             <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Categorías</h2>
-                            <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra las categorías disponibles para los cursos</p>
+                            <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra las categorías disponibles para las series</p>
                         </div>
                         <button class="btn-primary" onclick="openCategoryModal()">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
@@ -589,7 +589,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Subtítulo Hero</label>
-                                            <input type="text" id="heroSubtitleInput" placeholder="Ej: Acceso completo a todos los cursos...">
+                                            <input type="text" id="heroSubtitleInput" placeholder="Ej: Acceso completo a todas las series...">
                                         </div>
                                     </div>
                                     <div class="form-group" style="margin-top:1rem;">
@@ -799,7 +799,7 @@
                     <label>Beneficios del plan</label>
                     <div id="featuresContainer">
                         <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
-                            <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos"
+                            <input type="text" class="feature-input" placeholder="Ej: Acceso a todas las series"
                                 style="flex:1;">
                             <button type="button" onclick="removeFeatureRow(this)"
                                 style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
@@ -1030,7 +1030,7 @@
                     <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:1rem;">Selecciona las secciones a las que tendrá acceso este admin:</p>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.25rem;">
                         <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
-                            <input type="checkbox" name="ucPerm" value="courses"> 📚 Cursos
+                            <input type="checkbox" name="ucPerm" value="courses"> 📚 Series
                         </label>
                         <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;cursor:pointer;padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.07);">
                             <input type="checkbox" name="ucPerm" value="memberships"> 💎 Membresías
@@ -1158,7 +1158,7 @@
                     <p style="font-weight:700; font-size:0.9rem; margin-bottom:1rem; color:#fff;">Vistas Permitidas</p>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
                         <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
-                            <input type="checkbox" name="epPerm" value="courses"> Cursos
+                            <input type="checkbox" name="epPerm" value="courses"> Series
                         </label>
                         <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
                             <input type="checkbox" name="epPerm" value="memberships"> Membresías
@@ -1202,7 +1202,7 @@
     <div class="modal" id="courseModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Nuevo Curso</h2>
+                <h2 id="modalTitle">Nueva serie</h2>
                 <button class="modal-close" onclick="closeCourseModal()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -1215,7 +1215,7 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="courseName">Nombre del Curso *</label>
+                        <label for="courseName">Nombre de la serie *</label>
                         <input type="text" id="courseName" name="name" required
                             placeholder="Ej: Inteligencia Artificial IA">
                     </div>
@@ -1240,15 +1240,15 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label for="courseOrder">Orden del Curso (Opcional)</label>
+                    <label for="courseOrder">Orden de la serie (opcional)</label>
                     <input type="number" id="courseOrder" name="order" min="0" placeholder="0" value="0" style="width: 100%;">
-                    <small style="color:rgba(0,0,0,0.4);font-size:0.7rem;">Los cursos con números menores (ej. 0, 1, 2) aparecerán primero en la lista.</small>
+                    <small style="color:rgba(0,0,0,0.4);font-size:0.7rem;">Las series con números menores (ej. 0, 1, 2) aparecerán primero en la lista.</small>
                 </div>
 
                 <div class="form-group">
                     <label for="courseDescription">Descripción</label>
                     <textarea id="courseDescription" name="description" rows="3"
-                        placeholder="Descripción breve del curso..."></textarea>
+                        placeholder="Descripción breve de la serie..."></textarea>
                 </div>
 
                 <div class="form-group">
@@ -1286,14 +1286,14 @@
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="courseFeatured" name="featured">
-                        <span>Marcar como curso destacado</span>
+                        <span>Marcar como serie destacada</span>
                     </label>
                 </div>
 
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeCourseModal()">Cancelar</button>
                     <button type="submit" class="btn-primary">
-                        <span id="submitBtnText">Guardar Curso</span>
+                        <span id="submitBtnText">Guardar serie</span>
                         <div class="btn-spinner" id="submitSpinner" style="display: none;"></div>
                     </button>
                 </div>
@@ -1315,7 +1315,7 @@
 
             <div class="content-manager">
                 <div class="form-group">
-                    <label>Curso: <span id="contentCourseName" style="color: var(--primary-purple);"></span></label>
+                    <label>Serie: <span id="contentCourseName" style="color: var(--primary-purple);"></span></label>
                 </div>
 
                 <div id="chaptersList" class="chapter-list">
@@ -1331,7 +1331,7 @@
                     <p style="font-size: 0.75rem; font-weight: 800; color: #7C3AED; text-transform: uppercase; margin-bottom: 1rem;">🏷️ Detalles del Capítulo</p>
                     <div class="form-group">
                         <label style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Título del Capítulo</label>
-                        <input type="text" id="newChapterTitle" placeholder="Ej: Introducción al curso" 
+                        <input type="text" id="newChapterTitle" placeholder="Ej: Introducción a la serie" 
                             style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.7rem;">
                     </div>
                     <div class="form-group" style="margin-top: 0.75rem;">

@@ -18,7 +18,7 @@ let activeTab = 'courses';
 async function fetchCourses(force = false) {
     const now = Date.now();
     if (!force && allCourses.length > 0 && (now - lastFetchTime < CACHE_DURATION)) {
-        console.log('🚀 Usando caché de cursos');
+        console.log('🚀 Usando caché de series');
         renderCoursesTable(allCourses);
         updateStats();
         return;
@@ -32,7 +32,7 @@ async function fetchCourses(force = false) {
         }
 
         const data = await response.json();
-        console.log('📦 Cursos recibidos:', data);
+        console.log('📦 Series recibidas:', data);
 
         if (data.success) {
             allCourses = (data.courses || []).filter(c => c._id || c.id);
@@ -44,7 +44,7 @@ async function fetchCourses(force = false) {
         }
     } catch (error) {
         console.error('❌ Error fetching courses:', error);
-        showToast('Error al cargar los cursos', 'error');
+        showToast('Error al cargar las series', 'error');
     }
 }
 
@@ -59,15 +59,15 @@ async function createCourse(courseData) {
         const data = await response.json();
 
         if (data.success) {
-            showToast('Curso creado exitosamente');
+            showToast('Serie creada exitosamente');
             fetchCourses();
             closeCourseModal();
         } else {
-            showToast(data.message || 'Error al crear el curso', 'error');
+            showToast(data.message || 'Error al crear la serie', 'error');
         }
     } catch (error) {
         console.error('Error creating course:', error);
-        showToast('Error al crear el curso', 'error');
+        showToast('Error al crear la serie', 'error');
     }
 }
 
@@ -82,20 +82,20 @@ async function updateCourse(id, courseData) {
         const data = await response.json();
 
         if (data.success) {
-            showToast('Curso actualizado exitosamente');
+            showToast('Serie actualizada exitosamente');
             fetchCourses();
             closeCourseModal();
         } else {
-            showToast(data.message || 'Error al actualizar el curso', 'error');
+            showToast(data.message || 'Error al actualizar la serie', 'error');
         }
     } catch (error) {
         console.error('Error updating course:', error);
-        showToast('Error al actualizar el curso', 'error');
+        showToast('Error al actualizar la serie', 'error');
     }
 }
 
 async function deleteCourse(id, courseName) {
-    if (!confirm(`¿Estás seguro de eliminar el curso "${courseName}"?`)) {
+    if (!confirm(`¿Estás seguro de eliminar la serie "${courseName}"?`)) {
         return;
     }
 
@@ -107,14 +107,14 @@ async function deleteCourse(id, courseName) {
         const data = await response.json();
 
         if (data.success) {
-            showToast('Curso eliminado exitosamente');
+            showToast('Serie eliminada exitosamente');
             fetchCourses();
         } else {
-            showToast(data.message || 'Error al eliminar el curso', 'error');
+            showToast(data.message || 'Error al eliminar la serie', 'error');
         }
     } catch (error) {
         console.error('Error deleting course:', error);
-        showToast('Error al eliminar el curso', 'error');
+        showToast('Error al eliminar la serie', 'error');
     }
 }
 
@@ -154,7 +154,7 @@ function renderCoursesTable(courses) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="8" class="loading-row">
-                    <p>No hay cursos disponibles</p>
+                    <p>No hay series disponibles</p>
                 </td>
             </tr>
         `;
@@ -166,7 +166,7 @@ function renderCoursesTable(courses) {
         const courseId = course._id || course.id;
 
         if (!courseId) {
-            console.error('Curso sin ID encontrado:', course);
+            console.error('Serie sin ID encontrado:', course);
             return '';
         }
 
@@ -234,7 +234,7 @@ function updateStats() {
 
 function openAddCourseModal() {
     editingCourseId = null;
-    document.getElementById('modalTitle').textContent = 'Nuevo Curso';
+    document.getElementById('modalTitle').textContent = 'Nueva serie';
     document.getElementById('courseForm').reset();
     document.getElementById('courseOrder').value = 0;
     document.getElementById('imagePreview').innerHTML = '';
@@ -251,7 +251,7 @@ function editCourse(id) {
     const courseId = course._id || course.id;
     editingCourseId = courseId;
 
-    document.getElementById('modalTitle').textContent = 'Editar Curso';
+    document.getElementById('modalTitle').textContent = 'Editar serie';
 
     // Fill form
     document.getElementById('courseId').value = courseId;
@@ -360,12 +360,12 @@ async function previewImage(input) {
 async function openContentManager(courseId) {
     // Si viene del string 'ID' o undefined, ignorar
     if (!courseId || courseId === 'undefined' || courseId === 'null') {
-        console.error('ID de curso inválido:', courseId);
-        showToast('Error: ID de curso no válido', 'error');
+        console.error('ID de serie inválido:', courseId);
+        showToast('Error: ID de serie no válido', 'error');
         return;
     }
 
-    // Buscar curso actualizado desde la API para asegurar que tenemos los capítulos
+    // Buscar serie actualizada desde la API para asegurar que tenemos los capítulos
     try {
         console.log('Fetching content for course:', courseId);
         const response = await fetch(apiUrl(`/api/courses/${courseId}`));
@@ -387,11 +387,11 @@ async function openContentManager(courseId) {
 
             document.getElementById('contentModal').classList.add('active');
         } else {
-            showToast(data.message || 'Error al cargar curso', 'error');
+            showToast(data.message || 'Error al cargar la serie', 'error');
         }
     } catch (error) {
         console.error('Error fetching course for content:', error);
-        showToast('Error al cargar contenido del curso', 'error');
+        showToast('Error al cargar contenido de la serie', 'error');
     }
 }
 
@@ -1004,7 +1004,7 @@ function openMembershipModal(id) {
     document.getElementById('membActive').checked = true;
     document.getElementById('featuresContainer').innerHTML = `
         <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
-            <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos" style="flex:1;">
+            <input type="text" class="feature-input" placeholder="Ej: Acceso a todas las series" style="flex:1;">
             <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
         </div>`;
 
@@ -1457,7 +1457,7 @@ function renderAdminsTable(admins) {
         tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay administradores registrados</p></td></tr>';
         return;
     }
-    const permLabels = { courses:'📚 Cursos', memberships:'💎 Members', banners:'🖼️ Banners', users:'👥 Usuarios', categories:'📋 Categ.', logo:'🎨 Logo' };
+    const permLabels = { courses:'📚 Series', memberships:'💎 Members', banners:'🖼️ Banners', users:'👥 Usuarios', categories:'📋 Categ.', logo:'🎨 Logo' };
     tbody.innerHTML = admins.map(a => {
         const perms = (a.permissions || []).map(p => permLabels[p] || p).join(', ') || '<span style="color:#4FFFB0;">Acceso Total</span>';
         return `
@@ -2529,12 +2529,12 @@ function handleIconUpload(input, targetInputId, previewId) {
 // ===================================
 
 const DEFAULT_FEATURES = [
-    { icon: "🎓", title: "Cursos ilimitados", description: "Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo." },
+    { icon: "🎓", title: "Series ilimitadas", description: "Accede a todas las series de la plataforma sin restricciones. Aprende a tu ritmo." },
     { icon: "📱", title: "Aprende donde quieras", description: "Acceso desde cualquier dispositivo. PC, tablet o celular. Siempre disponible 24/7." },
-    { icon: "🏆", title: "Certificados verificados", description: "Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn." },
-    { icon: "🔔", title: "Notificaciones de cursos", description: "Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas." },
+    { icon: "🏆", title: "Certificados verificados", description: "Al completar cada serie obtienes un certificado de logro que puedes compartir en LinkedIn." },
+    { icon: "🔔", title: "Notificaciones de series", description: "Recibe alertas cuando se publiquen nuevas series según tus intereses y categorías favoritas." },
     { icon: "💬", title: "Comunidad exclusiva", description: "Únete a nuestra comunidad privada de miembros. Resuelve dudas y conecta con otros alumnos." },
-    { icon: "⚡", title: "Contenido actualizado", description: "Los cursos se actualizan constantemente con el contenido más reciente de cada industria." }
+    { icon: "⚡", title: "Contenido actualizado", description: "Las series se actualizan constantemente con el contenido más reciente de cada industria." }
 ];
 
 const DEFAULT_HERO_TRUST_ITEMS = [
@@ -2548,7 +2548,7 @@ const DEFAULT_FAQS = [
     { question: "¿Puedo cancelar mi membresía en cualquier momento?", answer: "Sí, puedes cancelar en cualquier momento desde tu perfil. Mantendrás el acceso hasta que venza tu periodo activo. No hay contratos ni penalidades." },
     { question: "¿Cómo funciona la garantía de 7 días?", answer: "Si dentro de los primeros 7 días no estás satisfecho con tu membresía, te devolvemos el dinero sin preguntas. Contacta a nuestro equipo de soporte para gestionar tu reembolso." },
     { question: "¿Cuántos dispositivos puedo usar simultáneamente?", answer: "Puedes usar tu membresía en hasta 3 dispositivos al mismo tiempo. PC, tablet y celular. El acceso es personal e intransferible." },
-    { question: "¿Hay algún costo adicional por cursos nuevos?", answer: "No. Tu membresía incluye acceso a todos los cursos presentes y futuros de la plataforma sin costo adicional. Siempre al mismo precio." },
+    { question: "¿Hay algún costo adicional por series nuevas?", answer: "No. Tu membresía incluye acceso a todas las series presentes y futuras de la plataforma sin costo adicional. Siempre al mismo precio." },
     { question: "¿Cómo puedo pagar mi membresía?", answer: "Aceptamos Yape, Plin, transferencia bancaria y tarjetas de crédito/débito. El pago es procesado de forma segura. Una vez confirmado, el acceso se activa automáticamente." }
 ];
 
@@ -2680,7 +2680,7 @@ function addAdminFeatureRow(data = {}) {
             </div>
             <div class="form-group">
                 <label>Título del Beneficio</label>
-                <input type="text" class="feat-title" value="${data.title || ''}" placeholder="Ej: Cursos ilimitados">
+                <input type="text" class="feat-title" value="${data.title || ''}" placeholder="Ej: Series ilimitadas">
             </div>
         </div>
         <div class="form-group" style="margin-top:0.75rem;">
