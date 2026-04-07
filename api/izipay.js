@@ -122,9 +122,20 @@ try { Transaction = mongoose.model('Transaction'); } catch {
         amount: { type: Number, required: true },
         status: { type: String, enum: ['pending', 'completed', 'approved', 'rejected'], default: 'completed' },
         description: String,
+        // Campos extra para evitar duplicados y auditar la fuente
+        orderId: { type: String, default: '' },
+        sourceUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         createdAt: { type: Date, default: Date.now }
     });
     Transaction = mongoose.model('Transaction', schema);
+}
+
+// Si el modelo ya existía, añadimos los campos extra para idempotencia
+if (Transaction && Transaction.schema) {
+    if (!Transaction.schema.path('orderId')) Transaction.schema.add({ orderId: { type: String, default: '' } });
+    if (!Transaction.schema.path('sourceUserId')) Transaction.schema.add({ sourceUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null } });
+    if (!Transaction.schema.path('membershipId')) Transaction.schema.add({ membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null } });
 }
 
 // Logica de comisión centralizada (Prioridad: Membresía > Vendedor > 10% Default)
@@ -284,6 +295,9 @@ module.exports = async (req, res) => {
             const membership = await Membership.findById(membershipId);
             if (!user || !membership) throw new Error('Not found user or membership');
 
+            // Solo se comisiona la PRIMERA compra (primer plan) de este usuario referido
+            const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
+
             const expiresAt = (!membership.durationDays || membership.durationDays === 0) 
                 ? new Date('2099-12-31') 
                 : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
@@ -296,9 +310,16 @@ module.exports = async (req, res) => {
             console.log('[IZIPAY] ✅ Webhook: Membresía activada para:', customerRef);
 
             // LOGICA DE COMISION (WEBHOOK)
-            if (user.referredBy) {
+            if (isFirstPurchase && user.referredBy) {
                 const seller = await User.findById(user.referredBy);
                 if (seller) {
+                    // Idempotencia: no duplicar comisión para este orderId
+                    const existing = await Transaction.findOne({ userId: seller._id, type: 'commission', orderId: rawOrderId });
+                    if (existing) {
+                        console.log('[IZIPAY] Webhook: Comisión ya registrada para orderId:', rawOrderId);
+                        return res.status(200).json({ success: true });
+                    }
+
                     const commissionPct = await getEffectiveCommissionPct(membership, seller);
                     const amount = (membership.price * commissionPct) / 100;
                     seller.sellerBalance = (seller.sellerBalance || 0) + amount;
@@ -310,7 +331,10 @@ module.exports = async (req, res) => {
                         type: 'commission',
                         amount: amount,
                         status: 'completed',
-                        description: `Comisión por venta de membresía "${membership.name}" a ${user.email}`
+                        description: `Comisión por venta de membresía "${membership.name}" a ${user.email}`,
+                        orderId: rawOrderId,
+                        sourceUserId: user._id,
+                        membershipId: membership._id
                     });
 
                     console.log(`[IZIPAY] 💰 Comisión pagada al vendedor ${seller.email}: S/ ${amount.toFixed(2)} (${commissionPct}%)`);
@@ -387,10 +411,14 @@ module.exports = async (req, res) => {
             }
             console.log(`[IZIPAY] membershipId resuelto: ${membershipId}`);
 
+            const rawOrderId = answer.orderDetails?.orderId || '';
             const user = await User.findById(customerRef);
             const membership = await Membership.findById(membershipId);
 
             if (user && membership) {
+                // Solo se comisiona la PRIMERA compra (primer plan) de este usuario referido
+                const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
+
                 const expiresAt = (!membership.durationDays || membership.durationDays === 0)
                     ? new Date('2099-12-31')
                     : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
@@ -403,9 +431,16 @@ module.exports = async (req, res) => {
                 console.log('[IZIPAY] ✅ Membresía activada exitosamente para:', user.email);
 
                 // LOGICA DE COMISION (REDIRECT RETURN)
-                if (user.referredBy) {
+                if (isFirstPurchase && user.referredBy) {
                     const seller = await User.findById(user.referredBy);
                     if (seller) {
+                        // Idempotencia: no duplicar comisión para este orderId
+                        const existing = await Transaction.findOne({ userId: seller._id, type: 'commission', orderId: rawOrderId });
+                        if (existing) {
+                            console.log('[IZIPAY] Return: Comisión ya registrada para orderId:', rawOrderId);
+                            return res.writeHead(302, { Location: '/?payment=success' }).end();
+                        }
+
                         const commissionPct = await getEffectiveCommissionPct(membership, seller);
                         const amount = (membership.price * commissionPct) / 100;
                         seller.sellerBalance = (seller.sellerBalance || 0) + amount;
@@ -417,7 +452,10 @@ module.exports = async (req, res) => {
                             type: 'commission',
                             amount: amount,
                             status: 'completed',
-                            description: `Comisión por venta de membresía "${membership.name}" a ${user.email}`
+                            description: `Comisión por venta de membresía "${membership.name}" a ${user.email}`,
+                            orderId: rawOrderId,
+                            sourceUserId: user._id,
+                            membershipId: membership._id
                         });
 
                         console.log(`[IZIPAY] 💰 Comisión pagada al vendedor ${seller.email}: S/ ${amount.toFixed(2)} (${commissionPct}%)`);
