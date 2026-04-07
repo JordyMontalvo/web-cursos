@@ -112,14 +112,6 @@
             height: 100%;
             border: none;
         }
-        
-        /* The external link wrapper should NOT be 100% size, otherwise it blocks iframe clicks */
-        .external-video-wrap {
-            position: absolute;
-            bottom: 1rem;
-            right: 1rem;
-            z-index: 10;
-        }
 
         .content-info {
             padding: 3rem 1.5rem;
@@ -387,7 +379,6 @@
             .player-header .logo { grid-column: 2; margin: 0 auto; }
             #headerActions { grid-column: 3; display: flex; justify-content: flex-end; }
             .user-name, .membership-tag { display: none; }
-            .external-video-wrap { display: none; }
 
             /* Content area */
             .content-info {
@@ -795,11 +786,6 @@
 
                 videoContainer.innerHTML = `
                     <iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-                    <div class="external-video-wrap" style="position:absolute; bottom:1rem; right:1rem;">
-                        <a href="${ep.videoUrl}" target="_blank" style="color:var(--purple); font-size:0.7rem; font-weight:600; text-decoration:none; background:rgba(0,0,0,0.6); padding:0.4rem 0.8rem; border-radius:100px; border:1px solid var(--purple);">
-                            Ver en YouTube/Plataforma original
-                        </a>
-                    </div>
                 `;
             } else {
                 videoContainer.innerHTML = `<div style="padding:3rem;text-align:center;color:rgba(255,255,255,0.4);">Video no disponible para este episodio.</div>`;
