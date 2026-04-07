@@ -284,6 +284,7 @@
                     <button id="usub-tab-user" onclick="switchUserSubTab('user')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:rgba(79,255,176,.15);color:#4FFFB0;">👤 Usuarios</button>
                     <button id="usub-tab-vendedor" onclick="switchUserSubTab('vendedor')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.5);">🏷️ Vendedores</button>
                     <button id="usub-tab-admin" onclick="switchUserSubTab('admin')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.5);">🛡️ Admins</button>
+                    <button id="usub-tab-commission" onclick="switchUserSubTab('commission')" style="padding:.5rem 1.2rem;border-radius:10px;border:none;font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:rgba(255,255,255,.5);">💎 Comisiones</button>
                 </div>
 
                 <!-- Stats rápidas -->
@@ -362,6 +363,37 @@
                                 </thead>
                                 <tbody id="adminsTableBody">
                                     <tr><td colspan="6" class="loading-row"><div class="spinner"></div><p>Cargando administradores...</p></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-SECTION: Comisiones por Plan -->
+                <div id="usersub-commission" style="display:none;">
+                    <div class="table-overlay" style="margin-bottom:1rem;padding:1rem;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:12px;display:flex;align-items:center;gap:.8rem;">
+                        <div style="background:rgba(124,58,237,.2);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div>
+                            <p style="margin:0;font-weight:700;color:#fff;font-size:.9rem;">Configuración de Comisiones</p>
+                            <p style="margin:0;font-size:.75rem;color:rgba(255,255,255,.5);">Los porcentajes definidos aquí se aplican automáticamente a las ventas de cada plan.</p>
+                        </div>
+                    </div>
+                    <div class="table-container" style="overflow-x:auto;border-radius:15px;border:1px solid rgba(255,255,255,.05);">
+                        <div class="table-wrapper" style="min-width:800px;">
+                            <table class="courses-table">
+                                <thead>
+                                    <tr>
+                                        <th>Membresía / Plan</th>
+                                        <th>Precio</th>
+                                        <th>Comisión Vendedor</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commissionPlansTableBody">
+                                    <tr><td colspan="5" class="loading-row"><div class="spinner"></div><p>Cargando planes...</p></td></tr>
                                 </tbody>
                             </table>
                         </div>

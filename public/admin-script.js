@@ -941,6 +941,7 @@ async function loadMemberships() {
         if (data.success) {
             membershipsData = data.memberships;
             renderMembershipsGrid(data.memberships);
+            renderCommissionPlansTable(data.memberships);
         } else {
             showToast(data.message || 'Error al cargar planes', 'error');
         }
@@ -1168,12 +1169,14 @@ let activeUserSubTab = 'user'; // 'user' | 'vendedor' | 'admin'
 
 function switchUserSubTab(type) {
     activeUserSubTab = type;
-    ['user', 'vendedor', 'admin'].forEach(t => {
+    ['user', 'vendedor', 'admin', 'commission'].forEach(t => {
         const tab = document.getElementById(`usub-tab-${t}`);
         const section = document.getElementById(`usersub-${t}`);
+        if (!tab || !section) return;
+
         if (t === type) {
-            tab.style.background = t === 'user' ? 'rgba(79,255,176,.15)' : t === 'vendedor' ? 'rgba(124,58,237,.2)' : 'rgba(79,70,229,.2)';
-            tab.style.color = t === 'user' ? '#4FFFB0' : t === 'vendedor' ? '#c4b5fd' : '#818cf8';
+            tab.style.background = t === 'user' ? 'rgba(79,255,176,.15)' : t === 'vendedor' ? 'rgba(124,58,237,.2)' : t === 'commission' ? 'rgba(167,139,250,.2)' : 'rgba(79,70,229,.2)';
+            tab.style.color = t === 'user' ? '#4FFFB0' : t === 'vendedor' ? '#c4b5fd' : t === 'commission' ? '#A78BFA' : '#818cf8';
             section.style.display = 'block';
         } else {
             tab.style.background = 'transparent';
@@ -1184,9 +1187,18 @@ function switchUserSubTab(type) {
     // Update button text for "Nuevo Usuario"
     const btn = document.getElementById('btnNewUserMain');
     if (btn) {
-        const labels = { user: 'Nuevo Usuario', vendedor: 'Nuevo Vendedor', admin: 'Nuevo Admin' };
-        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type]}`;
-        btn.onclick = () => openCreateUserModal(type);
+        const labels = { user: 'Nuevo Usuario', vendedor: 'Nuevo Vendedor', admin: 'Nuevo Admin', commission: 'Nuevo Plan' };
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type] || 'Nuevo'}`;
+        
+        if (type === 'commission') {
+            btn.onclick = () => { switchTab('memberships'); openMembershipModal(); };
+        } else {
+            btn.onclick = () => openCreateUserModal(type);
+        }
+    }
+
+    if (type === 'commission') {
+        loadMemberships(); // Asegurar que los datos de planes estén cargados
     }
 }
 
@@ -1295,7 +1307,21 @@ function renderVendedoresTable(vendors) {
         tbody.innerHTML = '<tr><td colspan="7" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
         return;
     }
-    tbody.innerHTML = vendors.map(v => `
+    tbody.innerHTML = vendors.map(v => {
+        // Encontrar el porcentaje: Prioridad Membresía Activa > sellerCommission > 10%
+        let displayPct = 10;
+        if (v.activeMembership) {
+            const plan = membershipsData && membershipsData.find(m => m._id === v.activeMembership || m._id?.toString() === v.activeMembership?.toString());
+            if (plan && plan.sellerCommission > 0) {
+                displayPct = plan.sellerCommission;
+            } else {
+                displayPct = v.sellerCommission || 10;
+            }
+        } else {
+            displayPct = v.sellerCommission || 10;
+        }
+
+        return `
         <tr>
             <td><strong style="color:#fff;">${v.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${v.lastName || ''}</span></td>
             <td style="font-size:.85rem;color:#fff;">${v.email}</td>
@@ -1305,7 +1331,7 @@ function renderVendedoresTable(vendors) {
                 </td>
                 <td>
                     <span style="background:rgba(79,255,176,.12);border:1px solid rgba(79,255,176,.25);color:#4FFFB0;padding:.2rem .6rem;border-radius:999px;font-size:.8rem;font-weight:800;">
-                        ${(Number.isFinite(Number(v.sellerCommission)) ? Number(v.sellerCommission) : 10).toFixed(1)}%
+                        ${Number(displayPct).toFixed(1)}%
                     </span>
                 </td>
                 <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
@@ -1313,12 +1339,54 @@ function renderVendedoresTable(vendors) {
             <td>
                 <div style="display:flex;gap:.4rem;">
                     <button onclick="openEditPermissionsModal('${v._id}','${v.name.replace(/'/g, "\\'") } ${v.lastName?.replace(/'/g, "\\'") || ''}','${v.role}','${(v.permissions||[]).join(',')}','${v.canCreate}','${v.canEdit}')"
-                        title="Editar Rol" style="padding:.35rem .6rem;background:rgba(255,165,0,.2);border:1px solid rgba(255,165,0,.4);color:#FFA500;border-radius:8px;cursor:pointer;">🔑</button>
+                        title="Permisiones" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">🔑</button>
                     <button onclick="openUserDetailsModal('${v._id}')"
-                        title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;cursor:pointer;">📝</button>
+                        title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">📝</button>
                 </div>
             </td>
-        </tr>`).join('');
+        </tr>`;
+    }).join('');
+}
+
+function renderCommissionPlansTable(plans) {
+    const tbody = document.getElementById('commissionPlansTableBody');
+    if (!tbody) return;
+    if (!plans || plans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-row"><p>No hay planes configurados</p></td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = plans.map(p => {
+        const sym = p.currency === 'USD' ? '$' : 'S/';
+        return `
+        <tr>
+            <td>
+                <div style="display:flex;align-items:center;gap:.6rem;">
+                    <div style="background:${p.color || '#7C3AED'};width:10px;height:10px;border-radius:50%;"></div>
+                    <strong style="color:#fff;">${p.name}</strong>
+                </div>
+            </td>
+            <td style="color:#fff;">${sym} ${p.price.toFixed(2)}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                    <span style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);color:#A78BFA;padding:.3rem .8rem;border-radius:999px;font-weight:800;font-size:1rem;">
+                        ${p.sellerCommission || 0}%
+                    </span>
+                </div>
+            </td>
+            <td>
+                ${p.isActive 
+                    ? '<span style="color:#4FFFB0;font-size:.75rem;font-weight:700;">● Activo</span>' 
+                    : '<span style="color:rgba(255,255,255,.3);font-size:.75rem;">○ Inactivo</span>'}
+            </td>
+            <td>
+                <button onclick="openEditMembershipModal('${p._id}')" 
+                    style="padding:.35rem .8rem;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);color:#c4b5fd;border-radius:8px;cursor:pointer;font-weight:600;font-size:.8rem;">
+                    Configurar Comisión
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
 }
 
 async function loadGlobalSellerCommission() {
