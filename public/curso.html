@@ -40,6 +40,8 @@
             --glass-border: rgba(255, 255, 255, 0.08);
             /* Misma columna que el bloque de episodios (FINANZAS) en desktop */
             --course-col-max: 1400px;
+            /* Solo el reproductor: un poco más ancho que la columna (desktop) */
+            --course-video-max: 1464px;
         }
 
         body {
@@ -128,7 +130,7 @@
         /* Desktop: video + título misma anchura y bordes que el bloque FINANZAS */
         @media (min-width: 769px) {
             .video-stage {
-                max-width: var(--course-col-max);
+                max-width: min(var(--course-video-max), calc(100vw - 2rem));
                 margin-left: auto;
                 margin-right: auto;
                 width: 100%;
