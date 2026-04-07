@@ -103,10 +103,16 @@ try { Membership = mongoose.model('Membership'); } catch {
         price: Number,
         currency: String,
         durationDays: { type: Number, default: 30 },
-        // Comisión para el vendedor (%). Si es 0, cae al % del vendedor o default.
-        sellerCommission: { type: Number, default: 0 }
+        sellerCommission: { type: Number, default: 0, min: 0, max: 100 }
     });
     Membership = mongoose.model('Membership', schema);
+}
+
+// Asegurar compatibilidad: si el modelo ya existía sin este campo, lo añadimos al schema
+if (Membership && Membership.schema && !Membership.schema.path('sellerCommission')) {
+    Membership.schema.add({
+        sellerCommission: { type: Number, default: 0, min: 0, max: 100 }
+    });
 }
 let Transaction;
 try { Transaction = mongoose.model('Transaction'); } catch {
@@ -123,7 +129,7 @@ try { Transaction = mongoose.model('Transaction'); } catch {
 
 // Logica de comisión centralizada (Prioridad: Membresía > Vendedor > 10% Default)
 async function getEffectiveCommissionPct(membership, seller) {
-    const planPct = membership ? Number(membership.sellerCommission) : 0;
+    const planPct = membership ? Number(membership.sellerCommission ?? membership.get?.('sellerCommission')) : 0;
     if (Number.isFinite(planPct) && planPct > 0) return planPct;
 
     const sellerPct = seller ? Number(seller.sellerCommission) : 0;
