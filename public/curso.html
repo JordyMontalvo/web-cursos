@@ -744,7 +744,7 @@
                     const idx = allEpisodes.length;
                     allEpisodes.push({ ...epObj, chapterName: ch.title });
                     html += `
-                    <div class="ep-item" id="ep-item-${idx}" onclick="playEpisode(${idx})">
+                    <div class="ep-item" id="ep-item-${idx}" onclick="playEpisodeFromList(${idx})">
                         <div class="ep-thumb">
                             <img src="${epObj.thumbnail || course.thumbnail || '/placeholder.jpg'}" alt="">
                         </div>
@@ -836,6 +836,14 @@
             p.lastEpisode = idx;
             saveProgress(p);
             updateVisuals();
+        }
+
+        /** Click en tarjeta de episodio: cargar video y subir la vista al reproductor (desktop y móvil) */
+        function playEpisodeFromList(idx) {
+            playEpisode(idx);
+            requestAnimationFrame(() => {
+                scrollToCourseHero();
+            });
         }
 
         function toggleMarkComplete() {
