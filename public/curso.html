@@ -42,7 +42,7 @@
             --course-col-max: 1400px;
             /* Solo el reproductor: un poco más ancho que la columna (desktop) */
             --course-video-max: 1464px;
-            /* Tope de altura 16:9 en desktop (menos “largo” en vertical) */
+            /* Solo menos alto en desktop; el ancho sigue siendo --course-video-max */
             --course-video-max-height: 500px;
         }
 
@@ -124,16 +124,14 @@
         /* Desktop: video + título misma anchura y bordes que el bloque FINANZAS */
         @media (min-width: 769px) {
             .video-stage {
-                /* Ancho limitado por ancho máximo, viewport y por altura máxima (16:9) */
-                width: min(
-                    100%,
-                    min(var(--course-video-max), calc(100vw - 2rem)),
-                    calc(var(--course-video-max-height) * 16 / 9)
-                );
+                width: min(100%, min(var(--course-video-max), calc(100vw - 2rem)));
                 max-width: min(var(--course-video-max), calc(100vw - 2rem));
                 margin-left: auto;
                 margin-right: auto;
                 box-sizing: border-box;
+                /* Altura fija: menos “largo” vertical; el iframe (YouTube) rellena y puede letterbox */
+                height: var(--course-video-max-height);
+                padding-bottom: 0;
             }
             .content-info {
                 max-width: var(--course-col-max);
