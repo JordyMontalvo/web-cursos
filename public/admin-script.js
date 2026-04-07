@@ -1324,7 +1324,7 @@ function renderVendedoresTable(vendors) {
                     ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
                     : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
                 </td>
-                <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
+                <td style="color:#fff;">$ ${(v.sellerBalance || 0).toFixed(2)}</td>
                 <td style="color:#fff;">${v.referralCount ?? 0}</td>
             <td>
                 <div style="display:flex;gap:.4rem;">
@@ -2411,7 +2411,7 @@ function renderCommissions(transactions) {
                 <td style="font-weight:600;">${sellerName}</td>
                 <td><span style="font-weight:800; color:${isComm ? '#4FFFB0' : '#3B82F6'};">${isComm ? 'COMISIÓN' : 'RETIRO'}</span></td>
                 <td style="font-size:0.85rem;">${t.description}</td>
-                <td style="font-weight:800; color:${isComm ? '#4FFFB0' : '#EF4444'};">${isComm ? '+' : '-'} S/ ${t.amount.toFixed(2)}</td>
+                <td style="font-weight:800; color:${isComm ? '#4FFFB0' : '#EF4444'};">${isComm ? '+' : '-'} $ ${t.amount.toFixed(2)}</td>
                 <td>
                     <span style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.6rem; border-radius:4px; background:${statusColor}22; color:${statusColor}; border: 1px solid ${statusColor}44;">
                         ${t.status.toUpperCase()}
@@ -2439,8 +2439,8 @@ function renderWithdrawalsAdmin(withdrawals) {
                 <td style="font-size:0.85rem; opacity:0.6;">${new Date(w.createdAt).toLocaleString()}</td>
                 <td style="font-weight:700;">${sellerName}</td>
                 <td style="font-size:0.85rem; opacity:0.7;">${seller.email || '---'}</td>
-                <td style="font-weight:800; color:#EF4444;">S/ ${w.amount.toFixed(2)}</td>
-                <td style="font-weight:600; color:#4FFFB0;">S/ ${(seller.sellerBalance || 0).toFixed(2)}</td>
+                <td style="font-weight:800; color:#EF4444;">$ ${w.amount.toFixed(2)}</td>
+                <td style="font-weight:600; color:#4FFFB0;">$ ${(seller.sellerBalance || 0).toFixed(2)}</td>
                 <td>
                     <span style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.6rem; border-radius:4px; background:${w.status === 'pending' ? '#F59E0B' : (w.status === 'approved' ? '#4FFFB0' : '#EF4444')}22; color:${w.status === 'pending' ? '#F59E0B' : (w.status === 'approved' ? '#4FFFB0' : '#EF4444')};">
                         ${w.status.toUpperCase()}
