@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de series - IATIBET ZUREON</title>
+    <title>Reproductor de Cursos - IATIBET ZUREON</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -282,6 +282,8 @@
             margin-bottom: 0.5rem;
             letter-spacing: -0.01em;
             line-height: 1.08;
+            /* Misma altura que 4 líneas: el título siempre arranca a la misma altura */
+            min-height: calc(4 * 1.08em);
             display: -webkit-box;
             -webkit-line-clamp: 4;
             line-clamp: 4;
@@ -514,7 +516,7 @@
     <header class="player-header">
         <a href="/" class="back-link">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            <span class="back-text">Volver a series</span>
+            <span class="back-text">Volver a Cursos</span>
         </a>
         <div class="logo" style="display:flex;align-items:center;gap:0.75rem;">
             <div class="logo-icon-sm" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--green));"></div>
@@ -527,7 +529,7 @@
         <div class="lock-card">
             <div class="lock-icon">🔒</div>
             <h2 style="font-size:2rem; font-weight:900; margin-bottom:1rem;">Contenido VIP</h2>
-            <p style="color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:2.5rem;">Esta serie es parte de nuestra membresía Premium. Suscríbete hoy para desbloquear esta y cientos de series más.</p>
+            <p style="color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:2.5rem;">Este curso es parte de nuestra membresía Premium. Suscríbete hoy para desbloquear este y cientos de cursos más.</p>
             <a href="/membresia" class="btn-action primary" style="justify-content:center; text-decoration:none;">💎 Ver Planes Premium</a>
             <a href="/" style="display:block; margin-top:1.5rem; color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.9rem; font-weight:600;">Regresar al catálogo</a>
         </div>
@@ -580,9 +582,9 @@
                 </div>
             </div>
 
-            <aside class="sidebar" aria-label="Episodios de la serie">
+            <aside class="sidebar" aria-label="Episodios del curso">
                 <div class="sidebar-header">
-                    <h3 class="sidebar-title" id="courseSidebarTitle">Nombre de la serie</h3>
+                    <h3 class="sidebar-title" id="courseSidebarTitle">Nombre del Curso</h3>
                     <div class="progress-circle-wrap">
                         <div style="flex:1; background:rgba(255,255,255,0.05); border-radius:100px; height:6px; overflow:hidden;">
                             <div id="globalProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, var(--purple), var(--green)); transition:width 0.6s cubic-bezier(0.4, 0, 0.2, 1);"></div>
