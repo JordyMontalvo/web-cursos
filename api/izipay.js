@@ -119,9 +119,8 @@ try { Transaction = mongoose.model('Transaction'); } catch {
     Transaction = mongoose.model('Transaction', schema);
 }
 
-// Logica de comisión centralizada (Prioridad: Membresía > Vendedor > 10% Default)
-async function getEffectiveCommissionPct(membership, seller) {
-    if (membership && membership.sellerCommission > 0) return membership.sellerCommission;
+// Comisión: se configura por vendedor (usuario)
+async function getEffectiveCommissionPct(_membership, seller) {
     if (seller && seller.sellerCommission > 0) return seller.sellerCommission;
     return 10;
 }
