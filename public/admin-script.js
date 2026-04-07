@@ -1301,35 +1301,16 @@ function renderUsersTable(users) {
 function renderVendedoresTable(vendors) {
     const tbody = document.getElementById('vendedoresTableBody');
     if (!vendors || vendors.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
         return;
     }
-    tbody.innerHTML = vendors.map(v => {
-        // Encontrar el porcentaje: Prioridad Membresía Activa > sellerCommission > 10%
-        let displayPct = 10;
-        if (v.activeMembership) {
-            const plan = membershipsData && membershipsData.find(m => m._id === v.activeMembership || m._id?.toString() === v.activeMembership?.toString());
-            if (plan && plan.sellerCommission > 0) {
-                displayPct = plan.sellerCommission;
-            } else {
-                displayPct = v.sellerCommission || 10;
-            }
-        } else {
-            displayPct = v.sellerCommission || 10;
-        }
-
-        return `
+    tbody.innerHTML = vendors.map(v => `
         <tr>
             <td><strong style="color:#fff;">${v.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${v.lastName || ''}</span></td>
             <td style="font-size:.85rem;color:#fff;">${v.email}</td>
                 <td>${v.sellerCode
                     ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
                     : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
-                </td>
-                <td>
-                    <span style="background:rgba(79,255,176,.12);border:1px solid rgba(79,255,176,.25);color:#4FFFB0;padding:.2rem .6rem;border-radius:999px;font-size:.8rem;font-weight:800;">
-                        ${Number(displayPct).toFixed(1)}%
-                    </span>
                 </td>
                 <td style="color:#fff;">S/ ${(v.sellerBalance || 0).toFixed(2)}</td>
                 <td style="color:#fff;">${v.referralCount ?? 0}</td>
@@ -1342,7 +1323,7 @@ function renderVendedoresTable(vendors) {
                 </div>
             </td>
         </tr>`;
-    }).join('');
+    `).join('');
 }
 
 function renderCommissionPlansTable(plans) {
