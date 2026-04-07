@@ -1184,14 +1184,12 @@ function switchUserSubTab(type) {
     // Update button text for "Nuevo Usuario"
     const btn = document.getElementById('btnNewUserMain');
     if (btn) {
-        // En "Comisiones" no se debe mostrar un botón de creación aquí.
+        const labels = { user: 'Nuevo Usuario', vendedor: 'Nuevo Vendedor', admin: 'Nuevo Admin', commission: 'Nuevo Plan' };
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type] || 'Nuevo'}`;
+        
         if (type === 'commission') {
-            btn.style.display = 'none';
-            btn.onclick = null;
+            btn.onclick = () => { switchTab('memberships'); openMembershipModal(); };
         } else {
-            btn.style.display = '';
-            const labels = { user: 'Nuevo Usuario', vendedor: 'Nuevo Vendedor', admin: 'Nuevo Admin' };
-            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type] || 'Nuevo'}`;
             btn.onclick = () => openCreateUserModal(type);
         }
     }
