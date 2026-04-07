@@ -708,7 +708,7 @@ app.get('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, r
 // Crear plan
 app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order, sellerCommission } = req.body;
         if (!name || price === undefined || price === null) {
             return res.status(400).json({ success: false, message: 'Nombre y precio son requeridos' });
         }
@@ -718,7 +718,8 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
             durationDays: Number(durationDays) || 30,
             badge, icon, color, buttonColor, features: Array.isArray(features) ? features : [],
             isActive: isActive !== false,
-            order: Number(order) || 0
+            order: Number(order) || 0,
+            sellerCommission: Number(sellerCommission) || 0
         });
 
         await membership.save();
@@ -731,7 +732,7 @@ app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, 
 // Actualizar plan
 app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order } = req.body;
+        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order, sellerCommission } = req.body;
         const id = req.params.id;
         const updateData = { updatedAt: Date.now() };
 
@@ -749,6 +750,7 @@ app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (re
         if (features !== undefined) updateData.features = Array.isArray(features) ? features : [];
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);
+        if (sellerCommission !== undefined) updateData.sellerCommission = Number(sellerCommission);
 
 
         const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });

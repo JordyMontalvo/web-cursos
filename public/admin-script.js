@@ -1002,6 +1002,7 @@ function openMembershipModal(id) {
 
     document.getElementById('membButtonColor').value = '#7C3AED';
     document.getElementById('membActive').checked = true;
+    document.getElementById('membSellerCommission').value = 0;
     document.getElementById('featuresContainer').innerHTML = `
         <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
             <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos" style="flex:1;">
@@ -1041,6 +1042,7 @@ function openMembershipModal(id) {
 
             document.getElementById('membButtonColor').value = plan.buttonColor || plan.color || '#7C3AED';
             document.getElementById('membActive').checked = plan.isActive;
+            document.getElementById('membSellerCommission').value = plan.sellerCommission || 0;
 
             // Features
             const container = document.getElementById('featuresContainer');
@@ -1098,6 +1100,7 @@ async function saveMembership(e) {
         color: document.getElementById('membColor').value,
         buttonColor: document.getElementById('membButtonColor').value,
         isActive: document.getElementById('membActive').checked,
+        sellerCommission: Number(document.getElementById('membSellerCommission').value) || 0,
         features
     };
 

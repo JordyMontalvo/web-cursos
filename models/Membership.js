@@ -51,6 +51,13 @@ const membershipSchema = new mongoose.Schema({
     features: [{
         type: String
     }],
+    // Comisión para el vendedor (%)
+    sellerCommission: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
     // Si el plan está activo y disponible para compra
     isActive: {
         type: Boolean,

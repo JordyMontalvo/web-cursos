@@ -296,7 +296,8 @@ module.exports = async (req, res) => {
             if (user.referredBy) {
                 const seller = await User.findById(user.referredBy);
                 if (seller) {
-                    const commissionPct = await getGlobalCommissionPct();
+                    const globalPct = await getGlobalCommissionPct();
+                    const commissionPct = (membership.sellerCommission > 0) ? membership.sellerCommission : (seller.sellerCommission || globalPct);
                     const amount = (membership.price * commissionPct) / 100;
                     seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                     await seller.save();
@@ -403,7 +404,8 @@ module.exports = async (req, res) => {
                 if (user.referredBy) {
                     const seller = await User.findById(user.referredBy);
                     if (seller) {
-                        const commissionPct = await getGlobalCommissionPct();
+                        const globalPct = await getGlobalCommissionPct();
+                        const commissionPct = (membership.sellerCommission > 0) ? membership.sellerCommission : (seller.sellerCommission || globalPct);
                         const amount = (membership.price * commissionPct) / 100;
                         seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                         await seller.save();
