@@ -941,6 +941,7 @@ async function loadMemberships() {
         if (data.success) {
             membershipsData = data.memberships;
             renderMembershipsGrid(data.memberships);
+            renderCommissionPlansTable(data.memberships);
         } else {
             showToast(data.message || 'Error al cargar planes', 'error');
         }
@@ -1001,8 +1002,6 @@ function openMembershipModal(id) {
 
     document.getElementById('membButtonColor').value = '#7C3AED';
     document.getElementById('membActive').checked = true;
-    const membComm = document.getElementById('membSellerCommission');
-    if (membComm) membComm.value = 0;
     document.getElementById('featuresContainer').innerHTML = `
         <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
             <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos" style="flex:1;">
@@ -1042,8 +1041,6 @@ function openMembershipModal(id) {
 
             document.getElementById('membButtonColor').value = plan.buttonColor || plan.color || '#7C3AED';
             document.getElementById('membActive').checked = plan.isActive;
-            const membComm = document.getElementById('membSellerCommission');
-            if (membComm) membComm.value = 0;
 
             // Features
             const container = document.getElementById('featuresContainer');
@@ -1197,8 +1194,9 @@ function switchUserSubTab(type) {
         }
     }
 
-    // En "Comisiones" usamos la comisión por vendedor (usuarios)
-    if (type === 'commission') loadUsers();
+    if (type === 'commission') {
+        loadMemberships(); // Asegurar que los datos de planes estén cargados
+    }
 }
 
 async function loadUsers() {
@@ -1224,7 +1222,6 @@ function renderAllUserTables(users) {
     renderUsersTable(normalUsers);
     renderVendedoresTable(vendors);
     renderAdminsTable(admins);
-    renderSellerCommissionsTable(vendors);
     renderUserStatsBar(normalUsers.length, vendors.length, admins.length);
 }
 
@@ -1308,8 +1305,18 @@ function renderVendedoresTable(vendors) {
         return;
     }
     tbody.innerHTML = vendors.map(v => {
-        // Comisión configurada por vendedor (usuario)
-        const displayPct = Number.isFinite(Number(v.sellerCommission)) ? Number(v.sellerCommission) : 10;
+        // Encontrar el porcentaje: Prioridad Membresía Activa > sellerCommission > 10%
+        let displayPct = 10;
+        if (v.activeMembership) {
+            const plan = membershipsData && membershipsData.find(m => m._id === v.activeMembership || m._id?.toString() === v.activeMembership?.toString());
+            if (plan && plan.sellerCommission > 0) {
+                displayPct = plan.sellerCommission;
+            } else {
+                displayPct = v.sellerCommission || 10;
+            }
+        } else {
+            displayPct = v.sellerCommission || 10;
+        }
 
         return `
         <tr>
@@ -1338,32 +1345,39 @@ function renderVendedoresTable(vendors) {
     }).join('');
 }
 
-function renderSellerCommissionsTable(vendors) {
-    const tbody = document.getElementById('sellerCommissionsTableBody');
+function renderCommissionPlansTable(plans) {
+    const tbody = document.getElementById('commissionPlansTableBody');
     if (!tbody) return;
-    if (!vendors || vendors.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
+    if (!plans || plans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-row"><p>No hay planes configurados</p></td></tr>';
         return;
     }
 
-    tbody.innerHTML = vendors.map(v => {
-        const pct = Number.isFinite(Number(v.sellerCommission)) ? Number(v.sellerCommission) : 10;
-        const fullName = `${v.name || ''} ${v.lastName || ''}`.trim();
+    tbody.innerHTML = plans.map(p => {
+        const sym = p.currency === 'USD' ? '$' : 'S/';
         return `
         <tr>
-            <td><strong style="color:#fff;">${fullName || 'Vendedor'}</strong></td>
-            <td style="font-size:.85rem;color:#fff;">${v.email || '-'}</td>
-            <td>${v.sellerCode
-                ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
-                : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
+            <td>
+                <div style="display:flex;align-items:center;gap:.6rem;">
+                    <div style="background:${p.color || '#7C3AED'};width:10px;height:10px;border-radius:50%;"></div>
+                    <strong style="color:#fff;">${p.name}</strong>
+                </div>
+            </td>
+            <td style="color:#fff;">${sym} ${p.price.toFixed(2)}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                    <span style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);color:#A78BFA;padding:.3rem .8rem;border-radius:999px;font-weight:800;font-size:1rem;">
+                        ${p.sellerCommission || 0}%
+                    </span>
+                </div>
             </td>
             <td>
-                <span style="background:rgba(79,255,176,.12);border:1px solid rgba(79,255,176,.25);color:#4FFFB0;padding:.2rem .6rem;border-radius:999px;font-size:.8rem;font-weight:800;">
-                    ${pct.toFixed(1)}%
-                </span>
+                ${p.isActive 
+                    ? '<span style="color:#4FFFB0;font-size:.75rem;font-weight:700;">● Activo</span>' 
+                    : '<span style="color:rgba(255,255,255,.3);font-size:.75rem;">○ Inactivo</span>'}
             </td>
             <td>
-                <button onclick="openSellerCommissionModal('${v._id}','${fullName.replace(/'/g, "\\'")}',${pct})"
+                <button onclick="openCommissionConfigModal('${p._id}')" 
                     style="padding:.35rem .8rem;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);color:#c4b5fd;border-radius:8px;cursor:pointer;font-weight:600;font-size:.8rem;">
                     Configurar Comisión
                 </button>
@@ -1372,30 +1386,47 @@ function renderSellerCommissionsTable(vendors) {
     }).join('');
 }
 
-function openSellerCommissionModal(userId, name, currentPct) {
-    document.getElementById('sellerCommissionUserId').value = userId;
-    document.getElementById('sellerCommissionModalName').textContent = name || 'Vendedor';
-    document.getElementById('sellerCommissionInput').value = Number.isFinite(Number(currentPct)) ? Number(currentPct) : 10;
-    document.getElementById('sellerCommissionModal').classList.add('active');
+function openCommissionConfigModal(planId) {
+    const modal = document.getElementById('commissionConfigModal');
+    const plan = membershipsData && membershipsData.find(p => p._id === planId);
+    if (!modal || !plan) return;
+
+    document.getElementById('commissionPlanId').value = planId;
+    document.getElementById('commissionPlanName').textContent = plan.name || '—';
+    document.getElementById('commissionPctInput').value = Number(plan.sellerCommission || 0);
+
+    // Reset UI
+    const saveText = document.getElementById('commissionSaveText');
+    const spinner = document.getElementById('commissionSaveSpinner');
+    if (saveText) saveText.style.display = '';
+    if (spinner) spinner.style.display = 'none';
+
+    modal.classList.add('active');
 }
 
-function closeSellerCommissionModal() {
-    document.getElementById('sellerCommissionModal').classList.remove('active');
-    document.getElementById('sellerCommissionUserId').value = '';
-    document.getElementById('sellerCommissionInput').value = '';
+function closeCommissionConfigModal() {
+    document.getElementById('commissionConfigModal')?.classList.remove('active');
+    const planIdEl = document.getElementById('commissionPlanId');
+    if (planIdEl) planIdEl.value = '';
 }
 
-async function saveSellerCommission() {
-    const userId = document.getElementById('sellerCommissionUserId').value;
-    const pct = Number(document.getElementById('sellerCommissionInput').value);
-    if (!userId) return;
+async function saveCommissionConfig(e) {
+    e.preventDefault();
+    const id = document.getElementById('commissionPlanId').value;
+    const pct = Number(document.getElementById('commissionPctInput').value);
+    if (!id) return;
     if (!Number.isFinite(pct) || pct < 0 || pct > 100) {
         showToast('Porcentaje inválido (0 a 100)', 'error');
         return;
     }
 
+    const saveText = document.getElementById('commissionSaveText');
+    const spinner = document.getElementById('commissionSaveSpinner');
+    if (saveText) saveText.style.display = 'none';
+    if (spinner) spinner.style.display = 'inline-block';
+
     try {
-        const res = await fetch(apiUrl(`/api/admin/users?id=${userId}`), {
+        const res = await fetch(apiUrl(`/api/admin/memberships/${id}`), {
             method: 'PUT',
             headers: authHeaders(),
             body: JSON.stringify({ sellerCommission: pct })
@@ -1403,13 +1434,17 @@ async function saveSellerCommission() {
         const data = await res.json();
         if (data.success) {
             showToast('Comisión actualizada');
-            closeSellerCommissionModal();
-            loadUsers();
+            closeCommissionConfigModal();
+            loadMemberships();
         } else {
-            showToast(data.message || 'Error al actualizar', 'error');
+            showToast(data.message || 'Error al guardar comisión', 'error');
         }
     } catch (err) {
+        console.error('Error saving commission:', err);
         showToast('Error de conexión', 'error');
+    } finally {
+        if (saveText) saveText.style.display = '';
+        if (spinner) spinner.style.display = 'none';
     }
 }
 
