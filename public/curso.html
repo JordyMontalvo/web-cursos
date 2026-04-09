@@ -129,8 +129,10 @@
                 margin-left: auto;
                 margin-right: auto;
                 box-sizing: border-box;
-                /* Altura fija: menos “largo” vertical; el iframe (YouTube) rellena y puede letterbox */
-                height: var(--course-video-max-height);
+                /* Mantener 16:9 para que la portada no se deforme */
+                aspect-ratio: 16 / 9;
+                height: auto;
+                max-height: var(--course-video-max-height);
                 padding-bottom: 0;
             }
             .content-info {
