@@ -112,6 +112,12 @@ function computeCouponDiscount({ membershipPrice, membershipCurrency, coupon }) 
     return { original, discount, final };
 }
 
+function safeParseDate(val) {
+    if (!val) return null;
+    const d = new Date(val);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
 module.exports = async (req, res) => {
     const url = req.url.split('?')[0];
     const isAdminPath = url.includes('/admin/');
@@ -286,8 +292,8 @@ module.exports = async (req, res) => {
                 type,
                 value,
                 currency: (body.currency || 'PEN').toString(),
-                startsAt: body.startsAt ? new Date(body.startsAt) : null,
-                endsAt: body.endsAt ? new Date(body.endsAt) : null,
+                startsAt: safeParseDate(body.startsAt),
+                endsAt: safeParseDate(body.endsAt),
                 isActive: body.isActive !== false,
                 maxRedemptions: Number(body.maxRedemptions) || 0,
                 perUserLimit: Number(body.perUserLimit) || 0,
@@ -312,8 +318,8 @@ module.exports = async (req, res) => {
             if (body.type !== undefined) update.type = body.type;
             if (body.value !== undefined) update.value = Number(body.value);
             if (body.currency !== undefined) update.currency = (body.currency || 'PEN').toString();
-            if (body.startsAt !== undefined) update.startsAt = body.startsAt ? new Date(body.startsAt) : null;
-            if (body.endsAt !== undefined) update.endsAt = body.endsAt ? new Date(body.endsAt) : null;
+            if (body.startsAt !== undefined) update.startsAt = safeParseDate(body.startsAt);
+            if (body.endsAt !== undefined) update.endsAt = safeParseDate(body.endsAt);
             if (body.isActive !== undefined) update.isActive = !!body.isActive;
             if (body.maxRedemptions !== undefined) update.maxRedemptions = Number(body.maxRedemptions) || 0;
             if (body.perUserLimit !== undefined) update.perUserLimit = Number(body.perUserLimit) || 0;

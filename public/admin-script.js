@@ -877,6 +877,11 @@ function openCouponModal(id) {
     document.getElementById('couponMaxRedemptions').value = 0;
     document.getElementById('couponPerUserLimit').value = 0;
     document.getElementById('couponActive').checked = true;
+    // Asegurar que fechas queden vacías al crear
+    const s = document.getElementById('couponStartsAt');
+    const e = document.getElementById('couponEndsAt');
+    if (s) s.value = '';
+    if (e) e.value = '';
 
     if (id) {
         const c = couponsData.find(x => x._id === id);
