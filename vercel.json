@@ -53,9 +53,9 @@
     { "source": "/api/admin/categories/:id",  "destination": "/api/categories?id=:id" },
     { "source": "/api/admin/categories",      "destination": "/api/categories" },
 
-    { "source": "/api/coupons/validate",      "destination": "/api/coupons" },
-    { "source": "/api/admin/coupons/:id",     "destination": "/api/admin-coupons?id=:id" },
-    { "source": "/api/admin/coupons",         "destination": "/api/admin-coupons" },
+    { "source": "/api/coupons/validate",      "destination": "/api/general?route=coupons-validate" },
+    { "source": "/api/admin/coupons/:id",     "destination": "/api/general?route=admin-coupons&id=:id" },
+    { "source": "/api/admin/coupons",         "destination": "/api/general?route=admin-coupons" },
 
     { "source": "/api/courses/:id/chapters/:chapterId/episodes/:episodeId", "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=:episodeId" },
     { "source": "/api/courses/:id/chapters/:chapterId/episodes",            "destination": "/api/courses?id=:id&chapterId=:chapterId&episodeId=new" },
