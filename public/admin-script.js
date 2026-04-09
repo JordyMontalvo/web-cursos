@@ -894,12 +894,12 @@ function openCouponModal(id) {
         }
     }
     onCouponTypeChange();
-    modal.classList.add('open');
+    modal.classList.add('active');
 }
 
 function closeCouponModal() {
     const modal = document.getElementById('couponModal');
-    if (modal) modal.classList.remove('open');
+    if (modal) modal.classList.remove('active');
     editingCouponId = null;
 }
 
