@@ -538,6 +538,9 @@
 .form-group input[type="tel"],
 .form-group input[type="number"],
 .form-group input[type="url"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group input[type="datetime-local"],
 .form-group select,
 .form-group textarea {
     padding: 0.85rem 1.25rem;
