@@ -1681,13 +1681,27 @@
             btnSpin.style.display = 'inline-block';
 
             try {
+                await configReady;
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ membershipId: selectedPlanId, couponCode: appliedCouponCode || '' })
                 });
 
-                const data = await res.json();
+                const ct = (res.headers.get('content-type') || '').toLowerCase();
+                const raw = await res.text();
+                let data = null;
+                if (ct.includes('application/json')) {
+                    try { data = JSON.parse(raw); } catch {}
+                }
+                if (!res.ok) {
+                    const msg = (data && data.message) ? data.message : `Error del servidor (${res.status})`;
+                    throw new Error(msg);
+                }
+                if (!data) {
+                    // Normalmente esto pasa cuando se devuelve HTML (por ejemplo 404/redirect/login)
+                    throw new Error('No se pudo iniciar el pago. Intenta recargar la página e iniciar sesión de nuevo.');
+                }
                 if (!data.success) throw new Error(data.message || 'Error al generar el pago');
 
                 if (!window.KR) {
