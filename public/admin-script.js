@@ -814,6 +814,14 @@ function fmtDate(dt) {
     } catch { return '-'; }
 }
 
+function toLocalDatetimeInputValue(dt) {
+    if (!dt) return '';
+    const d = new Date(dt);
+    if (Number.isNaN(d.getTime())) return '';
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+}
+
 function renderCouponsTable(coupons) {
     const tbody = document.getElementById('couponsTableBody');
     if (!tbody) return;
@@ -891,8 +899,8 @@ function openCouponModal(id) {
             document.getElementById('couponType').value = c.type || 'percent';
             document.getElementById('couponValue').value = c.value ?? '';
             document.getElementById('couponCurrency').value = c.currency || 'PEN';
-            document.getElementById('couponStartsAt').value = c.startsAt ? new Date(c.startsAt).toISOString().slice(0, 16) : '';
-            document.getElementById('couponEndsAt').value = c.endsAt ? new Date(c.endsAt).toISOString().slice(0, 16) : '';
+            document.getElementById('couponStartsAt').value = toLocalDatetimeInputValue(c.startsAt);
+            document.getElementById('couponEndsAt').value = toLocalDatetimeInputValue(c.endsAt);
             document.getElementById('couponMaxRedemptions').value = c.maxRedemptions ?? 0;
             document.getElementById('couponPerUserLimit').value = c.perUserLimit ?? 0;
             document.getElementById('couponActive').checked = !!c.isActive;
@@ -928,8 +936,9 @@ async function saveCoupon(e) {
         type,
         value,
         currency,
-        startsAt: startsAt || null,
-        endsAt: endsAt || null,
+        // datetime-local es "hora local" sin zona: enviamos ISO con zona para no desfase (ej: 11:00 PE no se vuelva 06:00)
+        startsAt: startsAt ? new Date(startsAt).toISOString() : null,
+        endsAt: endsAt ? new Date(endsAt).toISOString() : null,
         maxRedemptions,
         perUserLimit,
         isActive
