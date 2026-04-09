@@ -18,7 +18,7 @@ let activeTab = 'courses';
 async function fetchCourses(force = false) {
     const now = Date.now();
     if (!force && allCourses.length > 0 && (now - lastFetchTime < CACHE_DURATION)) {
-        console.log('🚀 Usando caché de series');
+        console.log('🚀 Usando caché de cursos');
         renderCoursesTable(allCourses);
         updateStats();
         return;
@@ -32,7 +32,7 @@ async function fetchCourses(force = false) {
         }
 
         const data = await response.json();
-        console.log('📦 Series recibidas:', data);
+        console.log('📦 Cursos recibidos:', data);
 
         if (data.success) {
             allCourses = (data.courses || []).filter(c => c._id || c.id);
@@ -44,7 +44,7 @@ async function fetchCourses(force = false) {
         }
     } catch (error) {
         console.error('❌ Error fetching courses:', error);
-        showToast('Error al cargar las series', 'error');
+        showToast('Error al cargar los cursos', 'error');
     }
 }
 
@@ -59,15 +59,15 @@ async function createCourse(courseData) {
         const data = await response.json();
 
         if (data.success) {
-            showToast('Serie creada exitosamente');
+            showToast('Curso creado exitosamente');
             fetchCourses();
             closeCourseModal();
         } else {
-            showToast(data.message || 'Error al crear la serie', 'error');
+            showToast(data.message || 'Error al crear el curso', 'error');
         }
     } catch (error) {
         console.error('Error creating course:', error);
-        showToast('Error al crear la serie', 'error');
+        showToast('Error al crear el curso', 'error');
     }
 }
 
@@ -82,20 +82,20 @@ async function updateCourse(id, courseData) {
         const data = await response.json();
 
         if (data.success) {
-            showToast('Serie actualizada exitosamente');
+            showToast('Curso actualizado exitosamente');
             fetchCourses();
             closeCourseModal();
         } else {
-            showToast(data.message || 'Error al actualizar la serie', 'error');
+            showToast(data.message || 'Error al actualizar el curso', 'error');
         }
     } catch (error) {
         console.error('Error updating course:', error);
-        showToast('Error al actualizar la serie', 'error');
+        showToast('Error al actualizar el curso', 'error');
     }
 }
 
 async function deleteCourse(id, courseName) {
-    if (!confirm(`¿Estás seguro de eliminar la serie "${courseName}"?`)) {
+    if (!confirm(`¿Estás seguro de eliminar el curso "${courseName}"?`)) {
         return;
     }
 
@@ -107,14 +107,14 @@ async function deleteCourse(id, courseName) {
         const data = await response.json();
 
         if (data.success) {
-            showToast('Serie eliminada exitosamente');
+            showToast('Curso eliminado exitosamente');
             fetchCourses();
         } else {
-            showToast(data.message || 'Error al eliminar la serie', 'error');
+            showToast(data.message || 'Error al eliminar el curso', 'error');
         }
     } catch (error) {
         console.error('Error deleting course:', error);
-        showToast('Error al eliminar la serie', 'error');
+        showToast('Error al eliminar el curso', 'error');
     }
 }
 
@@ -154,7 +154,7 @@ function renderCoursesTable(courses) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="8" class="loading-row">
-                    <p>No hay series disponibles</p>
+                    <p>No hay cursos disponibles</p>
                 </td>
             </tr>
         `;
@@ -166,7 +166,7 @@ function renderCoursesTable(courses) {
         const courseId = course._id || course.id;
 
         if (!courseId) {
-            console.error('Serie sin ID encontrado:', course);
+            console.error('Curso sin ID encontrado:', course);
             return '';
         }
 
@@ -234,7 +234,7 @@ function updateStats() {
 
 function openAddCourseModal() {
     editingCourseId = null;
-    document.getElementById('modalTitle').textContent = 'Nueva serie';
+    document.getElementById('modalTitle').textContent = 'Nuevo Curso';
     document.getElementById('courseForm').reset();
     document.getElementById('courseOrder').value = 0;
     document.getElementById('imagePreview').innerHTML = '';
@@ -251,7 +251,7 @@ function editCourse(id) {
     const courseId = course._id || course.id;
     editingCourseId = courseId;
 
-    document.getElementById('modalTitle').textContent = 'Editar serie';
+    document.getElementById('modalTitle').textContent = 'Editar Curso';
 
     // Fill form
     document.getElementById('courseId').value = courseId;
@@ -360,12 +360,12 @@ async function previewImage(input) {
 async function openContentManager(courseId) {
     // Si viene del string 'ID' o undefined, ignorar
     if (!courseId || courseId === 'undefined' || courseId === 'null') {
-        console.error('ID de serie inválido:', courseId);
-        showToast('Error: ID de serie no válido', 'error');
+        console.error('ID de curso inválido:', courseId);
+        showToast('Error: ID de curso no válido', 'error');
         return;
     }
 
-    // Buscar serie actualizada desde la API para asegurar que tenemos los capítulos
+    // Buscar curso actualizado desde la API para asegurar que tenemos los capítulos
     try {
         console.log('Fetching content for course:', courseId);
         const response = await fetch(apiUrl(`/api/courses/${courseId}`));
@@ -387,11 +387,11 @@ async function openContentManager(courseId) {
 
             document.getElementById('contentModal').classList.add('active');
         } else {
-            showToast(data.message || 'Error al cargar la serie', 'error');
+            showToast(data.message || 'Error al cargar curso', 'error');
         }
     } catch (error) {
         console.error('Error fetching course for content:', error);
-        showToast('Error al cargar contenido de la serie', 'error');
+        showToast('Error al cargar contenido del curso', 'error');
     }
 }
 
@@ -739,8 +739,10 @@ function authHeaders() {
 // ===================================
 let membershipsData = [];
 let usersData = [];
+let couponsData = [];
 let editingMembershipId = null;
 let editingUserId = null;
+let editingCouponId = null;
 let settingsLoaded = false;
 let lastSavedSettings = null; 
 let currentUserFilter = 'all'; // 'all', 'active', 'inactive'
@@ -750,7 +752,7 @@ let selectedUserIdForDetails = null;
 
 function switchTab(tab) {
     activeTab = tab;
-    ['courses', 'memberships', 'banners', 'users', 'logo', 'categories', 'commissions', 'landing'].forEach(t => {
+    ['courses', 'memberships', 'banners', 'users', 'logo', 'categories', 'commissions', 'coupons', 'landing'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         if (section) section.style.display = t === tab ? '' : 'none';
 
@@ -782,6 +784,200 @@ function switchTab(tab) {
     }
     if (tab === 'users') loadUsers();
     if (tab === 'commissions') loadCommissionsData();
+    if (tab === 'coupons') loadCoupons();
+}
+
+// ===================================
+// COUPONS ADMIN
+// ===================================
+async function loadCoupons() {
+    try {
+        const res = await fetch(apiUrl('/api/admin/coupons'), { headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+            couponsData = data.coupons || [];
+            renderCouponsTable(couponsData);
+        } else {
+            showToast(data.message || 'Error al cargar cupones', 'error');
+        }
+    } catch (e) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function fmtDate(dt) {
+    if (!dt) return '-';
+    try {
+        const d = new Date(dt);
+        if (Number.isNaN(d.getTime())) return '-';
+        return d.toLocaleString();
+    } catch { return '-'; }
+}
+
+function renderCouponsTable(coupons) {
+    const tbody = document.getElementById('couponsTableBody');
+    if (!tbody) return;
+
+    if (!coupons || coupons.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="loading-row"><p>No hay cupones creados</p></td></tr>`;
+        return;
+    }
+
+    const esc = (s) => (s || '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
+    tbody.innerHTML = coupons.map(c => {
+        const typeLabel = c.type === 'percent' ? '%' : 'Fijo';
+        const valLabel = c.type === 'percent' ? `${Number(c.value)}%` : `${c.currency === 'USD' ? '$' : 'S/'} ${Number(c.value)}`;
+        const vig = `${fmtDate(c.startsAt)} → ${fmtDate(c.endsAt)}`;
+        const max = (Number(c.maxRedemptions) || 0) === 0 ? '∞' : Number(c.maxRedemptions);
+        const used = Number(c.redeemedCount) || 0;
+        const active = !!c.isActive;
+        return `
+            <tr>
+                <td><strong>${esc(c.code)}</strong><div style="font-size:.75rem;color:rgba(255,255,255,.45);margin-top:.2rem;">${esc(c.description || '')}</div></td>
+                <td>${typeLabel}</td>
+                <td>${valLabel}</td>
+                <td style="max-width:280px;white-space:normal;">${vig}</td>
+                <td><strong>${used}</strong> / ${max}</td>
+                <td>${active ? '<span style="color:#4FFFB0;font-weight:700;">Sí</span>' : '<span style="color:rgba(255,255,255,.45);">No</span>'}</td>
+                <td>
+                    <div class="table-actions-cell">
+                        <button class="btn-icon btn-edit" onclick="openCouponModal('${c._id}')" title="Editar">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.333 2.00004C11.5081 1.82494 11.716 1.68605 11.9447 1.59129C12.1735 1.49653 12.4187 1.44775 12.6663 1.44775L5.33301 13.3334L1.33301 14.6667L2.66634 10.6667L11.333 2.00004Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button class="btn-icon" style="background:rgba(255,255,255,.06);color:#fff;" onclick="toggleCouponActive('${c._id}', ${active ? 'false' : 'true'})" title="${active ? 'Desactivar' : 'Activar'}">
+                            ${active ? '⏸️' : '▶️'}
+                        </button>
+                        <button class="btn-icon btn-delete" onclick="deleteCoupon('${c._id}', '${esc(c.code)}')" title="Eliminar">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.33301 4.00004V2.66671C5.33301 2.31309 5.47348 1.97395 5.72353 1.7239C5.97358 1.47385 6.31272 1.33337 6.66634 1.33337H9.33301C9.68663 1.33337 10.0258 1.47385 10.2758 1.7239C10.5259 1.97395 10.6663 2.31309 10.6663 2.66671V4.00004M12.6663 4.00004V13.3334C12.6663 13.687 12.5259 14.0261 12.2758 14.2762C12.0258 14.5262 11.6866 14.6667 11.333 14.6667H4.66634C4.31272 14.6667 3.97358 14.5262 3.72353 14.2762C3.47348 14.0261 3.33301 13.687 3.33301 13.3334V4.00004H12.6663Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function onCouponTypeChange() {
+    const t = document.getElementById('couponType')?.value;
+    const wrap = document.getElementById('couponCurrencyWrap');
+    if (wrap) wrap.style.display = t === 'fixed' ? '' : 'none';
+}
+
+function openCouponModal(id) {
+    editingCouponId = id || null;
+    const modal = document.getElementById('couponModal');
+    const form = document.getElementById('couponForm');
+    if (!modal || !form) return;
+
+    document.getElementById('couponModalTitle').textContent = id ? 'Editar Cupón' : 'Nuevo Cupón';
+    form.reset();
+    document.getElementById('couponId').value = id || '';
+    document.getElementById('couponCurrency').value = 'PEN';
+    document.getElementById('couponMaxRedemptions').value = 0;
+    document.getElementById('couponPerUserLimit').value = 0;
+    document.getElementById('couponActive').checked = true;
+
+    if (id) {
+        const c = couponsData.find(x => x._id === id);
+        if (c) {
+            document.getElementById('couponCode').value = c.code || '';
+            document.getElementById('couponDesc').value = c.description || '';
+            document.getElementById('couponType').value = c.type || 'percent';
+            document.getElementById('couponValue').value = c.value ?? '';
+            document.getElementById('couponCurrency').value = c.currency || 'PEN';
+            document.getElementById('couponStartsAt').value = c.startsAt ? new Date(c.startsAt).toISOString().slice(0, 16) : '';
+            document.getElementById('couponEndsAt').value = c.endsAt ? new Date(c.endsAt).toISOString().slice(0, 16) : '';
+            document.getElementById('couponMaxRedemptions').value = c.maxRedemptions ?? 0;
+            document.getElementById('couponPerUserLimit').value = c.perUserLimit ?? 0;
+            document.getElementById('couponActive').checked = !!c.isActive;
+        }
+    }
+    onCouponTypeChange();
+    modal.classList.add('open');
+}
+
+function closeCouponModal() {
+    const modal = document.getElementById('couponModal');
+    if (modal) modal.classList.remove('open');
+    editingCouponId = null;
+}
+
+async function saveCoupon(e) {
+    e.preventDefault();
+    const id = document.getElementById('couponId')?.value || '';
+    const code = document.getElementById('couponCode')?.value || '';
+    const description = document.getElementById('couponDesc')?.value || '';
+    const type = document.getElementById('couponType')?.value || 'percent';
+    const value = Number(document.getElementById('couponValue')?.value);
+    const currency = document.getElementById('couponCurrency')?.value || 'PEN';
+    const startsAt = document.getElementById('couponStartsAt')?.value || '';
+    const endsAt = document.getElementById('couponEndsAt')?.value || '';
+    const maxRedemptions = Number(document.getElementById('couponMaxRedemptions')?.value) || 0;
+    const perUserLimit = Number(document.getElementById('couponPerUserLimit')?.value) || 0;
+    const isActive = !!document.getElementById('couponActive')?.checked;
+
+    const payload = {
+        code,
+        description,
+        type,
+        value,
+        currency,
+        startsAt: startsAt || null,
+        endsAt: endsAt || null,
+        maxRedemptions,
+        perUserLimit,
+        isActive
+    };
+
+    const btnText = document.getElementById('couponSubmitText');
+    const btnSpin = document.getElementById('couponSubmitSpinner');
+    if (btnText) btnText.textContent = 'Guardando...';
+    if (btnSpin) btnSpin.style.display = 'inline-block';
+
+    try {
+        const url = id ? apiUrl(`/api/admin/coupons/${id}`) : apiUrl('/api/admin/coupons');
+        const method = id ? 'PUT' : 'POST';
+        const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Error al guardar cupón');
+        showToast('Cupón guardado', 'success');
+        closeCouponModal();
+        loadCoupons();
+    } catch (err) {
+        showToast(err.message || 'Error al guardar cupón', 'error');
+    } finally {
+        if (btnText) btnText.textContent = 'Guardar Cupón';
+        if (btnSpin) btnSpin.style.display = 'none';
+    }
+}
+
+async function toggleCouponActive(id, active) {
+    try {
+        const res = await fetch(apiUrl(`/api/admin/coupons/${id}`), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ isActive: active })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'No se pudo actualizar');
+        loadCoupons();
+    } catch (e) {
+        showToast(e.message || 'Error', 'error');
+    }
+}
+
+async function deleteCoupon(id, code) {
+    if (!confirm(`¿Eliminar el cupón "${code}"?`)) return;
+    try {
+        const res = await fetch(apiUrl(`/api/admin/coupons/${id}`), { method: 'DELETE', headers: authHeaders() });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'No se pudo eliminar');
+        showToast('Cupón eliminado', 'success');
+        loadCoupons();
+    } catch (e) {
+        showToast(e.message || 'Error', 'error');
+    }
 }
 
 // ===================================
@@ -1004,7 +1200,7 @@ function openMembershipModal(id) {
     document.getElementById('membActive').checked = true;
     document.getElementById('featuresContainer').innerHTML = `
         <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
-            <input type="text" class="feature-input" placeholder="Ej: Acceso a todas las series" style="flex:1;">
+            <input type="text" class="feature-input" placeholder="Ej: Acceso a todos los cursos" style="flex:1;">
             <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
         </div>`;
 
@@ -1457,7 +1653,7 @@ function renderAdminsTable(admins) {
         tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay administradores registrados</p></td></tr>';
         return;
     }
-    const permLabels = { courses:'📚 Series', memberships:'💎 Members', banners:'🖼️ Banners', users:'👥 Usuarios', categories:'📋 Categ.', logo:'🎨 Logo' };
+    const permLabels = { courses:'📚 Cursos', memberships:'💎 Members', banners:'🖼️ Banners', users:'👥 Usuarios', categories:'📋 Categ.', logo:'🎨 Logo', coupons:'🏷️ Cupones' };
     tbody.innerHTML = admins.map(a => {
         const perms = (a.permissions || []).map(p => permLabels[p] || p).join(', ') || '<span style="color:#4FFFB0;">Acceso Total</span>';
         return `
@@ -2529,12 +2725,12 @@ function handleIconUpload(input, targetInputId, previewId) {
 // ===================================
 
 const DEFAULT_FEATURES = [
-    { icon: "🎓", title: "Series ilimitadas", description: "Accede a todas las series de la plataforma sin restricciones. Aprende a tu ritmo." },
+    { icon: "🎓", title: "Cursos ilimitados", description: "Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo." },
     { icon: "📱", title: "Aprende donde quieras", description: "Acceso desde cualquier dispositivo. PC, tablet o celular. Siempre disponible 24/7." },
-    { icon: "🏆", title: "Certificados verificados", description: "Al completar cada serie obtienes un certificado de logro que puedes compartir en LinkedIn." },
-    { icon: "🔔", title: "Notificaciones de series", description: "Recibe alertas cuando se publiquen nuevas series según tus intereses y categorías favoritas." },
+    { icon: "🏆", title: "Certificados verificados", description: "Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn." },
+    { icon: "🔔", title: "Notificaciones de cursos", description: "Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas." },
     { icon: "💬", title: "Comunidad exclusiva", description: "Únete a nuestra comunidad privada de miembros. Resuelve dudas y conecta con otros alumnos." },
-    { icon: "⚡", title: "Contenido actualizado", description: "Las series se actualizan constantemente con el contenido más reciente de cada industria." }
+    { icon: "⚡", title: "Contenido actualizado", description: "Los cursos se actualizan constantemente con el contenido más reciente de cada industria." }
 ];
 
 const DEFAULT_HERO_TRUST_ITEMS = [
@@ -2548,7 +2744,7 @@ const DEFAULT_FAQS = [
     { question: "¿Puedo cancelar mi membresía en cualquier momento?", answer: "Sí, puedes cancelar en cualquier momento desde tu perfil. Mantendrás el acceso hasta que venza tu periodo activo. No hay contratos ni penalidades." },
     { question: "¿Cómo funciona la garantía de 7 días?", answer: "Si dentro de los primeros 7 días no estás satisfecho con tu membresía, te devolvemos el dinero sin preguntas. Contacta a nuestro equipo de soporte para gestionar tu reembolso." },
     { question: "¿Cuántos dispositivos puedo usar simultáneamente?", answer: "Puedes usar tu membresía en hasta 3 dispositivos al mismo tiempo. PC, tablet y celular. El acceso es personal e intransferible." },
-    { question: "¿Hay algún costo adicional por series nuevas?", answer: "No. Tu membresía incluye acceso a todas las series presentes y futuras de la plataforma sin costo adicional. Siempre al mismo precio." },
+    { question: "¿Hay algún costo adicional por cursos nuevos?", answer: "No. Tu membresía incluye acceso a todos los cursos presentes y futuros de la plataforma sin costo adicional. Siempre al mismo precio." },
     { question: "¿Cómo puedo pagar mi membresía?", answer: "Aceptamos Yape, Plin, transferencia bancaria y tarjetas de crédito/débito. El pago es procesado de forma segura. Una vez confirmado, el acceso se activa automáticamente." }
 ];
 
@@ -2680,7 +2876,7 @@ function addAdminFeatureRow(data = {}) {
             </div>
             <div class="form-group">
                 <label>Título del Beneficio</label>
-                <input type="text" class="feat-title" value="${data.title || ''}" placeholder="Ej: Series ilimitadas">
+                <input type="text" class="feat-title" value="${data.title || ''}" placeholder="Ej: Cursos ilimitados">
             </div>
         </div>
         <div class="form-group" style="margin-top:0.75rem;">

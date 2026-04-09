@@ -11,6 +11,8 @@ const bcrypt = require('bcryptjs');
 const Course = require('./models/Course');
 const User = require('./models/User');
 const Membership = require('./models/Membership');
+const Coupon = require('./models/Coupon');
+const CouponRedemption = require('./models/CouponRedemption');
 const Banner = require('./models/Banner');
 const Settings = require('./models/Settings');
 const Category = require('./models/Category');
@@ -772,6 +774,155 @@ app.delete('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async 
         res.json({ success: true, message: 'Plan eliminado' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error eliminando plan', error: error.message });
+    }
+});
+
+// ===================================
+// CUPONES (ADMIN + VALIDACIÓN)
+// ===================================
+function normalizeCouponCode(code) {
+    return (code || '').toString().trim().toUpperCase().replace(/\s+/g, '');
+}
+function couponNowInRange(startsAt, endsAt) {
+    const now = Date.now();
+    if (startsAt && now < new Date(startsAt).getTime()) return false;
+    if (endsAt && now > new Date(endsAt).getTime()) return false;
+    return true;
+}
+function computeCouponDiscount({ membershipPrice, membershipCurrency, coupon }) {
+    const original = Number(membershipPrice) || 0;
+    if (original <= 0) return { original, discount: 0, final: original };
+    let discount = 0;
+    if (coupon.type === 'percent') {
+        const pct = Math.max(0, Math.min(100, Number(coupon.value) || 0));
+        discount = (original * pct) / 100;
+    } else {
+        if ((coupon.currency || 'PEN') !== membershipCurrency) return null;
+        discount = Number(coupon.value) || 0;
+    }
+    discount = Math.min(original, Math.max(0, discount));
+    const final = Math.max(0, original - discount);
+    return { original, discount, final };
+}
+
+// Listar cupones
+app.get('/api/admin/coupons', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const coupons = await Coupon.find().sort({ createdAt: -1 });
+        res.json({ success: true, coupons });
+    } catch (e) {
+        res.status(500).json({ success: false, message: 'Error', error: e.message });
+    }
+});
+
+// Crear cupón
+app.post('/api/admin/coupons', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const body = req.body || {};
+        const code = normalizeCouponCode(body.code);
+        const type = body.type;
+        const value = Number(body.value);
+        if (!code) return res.status(400).json({ success: false, message: 'Código requerido' });
+        if (!['percent', 'fixed'].includes(type)) return res.status(400).json({ success: false, message: 'Tipo inválido' });
+        if (!Number.isFinite(value) || value <= 0) return res.status(400).json({ success: false, message: 'Valor inválido' });
+
+        const doc = new Coupon({
+            code,
+            description: (body.description || '').toString(),
+            type,
+            value,
+            currency: (body.currency || 'PEN').toString(),
+            startsAt: body.startsAt ? new Date(body.startsAt) : null,
+            endsAt: body.endsAt ? new Date(body.endsAt) : null,
+            isActive: body.isActive !== false,
+            maxRedemptions: Number(body.maxRedemptions) || 0,
+            perUserLimit: Number(body.perUserLimit) || 0,
+            applicableMembershipIds: Array.isArray(body.applicableMembershipIds) ? body.applicableMembershipIds : [],
+            updatedAt: new Date()
+        });
+        await doc.save();
+        res.json({ success: true, coupon: doc });
+    } catch (e) {
+        if (e && e.code === 11000) return res.status(409).json({ success: false, message: 'Ese código ya existe' });
+        res.status(500).json({ success: false, message: 'Error creando cupón', error: e.message });
+    }
+});
+
+// Actualizar cupón
+app.put('/api/admin/coupons/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const body = req.body || {};
+        const update = { updatedAt: new Date() };
+        if (body.code !== undefined) update.code = normalizeCouponCode(body.code);
+        if (body.description !== undefined) update.description = (body.description || '').toString();
+        if (body.type !== undefined) update.type = body.type;
+        if (body.value !== undefined) update.value = Number(body.value);
+        if (body.currency !== undefined) update.currency = (body.currency || 'PEN').toString();
+        if (body.startsAt !== undefined) update.startsAt = body.startsAt ? new Date(body.startsAt) : null;
+        if (body.endsAt !== undefined) update.endsAt = body.endsAt ? new Date(body.endsAt) : null;
+        if (body.isActive !== undefined) update.isActive = !!body.isActive;
+        if (body.maxRedemptions !== undefined) update.maxRedemptions = Number(body.maxRedemptions) || 0;
+        if (body.perUserLimit !== undefined) update.perUserLimit = Number(body.perUserLimit) || 0;
+        if (body.applicableMembershipIds !== undefined) update.applicableMembershipIds = Array.isArray(body.applicableMembershipIds) ? body.applicableMembershipIds : [];
+
+        const doc = await Coupon.findByIdAndUpdate(id, update, { new: true });
+        if (!doc) return res.status(404).json({ success: false, message: 'Cupón no encontrado' });
+        res.json({ success: true, coupon: doc });
+    } catch (e) {
+        if (e && e.code === 11000) return res.status(409).json({ success: false, message: 'Ese código ya existe' });
+        res.status(500).json({ success: false, message: 'Error actualizando cupón', error: e.message });
+    }
+});
+
+// Eliminar cupón
+app.delete('/api/admin/coupons/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        await Coupon.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, message: 'Error eliminando cupón', error: e.message });
+    }
+});
+
+// Validar cupón (para el checkout)
+app.post('/api/coupons/validate', authMiddleware, async (req, res) => {
+    try {
+        const { code, membershipId } = req.body || {};
+        const c = normalizeCouponCode(code);
+        if (!c) return res.status(400).json({ success: false, message: 'Ingresa un cupón' });
+        if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
+
+        const membership = await Membership.findById(membershipId);
+        if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+
+        const coupon = await Coupon.findOne({ code: c });
+        if (!coupon || !coupon.isActive) return res.status(404).json({ success: false, message: 'Cupón inválido' });
+        if (!couponNowInRange(coupon.startsAt, coupon.endsAt)) return res.status(400).json({ success: false, message: 'Cupón fuera de fecha' });
+        if (coupon.maxRedemptions && coupon.maxRedemptions > 0 && (coupon.redeemedCount || 0) >= coupon.maxRedemptions) {
+            return res.status(400).json({ success: false, message: 'Cupón agotado' });
+        }
+        if (coupon.applicableMembershipIds && coupon.applicableMembershipIds.length) {
+            const ok = coupon.applicableMembershipIds.some(id => id.toString() === membershipId.toString());
+            if (!ok) return res.status(400).json({ success: false, message: 'Cupón no aplica a este plan' });
+        }
+        if (req.user?.id && coupon.perUserLimit && coupon.perUserLimit > 0) {
+            const used = await CouponRedemption.countDocuments({ couponId: coupon._id, userId: req.user.id, membershipId });
+            if (used >= coupon.perUserLimit) return res.status(400).json({ success: false, message: 'Límite de uso alcanzado' });
+        }
+
+        const membershipCurrency = membership.currency || 'PEN';
+        const calc = computeCouponDiscount({ membershipPrice: membership.price, membershipCurrency, coupon });
+        if (!calc) return res.status(400).json({ success: false, message: 'Cupón no compatible con la moneda' });
+
+        const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+        res.json({
+            success: true,
+            coupon: { code: coupon.code, description: coupon.description || '', type: coupon.type, value: coupon.value, currency: coupon.currency || 'PEN' },
+            pricing: { currency: membershipCurrency, original: round2(calc.original), discount: round2(calc.discount), final: round2(calc.final) }
+        });
+    } catch (e) {
+        res.status(500).json({ success: false, message: 'Error', error: e.message });
     }
 });
 

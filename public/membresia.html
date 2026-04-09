@@ -12,7 +12,7 @@
         kr-language="es-PE" kr-theme="classic">
         </script>
     <meta name="description"
-        content="Accede a todas las series con nuestros planes de membresía. Aprendizaje ilimitado.">
+        content="Accede a todos los cursos con nuestros planes de membresía. Aprendizaje ilimitado.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
@@ -1034,7 +1034,7 @@
         </div>
         <a href="/"
             style="margin-left:auto;background:rgba(79,255,176,0.15);border:1px solid rgba(79,255,176,0.3);color:#4FFFB0;padding:0.5rem 1rem;border-radius:10px;font-size:0.85rem;font-weight:700;text-decoration:none;">Ir
-            a series →</a>
+            a cursos →</a>
     </div>
 
     <!-- HERO -->
@@ -1047,7 +1047,7 @@
             Planes de Membresía
         </div>
         <h1 id="heroTitle">Aprende sin límites,<br>crece sin barreras</h1>
-        <p id="heroSubtitle">Acceso completo a todas las series de la plataforma. Cancela cuando quieras. Sin contratos.</p>
+        <p id="heroSubtitle">Acceso completo a todos los cursos de la plataforma. Cancela cuando quieras. Sin contratos.</p>
 
         <!-- Trust bar -->
         <div class="trust-bar" id="heroTrustBar">
@@ -1098,8 +1098,8 @@
 
                 <div class="feature-card">
                     <div class="feature-icon">🎓</div>
-                    <h3>Series ilimitadas</h3>
-                    <p>Accede a todas las series de la plataforma sin restricciones. Aprende a tu ritmo.</p>
+                    <h3>Cursos ilimitados</h3>
+                    <p>Accede a todos los cursos de la plataforma sin restricciones. Aprende a tu ritmo.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📱</div>
@@ -1109,12 +1109,12 @@
                 <div class="feature-card">
                     <div class="feature-icon">🏆</div>
                     <h3>Certificados verificados</h3>
-                    <p>Al completar cada serie obtienes un certificado de logro que puedes compartir en LinkedIn.</p>
+                    <p>Al completar cada curso obtienes un certificado de logro que puedes compartir en LinkedIn.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔔</div>
-                    <h3>Notificaciones de series</h3>
-                    <p>Recibe alertas cuando se publiquen nuevas series según tus intereses y categorías favoritas.</p>
+                    <h3>Notificaciones de cursos</h3>
+                    <p>Recibe alertas cuando se publiquen nuevos cursos según tus intereses y categorías favoritas.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">💬</div>
@@ -1124,7 +1124,7 @@
                 <div class="feature-card">
                     <div class="feature-icon">⚡</div>
                     <h3>Contenido actualizado</h3>
-                    <p>Las series se actualizan constantemente con el contenido más reciente de cada industria.</p>
+                    <p>Los cursos se actualizan constantemente con el contenido más reciente de cada industria.</p>
                 </div>
             </div>
         </div>
@@ -1173,13 +1173,13 @@
             </div>
             <div class="faq-item">
                 <button class="faq-question" onclick="toggleFaq(this)">
-                    ¿Hay algún costo adicional por series nuevas?
+                    ¿Hay algún costo adicional por cursos nuevos?
                     <svg class="faq-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" />
                     </svg>
                 </button>
-                <div class="faq-answer">No. Tu membresía incluye acceso a todas las series presentes y futuras de la
+                <div class="faq-answer">No. Tu membresía incluye acceso a todos los cursos presentes y futuros de la
                     plataforma sin costo adicional. Siempre al mismo precio.</div>
             </div>
             <div class="faq-item">
@@ -1217,6 +1217,14 @@
                     <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);" id="modalPlanDuration">-</div>
                 </div>
                 <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
+            </div>
+            <div style="margin-top:1rem;">
+                <label for="couponInput" style="display:block;font-size:0.8rem;color:rgba(255,255,255,.6);font-weight:700;margin-bottom:.4rem;">Cupón de descuento</label>
+                <div style="display:flex;gap:.5rem;align-items:center;">
+                    <input id="couponInput" type="text" placeholder="Ej: VIP20" autocomplete="off" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.75rem 1rem;color:#fff;font-weight:700;text-transform:uppercase;outline:none;">
+                    <button type="button" class="btn-secondary" onclick="applyCoupon()" style="white-space:nowrap;">Aplicar</button>
+                </div>
+                <div id="couponFeedback" style="margin-top:.5rem;font-size:.8rem;color:rgba(255,255,255,.55);"></div>
             </div>
             <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
             <div class="modal-actions" id="purchaseActions" style="display: flex; gap: 0.75rem;">
@@ -1256,6 +1264,10 @@
     <script src="/script.js"></script>
     <script>
         let selectedPlanId = null;
+        let selectedPlanPrice = 0;
+        let selectedPlanCurrency = 'PEN';
+        let appliedCouponCode = '';
+        let appliedPricing = null; // {currency, original, discount, final}
         let plans = [];
         const token = localStorage.getItem('authToken');
 
@@ -1441,7 +1453,7 @@
                 const featuresHtml = (plan.features || []).map(f =>
                     `<li><span class="check">✓</span>${f}</li>`
                 ).join('') || `<li><span class="check">✓</span>Acceso completo a la plataforma</li>
-         <li><span class="check">✓</span>Todas las series incluidas</li>
+         <li><span class="check">✓</span>Todos los cursos incluidos</li>
          <li><span class="check">✓</span>Certificados de logro</li>`;
 
                 return `
@@ -1472,7 +1484,7 @@
             if (!user || !user.hasMembership) return;
             const banner = document.getElementById('currentPlanBanner');
             banner.classList.add('visible');
-            document.getElementById('currentPlanInfo').textContent = `Plan ${user.membershipPlan || 'activo'} · Acceso completo a todas las series`;
+            document.getElementById('currentPlanInfo').textContent = `Plan ${user.membershipPlan || 'activo'} · Acceso completo a todos los cursos`;
         }
 
         // ── Plan selection ───────────────────────────────────────────────
@@ -1484,11 +1496,13 @@
             }
 
             selectedPlanId = id;
+            selectedPlanPrice = Number(price) || 0;
             resetCheckout(); // Limpiar rastro anterior
 
             // Datos del modal
             const currPlan = plans.find(p => p._id === id);
             const sym = (currPlan && currPlan.currency === 'USD') ? '$' : 'S/';
+            selectedPlanCurrency = (currPlan && currPlan.currency) ? currPlan.currency : 'PEN';
             document.getElementById('modalPlanName').textContent = name;
             document.getElementById('modalPlanPrice').textContent = `${sym} ${price}`;
             document.getElementById('modalPlanDuration').textContent = getDurationLabelFull(durationDays);
@@ -1543,11 +1557,70 @@
                 if (t) t.style.display = 'inline';
                 if (s) s.style.display = 'none';
             }
+
+            // Reset cupón UI/estado
+            appliedCouponCode = '';
+            appliedPricing = null;
+            const ci = document.getElementById('couponInput');
+            const cf = document.getElementById('couponFeedback');
+            if (ci) ci.value = '';
+            if (cf) cf.textContent = '';
         }
 
         function closeModal() {
             document.getElementById('confirmModal').classList.remove('open');
             selectedPlanId = null;
+        }
+
+        function formatMoney(currency, amount) {
+            const sym = currency === 'USD' ? '$' : 'S/';
+            const n = (Number(amount) || 0).toFixed(2).replace(/\.00$/, '');
+            return `${sym} ${n}`;
+        }
+
+        async function applyCoupon() {
+            if (!selectedPlanId) return;
+            const input = document.getElementById('couponInput');
+            const feedback = document.getElementById('couponFeedback');
+            const priceEl = document.getElementById('modalPlanPrice');
+            if (!input || !feedback || !priceEl) return;
+
+            const code = (input.value || '').trim().toUpperCase().replace(/\s+/g, '');
+            if (!code) {
+                appliedCouponCode = '';
+                appliedPricing = null;
+                feedback.textContent = '';
+                priceEl.textContent = formatMoney(selectedPlanCurrency, selectedPlanPrice);
+                return;
+            }
+
+            feedback.textContent = 'Validando cupón...';
+            try {
+                await configReady;
+                const res = await fetch(apiUrl('/api/coupons/validate'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ code, membershipId: selectedPlanId })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Cupón inválido');
+
+                appliedCouponCode = data.coupon?.code || code;
+                appliedPricing = data.pricing;
+
+                const p = data.pricing;
+                const original = formatMoney(p.currency, p.original);
+                const final = formatMoney(p.currency, p.final);
+                const discount = formatMoney(p.currency, p.discount);
+
+                priceEl.innerHTML = `<span style="opacity:.65;text-decoration:line-through;margin-right:.5rem;">${original}</span> <span style="font-weight:900;">${final}</span>`;
+                feedback.innerHTML = `<span style="color:#4FFFB0;font-weight:800;">Cupón aplicado:</span> ahorras <strong>${discount}</strong>`;
+            } catch (err) {
+                appliedCouponCode = '';
+                appliedPricing = null;
+                priceEl.textContent = formatMoney(selectedPlanCurrency, selectedPlanPrice);
+                feedback.innerHTML = `<span style="color:#FF6B70;font-weight:800;">${err.message}</span>`;
+            }
         }
 
         // ── FAQ toggle ───────────────────────────────────────────────────
@@ -1609,7 +1682,7 @@
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ membershipId: selectedPlanId })
+                    body: JSON.stringify({ membershipId: selectedPlanId, couponCode: appliedCouponCode || '' })
                 });
 
                 const data = await res.json();
@@ -1660,7 +1733,7 @@
         if (fromCourse) {
             const courseName = decodeURIComponent(new URLSearchParams(window.location.search).get('course') || '');
             setTimeout(() => {
-                showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Esta serie requiere una membresía activa');
+                showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Este curso requiere una membresía activa');
             }, 500);
         }
     </script>

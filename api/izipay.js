@@ -131,6 +131,42 @@ try { Transaction = mongoose.model('Transaction'); } catch {
     Transaction = mongoose.model('Transaction', schema);
 }
 
+let Coupon;
+try { Coupon = mongoose.model('Coupon'); } catch {
+    const schema = new mongoose.Schema({
+        code: { type: String, required: true, unique: true, trim: true },
+        description: { type: String, default: '' },
+        type: { type: String, enum: ['percent', 'fixed'], required: true },
+        value: { type: Number, required: true, min: 0 },
+        currency: { type: String, enum: ['PEN', 'USD'], default: 'PEN' },
+        startsAt: { type: Date, default: null },
+        endsAt: { type: Date, default: null },
+        isActive: { type: Boolean, default: true },
+        maxRedemptions: { type: Number, default: 0 }, // 0 = ilimitado
+        redeemedCount: { type: Number, default: 0 },
+        perUserLimit: { type: Number, default: 0 }, // 0 = ilimitado
+        applicableMembershipIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Membership' }],
+        createdAt: { type: Date, default: Date.now },
+        updatedAt: { type: Date, default: Date.now }
+    });
+    schema.index({ code: 1 }, { unique: true });
+    Coupon = mongoose.model('Coupon', schema);
+}
+
+let CouponRedemption;
+try { CouponRedemption = mongoose.model('CouponRedemption'); } catch {
+    const schema = new mongoose.Schema({
+        couponId: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon', required: true },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', required: true },
+        orderId: { type: String, default: '' },
+        redeemedAt: { type: Date, default: Date.now }
+    });
+    schema.index({ couponId: 1, userId: 1, membershipId: 1 });
+    schema.index({ orderId: 1 }, { unique: true, sparse: true });
+    CouponRedemption = mongoose.model('CouponRedemption', schema);
+}
+
 // Si el modelo ya existía, añadimos los campos extra para idempotencia
 if (Transaction && Transaction.schema) {
     if (!Transaction.schema.path('orderId')) Transaction.schema.add({ orderId: { type: String, default: '' } });
@@ -146,6 +182,87 @@ async function getEffectiveCommissionPct(membership, seller) {
     const sellerPct = seller ? Number(seller.sellerCommission) : 0;
     if (Number.isFinite(sellerPct) && sellerPct > 0) return sellerPct;
     return 10;
+}
+
+function normalizeCouponCode(code) {
+    return (code || '').toString().trim().toUpperCase().replace(/\s+/g, '');
+}
+function nowInRange(startsAt, endsAt) {
+    const now = Date.now();
+    if (startsAt && now < new Date(startsAt).getTime()) return false;
+    if (endsAt && now > new Date(endsAt).getTime()) return false;
+    return true;
+}
+function computeDiscount({ membershipPrice, membershipCurrency, coupon }) {
+    const original = Number(membershipPrice) || 0;
+    if (original <= 0) return { original, discount: 0, final: original };
+
+    let discount = 0;
+    if (coupon.type === 'percent') {
+        const pct = Math.max(0, Math.min(100, Number(coupon.value) || 0));
+        discount = (original * pct) / 100;
+    } else {
+        if ((coupon.currency || 'PEN') !== membershipCurrency) return null;
+        discount = Number(coupon.value) || 0;
+    }
+    discount = Math.min(original, Math.max(0, discount));
+    const final = Math.max(0, original - discount);
+    return { original, discount, final };
+}
+
+async function validateCouponForCheckout({ couponCode, membership, userId }) {
+    const code = normalizeCouponCode(couponCode);
+    if (!code) return { ok: true, code: '', discountAmount: 0, finalPrice: Number(membership.price) || 0 };
+
+    const coupon = await Coupon.findOne({ code });
+    if (!coupon || !coupon.isActive) return { ok: false, message: 'Cupón inválido' };
+    if (!nowInRange(coupon.startsAt, coupon.endsAt)) return { ok: false, message: 'Cupón fuera de fecha' };
+    if (coupon.maxRedemptions && coupon.maxRedemptions > 0 && (coupon.redeemedCount || 0) >= coupon.maxRedemptions) {
+        return { ok: false, message: 'Cupón agotado' };
+    }
+    if (coupon.applicableMembershipIds && coupon.applicableMembershipIds.length) {
+        const ok = coupon.applicableMembershipIds.some(id => id.toString() === membership._id.toString());
+        if (!ok) return { ok: false, message: 'Cupón no aplica a este plan' };
+    }
+    if (userId && coupon.perUserLimit && coupon.perUserLimit > 0) {
+        const used = await CouponRedemption.countDocuments({ couponId: coupon._id, userId, membershipId: membership._id });
+        if (used >= coupon.perUserLimit) return { ok: false, message: 'Límite de uso alcanzado' };
+    }
+
+    const membershipCurrency = membership.currency || 'PEN';
+    const calc = computeDiscount({ membershipPrice: membership.price, membershipCurrency, coupon });
+    if (!calc) return { ok: false, message: 'Cupón no compatible con la moneda' };
+
+    return {
+        ok: true,
+        code: coupon.code,
+        couponId: coupon._id,
+        discountAmount: Number(calc.discount) || 0,
+        finalPrice: Number(calc.final) || 0
+    };
+}
+
+async function redeemCouponOnSuccess({ couponCode, membershipId, userId, orderId }) {
+    const code = normalizeCouponCode(couponCode);
+    if (!code) return;
+    if (!orderId) return;
+
+    const coupon = await Coupon.findOne({ code });
+    if (!coupon) return;
+
+    // Idempotencia: si ya existe redención para este orderId, no repetir.
+    const existing = await CouponRedemption.findOne({ orderId });
+    if (existing) return;
+
+    await CouponRedemption.create({
+        couponId: coupon._id,
+        userId,
+        membershipId,
+        orderId
+    });
+
+    // Incrementar contador de uso
+    await Coupon.updateOne({ _id: coupon._id }, { $inc: { redeemedCount: 1 }, $set: { updatedAt: new Date() } });
 }
 
 function verifyToken(req) {
@@ -196,13 +313,18 @@ module.exports = async (req, res) => {
             console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
             
             await connectDB();
-            const { membershipId } = req.body;
+            const { membershipId, couponCode } = req.body;
             if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
 
             const membership = await Membership.findById(membershipId);
             if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
 
-            const amount = Math.round(membership.price * 100);
+            // Aplicar cupón (si existe). El backend valida de nuevo (no confiar en frontend).
+            const couponCheck = await validateCouponForCheckout({ couponCode, membership, userId: decoded.id });
+            if (!couponCheck.ok) return res.status(400).json({ success: false, message: couponCheck.message || 'Cupón inválido' });
+
+            const finalPrice = couponCheck.finalPrice;
+            const amount = Math.round(finalPrice * 100);
             
             // ORDER_ID: Embebemos el membershipId completo tras '--' para recuperarlo en el retorno
             // Izipay no preserva el metadata en el redirect POST, pero sí devuelve el orderId completo
@@ -223,7 +345,10 @@ module.exports = async (req, res) => {
                 metadata: {
                     userId: decoded.id,
                     membershipId: membershipId,
-                    platform: 'IATIBET_ZUREON'
+                    platform: 'IATIBET_ZUREON',
+                    couponCode: couponCheck.code || '',
+                    // Guardamos el monto final en centavos para cálculos posteriores (comisión, auditoría)
+                    finalAmountCents: amount
                 }
             };
 
@@ -309,6 +434,14 @@ module.exports = async (req, res) => {
             await user.save();
             console.log('[IZIPAY] ✅ Webhook: Membresía activada para:', customerRef);
 
+            // Registrar redención de cupón si vino en metadata
+            const couponCode = answer.orderDetails?.metadata?.couponCode || '';
+            try {
+                await redeemCouponOnSuccess({ couponCode, membershipId: membership._id, userId: user._id, orderId: rawOrderId });
+            } catch (e) {
+                console.warn('[IZIPAY] Webhook: no se pudo registrar cupón:', e?.message);
+            }
+
             // LOGICA DE COMISION (WEBHOOK)
             if (isFirstPurchase && user.referredBy) {
                 const seller = await User.findById(user.referredBy);
@@ -321,7 +454,9 @@ module.exports = async (req, res) => {
                     }
 
                     const commissionPct = await getEffectiveCommissionPct(membership, seller);
-                    const amount = (membership.price * commissionPct) / 100;
+                    const paidCents = Number(answer.orderDetails?.metadata?.finalAmountCents);
+                    const paid = Number.isFinite(paidCents) && paidCents > 0 ? (paidCents / 100) : Number(membership.price);
+                    const amount = (paid * commissionPct) / 100;
                     seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                     await seller.save();
                     
@@ -430,6 +565,14 @@ module.exports = async (req, res) => {
                 await user.save();
                 console.log('[IZIPAY] ✅ Membresía activada exitosamente para:', user.email);
 
+                // Registrar redención de cupón si vino en metadata
+                const couponCode = answer.orderDetails?.metadata?.couponCode || '';
+                try {
+                    await redeemCouponOnSuccess({ couponCode, membershipId: membership._id, userId: user._id, orderId: rawOrderId });
+                } catch (e) {
+                    console.warn('[IZIPAY] Return: no se pudo registrar cupón:', e?.message);
+                }
+
                 // LOGICA DE COMISION (REDIRECT RETURN)
                 if (isFirstPurchase && user.referredBy) {
                     const seller = await User.findById(user.referredBy);
@@ -442,7 +585,9 @@ module.exports = async (req, res) => {
                         }
 
                         const commissionPct = await getEffectiveCommissionPct(membership, seller);
-                        const amount = (membership.price * commissionPct) / 100;
+                        const paidCents = Number(answer.orderDetails?.metadata?.finalAmountCents);
+                        const paid = Number.isFinite(paidCents) && paidCents > 0 ? (paidCents / 100) : Number(membership.price);
+                        const amount = (paid * commissionPct) / 100;
                         seller.sellerBalance = (seller.sellerBalance || 0) + amount;
                         await seller.save();
 
