@@ -1009,6 +1009,10 @@ body {
     width: 100%;
   }
 
+  .filter-select option {
+    font-size: 0.6rem;
+  }
+
   .course-info {
     flex-direction: column;
     align-items: flex-start;
