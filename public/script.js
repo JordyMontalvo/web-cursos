@@ -377,6 +377,85 @@ function setupFilters() {
     }
 }
 
+/**
+ * En móvil, el <select> abre el menú nativo del SO/navegador; el CSS de `option` no lo redimensiona.
+ * Aquí interceptamos el toque y mostramos un panel propio con tipografía controlable.
+ */
+function isMobileFilterViewport() {
+    return typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 768px)').matches;
+}
+
+function setupMobileFilterSheet() {
+    const sheet = document.getElementById('mobileFilterSheet');
+    const listEl = document.getElementById('mobileFilterSheetList');
+    const titleEl = document.getElementById('mobileFilterSheetHeading');
+    const closeBtn = document.getElementById('mobileFilterSheetClose');
+    const backdrop = sheet?.querySelector('.mobile-filter-sheet__backdrop');
+    if (!sheet || !listEl || !titleEl) return;
+
+    let currentSelect = null;
+
+    function closeSheet() {
+        sheet.classList.remove('active');
+        sheet.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        currentSelect = null;
+    }
+
+    function openSheet(selectEl) {
+        if (sheet.classList.contains('active') && currentSelect === selectEl) return;
+        currentSelect = selectEl;
+        const title = selectEl.getAttribute('data-mobile-sheet-title') || selectEl.getAttribute('aria-label') || 'Seleccionar';
+        titleEl.textContent = title;
+        listEl.innerHTML = '';
+
+        Array.from(selectEl.options).forEach((opt, idx) => {
+            const li = document.createElement('li');
+            li.className = 'mobile-filter-sheet__item';
+            if (selectEl.selectedIndex === idx) li.classList.add('is-selected');
+            li.textContent = opt.textContent;
+            li.setAttribute('role', 'option');
+            li.setAttribute('aria-selected', selectEl.selectedIndex === idx ? 'true' : 'false');
+            li.addEventListener('click', () => {
+                if (selectEl.selectedIndex !== idx) {
+                    selectEl.selectedIndex = idx;
+                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                closeSheet();
+            });
+            listEl.appendChild(li);
+        });
+
+        sheet.classList.add('active');
+        sheet.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function onSelectInteraction(e, selectEl) {
+        if (!isMobileFilterViewport()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openSheet(selectEl);
+    }
+
+    document.querySelectorAll('.filter-select').forEach((select) => {
+        select.addEventListener('mousedown', (e) => onSelectInteraction(e, select), true);
+        select.addEventListener('touchstart', (e) => onSelectInteraction(e, select), { capture: true, passive: false });
+        select.addEventListener('click', (e) => onSelectInteraction(e, select), true);
+    });
+
+    closeBtn?.addEventListener('click', closeSheet);
+    backdrop?.addEventListener('click', closeSheet);
+
+    window.addEventListener('resize', () => {
+        if (!isMobileFilterViewport()) closeSheet();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sheet.classList.contains('active')) closeSheet();
+    });
+}
+
 function filterAndRenderCourses() {
     const filterSelects = document.querySelectorAll('.filter-select');
     const catVal = filterSelects[0]?.value;
@@ -688,6 +767,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Setup interactivity
     setupFilters();
+    setupMobileFilterSheet();
     setupMobileMenu();
     setupSearch();
     setupCourseNavigation();
