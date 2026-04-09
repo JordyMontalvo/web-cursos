@@ -43,7 +43,7 @@
         </div>
 
         <nav class="nav">
-          <a href="/" class="nav-link">Cursos</a>
+          <a href="/" class="nav-link">Series</a>
           <a href="/membresia" class="nav-link" id="navMembresia" style="display:none;">Mi Membresía</a>
         </nav>
 
@@ -149,21 +149,21 @@
       </div>
 
       <div class="filters">
-        <select class="filter-select" data-mobile-sheet-title="Serie" aria-label="Filtrar por serie o categoría">
+        <select class="filter-select">
           <option>Seleccionar la Serie</option>
           <option>Inteligencia Artificial</option>
           <option>Finanzas</option>
           <option>Marketing Digital</option>
         </select>
 
-        <select class="filter-select" data-mobile-sheet-title="Especialización" aria-label="Filtrar por especialización">
+        <select class="filter-select">
           <option>Especialización</option>
           <option>Básico</option>
           <option>Intermedio</option>
           <option>Avanzado</option>
         </select>
 
-        <select class="filter-select" data-mobile-sheet-title="Acceso" aria-label="Filtrar por tipo de acceso">
+        <select class="filter-select">
           <option>Series</option>
           <option>Todos</option>
           <option>Gratis</option>
@@ -271,18 +271,6 @@
       } catch(e) {}
     }
   </script>
-
-  <!-- Panel de filtros en móvil (reemplaza el selector nativo; el CSS del listado sí se aplica) -->
-  <div id="mobileFilterSheet" class="mobile-filter-sheet" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="mobileFilterSheetHeading">
-    <div class="mobile-filter-sheet__backdrop" tabindex="-1"></div>
-    <div class="mobile-filter-sheet__panel">
-      <div class="mobile-filter-sheet__header">
-        <h3 id="mobileFilterSheetHeading" class="mobile-filter-sheet__title"></h3>
-        <button type="button" class="mobile-filter-sheet__close" id="mobileFilterSheetClose" aria-label="Cerrar">&times;</button>
-      </div>
-      <ul id="mobileFilterSheetList" class="mobile-filter-sheet__list" role="listbox"></ul>
-    </div>
-  </div>
 
   <!-- Botón flotante: volver al inicio (banner / hero) -->
   <button type="button" class="scroll-to-top-fab" id="scrollToTopFab" aria-label="Volver al inicio" title="Volver al inicio" onclick="scrollToHero()">
