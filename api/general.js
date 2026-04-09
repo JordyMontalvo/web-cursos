@@ -173,7 +173,7 @@ module.exports = async (req, res) => {
 
         const { code, membershipId } = req.body || {};
         const c = normalizeCouponCode(code);
-        if (!c) return res.status(400).json({ success: false, message: 'Ingresa un cupón' });
+        if (!c) return res.status(400).json({ success: false, message: 'Ingresa tu cupón de descuento' });
         if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
 
         const membership = await Membership.findById(membershipId);
