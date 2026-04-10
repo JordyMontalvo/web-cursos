@@ -141,10 +141,21 @@
             }
             .content-info {
                 max-width: var(--course-col-max);
+                /* Misma columna que el video: el padding horizontal compensa (1400 vs 1380) para que el texto arranque donde el video */
+                padding-left: calc((min(var(--course-col-max), 100vw) - min(var(--course-video-max), calc(100vw - 2rem))) / 2);
+                padding-right: calc((min(var(--course-col-max), 100vw) - min(var(--course-video-max), calc(100vw - 2rem))) / 2);
+            }
+            .episode-headline {
+                text-align: left;
+                max-width: none;
+                margin-left: 0;
+                margin-right: 0;
+                padding-left: 0;
+                padding-right: 0;
             }
         }
 
-        /* Bloque título episodio: centrado, mismo ancho que el video, efecto glitch */
+        /* Bloque título episodio: en móvil centrado; en desktop alineado al video (ver media query) */
         .episode-headline {
             text-align: center;
             max-width: min(100%, min(var(--course-video-max), calc(100vw - 2rem)));
