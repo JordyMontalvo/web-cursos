@@ -46,14 +46,12 @@ async function fetchCategories() {
 }
 
 function renderCategoryFilter() {
-    // index.html: 1st select = categoría (rellenado aquí), 2º = Especialización (placeholder).
-    const filterSelects = document.querySelectorAll('.filter-select');
-    if (filterSelects.length > 0) {
-        const catSelect = filterSelects[0];
-        const defaultValue = catSelect.options[0].text;
-        catSelect.innerHTML = `<option value="">${defaultValue}</option>` + 
-            categoriesData.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
-    }
+    const catSelect = document.getElementById('filterCategory');
+    if (!catSelect) return;
+    const defaultLabel = 'Seleccionar la Serie';
+    const opts = (categoriesData || []).map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
+    catSelect.innerHTML = `<option value="">${defaultLabel}</option>` + opts;
+    if (document.getElementById('coursesGrid')) filterAndRenderCourses();
 }
 
 // ===================================
@@ -329,10 +327,7 @@ async function renderCourses() {
     const popularGrid = document.getElementById('popularGrid');
 
     if (coursesGrid) {
-        coursesGrid.innerHTML = '';
-        coursesData.slice(0, 8).forEach(course => {
-            coursesGrid.appendChild(createCourseCard(course));
-        });
+        filterAndRenderCourses();
     }
 
     if (popularGrid) {
@@ -361,54 +356,55 @@ function renderEpisodes() {
 // Filter Functionality
 // ===================================
 function setupFilters() {
-    const filterSelects = document.querySelectorAll('.filter-select');
-    const resetBtn = document.querySelector('.btn-reset');
+    const catEl = document.getElementById('filterCategory');
+    const espEl = document.getElementById('filterEspecializacion');
+    const resetBtn = document.querySelector('.courses-section .btn-reset');
 
-    filterSelects.forEach((select, index) => {
-        select.addEventListener('change', (e) => {
-            const val = e.target.value;
-            console.log('Filter changed:', val);
-            
-            // If it's the category filter (index 0)
-            if (index === 0) {
-                // Descripcion logic removed
-            }
-
-            filterAndRenderCourses();
-        });
-    });
+    const onChange = () => filterAndRenderCourses();
+    if (catEl) catEl.addEventListener('change', onChange);
+    if (espEl) espEl.addEventListener('change', onChange);
 
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
-            filterSelects.forEach(select => {
-                select.selectedIndex = 0;
-            });
+            if (catEl) catEl.selectedIndex = 0;
+            if (espEl) espEl.selectedIndex = 0;
             filterAndRenderCourses();
         });
     }
 }
 
+function courseEspecializacionNorm(c) {
+    const v = c && c.especializacion != null ? String(c.especializacion).trim().toLowerCase() : '';
+    if (v === 'intermedio' || v === 'avanzado' || v === 'basico') return v;
+    return 'basico';
+}
+
 function filterAndRenderCourses() {
-    const filterSelects = document.querySelectorAll('.filter-select');
-    const catVal = filterSelects[0]?.value;
-    const espVal = filterSelects[1]?.value;
+    const catEl = document.getElementById('filterCategory');
+    const espEl = document.getElementById('filterEspecializacion');
+    const catVal = (catEl && catEl.value != null ? String(catEl.value) : '').trim();
+    const espRaw = (espEl && espEl.value != null ? String(espEl.value) : '').trim().toLowerCase();
+    const espVal = espRaw === 'basico' || espRaw === 'intermedio' || espRaw === 'avanzado' ? espRaw : '';
 
     let filtered = [...coursesData];
     if (catVal) {
         filtered = filtered.filter(c => c.category === catVal);
     }
     if (espVal) {
-        filtered = filtered.filter(c => (c.especializacion || 'basico') === espVal);
+        filtered = filtered.filter(c => courseEspecializacionNorm(c) === espVal);
     }
-    
+
+    const hasActiveFilter = !!(catVal || espVal);
+    if (!hasActiveFilter && filtered.length > 8) {
+        filtered = filtered.slice(0, 8);
+    }
+
     const coursesGrid = document.getElementById('coursesGrid');
     if (coursesGrid) {
         coursesGrid.innerHTML = '';
         filtered.forEach(course => {
             coursesGrid.appendChild(createCourseCard(course));
         });
-        
-        // Re-setup animations for new cards
         setTimeout(setupScrollAnimations, 100);
     }
 }
