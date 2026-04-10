@@ -34,9 +34,13 @@ module.exports = async (req, res) => {
 
     // ─── POST /api/courses ──────────────────────────────────────────────────────
     if (req.method === 'POST' && !id) {
+        const esp = ['basico', 'intermedio', 'avanzado'].includes(req.body.especializacion)
+            ? req.body.especializacion
+            : 'basico';
         const course = new Course({
             name: req.body.name,
             category: req.body.category,
+            especializacion: esp,
             chapters: [],
             videoUrl: req.body.videoUrl || '',
             thumbnail: req.body.thumbnail || '/images/default-course.jpg',
@@ -50,9 +54,13 @@ module.exports = async (req, res) => {
 
     // ─── PUT /api/courses?id=:id ────────────────────────────────────────────────
     if (req.method === 'PUT' && id && !chapterId) {
+        const esp = ['basico', 'intermedio', 'avanzado'].includes(req.body.especializacion)
+            ? req.body.especializacion
+            : 'basico';
         const update = {
             name: req.body.name,
             category: req.body.category,
+            especializacion: esp,
             videoUrl: req.body.videoUrl,
             thumbnail: req.body.thumbnail,
             description: req.body.description,

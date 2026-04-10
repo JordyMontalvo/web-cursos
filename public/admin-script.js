@@ -153,7 +153,7 @@ function renderCoursesTable(courses) {
     if (!courses || courses.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="loading-row">
+                <td colspan="9" class="loading-row">
                     <p>No hay cursos disponibles</p>
                 </td>
             </tr>
@@ -170,6 +170,8 @@ function renderCoursesTable(courses) {
             return '';
         }
 
+        const espLabels = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' };
+        const esp = course.especializacion && espLabels[course.especializacion] ? espLabels[course.especializacion] : 'Básico';
         return `
         <tr>
             <td><strong>#${typeof courseId === 'string' ? courseId.slice(-6) : courseId}</strong></td>
@@ -178,6 +180,7 @@ function renderCoursesTable(courses) {
             </td>
             <td><strong>${course.name}</strong></td>
             <td><span class="badge">${course.category}</span></td>
+            <td><span class="badge" style="background:rgba(124,58,237,0.25);">${esp}</span></td>
             <td>${course.totalChapters || (course.chapters ? course.chapters.length : 0)}</td>
             <td>${course.totalEpisodes || 0}</td>
             <td>
@@ -237,6 +240,8 @@ function openAddCourseModal() {
     document.getElementById('modalTitle').textContent = 'Nuevo Curso';
     document.getElementById('courseForm').reset();
     document.getElementById('courseOrder').value = 0;
+    const espEl = document.getElementById('courseEspecializacion');
+    if (espEl) espEl.value = 'basico';
     document.getElementById('imagePreview').innerHTML = '';
     document.getElementById('imagePreview').classList.remove('active');
     populateCategorySelect();
@@ -257,6 +262,11 @@ function editCourse(id) {
     document.getElementById('courseId').value = courseId;
     document.getElementById('courseName').value = course.name;
     document.getElementById('courseCategory').value = course.category;
+    const espEl = document.getElementById('courseEspecializacion');
+    if (espEl) {
+        const v = course.especializacion;
+        espEl.value = (v === 'intermedio' || v === 'avanzado' || v === 'basico') ? v : 'basico';
+    }
     document.getElementById('courseChapters').value = course.totalChapters || (course.chapters ? course.chapters.length : 0);
     document.getElementById('courseEpisodes').value = course.totalEpisodes || 0;
     document.getElementById('courseDescription').value = course.description || '';
@@ -306,6 +316,7 @@ async function handleFormSubmit(e) {
     const formData = {
         name: document.getElementById('courseName').value,
         category: document.getElementById('courseCategory').value,
+        especializacion: document.getElementById('courseEspecializacion').value,
         // chapters y episodes se calculan automáticamente
         description: document.getElementById('courseDescription').value,
         videoUrl: document.getElementById('courseVideoUrl').value,

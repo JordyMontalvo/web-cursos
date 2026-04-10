@@ -1135,16 +1135,21 @@ app.get('/api/courses/:id', async (req, res) => {
 
 app.post('/api/courses', async (req, res) => {
     try {
+        const esp = ['basico', 'intermedio', 'avanzado'].includes(req.body.especializacion)
+            ? req.body.especializacion
+            : 'basico';
         const newCourse = new Course({
             name: req.body.name,
             category: req.body.category,
+            especializacion: esp,
             chapters: [],
             totalChapters: parseInt(req.body.chapters) || 0,
             totalEpisodes: parseInt(req.body.episodes) || 0,
             videoUrl: req.body.videoUrl || '',
             thumbnail: req.body.thumbnail || '/images/default-course.jpg',
             description: req.body.description || '',
-            featured: req.body.featured === 'true' || req.body.featured === true
+            featured: req.body.featured === 'true' || req.body.featured === true,
+            order: Number(req.body.order) || 0
         });
         await newCourse.save();
         res.json({ success: true, course: newCourse });
@@ -1155,13 +1160,18 @@ app.post('/api/courses', async (req, res) => {
 
 app.put('/api/courses/:id', async (req, res) => {
     try {
+        const esp = ['basico', 'intermedio', 'avanzado'].includes(req.body.especializacion)
+            ? req.body.especializacion
+            : 'basico';
         const updateData = {
             name: req.body.name,
             category: req.body.category,
+            especializacion: esp,
             videoUrl: req.body.videoUrl,
             thumbnail: req.body.thumbnail,
             description: req.body.description,
             featured: req.body.featured === 'true' || req.body.featured === true,
+            order: req.body.order !== undefined ? Number(req.body.order) : undefined,
             updatedAt: Date.now()
         };
         if (req.body.chapters) updateData.totalChapters = parseInt(req.body.chapters);

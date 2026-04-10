@@ -34,6 +34,15 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    especializacion: {
+        type: String,
+        enum: ['basico', 'intermedio', 'avanzado'],
+        default: 'basico'
+    },
+    order: {
+        type: Number,
+        default: 0
+    },
     thumbnail: {
         type: String,
         default: '/images/default-course.jpg'

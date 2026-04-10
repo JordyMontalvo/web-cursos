@@ -163,6 +163,7 @@
                                     <th>Portada</th>
                                     <th>Nombre</th>
                                     <th>Categoría</th>
+                                    <th>Especialización</th>
                                     <th>Episodios</th>
                                     <th>Capítulos</th>
                                     <th>Destacado</th>
@@ -171,7 +172,7 @@
                             </thead>
                             <tbody id="coursesTableBody">
                                 <tr>
-                                    <td colspan="8" class="loading-row">
+                                    <td colspan="9" class="loading-row">
                                         <div class="spinner"></div>
                                         <p>Cargando cursos...</p>
                                     </td>
@@ -1362,6 +1363,15 @@
                         <label for="courseCategory">Categoría *</label>
                         <select id="courseCategory" name="category" required>
                             <option value="">Cargando categorías...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="courseEspecializacion">Especialización *</label>
+                        <select id="courseEspecializacion" name="especializacion" required>
+                            <option value="basico">Básico</option>
+                            <option value="intermedio">Intermedio</option>
+                            <option value="avanzado">Avanzado</option>
                         </select>
                     </div>
 
