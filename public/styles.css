@@ -1310,3 +1310,25 @@ body {
     height: 48px;
   }
 }
+
+/* Título bajo video de presentación (home): centrado, cian/rojo muy suave */
+.presentation-video-title {
+  display: none;
+  margin: 0.85rem 0 0;
+  padding: 0 0.35rem;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  color: #fff;
+  font-size: clamp(1rem, 2.6vw, 1.35rem);
+  font-weight: 900;
+  line-height: 1.35;
+  font-family: 'Inter', system-ui, sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.45),
+    -1px 0 0 rgba(0, 235, 255, 0.32),
+    1px 0 0 rgba(255, 55, 110, 0.32);
+}

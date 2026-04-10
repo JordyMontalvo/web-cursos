@@ -45,6 +45,9 @@
             --course-video-max: 1380px;
             /* Solo menos alto en desktop; el ancho sigue siendo --course-video-max */
             --course-video-max-height: 760px;
+            /* Título: aberración muy sutil (sin halos anchos que ensucian el blanco) */
+            --title-glitch-cyan: rgba(0, 235, 255, 0.32);
+            --title-glitch-red: rgba(255, 55, 110, 0.32);
         }
 
         body {
@@ -141,22 +144,48 @@
             }
         }
 
-        .episode-label {
-            color: var(--purple-light, #A78BFA);
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.75rem;
-            display: block;
+        /* Bloque título episodio: centrado, mismo ancho que el video, efecto glitch */
+        .episode-headline {
+            text-align: center;
+            max-width: min(100%, min(var(--course-video-max), calc(100vw - 2rem)));
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 1.5rem;
+            padding: 0 0.5rem;
+            box-sizing: border-box;
         }
 
-        .episode-main-title {
-            font-size: 2.25rem;
+        .episode-headline .episode-label {
+            color: #fff;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: clamp(0.62rem, 1.35vw, 0.78rem);
+            letter-spacing: 0.14em;
+            margin-bottom: 0.65rem;
+            display: block;
+            line-height: 1.4;
+            font-family: 'Inter', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            /* Solo 2 offsets finos + sombra oscura suave (sin capas anchas de color) */
+            text-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.55),
+                -1px 0 0 var(--title-glitch-cyan),
+                1px 0 0 var(--title-glitch-red);
+        }
+
+        .episode-headline .episode-main-title {
+            color: #fff;
+            font-size: clamp(1.35rem, 4.2vw, 2.35rem);
             font-weight: 900;
             letter-spacing: -0.02em;
-            margin-bottom: 1.5rem;
-            line-height: 1.1;
+            margin: 0;
+            line-height: 1.22;
+            font-family: 'Inter', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            text-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.45),
+                -1.25px 0 0 var(--title-glitch-cyan),
+                1.25px 0 0 var(--title-glitch-red);
         }
 
         .course-meta-row {
@@ -424,15 +453,19 @@
             .ep-name { font-size: 0.7rem; }
 
 
-            .episode-label {
-                white-space: normal;
-                word-wrap: break-word;
-                margin-bottom: 0.5rem;
+            .episode-headline {
+                margin-bottom: 1.25rem;
             }
 
-            .episode-main-title {
-                font-size: 1.00rem;
-                margin: 0.5rem 0 1.5rem;
+            .episode-headline .episode-label {
+                white-space: normal;
+                word-wrap: break-word;
+                margin-bottom: 0.45rem;
+            }
+
+            .episode-headline .episode-main-title {
+                font-size: 1rem;
+                margin: 0;
                 overflow-wrap: break-word;
                 word-wrap: break-word;
                 hyphens: auto;
@@ -571,9 +604,11 @@
             </div>
 
             <div class="content-info">
-                <span class="episode-label" id="curChapterLabel">CAPÍTULO 1</span>
-                <h1 class="episode-main-title" id="curEpisodeTitle">Cargando título...</h1>
-                
+                <div class="episode-headline">
+                    <span class="episode-label" id="curChapterLabel">CAPÍTULO 1</span>
+                    <h1 class="episode-main-title" id="curEpisodeTitle">Cargando título...</h1>
+                </div>
+
                 <div class="course-meta-row">
                     <div class="meta-stat">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
