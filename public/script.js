@@ -391,11 +391,14 @@ function setupFilters() {
 function filterAndRenderCourses() {
     const filterSelects = document.querySelectorAll('.filter-select');
     const catVal = filterSelects[0]?.value;
-    // ... specialized logic for other filters can be added here
-    
+    const espVal = filterSelects[1]?.value;
+
     let filtered = [...coursesData];
     if (catVal) {
         filtered = filtered.filter(c => c.category === catVal);
+    }
+    if (espVal) {
+        filtered = filtered.filter(c => (c.especializacion || 'basico') === espVal);
     }
     
     const coursesGrid = document.getElementById('coursesGrid');
