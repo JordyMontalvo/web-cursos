@@ -48,7 +48,7 @@ async function fetchCategories() {
 function renderCategoryFilter() {
     const catSelect = document.getElementById('filterCategory');
     if (!catSelect) return;
-    const defaultLabel = 'Seleccionar la Serie';
+    const defaultLabel = 'Seleccionar la Categoría';
     const opts = (categoriesData || []).map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
     catSelect.innerHTML = `<option value="">${defaultLabel}</option>` + opts;
     if (document.getElementById('coursesGrid')) filterAndRenderCourses();
