@@ -139,6 +139,20 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         }
 
+        /*
+         * Barra "Información / Métodos de prueba" del widget Izipay (modo test).
+         * No existe en nuestro HTML: la crea el script externo krypton-client.
+         * Se oculta por CSS (DOM claro) + JS recorre shadow roots si aplica.
+         */
+        #izipayOfficialModal [role="toolbar"],
+        .izipay-white-container [role="toolbar"] {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+        }
+
         @keyframes iziSlideUp {
             from {
                 opacity: 0;
@@ -1652,6 +1666,33 @@
         // ── Izipay Integration ──────────────────────────────────────────
         let izipayInitAttempts = 0;
 
+        /** Oculta la toolbar de prueba que inyecta Izipay/Krypton (no está en el HTML propio). */
+        function hideIzipayTestToolbar() {
+            const modal = document.getElementById('izipayOfficialModal');
+            if (!modal) return;
+            function hideInRoot(root) {
+                if (!root || !root.querySelectorAll) return;
+                try {
+                    root.querySelectorAll('[role="toolbar"]').forEach((el) => {
+                        el.style.setProperty('display', 'none', 'important');
+                        el.style.setProperty('visibility', 'hidden', 'important');
+                        el.setAttribute('aria-hidden', 'true');
+                    });
+                    root.querySelectorAll('*').forEach((el) => {
+                        if (el.shadowRoot) hideInRoot(el.shadowRoot);
+                    });
+                } catch (e) { /* ignore */ }
+            }
+            hideInRoot(modal);
+        }
+
+        (function observeIzipayToolbar() {
+            const modal = document.getElementById('izipayOfficialModal');
+            if (!modal) return;
+            const obs = new MutationObserver(() => hideIzipayTestToolbar());
+            obs.observe(modal, { childList: true, subtree: true });
+        })();
+
         function initIzipay() {
             if (window.KR) {
                 console.log("[IZIPAY] SDK detectado con éxito");
@@ -1718,6 +1759,8 @@
 
                 // Forzamos el renderizado del formulario si fuera necesario
                 KR.showForm();
+                hideIzipayTestToolbar();
+                [80, 200, 500, 1200].forEach((ms) => setTimeout(hideIzipayTestToolbar, ms));
 
                 // Resetear botones por si el usuario cancela y vuelve a intentar
                 btn.disabled = false;
