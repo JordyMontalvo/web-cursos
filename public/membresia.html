@@ -144,6 +144,21 @@
          * No está en nuestro HTML: la inyecta el script externo; suele ir en body o en shadow DOM.
          * CSS cubre toolbars conocidas; el JS refuerza búsqueda por texto y todo el documento.
          */
+        /* Barra de prueba sobre la grilla de planes (SDK la inserta sin abrir el modal) */
+        #plansGrid [role="toolbar"],
+        .plans-grid [role="toolbar"],
+        .plan-card [role="toolbar"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+        }
+
         #izipayOfficialModal [role="toolbar"],
         .izipay-white-container [role="toolbar"],
         body > [role="toolbar"] {
@@ -1518,6 +1533,8 @@
             <div class="plan-note">Sin contratos · Cancela fácilmente</div>
         </div>`;
             }).join('');
+            setTimeout(() => { if (typeof hideIzipayTestToolbar === 'function') hideIzipayTestToolbar(); }, 0);
+            setTimeout(() => { if (typeof hideIzipayTestToolbar === 'function') hideIzipayTestToolbar(); }, 500);
         }
 
         function checkCurrentPlan() {
@@ -1757,7 +1774,7 @@
                     });
                     root.querySelectorAll('div[class*="inline-flex"], div.pointer-events-auto, [class*="pointer-events-auto"]').forEach((el) => {
                         const inner = (el.textContent || '').trim();
-                        if (inner.length > 220) return;
+                        if (inner.length > 320) return;
                         if (looksLikeTestBar(el)) applyHide(el);
                     });
                     const nodes = root.querySelectorAll('*');
@@ -1771,7 +1788,7 @@
                         if (++n > 9000) return;
                         if (el.id === 'izipayTestToolbarCover') return;
                         const inner = (el.textContent || '').trim();
-                        if (inner.length > 220) return;
+                        if (inner.length > 320) return;
                         if (looksLikeTestBar(el)) applyHide(el);
                     });
                 } catch (e) { /* ignore */ }
@@ -1787,25 +1804,15 @@
             });
         }
 
-        (function observeIzipayToolbar() {
-            const modal = document.getElementById('izipayOfficialModal');
-            if (!modal) return;
-            const obsModal = new MutationObserver(() => hideIzipayTestToolbar());
-            obsModal.observe(modal, { childList: true, subtree: true });
-
-            let bodyObs = null;
-            new MutationObserver(() => {
-                const open = modal.classList.contains('open');
-                if (open && !bodyObs && document.body) {
-                    bodyObs = new MutationObserver(() => hideIzipayTestToolbar());
-                    bodyObs.observe(document.body, { childList: true, subtree: true });
-                    hideIzipayTestToolbar();
-                }
-                if (!open && bodyObs) {
-                    bodyObs.disconnect();
-                    bodyObs = null;
-                }
-            }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+        /* El SDK Krypton puede inyectar la barra en la página de planes (sin abrir el modal). Antes solo observábamos body con el modal abierto. */
+        (function observeIzipayToolbarGlobal() {
+            const run = () => hideIzipayTestToolbar();
+            run();
+            if (document.body) {
+                new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+            }
+            const pageTick = setInterval(run, 650);
+            window.addEventListener('pagehide', () => clearInterval(pageTick), { once: true });
         })();
 
         function initIzipay() {
@@ -1814,6 +1821,8 @@
                 KR.onError((err) => {
                     showToast('error', '❌', 'Error de pago', err.errorMessage || 'Verifica los datos de tu tarjeta');
                 });
+                hideIzipayTestToolbar();
+                [200, 800, 2000].forEach((ms) => setTimeout(hideIzipayTestToolbar, ms));
             } else {
                 izipayInitAttempts++;
                 if (izipayInitAttempts < 15) { // Intentar por 7.5 segundos
