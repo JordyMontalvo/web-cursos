@@ -46,8 +46,7 @@ async function fetchCategories() {
 }
 
 function renderCategoryFilter() {
-    // There are 3 .filter-select elements. The first one is usually for categories.
-    // Based on index.html: 1st is course/category, 2nd is specialization, 3rd is pricing.
+    // index.html: 1st select = categoría (rellenado aquí), 2º = Especialización (placeholder).
     const filterSelects = document.querySelectorAll('.filter-select');
     if (filterSelects.length > 0) {
         const catSelect = filterSelects[0];
