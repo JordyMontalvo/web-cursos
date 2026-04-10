@@ -232,11 +232,17 @@
                     <div style="background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.05); padding:1.5rem;">
                         <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:#fff;">🎥 Video de Presentación</h3>
                         <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1rem;">Ingresa el enlace del video (Ej. YouTube) que aparecerá debajo del carrusel en la página principal.</p>
-                        <form id="settingsForm" onsubmit="saveSettings(event)" style="display:flex;gap:1rem;">
-                            <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..."
-                                style="flex:1;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;"
-                                required>
-                            <button type="submit" class="btn-primary" style="white-space:nowrap;">Guardar Link</button>
+                        <form id="settingsForm" onsubmit="saveSettings(event)" style="display:flex;flex-direction:column;gap:1rem;">
+                            <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+                                <input type="text" id="presentationVideoUrl" placeholder="https://www.youtube.com/embed/..."
+                                    style="flex:1;min-width:200px;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;">
+                                <button type="submit" class="btn-primary" style="white-space:nowrap;">Guardar</button>
+                            </div>
+                            <div>
+                                <label for="presentationVideoTitle" style="display:block;font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.75);margin-bottom:0.5rem;">Título debajo del video (en la página principal)</label>
+                                <input type="text" id="presentationVideoTitle" placeholder="Texto que aparece alineado al ancho del reproductor"
+                                    style="width:100%;box-sizing:border-box;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;">
+                            </div>
                         </form>
                     </div>
 

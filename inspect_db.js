@@ -12,7 +12,8 @@ const userSchema = new mongoose.Schema({
 const settingsSchema = new mongoose.Schema({
     companyName: String,
     logoUrl: String,
-    presentationVideoUrl: String
+    presentationVideoUrl: String,
+    presentationVideoTitle: String
 }, { collection: 'settings' });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);

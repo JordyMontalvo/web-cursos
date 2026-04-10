@@ -1818,6 +1818,9 @@ async function loadSettings() {
             if (document.getElementById('presentationVideoUrl')) {
                 document.getElementById('presentationVideoUrl').value = s.presentationVideoUrl || '';
             }
+            if (document.getElementById('presentationVideoTitle')) {
+                document.getElementById('presentationVideoTitle').value = s.presentationVideoTitle || '';
+            }
 
             // Logo section
             if (document.getElementById('configCompanyName')) {
@@ -1859,6 +1862,8 @@ async function saveSettings(e) {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
     const url = document.getElementById('presentationVideoUrl').value;
+    const titleEl = document.getElementById('presentationVideoTitle');
+    const presentationVideoTitle = titleEl ? titleEl.value : '';
 
     btn.disabled = true;
     btn.innerHTML = 'Guardando...';
@@ -1867,11 +1872,11 @@ async function saveSettings(e) {
         const res = await fetch('/api/admin/settings', {
             method: 'PUT',
             headers: authHeaders(),
-            body: JSON.stringify({ presentationVideoUrl: url })
+            body: JSON.stringify({ presentationVideoUrl: url, presentationVideoTitle })
         });
         const data = await res.json();
         if (data.success) {
-            showToast('Video de presentación guardado');
+            showToast('Video y título de presentación guardados');
         } else {
             showToast(data.message || 'Error al guardar', 'error');
         }
@@ -1879,7 +1884,7 @@ async function saveSettings(e) {
         showToast('Error de conexión', 'error');
     } finally {
         btn.disabled = false;
-        btn.innerHTML = 'Guardar Link';
+        btn.innerHTML = 'Guardar';
     }
 }
 

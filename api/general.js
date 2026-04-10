@@ -11,6 +11,7 @@ const Banner = mongoose.models.Banner || mongoose.model('Banner', new mongoose.S
 
 const Settings = mongoose.models.Settings || mongoose.models.Settings || mongoose.model('Settings', new mongoose.Schema({
     presentationVideoUrl: { type: String, default: '' },
+    presentationVideoTitle: { type: String, default: '' },
     companyName: { type: String, default: 'IATIBET ZUREON' },
     logoUrl: { type: String, default: '' },
     updatedAt: { type: Date, default: Date.now }
@@ -218,7 +219,7 @@ module.exports = async (req, res) => {
 
     // ── ADMIN: /api/admin/settings (PUT) ──
     if (route === 'admin-settings' && req.method === 'PUT') {
-        const { presentationVideoUrl, companyName, logoUrl } = req.body;
+        const { presentationVideoUrl, presentationVideoTitle, companyName, logoUrl } = req.body;
         
         const updated = await Settings.findOneAndUpdate(
             {},
@@ -227,6 +228,7 @@ module.exports = async (req, res) => {
                     ...(companyName !== undefined && { companyName }),
                     ...(logoUrl !== undefined && { logoUrl }),
                     ...(presentationVideoUrl !== undefined && { presentationVideoUrl }),
+                    ...(presentationVideoTitle !== undefined && { presentationVideoTitle }),
                     updatedAt: new Date()
                 }
             },

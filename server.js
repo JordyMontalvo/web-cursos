@@ -188,6 +188,7 @@ async function seedDatabase() {
         if (settingsCount === 0) {
             const defaultSettings = new Settings({
                 presentationVideoUrl: '',
+                presentationVideoTitle: '',
                 companyName: 'IATIBET ZUREON',
                 logoUrl: ''
             });
@@ -491,6 +492,9 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
 
         if (req.body.presentationVideoUrl !== undefined) {
             settings.presentationVideoUrl = req.body.presentationVideoUrl;
+        }
+        if (req.body.presentationVideoTitle !== undefined) {
+            settings.presentationVideoTitle = req.body.presentationVideoTitle;
         }
         if (req.body.companyName !== undefined) {
             settings.companyName = req.body.companyName;

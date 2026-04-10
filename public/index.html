@@ -90,13 +90,16 @@
   <section class="presentation-video-section" id="presentationVideoSection"
     style="display:none; padding: 12px 0 12px 0; text-align: center; background: #0A0A15;">
     <div class="container">
-      <div class="video-wrapper"
-        style="max-width: 800px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <!-- Iframe embedded via JS -->
-        <div id="presentationVideoContainer"
-          style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-          <!-- Iframe goes here -->
+      <div class="presentation-video-block"
+        style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+        <div class="video-wrapper"
+          style="border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <div id="presentationVideoContainer"
+            style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+          </div>
         </div>
+        <p id="presentationVideoTitle" class="presentation-video-title" lang="es"
+          style="display: none; margin: 0.85rem 0 0; padding: 0; width: 100%; box-sizing: border-box; text-align: left; color: rgba(255,255,255,0.95); font-size: 1.15rem; font-weight: 600; line-height: 1.45; word-wrap: break-word; overflow-wrap: anywhere;"></p>
       </div>
     </div>
   </section>

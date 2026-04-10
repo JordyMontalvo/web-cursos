@@ -236,12 +236,24 @@ async function loadSettings() {
             if (s.presentationVideoUrl) {
                 const section = document.getElementById('presentationVideoSection');
                 const container = document.getElementById('presentationVideoContainer');
+                const titleEl = document.getElementById('presentationVideoTitle');
 
                 if (section && container) {
                     const videoUrl = getEmbedUrl(s.presentationVideoUrl);
 
                     container.innerHTML = `<iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>`;
                     section.style.display = 'block';
+
+                    if (titleEl) {
+                        const t = (s.presentationVideoTitle && String(s.presentationVideoTitle).trim()) || '';
+                        if (t) {
+                            titleEl.textContent = t;
+                            titleEl.style.display = 'block';
+                        } else {
+                            titleEl.textContent = '';
+                            titleEl.style.display = 'none';
+                        }
+                    }
                 }
             }
         }
