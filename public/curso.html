@@ -50,6 +50,14 @@
             --title-glitch-red: rgba(255, 55, 110, 0.32);
         }
 
+        /* Solo desktop: video ligeramente más pequeño */
+        @media (min-width: 769px) {
+            :root {
+                --course-video-max: 1320px;
+                --course-video-max-height: 720px;
+            }
+        }
+
         body {
             background: var(--bg);
             background-image: 
