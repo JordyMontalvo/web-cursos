@@ -6,27 +6,48 @@ const https = require('https');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
-const mailUser = process.env.EMAIL_USER || 'soporteiatibetepisodios@gmail.com';
-const mailPassword = process.env.EMAIL_PASS || 'dkgdrsqmmknezahz';
+function getEmailConfig() {
+    const user = (process.env.SMTP_USER || process.env.EMAIL_USER || '').trim();
+    // Google App Password suele venir con espacios: "xxxx xxxx xxxx xxxx"
+    const pass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || '').replace(/\s+/g, '');
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const port = Number(process.env.SMTP_PORT || 465);
+    const secure = (process.env.SMTP_SECURE || '').toLowerCase() === 'false' ? false : port === 465;
+    const enabled = (process.env.ENABLE_EMAIL || '').toLowerCase() === 'true';
+    const from = process.env.EMAIL_FROM || (user ? `"IATIBET" <${user}>` : undefined);
+    return { enabled, user, pass, host, port, secure, from };
+}
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: mailUser,
-        pass: mailPassword
-    }
-});
+function getTransporter() {
+    const cfg = getEmailConfig();
+    if (!cfg.enabled) return null;
+    if (!cfg.user || !cfg.pass) return null;
+    return nodemailer.createTransport({
+        host: cfg.host,
+        port: cfg.port,
+        secure: cfg.secure,
+        auth: { user: cfg.user, pass: cfg.pass }
+    });
+}
 
 async function sendWelcomeEmail(email, name, password, provider = 'local') {
     try {
+        const cfg = getEmailConfig();
         console.log(`[BACKEND] Iniciando envío de correo de bienvenida a: ${email} (Provider: ${provider})`);
+        console.log(`[BACKEND] Email enabled=${cfg.enabled} user_set=${!!cfg.user} pass_set=${!!cfg.pass} host=${cfg.host} port=${cfg.port} secure=${cfg.secure}`);
+
+        const transporter = getTransporter();
+        if (!transporter) {
+            console.log('[BACKEND] Email deshabilitado o SMTP no configurado; se omite envío.');
+            return;
+        }
         
         const passText = provider === 'google' 
             ? '<em>Iniciaste sesión vinculando tu cuenta de Google. No necesitas contraseña.</em>' 
             : password;
 
         const mailOptions = {
-            from: `"IATIBET" <${mailUser}>`,
+            from: cfg.from,
             to: email,
             subject: '¡Bienvenido a IATIBET!',
             html: `
@@ -54,10 +75,17 @@ async function sendWelcomeEmail(email, name, password, provider = 'local') {
 
 async function sendPasswordResetEmail(email, name, resetUrl) {
     try {
+        const cfg = getEmailConfig();
         console.log(`[BACKEND] Iniciando envío de correo de recuperación a: ${email}`);
+
+        const transporter = getTransporter();
+        if (!transporter) {
+            console.log('[BACKEND] Email deshabilitado o SMTP no configurado; se omite envío.');
+            return;
+        }
         
         const mailOptions = {
-            from: `"IATIBET" <${mailUser}>`,
+            from: cfg.from,
             to: email,
             subject: 'Recuperación de Contraseña - IATIBET',
             html: `
