@@ -203,6 +203,13 @@
                 1.25px 0 0 var(--title-glitch-red);
         }
 
+        /* Solo desktop: reducir ~30% el tamaño del título */
+        @media (min-width: 769px) {
+            .episode-headline .episode-main-title {
+                font-size: clamp(0.95rem, 2.95vw, 1.65rem);
+            }
+        }
+
         .course-meta-row {
             display: flex;
             align-items: center;
