@@ -1269,6 +1269,38 @@
         </div>
     </section>
 
+    <!-- PLANS (DUPLICATE BELOW GUARANTEE) -->
+    <section class="plans-section" style="padding-top: 0; margin-top: -2rem; margin-bottom: 5rem;">
+        <div style="max-width:1100px;margin:0 auto 1.25rem;">
+            <h2 class="section-title" style="margin-bottom:0.35rem;">Elige tu plan ideal</h2>
+            <p class="section-subtitle" style="margin-bottom:0;">Los mismos planes, también al final de la página</p>
+        </div>
+        <div id="plansGridBottom" class="plans-grid">
+            <!-- Skeleton loader (same as top) -->
+            <div class="plan-card">
+                <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
+                <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
+                <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
+                <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
+                <div class="skel" style="height:48px;"></div>
+            </div>
+            <div class="plan-card">
+                <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
+                <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
+                <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
+                <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
+                <div class="skel" style="height:48px;"></div>
+            </div>
+            <div class="plan-card">
+                <div class="skel" style="height:56px;width:56px;border-radius:16px;margin-bottom:1.25rem;"></div>
+                <div class="skel" style="height:24px;width:60%;margin-bottom:0.5rem;"></div>
+                <div class="skel" style="height:16px;width:80%;margin-bottom:1.75rem;"></div>
+                <div class="skel" style="height:48px;width:40%;margin-bottom:1.5rem;"></div>
+                <div class="skel" style="height:48px;"></div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- CONFIRM MODAL -->
     <div class="modal-overlay" id="confirmModal">
@@ -1476,7 +1508,11 @@
                 renderPlans(plans);
                 checkCurrentPlan();
             } catch (err) {
-                document.getElementById('plansGrid').innerHTML = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">Error al cargar los planes. Intenta de nuevo.</div>`;
+                const html = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">Error al cargar los planes. Intenta de nuevo.</div>`;
+                const top = document.getElementById('plansGrid');
+                const bottom = document.getElementById('plansGridBottom');
+                if (top) top.innerHTML = html;
+                if (bottom) bottom.innerHTML = html;
             }
         }
 
@@ -1516,7 +1552,11 @@
         function renderPlans(plans) {
 
             if (!plans.length) {
-                document.getElementById('plansGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:rgba(255,255,255,.4);">No hay planes disponibles por el momento.</div>`;
+                const html = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:rgba(255,255,255,.4);">No hay planes disponibles por el momento.</div>`;
+                const top = document.getElementById('plansGrid');
+                const bottom = document.getElementById('plansGridBottom');
+                if (top) top.innerHTML = html;
+                if (bottom) bottom.innerHTML = html;
                 return;
             }
 
@@ -1527,7 +1567,7 @@
             // Sort by price
             const sorted = [...plans].sort((a, b) => a.price - b.price);
 
-            document.getElementById('plansGrid').innerHTML = sorted.map((plan, i) => {
+            const plansHtml = sorted.map((plan, i) => {
                 const isFeatured = plan.badge && (plan.badge.toLowerCase().includes('popular') || plan.badge.toLowerCase().includes('pro'));
                 const color = plan.color || '#7C3AED';
                 const btnBg = plan.buttonColor || color;
@@ -1564,6 +1604,10 @@
             <div class="plan-note">Sin contratos · Cancela fácilmente</div>
         </div>`;
             }).join('');
+            const top = document.getElementById('plansGrid');
+            const bottom = document.getElementById('plansGridBottom');
+            if (top) top.innerHTML = plansHtml;
+            if (bottom) bottom.innerHTML = plansHtml;
             setTimeout(() => { if (typeof hideIzipayTestToolbar === 'function') hideIzipayTestToolbar(); }, 0);
             setTimeout(() => { if (typeof hideIzipayTestToolbar === 'function') hideIzipayTestToolbar(); }, 500);
         }
