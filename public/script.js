@@ -262,6 +262,12 @@ async function loadSettings() {
                 const raw = s.membershipOfferBannerText != null ? String(s.membershipOfferBannerText).trim() : '';
                 offerBannerTextEl.textContent = raw || defaultOfferBanner;
             }
+
+            // Toggle FAQ (página Membresía)
+            const faqSection = document.getElementById('faqSection');
+            if (faqSection && s.membershipShowFaq === false) {
+                faqSection.remove();
+            }
         }
     } catch (err) {
         console.error('Error loading settings', err);

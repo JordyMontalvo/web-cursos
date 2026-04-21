@@ -1840,6 +1840,8 @@ async function loadSettings() {
             const durMEl = document.getElementById('membershipOfferDurationMinutes');
             if (durHEl) durHEl.value = (s.membershipOfferDurationHours != null ? String(s.membershipOfferDurationHours) : '0');
             if (durMEl) durMEl.value = (s.membershipOfferDurationMinutes != null ? String(s.membershipOfferDurationMinutes) : '0');
+            const showFaqEl = document.getElementById('membershipShowFaq');
+            if (showFaqEl) showFaqEl.checked = (s.membershipShowFaq !== false);
 
             // Logo section
             if (document.getElementById('configCompanyName')) {
@@ -1889,6 +1891,8 @@ async function saveSettings(e) {
     const durMEl = document.getElementById('membershipOfferDurationMinutes');
     const membershipOfferDurationHours = durHEl ? Number(durHEl.value) || 0 : 0;
     const membershipOfferDurationMinutes = durMEl ? Number(durMEl.value) || 0 : 0;
+    const showFaqEl = document.getElementById('membershipShowFaq');
+    const membershipShowFaq = showFaqEl ? Boolean(showFaqEl.checked) : true;
 
     btn.disabled = true;
     btn.innerHTML = 'Guardando...';
@@ -1903,6 +1907,7 @@ async function saveSettings(e) {
                 membershipOfferBannerText,
                 membershipOfferDurationHours,
                 membershipOfferDurationMinutes,
+                membershipShowFaq,
                 // compat: si existe en BD y quieres seguir usándolo, no lo tocamos desde este form
                 membershipOfferEndsAt: undefined
             })

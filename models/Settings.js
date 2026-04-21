@@ -10,6 +10,8 @@ const settingsSchema = new mongoose.Schema({
     /** Duración de la promo para el contador (0 = desactivado) */
     membershipOfferDurationHours: { type: Number, default: 0, min: 0, max: 168 },
     membershipOfferDurationMinutes: { type: Number, default: 0, min: 0, max: 59 },
+    /** Mostrar/ocultar sección FAQ en /membresia */
+    membershipShowFaq: { type: Boolean, default: true },
     /** Fin de la oferta (contador). null = usar contador por sesión (localStorage) */
     membershipOfferEndsAt: { type: Date, default: null },
     updatedAt: { type: Date, default: Date.now }

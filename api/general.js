@@ -17,6 +17,7 @@ const Settings = mongoose.models.Settings || mongoose.models.Settings || mongoos
     membershipOfferBannerText: { type: String, default: '' },
     membershipOfferDurationHours: { type: Number, default: 0 },
     membershipOfferDurationMinutes: { type: Number, default: 0 },
+    membershipShowFaq: { type: Boolean, default: true },
     membershipOfferEndsAt: { type: Date, default: null },
     updatedAt: { type: Date, default: Date.now }
 }));
@@ -231,6 +232,7 @@ module.exports = async (req, res) => {
             membershipOfferBannerText,
             membershipOfferDurationHours,
             membershipOfferDurationMinutes,
+            membershipShowFaq,
             membershipOfferEndsAt
         } = req.body;
         
@@ -248,6 +250,9 @@ module.exports = async (req, res) => {
                     }),
                     ...(membershipOfferDurationMinutes !== undefined && {
                         membershipOfferDurationMinutes: Number(membershipOfferDurationMinutes) || 0
+                    }),
+                    ...(membershipShowFaq !== undefined && {
+                        membershipShowFaq: Boolean(membershipShowFaq)
                     }),
                     ...(membershipOfferEndsAt !== undefined && {
                         membershipOfferEndsAt: membershipOfferEndsAt ? new Date(membershipOfferEndsAt) : null

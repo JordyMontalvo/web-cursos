@@ -511,6 +511,9 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
         if (req.body.membershipOfferDurationMinutes !== undefined) {
             settings.membershipOfferDurationMinutes = Number(req.body.membershipOfferDurationMinutes) || 0;
         }
+        if (req.body.membershipShowFaq !== undefined) {
+            settings.membershipShowFaq = Boolean(req.body.membershipShowFaq);
+        }
         if (req.body.membershipOfferEndsAt !== undefined) {
             settings.membershipOfferEndsAt = req.body.membershipOfferEndsAt
                 ? new Date(req.body.membershipOfferEndsAt)
