@@ -511,6 +511,13 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
         if (req.body.membershipOfferDurationMinutes !== undefined) {
             settings.membershipOfferDurationMinutes = Number(req.body.membershipOfferDurationMinutes) || 0;
         }
+        // Si el admin cambia duración, fijamos un fin GLOBAL desde "ahora" para todos
+        if (req.body.membershipOfferDurationHours !== undefined || req.body.membershipOfferDurationMinutes !== undefined) {
+            const h = Number(settings.membershipOfferDurationHours) || 0;
+            const m = Number(settings.membershipOfferDurationMinutes) || 0;
+            const durationMs = Math.max(0, h) * 3600000 + Math.max(0, m) * 60000;
+            settings.membershipOfferEndsAt = durationMs > 0 ? new Date(Date.now() + durationMs) : null;
+        }
         if (req.body.membershipShowFaq !== undefined) {
             settings.membershipShowFaq = Boolean(req.body.membershipShowFaq);
         }

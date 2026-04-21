@@ -1354,15 +1354,8 @@
                 const data = await res.json();
                 if (data.success && data.settings) {
                     const s = data.settings;
-                    const h = Number(s.membershipOfferDurationHours) || 0;
-                    const m = Number(s.membershipOfferDurationMinutes) || 0;
-                    const durationMs = Math.max(0, h) * 3600000 + Math.max(0, m) * 60000;
-
-                    // Preferimos duración (más simple de administrar)
-                    if (durationMs > 0) {
-                        endMs = Date.now() + durationMs;
-                    } else if (s.membershipOfferEndsAt) {
-                        // Compat: si existe una fecha fija anterior y no hay duración, la usamos
+                    // Preferimos fin GLOBAL guardado en BD (no se reinicia al entrar)
+                    if (s.membershipOfferEndsAt) {
                         const t = new Date(s.membershipOfferEndsAt).getTime();
                         if (!Number.isNaN(t)) endMs = t;
                     }

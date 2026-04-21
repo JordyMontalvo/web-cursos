@@ -235,6 +235,16 @@ module.exports = async (req, res) => {
             membershipShowFaq,
             membershipOfferEndsAt
         } = req.body;
+
+        const hNum = membershipOfferDurationHours !== undefined ? Number(membershipOfferDurationHours) || 0 : undefined;
+        const mNum = membershipOfferDurationMinutes !== undefined ? Number(membershipOfferDurationMinutes) || 0 : undefined;
+        const durationMs =
+            (hNum !== undefined ? Math.max(0, hNum) : 0) * 3600000 +
+            (mNum !== undefined ? Math.max(0, mNum) : 0) * 60000;
+        const shouldSetGlobalEndsAt = (hNum !== undefined || mNum !== undefined);
+        const computedEndsAt = shouldSetGlobalEndsAt
+            ? (durationMs > 0 ? new Date(Date.now() + durationMs) : null)
+            : undefined;
         
         const updated = await Settings.findOneAndUpdate(
             {},
@@ -245,16 +255,15 @@ module.exports = async (req, res) => {
                     ...(presentationVideoUrl !== undefined && { presentationVideoUrl }),
                     ...(presentationVideoTitle !== undefined && { presentationVideoTitle }),
                     ...(membershipOfferBannerText !== undefined && { membershipOfferBannerText }),
-                    ...(membershipOfferDurationHours !== undefined && {
-                        membershipOfferDurationHours: Number(membershipOfferDurationHours) || 0
-                    }),
-                    ...(membershipOfferDurationMinutes !== undefined && {
-                        membershipOfferDurationMinutes: Number(membershipOfferDurationMinutes) || 0
-                    }),
+                    ...(membershipOfferDurationHours !== undefined && { membershipOfferDurationHours: hNum }),
+                    ...(membershipOfferDurationMinutes !== undefined && { membershipOfferDurationMinutes: mNum }),
                     ...(membershipShowFaq !== undefined && {
                         membershipShowFaq: Boolean(membershipShowFaq)
                     }),
-                    ...(membershipOfferEndsAt !== undefined && {
+                    // Si admin cambia duración, fijamos un fin GLOBAL desde "ahora" para todos.
+                    ...(computedEndsAt !== undefined && { membershipOfferEndsAt: computedEndsAt }),
+                    // Compat: si envían membershipOfferEndsAt explícito (legacy), respetarlo.
+                    ...(computedEndsAt === undefined && membershipOfferEndsAt !== undefined && {
                         membershipOfferEndsAt: membershipOfferEndsAt ? new Date(membershipOfferEndsAt) : null
                     }),
                     updatedAt: new Date()
