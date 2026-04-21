@@ -7,6 +7,7 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 
 const Course = require('./models/Course');
 const User = require('./models/User');
@@ -22,6 +23,54 @@ const LandingConfig = require('./models/LandingConfig');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
+
+function isEmailEnabled() {
+    return (process.env.ENABLE_EMAIL || '').toLowerCase() === 'true';
+}
+
+function getMailTransporter() {
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const port = Number(process.env.SMTP_PORT || 465);
+    const secure = (process.env.SMTP_SECURE || '').toLowerCase() === 'false' ? false : port === 465;
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+
+    if (!user || !pass) return null;
+
+    return nodemailer.createTransport({
+        host,
+        port,
+        secure,
+        auth: { user, pass }
+    });
+}
+
+async function sendWelcomeEmail({ to, name }) {
+    if (!isEmailEnabled()) return { sent: false, skipped: true, reason: 'ENABLE_EMAIL=false' };
+
+    const transporter = getMailTransporter();
+    if (!transporter) return { sent: false, skipped: true, reason: 'SMTP_USER/SMTP_PASS faltan' };
+
+    const from = process.env.EMAIL_FROM || process.env.SMTP_USER;
+    const appName = process.env.APP_NAME || 'IATIBET';
+
+    const safeName = (name || '').trim() || 'hola';
+    const subject = `Bienvenido/a a ${appName}`;
+    const text =
+        `Hola ${safeName},\n\n` +
+        `Tu cuenta en ${appName} fue creada correctamente.\n\n` +
+        `Si no fuiste tú, por favor responde este correo para que podamos ayudarte.\n\n` +
+        `Saludos,\n${appName}`;
+
+    await transporter.sendMail({
+        from,
+        to,
+        subject,
+        text
+    });
+
+    return { sent: true };
+}
 
 // Middleware
 app.use(cors());
@@ -319,6 +368,10 @@ app.post('/api/auth/register', async (req, res) => {
             referredBy: referredById
         });
         await user.save();
+
+        // Email de bienvenida (no bloqueante)
+        sendWelcomeEmail({ to: user.email, name: user.name })
+            .catch((err) => console.error('Error enviando email de bienvenida:', err && err.message ? err.message : err));
 
         const token = jwt.sign(
             { id: user._id, email: user.email, role: user.role },
