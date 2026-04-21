@@ -843,7 +843,12 @@
 
         /* Cuando FAQ está oculto, dar aire arriba del bloque garantía */
         body.faq-hidden #guaranteeSection {
-            margin-top: 20px;
+            margin-top: 65px;
+        }
+        @media (max-width: 768px) {
+            body.faq-hidden #guaranteeSection {
+                margin-top: 50px;
+            }
         }
 
         /* ── Confirm Modal ───────────────────────────────────────── */
