@@ -267,6 +267,7 @@ async function loadSettings() {
             const faqSection = document.getElementById('faqSection');
             if (faqSection && s.membershipShowFaq === false) {
                 faqSection.remove();
+                document.body.classList.add('faq-hidden');
             }
         }
     } catch (err) {
