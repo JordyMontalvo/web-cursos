@@ -244,6 +244,28 @@
                                 <input type="text" id="presentationVideoTitle" placeholder="Texto que aparece alineado al ancho del reproductor"
                                     style="width:100%;box-sizing:border-box;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;">
                             </div>
+                            <div>
+                                <label for="membershipOfferBannerText" style="display:block;font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.75);margin-bottom:0.5rem;">Banner superior — página Membresía (oferta / descuento)</label>
+                                <p style="color:rgba(255,255,255,0.45);font-size:0.8rem;margin:0 0 0.5rem 0;">Texto que aparece antes del contador. Puedes escribir el porcentaje u otro mensaje (ej. “ahorra más del 50%”). Déjalo vacío para usar el texto por defecto del sitio.</p>
+                                <textarea id="membershipOfferBannerText" rows="2" placeholder="🔥 Oferta especial — ahorra más del 60% · Termina en:"
+                                    style="width:100%;box-sizing:border-box;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;resize:vertical;font-family:inherit;"></textarea>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.75);margin-bottom:0.5rem;">Duración del contador (promo)</label>
+                                <p style="color:rgba(255,255,255,0.45);font-size:0.8rem;margin:0 0 0.5rem 0;">Más fácil: define cuántas <b>horas</b> dura la promoción y, si quieres, <b>minutos</b>. Si ambos están en 0, se usa el modo anterior guardado en el dispositivo.</p>
+                                <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+                                    <div style="display:flex; flex-direction:column; gap:0.35rem;">
+                                        <label for="membershipOfferDurationHours" style="font-size:0.75rem; color:rgba(255,255,255,0.65); font-weight:600;">Horas</label>
+                                        <input type="number" id="membershipOfferDurationHours" min="0" max="168" step="1" placeholder="3"
+                                            style="width:8rem;box-sizing:border-box;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;">
+                                    </div>
+                                    <div style="display:flex; flex-direction:column; gap:0.35rem;">
+                                        <label for="membershipOfferDurationMinutes" style="font-size:0.75rem; color:rgba(255,255,255,0.65); font-weight:600;">Minutos (opcional)</label>
+                                        <input type="number" id="membershipOfferDurationMinutes" min="0" max="59" step="1" placeholder="47"
+                                            style="width:10rem;box-sizing:border-box;padding:0.75rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;">
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
 

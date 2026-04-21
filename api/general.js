@@ -14,6 +14,10 @@ const Settings = mongoose.models.Settings || mongoose.models.Settings || mongoos
     presentationVideoTitle: { type: String, default: '' },
     companyName: { type: String, default: 'IATIBET ZUREON' },
     logoUrl: { type: String, default: '' },
+    membershipOfferBannerText: { type: String, default: '' },
+    membershipOfferDurationHours: { type: Number, default: 0 },
+    membershipOfferDurationMinutes: { type: Number, default: 0 },
+    membershipOfferEndsAt: { type: Date, default: null },
     updatedAt: { type: Date, default: Date.now }
 }));
 
@@ -219,7 +223,16 @@ module.exports = async (req, res) => {
 
     // ── ADMIN: /api/admin/settings (PUT) ──
     if (route === 'admin-settings' && req.method === 'PUT') {
-        const { presentationVideoUrl, presentationVideoTitle, companyName, logoUrl } = req.body;
+        const {
+            presentationVideoUrl,
+            presentationVideoTitle,
+            companyName,
+            logoUrl,
+            membershipOfferBannerText,
+            membershipOfferDurationHours,
+            membershipOfferDurationMinutes,
+            membershipOfferEndsAt
+        } = req.body;
         
         const updated = await Settings.findOneAndUpdate(
             {},
@@ -229,6 +242,16 @@ module.exports = async (req, res) => {
                     ...(logoUrl !== undefined && { logoUrl }),
                     ...(presentationVideoUrl !== undefined && { presentationVideoUrl }),
                     ...(presentationVideoTitle !== undefined && { presentationVideoTitle }),
+                    ...(membershipOfferBannerText !== undefined && { membershipOfferBannerText }),
+                    ...(membershipOfferDurationHours !== undefined && {
+                        membershipOfferDurationHours: Number(membershipOfferDurationHours) || 0
+                    }),
+                    ...(membershipOfferDurationMinutes !== undefined && {
+                        membershipOfferDurationMinutes: Number(membershipOfferDurationMinutes) || 0
+                    }),
+                    ...(membershipOfferEndsAt !== undefined && {
+                        membershipOfferEndsAt: membershipOfferEndsAt ? new Date(membershipOfferEndsAt) : null
+                    }),
                     updatedAt: new Date()
                 }
             },

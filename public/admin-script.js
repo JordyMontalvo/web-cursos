@@ -1832,6 +1832,14 @@ async function loadSettings() {
             if (document.getElementById('presentationVideoTitle')) {
                 document.getElementById('presentationVideoTitle').value = s.presentationVideoTitle || '';
             }
+            if (document.getElementById('membershipOfferBannerText')) {
+                document.getElementById('membershipOfferBannerText').value =
+                    s.membershipOfferBannerText != null ? String(s.membershipOfferBannerText) : '';
+            }
+            const durHEl = document.getElementById('membershipOfferDurationHours');
+            const durMEl = document.getElementById('membershipOfferDurationMinutes');
+            if (durHEl) durHEl.value = (s.membershipOfferDurationHours != null ? String(s.membershipOfferDurationHours) : '0');
+            if (durMEl) durMEl.value = (s.membershipOfferDurationMinutes != null ? String(s.membershipOfferDurationMinutes) : '0');
 
             // Logo section
             if (document.getElementById('configCompanyName')) {
@@ -1875,6 +1883,12 @@ async function saveSettings(e) {
     const url = document.getElementById('presentationVideoUrl').value;
     const titleEl = document.getElementById('presentationVideoTitle');
     const presentationVideoTitle = titleEl ? titleEl.value : '';
+    const bannerEl = document.getElementById('membershipOfferBannerText');
+    const membershipOfferBannerText = bannerEl ? bannerEl.value : '';
+    const durHEl = document.getElementById('membershipOfferDurationHours');
+    const durMEl = document.getElementById('membershipOfferDurationMinutes');
+    const membershipOfferDurationHours = durHEl ? Number(durHEl.value) || 0 : 0;
+    const membershipOfferDurationMinutes = durMEl ? Number(durMEl.value) || 0 : 0;
 
     btn.disabled = true;
     btn.innerHTML = 'Guardando...';
@@ -1883,11 +1897,19 @@ async function saveSettings(e) {
         const res = await fetch('/api/admin/settings', {
             method: 'PUT',
             headers: authHeaders(),
-            body: JSON.stringify({ presentationVideoUrl: url, presentationVideoTitle })
+            body: JSON.stringify({
+                presentationVideoUrl: url,
+                presentationVideoTitle,
+                membershipOfferBannerText,
+                membershipOfferDurationHours,
+                membershipOfferDurationMinutes,
+                // compat: si existe en BD y quieres seguir usándolo, no lo tocamos desde este form
+                membershipOfferEndsAt: undefined
+            })
         });
         const data = await res.json();
         if (data.success) {
-            showToast('Video y título de presentación guardados');
+            showToast('Configuración de banners y video guardada');
         } else {
             showToast(data.message || 'Error al guardar', 'error');
         }

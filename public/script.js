@@ -253,6 +253,15 @@ async function loadSettings() {
                     }
                 }
             }
+
+            // Banner de oferta (página Membresía)
+            const offerBannerTextEl = document.getElementById('offerBannerText');
+            if (offerBannerTextEl) {
+                const defaultOfferBanner =
+                    '🔥 Oferta especial — ahorra más del 60% · Termina en:';
+                const raw = s.membershipOfferBannerText != null ? String(s.membershipOfferBannerText).trim() : '';
+                offerBannerTextEl.textContent = raw || defaultOfferBanner;
+            }
         }
     } catch (err) {
         console.error('Error loading settings', err);

@@ -502,6 +502,20 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
         if (req.body.logoUrl !== undefined) {
             settings.logoUrl = req.body.logoUrl;
         }
+        if (req.body.membershipOfferBannerText !== undefined) {
+            settings.membershipOfferBannerText = req.body.membershipOfferBannerText;
+        }
+        if (req.body.membershipOfferDurationHours !== undefined) {
+            settings.membershipOfferDurationHours = Number(req.body.membershipOfferDurationHours) || 0;
+        }
+        if (req.body.membershipOfferDurationMinutes !== undefined) {
+            settings.membershipOfferDurationMinutes = Number(req.body.membershipOfferDurationMinutes) || 0;
+        }
+        if (req.body.membershipOfferEndsAt !== undefined) {
+            settings.membershipOfferEndsAt = req.body.membershipOfferEndsAt
+                ? new Date(req.body.membershipOfferEndsAt)
+                : null;
+        }
 
         settings.updatedAt = new Date();
         await settings.save();
