@@ -784,6 +784,15 @@
                     document.getElementById('lockScreen').classList.add('active');
                     return;
                 }
+
+                // Mantener authUser sincronizado con datos del backend (incluye membershipExpiresAt)
+                try {
+                    const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                    if (acc.membershipExpiresAt) u.membershipExpiresAt = acc.membershipExpiresAt;
+                    if (typeof acc.hasMembership === 'boolean') u.hasMembership = acc.hasMembership;
+                    if (acc.membershipPlan) u.membershipPlan = acc.membershipPlan;
+                    localStorage.setItem('authUser', JSON.stringify(u));
+                } catch { /* ignore */ }
                 
                 // Sync progress from DB to LocalStorage
                 if (acc.progress && acc.progress[courseId]) {

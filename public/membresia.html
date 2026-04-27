@@ -269,7 +269,8 @@
             padding: 0.75rem 1rem;
             font-size: 0.9rem;
             font-weight: 600;
-            display: flex;
+            /* Oculto por defecto: se muestra solo si está configurado en Admin */
+            display: none;
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
@@ -1375,10 +1376,10 @@
 
         const user = JSON.parse(localStorage.getItem('authUser') || 'null');
 
-        // ── Countdown (duración desde admin o modo sesión local) ───────
+        // ── Countdown (solo si está configurado en Admin) ──────────────
         (async function startCountdown() {
-            const key = 'offerEnd';
             let endMs = null;
+            let enabled = false;
 
             try {
                 await configReady;
@@ -1386,23 +1387,34 @@
                 const data = await res.json();
                 if (data.success && data.settings) {
                     const s = data.settings;
-                    // Preferimos fin GLOBAL guardado en BD (no se reinicia al entrar)
-                    if (s.membershipOfferEndsAt) {
+                    // Solo mostrar si hay oferta configurada en Admin:
+                    // - Fin global (membershipOfferEndsAt), o
+                    // - Duración (membershipOfferDurationHours/minutes) > 0
+                    const durH = Number(s.membershipOfferDurationHours) || 0;
+                    const durM = Number(s.membershipOfferDurationMinutes) || 0;
+                    const hasDuration = (durH > 0 || durM > 0);
+                    const hasEndsAt = !!s.membershipOfferEndsAt;
+
+                    enabled = hasEndsAt || hasDuration;
+
+                    if (hasEndsAt) {
                         const t = new Date(s.membershipOfferEndsAt).getTime();
                         if (!Number.isNaN(t)) endMs = t;
+                    } else if (hasDuration) {
+                        endMs = Date.now() + (durH * 60 * 60 + durM * 60) * 1000;
                     }
                 }
-            } catch (e) { /* fallback local */ }
+            } catch (e) { /* ignore */ }
 
-            if (endMs == null) {
-                let stored = localStorage.getItem(key);
-                if (!stored || Date.now() > Number(stored)) {
-                    endMs = Date.now() + (3 * 60 * 60 + 47 * 60 + 33) * 1000;
-                    localStorage.setItem(key, String(endMs));
-                } else {
-                    endMs = Number(stored);
-                }
+            // Si no hay oferta configurada, ocultar banner y salir.
+            if (!enabled || endMs == null) {
+                const b = document.getElementById('offerBanner');
+                if (b) b.style.display = 'none';
+                return;
             }
+            // Oferta activa: mostrar banner (está oculto por defecto en CSS).
+            const banner = document.getElementById('offerBanner');
+            if (banner) banner.style.display = 'flex';
 
             function tick() {
                 const left = Math.max(0, endMs - Date.now());
@@ -1413,7 +1425,6 @@
                 document.getElementById('cdM').textContent = m;
                 document.getElementById('cdS').textContent = s;
                 if (left <= 0) {
-                    localStorage.removeItem(key);
                     document.getElementById('offerBanner').style.display = 'none';
                 }
             }

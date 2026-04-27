@@ -194,6 +194,7 @@ function formatUser(user) {
         provider: user.provider || 'local',
         hasMembership: user.hasMembership ? user.hasMembership() : false,
         membershipPlan: user.membershipPlan,
+        membershipExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
         progress: user.progress || {}
     };
 }
@@ -414,7 +415,15 @@ module.exports = async (req, res) => {
         if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
         const hasMem = user.hasMembership();
         const hasAccess = hasMem || user.role === 'admin';
-        return res.json({ success: true, hasAccess, hasMembership: hasMem, membershipPlan: user.membershipPlan, role: user.role, progress: user.progress || {} });
+        return res.json({
+            success: true,
+            hasAccess,
+            hasMembership: hasMem,
+            membershipPlan: user.membershipPlan,
+            membershipExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+            role: user.role,
+            progress: user.progress || {}
+        });
     }
 
     // ── POST /api/auth/progress ──────────────────────────────────
