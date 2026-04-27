@@ -35,6 +35,11 @@ try { User = mongoose.model('User'); } catch {
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
+        membershipAutoRenew: { type: Boolean, default: false },
+        membershipCanceledAt: { type: Date, default: null },
+        membershipCancelReason: { type: String, default: '' },
+        izipayPaymentMethodToken: { type: String, default: '' },
+        izipayLastOrderId: { type: String, default: '' },
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
     });
@@ -93,10 +98,40 @@ module.exports = async (req, res) => {
         user.activeMembership = membership._id;
         user.membershipExpiresAt = expiresAt;
         user.membershipPlan = membership.name;
+        // Activación directa (sin PSP): no habilitar auto-renovación aquí.
+        user.membershipAutoRenew = false;
+        user.membershipCanceledAt = null;
+        user.membershipCancelReason = '';
         user.updatedAt = Date.now();
         await user.save();
 
         return res.json({ success: true, message: 'Membresía activada', membership: { name: membership.name, expiresAt } });
+    }
+
+    // ── POST /api/memberships/cancel ────────────────────────────
+    // Anula la suscripción (auto-renovación). Mantiene acceso hasta membershipExpiresAt.
+    if (req.method === 'POST' && url.endsWith('/cancel')) {
+        const decoded = verifyToken(req);
+        if (!decoded) return res.status(401).json({ success: false, message: 'No autenticado' });
+
+        const { reason } = req.body || {};
+        const user = await User.findById(decoded.id);
+        if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+
+        user.membershipAutoRenew = false;
+        user.membershipCanceledAt = new Date();
+        user.membershipCancelReason = (reason || '').toString().slice(0, 200);
+        user.updatedAt = Date.now();
+        await user.save();
+
+        return res.json({
+            success: true,
+            message: user.membershipExpiresAt
+                ? 'Suscripción anulada. Mantendrás acceso hasta el vencimiento.'
+                : 'Suscripción anulada.',
+            cancelAt: user.membershipCanceledAt,
+            expiresAt: user.membershipExpiresAt || null
+        });
     }
 
     return res.status(404).json({ success: false, message: 'Ruta no encontrada' });

@@ -143,6 +143,11 @@ try { User = mongoose.model('User'); } catch {
         activeMembership:    { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan:      { type: String, default: null },
+        membershipAutoRenew: { type: Boolean, default: false },
+        membershipCanceledAt: { type: Date, default: null },
+        membershipCancelReason: { type: String, default: '' },
+        izipayPaymentMethodToken: { type: String, default: '' },
+        izipayLastOrderId: { type: String, default: '' },
         resetPasswordToken:  { type: String },
         resetPasswordExpires:{ type: Date },
         progress:            { type: Object, default: {} },
@@ -195,6 +200,8 @@ function formatUser(user) {
         hasMembership: user.hasMembership ? user.hasMembership() : false,
         membershipPlan: user.membershipPlan,
         membershipExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+        membershipAutoRenew: !!user.membershipAutoRenew,
+        membershipCanceledAt: user.membershipCanceledAt ? new Date(user.membershipCanceledAt).toISOString() : null,
         progress: user.progress || {}
     };
 }

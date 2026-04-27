@@ -103,6 +103,28 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    // ── Suscripción / Renovación automática ───────────────────────
+    membershipAutoRenew: {
+        type: Boolean,
+        default: false
+    },
+    membershipCanceledAt: {
+        type: Date,
+        default: null
+    },
+    membershipCancelReason: {
+        type: String,
+        default: ''
+    },
+    // Token/alias para cobros recurrentes (si el PSP lo entrega)
+    izipayPaymentMethodToken: {
+        type: String,
+        default: ''
+    },
+    izipayLastOrderId: {
+        type: String,
+        default: ''
+    },
     // User progress
     progress: {
         type: Object,
@@ -146,6 +168,10 @@ userSchema.methods.hasMembership = function() {
     if (!this.activeMembership) return false;
     if (!this.membershipExpiresAt) return false;
     return new Date() < this.membershipExpiresAt;
+};
+
+userSchema.methods.isAutoRenewEnabled = function() {
+    return !!(this.membershipAutoRenew && this.izipayPaymentMethodToken && this.activeMembership && this.membershipExpiresAt);
 };
 
 module.exports = mongoose.model('User', userSchema);

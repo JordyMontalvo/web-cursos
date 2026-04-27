@@ -91,6 +91,11 @@ try { User = mongoose.model('User'); } catch {
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
+        membershipAutoRenew: { type: Boolean, default: false },
+        membershipCanceledAt: { type: Date, default: null },
+        membershipCancelReason: { type: String, default: '' },
+        izipayPaymentMethodToken: { type: String, default: '' },
+        izipayLastOrderId: { type: String, default: '' },
         updatedAt: { type: Date, default: Date.now }
     });
     User = mongoose.model('User', schema);
@@ -129,6 +134,23 @@ try { Transaction = mongoose.model('Transaction'); } catch {
         createdAt: { type: Date, default: Date.now }
     });
     Transaction = mongoose.model('Transaction', schema);
+}
+
+let Payment;
+try { Payment = mongoose.model('Payment'); } catch {
+    const schema = new mongoose.Schema({
+        orderId: { type: String, default: '' },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
+        kind: { type: String, enum: ['checkout', 'renewal'], default: 'checkout' },
+        status: { type: String, enum: ['paid', 'failed', 'pending'], default: 'pending' },
+        amountCents: { type: Number, default: 0 },
+        currency: { type: String, default: '' },
+        raw: { type: Object, default: {} },
+        createdAt: { type: Date, default: Date.now }
+    });
+    schema.index({ orderId: 1 }, { unique: true, sparse: true });
+    Payment = mongoose.model('Payment', schema);
 }
 
 let Coupon;
@@ -291,6 +313,34 @@ function verifyHash(answer, hash, key) {
     return calculatedHash === hash;
 }
 
+function safeString(v) {
+    return (v == null) ? '' : String(v);
+}
+
+function extractPaymentMethodToken(answer) {
+    const candidates = [
+        answer?.paymentMethodToken,
+        answer?.paymentMethod?.token,
+        answer?.orderDetails?.paymentMethodToken,
+        answer?.transactions?.[0]?.paymentMethodToken,
+        answer?.transactions?.[0]?.paymentMethod?.token,
+        answer?.cardDetails?.token,
+        answer?.cardDetails?.cardToken,
+        answer?.transactions?.[0]?.cardDetails?.token,
+        answer?.transactions?.[0]?.cardDetails?.cardToken
+    ].map(safeString).map(s => s.trim()).filter(Boolean);
+    return candidates[0] || '';
+}
+
+function computeNextExpiry({ currentExpiresAt, durationDays }) {
+    if (!durationDays || Number(durationDays) === 0) return new Date('2099-12-31');
+    const now = Date.now();
+    const base = currentExpiresAt && new Date(currentExpiresAt).getTime() > now
+        ? new Date(currentExpiresAt).getTime()
+        : now;
+    return new Date(base + Number(durationDays) * 24 * 60 * 60 * 1000);
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -423,16 +473,40 @@ module.exports = async (req, res) => {
             // Solo se comisiona la PRIMERA compra (primer plan) de este usuario referido
             const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
 
-            const expiresAt = (!membership.durationDays || membership.durationDays === 0) 
-                ? new Date('2099-12-31') 
-                : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+            const expiresAt = computeNextExpiry({ currentExpiresAt: user.membershipExpiresAt, durationDays: membership.durationDays });
 
             user.activeMembership = membership._id;
             user.membershipExpiresAt = expiresAt;
             user.membershipPlan = membership.name;
+            user.izipayLastOrderId = rawOrderId;
+
+            const pmToken = extractPaymentMethodToken(answer);
+            if (pmToken) {
+                user.izipayPaymentMethodToken = pmToken;
+                user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);
+                user.membershipCanceledAt = null;
+                user.membershipCancelReason = '';
+            } else {
+                user.membershipAutoRenew = false;
+            }
             user.updatedAt = Date.now();
             await user.save();
             console.log('[IZIPAY] ✅ Webhook: Membresía activada para:', customerRef);
+
+            try {
+                await Payment.create({
+                    orderId: rawOrderId,
+                    userId: user._id,
+                    membershipId: membership._id,
+                    kind: 'checkout',
+                    status: 'paid',
+                    amountCents: Number(answer.orderDetails?.metadata?.finalAmountCents) || 0,
+                    currency: safeString(answer.orderDetails?.currency || answer.currency),
+                    raw: answer
+                });
+            } catch (e) {
+                console.warn('[IZIPAY] Webhook: no se pudo registrar Payment:', e?.message);
+            }
 
             // Registrar redención de cupón si vino en metadata
             const couponCode = answer.orderDetails?.metadata?.couponCode || '';
@@ -554,16 +628,40 @@ module.exports = async (req, res) => {
                 // Solo se comisiona la PRIMERA compra (primer plan) de este usuario referido
                 const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
 
-                const expiresAt = (!membership.durationDays || membership.durationDays === 0)
-                    ? new Date('2099-12-31')
-                    : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+                const expiresAt = computeNextExpiry({ currentExpiresAt: user.membershipExpiresAt, durationDays: membership.durationDays });
 
                 user.activeMembership = membership._id;
                 user.membershipExpiresAt = expiresAt;
                 user.membershipPlan = membership.name;
+                user.izipayLastOrderId = rawOrderId;
+
+                const pmToken = extractPaymentMethodToken(answer);
+                if (pmToken) {
+                    user.izipayPaymentMethodToken = pmToken;
+                    user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);
+                    user.membershipCanceledAt = null;
+                    user.membershipCancelReason = '';
+                } else {
+                    user.membershipAutoRenew = false;
+                }
                 user.updatedAt = new Date();
                 await user.save();
                 console.log('[IZIPAY] ✅ Membresía activada exitosamente para:', user.email);
+
+                try {
+                    await Payment.create({
+                        orderId: rawOrderId,
+                        userId: user._id,
+                        membershipId: membership._id,
+                        kind: 'checkout',
+                        status: 'paid',
+                        amountCents: Number(answer.orderDetails?.metadata?.finalAmountCents) || 0,
+                        currency: safeString(answer.orderDetails?.currency || answer.currency),
+                        raw: answer
+                    });
+                } catch (e) {
+                    console.warn('[IZIPAY] Return: no se pudo registrar Payment:', e?.message);
+                }
 
                 // Registrar redención de cupón si vino en metadata
                 const couponCode = answer.orderDetails?.metadata?.couponCode || '';
