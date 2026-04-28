@@ -445,6 +445,7 @@ module.exports = async (req, res) => {
                 console.log('[IZIPAY] Checkout SUCCESS');
                 return res.json({ 
                     success: true, 
+                    orderId,
                     formToken: iziRes.answer.formToken,
                     publicKey: IZIPAY_PUBLIC  // Clave pública pareada con este token
                 });
@@ -473,6 +474,11 @@ module.exports = async (req, res) => {
         }
 
         const answer = JSON.parse(answerStr);
+        console.log('[IZIPAY] Webhook received', {
+            orderStatus: answer.orderStatus,
+            orderId: answer.orderDetails?.orderId,
+            customerRef: answer.customer?.reference
+        });
         if (answer.orderStatus !== 'PAID') return res.status(200).send('Not paid');
 
         try {
@@ -498,6 +504,12 @@ module.exports = async (req, res) => {
             const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
 
             const expiresAt = computeNextExpiry({ currentExpiresAt: user.membershipExpiresAt, durationDays: membership.durationDays });
+            console.log('[IZIPAY] Webhook activation projection', {
+                userId: String(user._id),
+                membershipId: String(membership._id),
+                prevExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+                nextExpiresAt: expiresAt ? new Date(expiresAt).toISOString() : null
+            });
 
             user.activeMembership = membership._id;
             user.membershipExpiresAt = expiresAt;
@@ -505,6 +517,10 @@ module.exports = async (req, res) => {
             user.izipayLastOrderId = rawOrderId;
 
             const pmToken = extractPaymentMethodToken(answer);
+            console.log('[IZIPAY] Webhook payment method token', {
+                hasToken: !!pmToken,
+                tokenPreview: pmToken ? pmToken.slice(0, 10) + '...' : ''
+            });
             if (pmToken) {
                 user.izipayPaymentMethodToken = pmToken;
                 user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);
@@ -653,6 +669,12 @@ module.exports = async (req, res) => {
                 const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
 
                 const expiresAt = computeNextExpiry({ currentExpiresAt: user.membershipExpiresAt, durationDays: membership.durationDays });
+                console.log('[IZIPAY] Return activation projection', {
+                    userId: String(user._id),
+                    membershipId: String(membership._id),
+                    prevExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+                    nextExpiresAt: expiresAt ? new Date(expiresAt).toISOString() : null
+                });
 
                 user.activeMembership = membership._id;
                 user.membershipExpiresAt = expiresAt;
@@ -660,6 +682,10 @@ module.exports = async (req, res) => {
                 user.izipayLastOrderId = rawOrderId;
 
                 const pmToken = extractPaymentMethodToken(answer);
+                console.log('[IZIPAY] Return payment method token', {
+                    hasToken: !!pmToken,
+                    tokenPreview: pmToken ? pmToken.slice(0, 10) + '...' : ''
+                });
                 if (pmToken) {
                     user.izipayPaymentMethodToken = pmToken;
                     user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);

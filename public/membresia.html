@@ -2069,7 +2069,8 @@
 
                 console.log('[MEMBRESIA][IZIPAY] checkout payload OK', {
                     hasFormToken: !!data.formToken,
-                    publicKeyPreview: (data.publicKey || '').slice(0, 22) + '...'
+                    publicKeyPreview: (data.publicKey || '').slice(0, 22) + '...',
+                    orderId: data.orderId
                 });
                 await KR.setFormToken(data.formToken);
                 console.log('[MEMBRESIA][IZIPAY] KR.setFormToken OK');
