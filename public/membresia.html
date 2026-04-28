@@ -2107,11 +2107,22 @@
 
         let __activationPollTimer = null;
         let __activationPollStartedAt = 0;
+        let __activationBaseline = null; // { hasMembership, membershipPlan, membershipExpiresAt }
         async function startActivationPolling() {
             if (__activationPollTimer) return;
             const t = localStorage.getItem('authToken');
             if (!t) return;
             __activationPollStartedAt = Date.now();
+            try {
+                const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                __activationBaseline = {
+                    hasMembership: !!u.hasMembership,
+                    membershipPlan: u.membershipPlan || null,
+                    membershipExpiresAt: u.membershipExpiresAt || null
+                };
+            } catch {
+                __activationBaseline = { hasMembership: false, membershipPlan: null, membershipExpiresAt: null };
+            }
             console.log('[MEMBRESIA][PAYMENT] Iniciando polling de activación (check-access)...');
 
             async function tick() {
@@ -2129,7 +2140,16 @@
                         membershipExpiresAt: j && j.membershipExpiresAt
                     });
 
-                    if (j && j.success && j.hasMembership) {
+                    // Evitar falso positivo: si el usuario ya tenía membresía, solo consideramos "éxito"
+                    // cuando cambie el plan o cambie la fecha de vencimiento vs el baseline.
+                    const baseline = __activationBaseline || { hasMembership: false, membershipPlan: null, membershipExpiresAt: null };
+                    const changed =
+                        !baseline.hasMembership ||
+                        (baseline.membershipPlan && j && j.membershipPlan && baseline.membershipPlan !== j.membershipPlan) ||
+                        (baseline.membershipExpiresAt && j && j.membershipExpiresAt && baseline.membershipExpiresAt !== j.membershipExpiresAt) ||
+                        (!baseline.membershipExpiresAt && j && j.membershipExpiresAt); // antes no había, ahora sí
+
+                    if (j && j.success && j.hasMembership && changed) {
                         const u = JSON.parse(localStorage.getItem('authUser') || '{}');
                         u.hasMembership = true;
                         u.membershipPlan = j.membershipPlan;
@@ -2163,6 +2183,7 @@
                 clearInterval(__activationPollTimer);
                 __activationPollTimer = null;
             }
+            __activationBaseline = null;
         }
 
         function closeIziModal() {
