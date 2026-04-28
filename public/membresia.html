@@ -1448,6 +1448,7 @@
         const token = localStorage.getItem('authToken');
         let __lastCheckoutOrderId = '';
         let __savedTokenForOrderId = '';
+        let __walletSaveAttemptedForOrderId = '';
 
         function sendClientLog(level, tag, message, data) {
             try {
@@ -1463,6 +1464,33 @@
                     })
                 }).catch(() => {});
             } catch {}
+        }
+
+        async function trySaveTokenFromWallet(reason) {
+            try {
+                const oid = __lastCheckoutOrderId || '';
+                if (!oid) return;
+                if (__walletSaveAttemptedForOrderId === oid) return;
+                __walletSaveAttemptedForOrderId = oid;
+
+                const t = localStorage.getItem('authToken');
+                if (!t) return;
+
+                sendClientLog('info', 'WALLET', 'consultando wallet-tokens?save=1', { reason });
+                const r = await fetch(apiUrl('/api/payments/wallet-tokens?save=1'), {
+                    headers: { 'Authorization': `Bearer ${t}` }
+                });
+                const j = await r.json().catch(() => null);
+                sendClientLog('info', 'WALLET', 'respuesta wallet-tokens', {
+                    ok: r.ok,
+                    status: r.status,
+                    tokenCount: j && j.tokenCount,
+                    saved: j && j.saved,
+                    endpointPathUsed: j && j.endpointPathUsed
+                });
+            } catch (e) {
+                sendClientLog('warn', 'WALLET', 'error consultando wallet-tokens', { message: e && e.message });
+            }
         }
 
         // ── Test toolbar visibility (Izipay/Krypton) ──────────────────────
@@ -2082,6 +2110,8 @@
                             if (isPaid) {
                                 console.log('[MEMBRESIA][KR] Pago detectado como CAPTURED/PAID; bloqueando redirección automática para mantener logs.');
                                 sendClientLog('info', 'KR', 'Pago CAPTURED/PAID (bloqueando redirección automática)', { detailedStatus });
+                                // Intentar guardar token desde Wallet (si el PSP lo guarda pero no lo devuelve)
+                                trySaveTokenFromWallet('KR.onOrderUpdate isPaid');
                                 // Opcional: refrescar estado de membresía y redirigir manualmente después de unos segundos
                                 setTimeout(() => {
                                     try { startActivationPolling(); } catch {}
@@ -2266,6 +2296,8 @@
                         console.log('[MEMBRESIA][PAYMENT] ✅ Membresía detectada como activa. Cerrando modal y redirigiendo.');
                         try { closeIziModal(); } catch {}
                         showToast('success', '✅', '¡Membresía activada!', 'Ya tienes acceso premium.');
+                        // Intentar guardar token desde Wallet justo después de activación (por si se crea async)
+                        trySaveTokenFromWallet('activationPolling detected change');
                         stopActivationPolling();
                         setTimeout(() => { window.location.href = '/perfil'; }, 900);
                         return;

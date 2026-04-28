@@ -544,6 +544,12 @@ module.exports = async (req, res) => {
                 }
             }
 
+            console.log('[IZIPAY] WalletTokens result', {
+                status: iziRes?.status || null,
+                tokenCount: mapped.length,
+                saved
+            });
+
             return res.json({
                 success: true,
                 endpointPathUsed: IZIPAY_WALLET_PATH,
