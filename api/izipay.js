@@ -27,7 +27,13 @@ const IZIPAY_PUBLIC  = IS_PRODUCTION ? IZIPAY_PROD_PUBLIC  : IZIPAY_TEST_PUBLIC;
 
 // Wallet (CustomerWallet) endpoint path puede variar por PSP/white-label.
 // Permite ajustar sin redeploy de lógica.
+// - IZIPAY_WALLET_PATH: path único
+// - IZIPAY_WALLET_PATHS: lista separada por comas para probar varios
 const IZIPAY_WALLET_PATH = process.env.IZIPAY_WALLET_PATH || '/api-payment/V4/Customer/Wallet';
+const IZIPAY_WALLET_PATHS = (process.env.IZIPAY_WALLET_PATHS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
 
 // Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
 function normalizeShopId(id) {
@@ -499,8 +505,39 @@ module.exports = async (req, res) => {
                 ctx_mode: mode
             });
 
-            console.log('[IZIPAY] WalletTokens request', { path: IZIPAY_WALLET_PATH, customerReference: decoded.id });
-            const iziRes = await callIzipay(payload, shopId, key, 'api.micuentaweb.pe', IZIPAY_WALLET_PATH);
+            const candidatePaths = [
+                ...IZIPAY_WALLET_PATHS,
+                IZIPAY_WALLET_PATH,
+                // Fallbacks comunes Lyra/Scellius (nombres y versiones)
+                '/api-payment/V4/CustomerWallet',
+                '/api-payment/V4/Customer/Wallet',
+                '/api-payment/V4.1/CustomerWallet',
+                '/api-payment/V4.1/Customer/Wallet'
+            ].filter((v, i, a) => a.indexOf(v) === i);
+
+            let iziRes = null;
+            let usedPath = null;
+            const attempts = [];
+
+            for (const p of candidatePaths) {
+                console.log('[IZIPAY] WalletTokens request', { path: p, customerReference: decoded.id });
+                const r = await callIzipay(payload, shopId, key, 'api.micuentaweb.pe', p);
+                const st = r?.status || 'UNKNOWN';
+                const errCode = r?.answer?.errorCode || r?.errorCode || null;
+                const errMsg = r?.answer?.errorMessage || r?.errorMessage || null;
+                attempts.push({ path: p, status: st, errorCode: errCode, errorMessage: errMsg });
+
+                // SUCCESS => listo. ERROR => probar siguiente path.
+                if (st === 'SUCCESS') {
+                    iziRes = r;
+                    usedPath = p;
+                    break;
+                }
+                // Algunos PSP devuelven 200 pero con ERROR para "Unknown web service" / "Invalid attribute"
+                // seguimos iterando.
+                iziRes = r;
+                usedPath = p;
+            }
 
             const ok = iziRes && iziRes.status === 'SUCCESS';
             const tokens = (iziRes && iziRes.answer && Array.isArray(iziRes.answer.tokens)) ? iziRes.answer.tokens : [];
@@ -547,13 +584,25 @@ module.exports = async (req, res) => {
             console.log('[IZIPAY] WalletTokens result', {
                 status: iziRes?.status || null,
                 tokenCount: mapped.length,
-                saved
+                saved,
+                usedPath,
+                errorCode: iziRes?.answer?.errorCode || iziRes?.errorCode || null,
+                errorMessage: iziRes?.answer?.errorMessage || iziRes?.errorMessage || null
             });
+
+            // Resumen compacto (1 línea) para debugging rápido en Vercel
+            try {
+                const compact = attempts.slice(0, 6).map(a => `${a.path}:${a.status}${a.errorCode ? '(' + a.errorCode + ')' : ''}`).join(' | ');
+                console.log(`[IZIPAY] WalletTokens attempts (compact): ${compact}${attempts.length > 6 ? ' | ...' : ''}`);
+            } catch {}
 
             return res.json({
                 success: true,
-                endpointPathUsed: IZIPAY_WALLET_PATH,
+                endpointPathUsed: usedPath,
                 status: iziRes?.status || null,
+                errorCode: iziRes?.answer?.errorCode || iziRes?.errorCode || null,
+                errorMessage: iziRes?.answer?.errorMessage || iziRes?.errorMessage || null,
+                attempts,
                 tokenCount: mapped.length,
                 saved,
                 tokens: mapped

@@ -1489,7 +1489,9 @@
                     status: r.status,
                     tokenCount: j && j.tokenCount,
                     saved: j && j.saved,
-                    endpointPathUsed: j && j.endpointPathUsed
+                    endpointPathUsed: j && j.endpointPathUsed,
+                    errorCode: j && j.errorCode,
+                    errorMessage: j && j.errorMessage
                 });
             } catch (e) {
                 sendClientLog('warn', 'WALLET', 'error consultando wallet-tokens', { message: e && e.message });
