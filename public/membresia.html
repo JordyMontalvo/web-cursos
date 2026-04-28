@@ -2013,6 +2013,7 @@
                             const ca = payload && payload.clientAnswer;
                             const t0 = ca && Array.isArray(ca.transactions) ? ca.transactions[0] : null;
                             const detailedStatus = t0 && (t0.detailedStatus || t0.status);
+                            const paymentMethodType = t0 && (t0.paymentMethodType || t0.paymentMethod);
                             const pmToken =
                                 (t0 && (t0.paymentMethodToken || (t0.paymentMethod && t0.paymentMethod.token))) ||
                                 (ca && ca.paymentMethodToken) ||
@@ -2021,6 +2022,7 @@
                             console.log('[MEMBRESIA][KR] onOrderUpdate', {
                                 _name: name,
                                 detailedStatus,
+                                paymentMethodType,
                                 hasClientAnswer: !!ca,
                                 hasToken: !!pmToken,
                                 tokenPreview: pmToken ? String(pmToken).slice(0, 10) + '...' : ''
@@ -2047,6 +2049,18 @@
                                 }).catch(e => {
                                     console.warn('[MEMBRESIA][KR] save-token error', e);
                                 });
+                            }
+
+                            // Importante: por defecto el SDK redirige a kr-post-url-success y se pierden los logs.
+                            // Según la documentación, si devolvemos false en un pago CAPTURED/PAID, se detiene la redirección
+                            // y podemos manejar el flujo nosotros.
+                            if (isPaid) {
+                                console.log('[MEMBRESIA][KR] Pago detectado como CAPTURED/PAID; bloqueando redirección automática para mantener logs.');
+                                // Opcional: refrescar estado de membresía y redirigir manualmente después de unos segundos
+                                setTimeout(() => {
+                                    try { startActivationPolling(); } catch {}
+                                }, 250);
+                                return false;
                             }
                         } catch (e) {
                             console.warn('[MEMBRESIA][KR] onOrderUpdate handler error', e);
