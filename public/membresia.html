@@ -141,13 +141,14 @@
 
         /*
          * Barra "Información / Métodos de prueba" (SDK Izipay / Krypton, modo prueba).
-         * No está en nuestro HTML: la inyecta el script externo; suele ir en body o en shadow DOM.
-         * CSS cubre toolbars conocidas; el JS refuerza búsqueda por texto y todo el documento.
+         * NOTA: ahora se controla con una clase en <body>.
+         * - En producción se oculta (body.hide-izipay-test-toolbar).
+         * - En testing (localhost o ?showTestMethods=1) se deja visible.
          */
         /* Barra de prueba sobre la grilla de planes (SDK la inserta sin abrir el modal) */
-        #plansGrid [role="toolbar"],
-        .plans-grid [role="toolbar"],
-        .plan-card [role="toolbar"] {
+        body.hide-izipay-test-toolbar #plansGrid [role="toolbar"],
+        body.hide-izipay-test-toolbar .plans-grid [role="toolbar"],
+        body.hide-izipay-test-toolbar .plan-card [role="toolbar"] {
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
@@ -159,9 +160,9 @@
             clip: rect(0, 0, 0, 0) !important;
         }
 
-        #izipayOfficialModal [role="toolbar"],
-        .izipay-white-container [role="toolbar"],
-        body > [role="toolbar"] {
+        body.hide-izipay-test-toolbar #izipayOfficialModal [role="toolbar"],
+        body.hide-izipay-test-toolbar .izipay-white-container [role="toolbar"],
+        body.hide-izipay-test-toolbar body > [role="toolbar"] {
             display: none !important;
             visibility: hidden !important;
             height: 0 !important;
@@ -175,7 +176,7 @@
         }
 
         /* Tapadera visual si el SDK pinta la barra encima de todo (z-index altísimo) */
-        #izipayTestToolbarCover {
+        body.hide-izipay-test-toolbar #izipayTestToolbarCover {
             position: fixed;
             left: 50%;
             bottom: 10px;
@@ -1369,6 +1370,19 @@
         let plans = [];
         const token = localStorage.getItem('authToken');
 
+        // ── Test toolbar visibility (Izipay/Krypton) ──────────────────────
+        // Antes se ocultaba SIEMPRE. Ahora:
+        // - localhost o ?showTestMethods=1  => mostrar barra de prueba (tarjetas/metodos)
+        // - resto (producción)              => ocultar barra de prueba
+        (function setIzipayTestToolbarMode() {
+            // Pedido: mantener visible "Métodos de prueba" para TODO.
+            // Si más adelante quieres volver a ocultarlo en producción,
+            // reintroducimos la lógica por entorno/query param.
+            const shouldHide = false;
+            document.body.classList.toggle('hide-izipay-test-toolbar', shouldHide);
+            window.__hideIzipayTestToolbarEnabled = shouldHide;
+        })();
+
         // ── Guard: redirigir al login si no hay sesión ───────────────────
         if (!token) {
             window.location.href = '/login?redirect=/membresia';
@@ -1813,6 +1827,7 @@
         }
 
         function startIzipayToolbarGuards() {
+            if (!window.__hideIzipayTestToolbarEnabled) return;
             stopIzipayToolbarGuards();
             ensureIzipayToolbarCover();
             hideIzipayTestToolbar();
@@ -1835,6 +1850,7 @@
 
         /** Oculta la barra de prueba del SDK (Información / Métodos de prueba) sin borrarla del DOM. */
         function hideIzipayTestToolbar() {
+            if (!window.__hideIzipayTestToolbarEnabled) return;
             const LO = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             function looksLikeTestBar(el) {
                 const t = LO((el.textContent || '').trim());
