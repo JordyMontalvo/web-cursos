@@ -18,6 +18,7 @@
     { "source": "/api/landing-config",      "destination": "/api/general?route=public-landing-config" },
     { "source": "/api/banners",             "destination": "/api/general?route=public-banners" },
     { "source": "/api/admin/landing-config","destination": "/api/general?route=admin-landing-config" },
+    { "source": "/api/jobs-renew-memberships", "destination": "/api/general?route=jobs-renew-memberships" },
 
     { "source": "/api/seller/stats",        "destination": "/api/seller" },
     { "source": "/api/seller/referrals",    "destination": "/api/seller" },
