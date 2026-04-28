@@ -521,6 +521,16 @@ module.exports = async (req, res) => {
                 hasToken: !!pmToken,
                 tokenPreview: pmToken ? pmToken.slice(0, 10) + '...' : ''
             });
+            if (!pmToken) {
+                try {
+                    const str = JSON.stringify(answer);
+                    const hasAnyTokenWord = /paymentMethodToken|cardToken|token/i.test(str);
+                    console.log('[IZIPAY] Webhook: token no encontrado en rutas conocidas', {
+                        hasTokenWordInAnswer: hasAnyTokenWord,
+                        topLevelKeys: Object.keys(answer || {}).slice(0, 40)
+                    });
+                } catch {}
+            }
             if (pmToken) {
                 user.izipayPaymentMethodToken = pmToken;
                 user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);
@@ -686,6 +696,16 @@ module.exports = async (req, res) => {
                     hasToken: !!pmToken,
                     tokenPreview: pmToken ? pmToken.slice(0, 10) + '...' : ''
                 });
+                if (!pmToken) {
+                    try {
+                        const str = JSON.stringify(answer);
+                        const hasAnyTokenWord = /paymentMethodToken|cardToken|token/i.test(str);
+                        console.log('[IZIPAY] Return: token no encontrado en rutas conocidas', {
+                            hasTokenWordInAnswer: hasAnyTokenWord,
+                            topLevelKeys: Object.keys(answer || {}).slice(0, 40)
+                        });
+                    } catch {}
+                }
                 if (pmToken) {
                     user.izipayPaymentMethodToken = pmToken;
                     user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);
