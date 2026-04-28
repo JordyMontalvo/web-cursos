@@ -476,6 +476,43 @@ module.exports = async (req, res) => {
     const body = parseIncomingBody(req);
     console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method} | Auth: ${req.headers['authorization']?.slice(0, 20)}...`);
 
+    // ── POST /api/payments/izipay-save-token (Guardar token desde frontend SDK) ──
+    // Algunos PSP no envían paymentMethodToken en kr-answer del return/webhook.
+    // En ese caso lo capturamos desde KR.onOrderUpdate en el navegador y lo guardamos aquí.
+    if (req.method === 'POST' && url.includes('izipay-save-token')) {
+        const decoded = verifyToken(req);
+        if (!decoded) return res.status(401).json({ success: false, message: 'No autorizado' });
+
+        try {
+            await connectDB();
+            const token = (body.paymentMethodToken || body.token || '').toString().trim();
+            const orderId = (body.orderId || '').toString().trim();
+            if (!token) return res.status(400).json({ success: false, message: 'Token requerido' });
+
+            const user = await User.findById(decoded.id);
+            if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+
+            user.izipayPaymentMethodToken = token;
+            // Si hay una membresía activa (o se acaba de activar), dejamos auto-renovación habilitada.
+            user.membershipAutoRenew = true;
+            user.membershipCanceledAt = null;
+            user.membershipCancelReason = '';
+            if (orderId) user.izipayLastOrderId = orderId;
+            user.updatedAt = new Date();
+            await user.save();
+
+            console.log('[IZIPAY] ✅ Token guardado desde frontend', {
+                userId: decoded.id,
+                orderId,
+                tokenPreview: token.slice(0, 10) + '...'
+            });
+            return res.json({ success: true });
+        } catch (e) {
+            console.error('[IZIPAY] Error guardando token desde frontend:', e?.message);
+            return res.status(500).json({ success: false, message: 'Error guardando token' });
+        }
+    }
+
     // ── POST /api/izipay (Checkout) ──────────────────────────────────
     // Importante: Izipay webhooks/return llegan como x-www-form-urlencoded; si el body no se parsea,
     // antes caía por error en "checkout" y devolvía 401 (rompiendo la activación).

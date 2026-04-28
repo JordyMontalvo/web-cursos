@@ -2000,6 +2000,55 @@
                 KR.onError((err) => {
                     showToast('error', '❌', 'Error de pago', err.errorMessage || 'Verifica los datos de tu tarjeta');
                 });
+
+                // Debug + captura de token para recurrentes:
+                // KR.onOrderUpdate entrega la respuesta completa del servidor (clientAnswer).
+                // A veces el paymentMethodToken NO llega en kr-answer del return/webhook.
+                try {
+                    KR.onOrderUpdate(async (payload) => {
+                        try {
+                            const name = payload && payload._name;
+                            const ca = payload && payload.clientAnswer;
+                            const t0 = ca && Array.isArray(ca.transactions) ? ca.transactions[0] : null;
+                            const detailedStatus = t0 && (t0.detailedStatus || t0.status);
+                            const pmToken =
+                                (t0 && (t0.paymentMethodToken || (t0.paymentMethod && t0.paymentMethod.token))) ||
+                                (ca && ca.paymentMethodToken) ||
+                                '';
+
+                            console.log('[MEMBRESIA][KR] onOrderUpdate', {
+                                _name: name,
+                                detailedStatus,
+                                hasClientAnswer: !!ca,
+                                hasToken: !!pmToken,
+                                tokenPreview: pmToken ? String(pmToken).slice(0, 10) + '...' : ''
+                            });
+
+                            // Cuando el pago queda CAPTURED/PAID, intentamos guardar token
+                            const isPaid =
+                                String(detailedStatus || '').toUpperCase() === 'CAPTURED' ||
+                                String(detailedStatus || '').toUpperCase() === 'PAID';
+
+                            if (isPaid && pmToken) {
+                                const t = localStorage.getItem('authToken');
+                                await fetch(apiUrl('/api/payments/izipay-save-token'), {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` },
+                                    body: JSON.stringify({ paymentMethodToken: pmToken })
+                                }).then(r => r.json().catch(() => null)).then(j => {
+                                    console.log('[MEMBRESIA][KR] save-token response', j);
+                                }).catch(e => {
+                                    console.warn('[MEMBRESIA][KR] save-token error', e);
+                                });
+                            }
+                        } catch (e) {
+                            console.warn('[MEMBRESIA][KR] onOrderUpdate handler error', e);
+                        }
+                    });
+                } catch (e) {
+                    console.warn('[MEMBRESIA][KR] No se pudo registrar onOrderUpdate', e);
+                }
+
                 hideIzipayTestToolbar();
                 [200, 800, 2000].forEach((ms) => setTimeout(hideIzipayTestToolbar, ms));
             } else {
