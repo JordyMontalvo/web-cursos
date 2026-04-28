@@ -358,6 +358,48 @@ function findTokenRecursively(root) {
     return visit(root, 0, '');
 }
 
+function collectTokenLikeValues(root) {
+    const MAX_NODES = 7000;
+    const MAX_DEPTH = 9;
+    let seen = 0;
+    const out = [];
+
+    const isObj = (v) => v && typeof v === 'object';
+    const looksInteresting = (k, v) => {
+        const key = String(k || '');
+        if (!/token/i.test(key)) return false;
+        if (typeof v !== 'string') return false;
+        const s = v.trim();
+        if (s.length < 10) return false;
+        if (s.length > 512) return false;
+        return true;
+    };
+
+    function walk(node, depth, path) {
+        if (!isObj(node)) return;
+        if (seen++ > MAX_NODES) return;
+        if (depth > MAX_DEPTH) return;
+
+        if (Array.isArray(node)) {
+            for (let i = 0; i < node.length; i++) walk(node[i], depth + 1, `${path}[${i}]`);
+            return;
+        }
+
+        for (const k of Object.keys(node)) {
+            const v = node[k];
+            if (looksInteresting(k, v)) {
+                out.push({ path: path ? `${path}.${k}` : String(k), value: String(v).trim() });
+            }
+        }
+        for (const k of Object.keys(node)) {
+            walk(node[k], depth + 1, path ? `${path}.${k}` : String(k));
+        }
+    }
+
+    walk(root, 0, '');
+    return out.slice(0, 25);
+}
+
 function extractPaymentMethodToken(answer) {
     const candidates = [
         answer?.paymentMethodToken,
@@ -378,6 +420,18 @@ function extractPaymentMethodToken(answer) {
         console.log('[IZIPAY] Token encontrado por búsqueda profunda en:', deep.path);
         return deep.token;
     }
+
+    // Último fallback: algunos PSP envían tokens bajo claves genéricas "*token*".
+    // Esto NO garantiza que sea un paymentMethodToken reutilizable; solo ayuda a diagnosticar.
+    try {
+        const tokenLikes = collectTokenLikeValues(answer);
+        const filtered = tokenLikes
+            .filter(x => !/transaction|uuid|orderId/i.test(x.path))
+            .map(x => ({ path: x.path, preview: x.value.slice(0, 10) + '...', len: x.value.length }));
+        if (filtered.length) {
+            console.log('[IZIPAY] Token-like values encontrados (diagnóstico):', filtered);
+        }
+    } catch { /* ignore */ }
     return '';
 }
 
