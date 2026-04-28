@@ -38,10 +38,10 @@
         .izipay-white-container {
             background: #ffffff !important;
             width: 100%;
-            max-width: 380px;
+            max-width: 420px;
             /* Más pequeño para que sea elegante */
             border-radius: 16px;
-            padding: 1.5rem 1.25rem 1.25rem;
+            padding: 1.25rem 1.25rem 1.1rem;
             position: relative;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
             animation: iziSlideUp 0.3s ease-out;
@@ -56,9 +56,10 @@
         }
 
         .izipay-header-logo img {
-            height: 32px;
+            height: 30px;
             /* Logo más pequeño */
             width: auto;
+            opacity: 0.95;
         }
 
         .izi-close {
@@ -100,15 +101,27 @@
             margin-right: 0 !important;
         }
 
+        /* Fondo y paddings del form embebido (evitar “caja” gris fea) */
+        .kr-smart-form {
+            background: transparent !important;
+        }
+
+        /* Ocultar assets/placeholder rotos del SDK (ícono de imagen arriba) */
+        .kr-smart-form img[alt=""],
+        .kr-smart-form img:not([src]),
+        .kr-smart-form img[src=""] {
+            display: none !important;
+        }
+
         .kr-smart-form .kr-field-wrapper {
-            margin-bottom: 8px !important;
+            margin-bottom: 10px !important;
             /* Espacio mínimo */
             padding: 0 !important;
         }
 
         .kr-smart-form .kr-label {
             font-size: 13px !important;
-            color: #475569 !important;
+            color: #334155 !important;
             font-weight: 600 !important;
             margin-bottom: 4px !important;
             display: block !important;
@@ -122,21 +135,86 @@
             height: 42px !important;
             /* Altura fija oficial */
             border-radius: 8px !important;
-            border: 1px solid #cbd5e1 !important;
-            background: #fff !important;
+            border: 1px solid rgba(15, 23, 42, 0.14) !important;
+            background: rgba(255, 255, 255, 0.98) !important;
             padding: 0 12px !important;
             width: 100% !important;
+            box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03) !important;
+            transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
+        }
+
+        .kr-smart-form .kr-field-element:focus,
+        .kr-smart-form input:focus,
+        .kr-smart-form select:focus {
+            outline: none !important;
+            border-color: rgba(124, 58, 237, 0.55) !important;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.14) !important;
+        }
+
+        .kr-smart-form select {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            background-image:
+                linear-gradient(45deg, transparent 50%, rgba(15,23,42,.6) 50%),
+                linear-gradient(135deg, rgba(15,23,42,.6) 50%, transparent 50%);
+            background-position:
+                calc(100% - 18px) 18px,
+                calc(100% - 12px) 18px;
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+            padding-right: 34px !important;
         }
 
         /* Botón de Pago Compacto */
         .kr-smart-form .kr-payment-button {
             height: 46px !important;
-            background: #00d1b2 !important;
+            background: linear-gradient(135deg, #00d1b2, #17c2ff) !important;
             border-radius: 10px !important;
             font-weight: 700 !important;
             font-size: 16px !important;
             margin-top: 10px !important;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            border: none !important;
+            letter-spacing: -0.02em !important;
+            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
+        }
+
+        .kr-smart-form .kr-payment-button:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18) !important;
+            filter: brightness(1.02) !important;
+        }
+
+        .kr-smart-form .kr-payment-button:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14) !important;
+        }
+
+        /* Textos secundarios del SDK (consistencia) */
+        .kr-smart-form .kr-legal,
+        .kr-smart-form .kr-text,
+        .kr-smart-form .kr-help {
+            font-size: 11px !important;
+            color: rgba(51, 65, 85, 0.75) !important;
+            line-height: 1.35 !important;
+        }
+
+        /* Alinear marcas de tarjeta y cabecera del SDK */
+        .kr-smart-form .kr-payment-logo,
+        .kr-smart-form .kr-payment-header,
+        .kr-smart-form .kr-payment-logo-wrapper {
+            justify-content: center !important;
+            text-align: center !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* En móviles: un poco más aire */
+        @media (max-width: 420px) {
+            .izipay-white-container { border-radius: 18px; padding: 1.1rem 1rem 1rem; }
+            .kr-smart-form .kr-field-element,
+            .kr-smart-form input,
+            .kr-smart-form select { height: 44px !important; }
+            .kr-smart-form .kr-payment-button { height: 48px !important; }
         }
 
         /*
@@ -2008,6 +2086,11 @@
                 startIzipayToolbarGuards();
                 [80, 200, 500, 1200, 2500, 4000].forEach((ms) => setTimeout(hideIzipayTestToolbar, ms));
 
+                // Mientras el usuario paga dentro del modal embebido, el redirect de "kr-post-url-success"
+                // puede ocurrir dentro del iframe/SDK (y no refrescar la SPA). Para debug + UX,
+                // hacemos polling de /api/auth/check-access y logueamos hasta detectar membresía activa.
+                startActivationPolling();
+
                 // Resetear botones por si el usuario cancela y vuelve a intentar
                 btn.disabled = false;
                 btnText.style.display = 'inline';
@@ -2019,6 +2102,66 @@
                 btn.disabled = false;
                 btnText.style.display = 'inline';
                 btnSpin.style.display = 'none';
+            }
+        }
+
+        let __activationPollTimer = null;
+        let __activationPollStartedAt = 0;
+        async function startActivationPolling() {
+            if (__activationPollTimer) return;
+            const t = localStorage.getItem('authToken');
+            if (!t) return;
+            __activationPollStartedAt = Date.now();
+            console.log('[MEMBRESIA][PAYMENT] Iniciando polling de activación (check-access)...');
+
+            async function tick() {
+                try {
+                    await configReady;
+                    const r = await fetch(apiUrl('/api/auth/check-access'), {
+                        headers: { 'Authorization': `Bearer ${t}` }
+                    });
+                    const j = await r.json().catch(() => null);
+                    console.log('[MEMBRESIA][PAYMENT] poll check-access', {
+                        ok: r.ok,
+                        status: r.status,
+                        hasMembership: j && j.hasMembership,
+                        membershipPlan: j && j.membershipPlan,
+                        membershipExpiresAt: j && j.membershipExpiresAt
+                    });
+
+                    if (j && j.success && j.hasMembership) {
+                        const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                        u.hasMembership = true;
+                        u.membershipPlan = j.membershipPlan;
+                        if (j.membershipExpiresAt) u.membershipExpiresAt = j.membershipExpiresAt;
+                        localStorage.setItem('authUser', JSON.stringify(u));
+
+                        console.log('[MEMBRESIA][PAYMENT] ✅ Membresía detectada como activa. Cerrando modal y redirigiendo.');
+                        try { closeIziModal(); } catch {}
+                        showToast('success', '✅', '¡Membresía activada!', 'Ya tienes acceso premium.');
+                        stopActivationPolling();
+                        setTimeout(() => { window.location.href = '/perfil'; }, 900);
+                        return;
+                    }
+                } catch (e) {
+                    console.error('[MEMBRESIA][PAYMENT] poll error', e);
+                }
+
+                // Timeout 2 minutos
+                if (Date.now() - __activationPollStartedAt > 2 * 60 * 1000) {
+                    console.warn('[MEMBRESIA][PAYMENT] Poll timeout: no se detectó membresía activa.');
+                    stopActivationPolling();
+                }
+            }
+
+            __activationPollTimer = setInterval(tick, 3500);
+            tick();
+        }
+
+        function stopActivationPolling() {
+            if (__activationPollTimer) {
+                clearInterval(__activationPollTimer);
+                __activationPollTimer = null;
             }
         }
 
