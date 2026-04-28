@@ -1469,7 +1469,10 @@
         async function trySaveTokenFromWallet(reason) {
             try {
                 const oid = __lastCheckoutOrderId || '';
-                if (!oid) return;
+                if (!oid) {
+                    sendClientLog('warn', 'WALLET', 'sin orderId aún; no se consulta wallet', { reason });
+                    return;
+                }
                 if (__walletSaveAttemptedForOrderId === oid) return;
                 __walletSaveAttemptedForOrderId = oid;
 
@@ -2084,6 +2087,8 @@
                                 String(detailedStatus || '').toUpperCase() === 'CAPTURED' ||
                                 String(detailedStatus || '').toUpperCase() === 'PAID';
 
+                            const isAuthorised = String(detailedStatus || '').toUpperCase() === 'AUTHORISED';
+
                             if (isPaid && pmToken) {
                                 // Evitar re-guardar el mismo token en bucle
                                 const oid = __lastCheckoutOrderId || '';
@@ -2104,14 +2109,18 @@
                                 });
                             }
 
+                            // En tu PSP estamos viendo "AUTHORISED" en onOrderUpdate (aunque el return luego viene PAID).
+                            // Disparamos wallet también aquí para no perdernos la creación asíncrona del token.
+                            if (isAuthorised || isPaid) {
+                                trySaveTokenFromWallet(`KR.onOrderUpdate status=${detailedStatus}`);
+                            }
+
                             // Importante: por defecto el SDK redirige a kr-post-url-success y se pierden los logs.
                             // Según la documentación, si devolvemos false en un pago CAPTURED/PAID, se detiene la redirección
                             // y podemos manejar el flujo nosotros.
                             if (isPaid) {
                                 console.log('[MEMBRESIA][KR] Pago detectado como CAPTURED/PAID; bloqueando redirección automática para mantener logs.');
                                 sendClientLog('info', 'KR', 'Pago CAPTURED/PAID (bloqueando redirección automática)', { detailedStatus });
-                                // Intentar guardar token desde Wallet (si el PSP lo guarda pero no lo devuelve)
-                                trySaveTokenFromWallet('KR.onOrderUpdate isPaid');
                                 // Opcional: refrescar estado de membresía y redirigir manualmente después de unos segundos
                                 setTimeout(() => {
                                     try { startActivationPolling(); } catch {}
@@ -2208,6 +2217,8 @@
                     orderId: data.orderId
                 });
                 __lastCheckoutOrderId = data.orderId || '';
+                // Intentar consultar wallet inmediatamente después de generar el orderId (a veces el token aparece con delay)
+                trySaveTokenFromWallet('checkout created (post orderId)');
                 await KR.setFormToken(data.formToken);
                 console.log('[MEMBRESIA][IZIPAY] KR.setFormToken OK');
 
