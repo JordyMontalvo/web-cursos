@@ -1446,6 +1446,8 @@
         let appliedPricing = null; // {currency, original, discount, final}
         let plans = [];
         const token = localStorage.getItem('authToken');
+        let __lastCheckoutOrderId = '';
+        let __savedTokenForOrderId = '';
 
         // ── Test toolbar visibility (Izipay/Krypton) ──────────────────────
         // Antes se ocultaba SIEMPRE. Ahora:
@@ -2005,7 +2007,7 @@
                 // KR.onOrderUpdate entrega la respuesta completa del servidor (clientAnswer).
                 // A veces el paymentMethodToken NO llega en kr-answer del return/webhook.
                 try {
-                    KR.onOrderUpdate(async (payload) => {
+                    const register = KR.onOrderUpdate(async (payload) => {
                         try {
                             const name = payload && payload._name;
                             const ca = payload && payload.clientAnswer;
@@ -2030,13 +2032,18 @@
                                 String(detailedStatus || '').toUpperCase() === 'PAID';
 
                             if (isPaid && pmToken) {
+                                // Evitar re-guardar el mismo token en bucle
+                                const oid = __lastCheckoutOrderId || '';
+                                if (oid && __savedTokenForOrderId === oid) return;
+
                                 const t = localStorage.getItem('authToken');
                                 await fetch(apiUrl('/api/payments/izipay-save-token'), {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` },
-                                    body: JSON.stringify({ paymentMethodToken: pmToken })
+                                    body: JSON.stringify({ paymentMethodToken: pmToken, orderId: oid })
                                 }).then(r => r.json().catch(() => null)).then(j => {
                                     console.log('[MEMBRESIA][KR] save-token response', j);
+                                    if (j && j.success && oid) __savedTokenForOrderId = oid;
                                 }).catch(e => {
                                     console.warn('[MEMBRESIA][KR] save-token error', e);
                                 });
@@ -2045,6 +2052,13 @@
                             console.warn('[MEMBRESIA][KR] onOrderUpdate handler error', e);
                         }
                     });
+                    // Algunas versiones devuelven promesa, otras no. Logueamos igual para saber si quedó registrado.
+                    if (register && typeof register.then === 'function') {
+                        register.then(() => console.log('[MEMBRESIA][KR] onOrderUpdate registrado (promise resolved)'))
+                            .catch((e) => console.warn('[MEMBRESIA][KR] onOrderUpdate promise rejected', e));
+                    } else {
+                        console.log('[MEMBRESIA][KR] onOrderUpdate registrado');
+                    }
                 } catch (e) {
                     console.warn('[MEMBRESIA][KR] No se pudo registrar onOrderUpdate', e);
                 }
@@ -2120,6 +2134,7 @@
                     publicKeyPreview: (data.publicKey || '').slice(0, 22) + '...',
                     orderId: data.orderId
                 });
+                __lastCheckoutOrderId = data.orderId || '';
                 await KR.setFormToken(data.formToken);
                 console.log('[MEMBRESIA][IZIPAY] KR.setFormToken OK');
 
