@@ -341,6 +341,27 @@ function computeNextExpiry({ currentExpiresAt, durationDays }) {
     return new Date(base + Number(durationDays) * 24 * 60 * 60 * 1000);
 }
 
+function parseIncomingBody(req) {
+    const b = req.body;
+    if (!b) return {};
+    if (typeof b === 'string') {
+        // Puede llegar como JSON o como application/x-www-form-urlencoded (kr-answer=...&kr-hash=...)
+        try { return JSON.parse(b); } catch { /* ignore */ }
+        try {
+            const params = new URLSearchParams(b);
+            const obj = {};
+            for (const [k, v] of params.entries()) obj[k] = v;
+            return obj;
+        } catch { return {}; }
+    }
+    if (Buffer.isBuffer(b)) {
+        const s = b.toString('utf8');
+        return parseIncomingBody({ ...req, body: s });
+    }
+    // Vercel suele parsear JSON a objeto automáticamente
+    return b;
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -349,10 +370,13 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const url = req.url.split('?')[0];
+    const body = parseIncomingBody(req);
     console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method} | Auth: ${req.headers['authorization']?.slice(0, 20)}...`);
 
     // ── POST /api/izipay (Checkout) ──────────────────────────────────
-    if (req.method === 'POST' && (url.includes('/checkout') || !req.body?.['kr-answer'])) {
+    // Importante: Izipay webhooks/return llegan como x-www-form-urlencoded; si el body no se parsea,
+    // antes caía por error en "checkout" y devolvía 401 (rompiendo la activación).
+    if (req.method === 'POST' && (body?.membershipId && !body?.['kr-answer'])) {
         const decoded = verifyToken(req);
         if (!decoded) {
             console.warn('[IZIPAY] Unauthorized attempt: decoded is null');
@@ -360,10 +384,10 @@ module.exports = async (req, res) => {
         }
 
         try {
-            console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
+            console.log(`[IZIPAY] Starting checkout for memberId: ${body?.membershipId}`);
             
             await connectDB();
-            const { membershipId, couponCode } = req.body;
+            const { membershipId, couponCode } = body;
             if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
 
             const membership = await Membership.findById(membershipId);
@@ -436,8 +460,8 @@ module.exports = async (req, res) => {
 
     // ── POST /api/izipay (Webhook IPN desde Izipay) ──────────────────
     // Solo captura si NO es el retorno del cliente (izipay-return)
-    if (req.method === 'POST' && req.body['kr-answer'] && !url.includes('izipay-return') && !url.includes('izipay-success')) {
-        const { "kr-answer": krAnswer, "kr-hash": krHash } = req.body;
+    if (req.method === 'POST' && body['kr-answer'] && !url.includes('izipay-return') && !url.includes('izipay-success')) {
+        const { "kr-answer": krAnswer, "kr-hash": krHash } = body;
 
         const answerStr = (typeof krAnswer === 'string') ? krAnswer : JSON.stringify(krAnswer);
         // Intentar verificar con HMAC key y también con password (Izipay puede usar cualquiera)
@@ -565,7 +589,7 @@ module.exports = async (req, res) => {
         }
         if (req.method !== 'POST') return res.status(405).end();
 
-        const { 'kr-answer': krAnswer, 'kr-hash': krHash } = req.body || {};
+        const { 'kr-answer': krAnswer, 'kr-hash': krHash } = body || {};
 
         if (!krAnswer || !krHash) {
             console.warn('[IZIPAY] izipay-return: faltan kr-answer o kr-hash');
@@ -573,7 +597,7 @@ module.exports = async (req, res) => {
         }
 
         const answerStr = typeof krAnswer === 'string' ? krAnswer : JSON.stringify(krAnswer);
-        const krHashAlgo = (req.body['kr-hash-algorithm'] || 'sha256').toLowerCase();
+        const krHashAlgo = (body['kr-hash-algorithm'] || 'sha256').toLowerCase();
 
         // Izipay puede firmar con la clave HMAC o con la password — intentamos ambas
         const hmacValid    = verifyHash(answerStr, krHash, IZIPAY_HMAC);

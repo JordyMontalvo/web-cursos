@@ -1948,7 +1948,15 @@
             btnSpin.style.display = 'inline-block';
 
             try {
+                console.log('[MEMBRESIA][IZIPAY] startIzipayCheckout()', {
+                    selectedPlanId,
+                    appliedCouponCode: appliedCouponCode || '',
+                    hasKR: !!window.KR,
+                    apiBase: (typeof API_BASE !== 'undefined' ? API_BASE : undefined),
+                    tokenPresent: !!token
+                });
                 await configReady;
+                console.log('[MEMBRESIA][IZIPAY] configReady OK');
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -1957,6 +1965,12 @@
 
                 const ct = (res.headers.get('content-type') || '').toLowerCase();
                 const raw = await res.text();
+                console.log('[MEMBRESIA][IZIPAY] /api/payments/izipay-checkout response', {
+                    ok: res.ok,
+                    status: res.status,
+                    contentType: ct,
+                    rawPreview: (raw || '').slice(0, 500)
+                });
                 let data = null;
                 if (ct.includes('application/json')) {
                     try { data = JSON.parse(raw); } catch {}
@@ -1975,7 +1989,12 @@
                     throw new Error('El formulario de pago no está disponible. Recarga la página.');
                 }
 
+                console.log('[MEMBRESIA][IZIPAY] checkout payload OK', {
+                    hasFormToken: !!data.formToken,
+                    publicKeyPreview: (data.publicKey || '').slice(0, 22) + '...'
+                });
                 await KR.setFormToken(data.formToken);
+                console.log('[MEMBRESIA][IZIPAY] KR.setFormToken OK');
 
                 // Mostramos el modal blanco con el diseño premium
                 closeModal(); // Cerramos el de confirmación
@@ -1985,6 +2004,7 @@
 
                 // Forzamos el renderizado del formulario si fuera necesario
                 KR.showForm();
+                console.log('[MEMBRESIA][IZIPAY] KR.showForm called');
                 startIzipayToolbarGuards();
                 [80, 200, 500, 1200, 2500, 4000].forEach((ms) => setTimeout(hideIzipayTestToolbar, ms));
 
@@ -1994,6 +2014,7 @@
                 btnSpin.style.display = 'none';
 
             } catch (err) {
+                console.error('[MEMBRESIA][IZIPAY] startIzipayCheckout error', err);
                 showToast('error', '❌', 'Error al iniciar el pago', err.message);
                 btn.disabled = false;
                 btnText.style.display = 'inline';
@@ -2022,6 +2043,38 @@
                 showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Este curso requiere una membresía activa');
             }, 500);
         }
+
+        // Debug: cuando volvemos de pago exitoso, forzar refresh de acceso y loguear resultado.
+        (function debugRefreshAfterPayment() {
+            const qs = new URLSearchParams(window.location.search);
+            if (qs.get('payment') !== 'success') return;
+            console.log('[MEMBRESIA][PAYMENT] payment=success detectado. Refrescando /api/auth/check-access...');
+            const t = localStorage.getItem('authToken');
+            if (!t) {
+                console.warn('[MEMBRESIA][PAYMENT] No hay authToken en localStorage');
+                return;
+            }
+            (async () => {
+                try {
+                    await configReady;
+                    const r = await fetch(apiUrl('/api/auth/check-access'), {
+                        headers: { 'Authorization': `Bearer ${t}` }
+                    });
+                    const j = await r.json().catch(() => null);
+                    console.log('[MEMBRESIA][PAYMENT] check-access response', { ok: r.ok, status: r.status, body: j });
+                    if (j && j.success) {
+                        const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                        u.hasMembership = j.hasMembership;
+                        u.membershipPlan = j.membershipPlan;
+                        if (j.membershipExpiresAt) u.membershipExpiresAt = j.membershipExpiresAt;
+                        localStorage.setItem('authUser', JSON.stringify(u));
+                        console.log('[MEMBRESIA][PAYMENT] authUser actualizado en localStorage', u);
+                    }
+                } catch (e) {
+                    console.error('[MEMBRESIA][PAYMENT] error refrescando check-access', e);
+                }
+            })();
+        })();
     </script>
 </body>
 
