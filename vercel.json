@@ -38,6 +38,7 @@
     { "source": "/api/memberships/subscribe", "destination": "/api/memberships" },
     { "source": "/api/payments/izipay-checkout", "destination": "/api/izipay" },
     { "source": "/api/payments/izipay-save-token", "destination": "/api/izipay" },
+    { "source": "/api/payments/client-log", "destination": "/api/izipay" },
     { "source": "/api/payments/izipay-webhook",  "destination": "/api/izipay" },
     { "source": "/api/payments/izipay-return",   "destination": "/api/izipay" },
     { "source": "/api/memberships/:id",       "destination": "/api/memberships?id=:id" },

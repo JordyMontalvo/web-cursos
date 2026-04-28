@@ -1449,6 +1449,22 @@
         let __lastCheckoutOrderId = '';
         let __savedTokenForOrderId = '';
 
+        function sendClientLog(level, tag, message, data) {
+            try {
+                fetch(apiUrl('/api/payments/client-log'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        level,
+                        tag,
+                        orderId: __lastCheckoutOrderId || '',
+                        message,
+                        data: data || null
+                    })
+                }).catch(() => {});
+            } catch {}
+        }
+
         // ── Test toolbar visibility (Izipay/Krypton) ──────────────────────
         // Antes se ocultaba SIEMPRE. Ahora:
         // - localhost o ?showTestMethods=1  => mostrar barra de prueba (tarjetas/metodos)
@@ -2027,6 +2043,13 @@
                                 hasToken: !!pmToken,
                                 tokenPreview: pmToken ? String(pmToken).slice(0, 10) + '...' : ''
                             });
+                            sendClientLog('info', 'KR', 'onOrderUpdate', {
+                                _name: name,
+                                detailedStatus,
+                                paymentMethodType,
+                                hasClientAnswer: !!ca,
+                                hasToken: !!pmToken
+                            });
 
                             // Cuando el pago queda CAPTURED/PAID, intentamos guardar token
                             const isPaid =
@@ -2045,9 +2068,11 @@
                                     body: JSON.stringify({ paymentMethodToken: pmToken, orderId: oid })
                                 }).then(r => r.json().catch(() => null)).then(j => {
                                     console.log('[MEMBRESIA][KR] save-token response', j);
+                                    sendClientLog('info', 'KR', 'save-token response', j);
                                     if (j && j.success && oid) __savedTokenForOrderId = oid;
                                 }).catch(e => {
                                     console.warn('[MEMBRESIA][KR] save-token error', e);
+                                    sendClientLog('warn', 'KR', 'save-token error', { message: e && e.message });
                                 });
                             }
 
@@ -2056,6 +2081,7 @@
                             // y podemos manejar el flujo nosotros.
                             if (isPaid) {
                                 console.log('[MEMBRESIA][KR] Pago detectado como CAPTURED/PAID; bloqueando redirección automática para mantener logs.');
+                                sendClientLog('info', 'KR', 'Pago CAPTURED/PAID (bloqueando redirección automática)', { detailedStatus });
                                 // Opcional: refrescar estado de membresía y redirigir manualmente después de unos segundos
                                 setTimeout(() => {
                                     try { startActivationPolling(); } catch {}
@@ -2064,6 +2090,7 @@
                             }
                         } catch (e) {
                             console.warn('[MEMBRESIA][KR] onOrderUpdate handler error', e);
+                            sendClientLog('error', 'KR', 'onOrderUpdate handler error', { message: e && e.message });
                         }
                     });
                     // Algunas versiones devuelven promesa, otras no. Logueamos igual para saber si quedó registrado.
@@ -2073,8 +2100,10 @@
                     } else {
                         console.log('[MEMBRESIA][KR] onOrderUpdate registrado');
                     }
+                    sendClientLog('info', 'KR', 'onOrderUpdate registrado', {});
                 } catch (e) {
                     console.warn('[MEMBRESIA][KR] No se pudo registrar onOrderUpdate', e);
+                    sendClientLog('error', 'KR', 'No se pudo registrar onOrderUpdate', { message: e && e.message });
                 }
 
                 hideIzipayTestToolbar();

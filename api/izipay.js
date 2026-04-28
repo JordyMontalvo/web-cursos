@@ -476,6 +476,26 @@ module.exports = async (req, res) => {
     const body = parseIncomingBody(req);
     console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method} | Auth: ${req.headers['authorization']?.slice(0, 20)}...`);
 
+    // ── POST /api/payments/client-log (replicar logs del navegador en Vercel) ──
+    if (req.method === 'POST' && url.includes('client-log')) {
+        // No requerimos auth para debug (puedes endurecerlo luego). Limitamos el tamaño y sanitizamos.
+        try {
+            const level = (body.level || 'info').toString().slice(0, 10);
+            const tag = (body.tag || 'CLIENT').toString().slice(0, 40);
+            const orderId = (body.orderId || '').toString().slice(0, 80);
+            const message = (body.message || '').toString().slice(0, 1000);
+            const data = body.data != null ? body.data : null;
+            const out = { tag, orderId, message, data };
+            const line = `[CLIENTLOG][${level}][${tag}]${orderId ? ' orderId=' + orderId : ''} ${message}`;
+            if (level === 'error') console.error(line, out);
+            else if (level === 'warn') console.warn(line, out);
+            else console.log(line, out);
+            return res.json({ success: true });
+        } catch (e) {
+            return res.status(400).json({ success: false });
+        }
+    }
+
     // ── POST /api/payments/izipay-save-token (Guardar token desde frontend SDK) ──
     // Algunos PSP no envían paymentMethodToken en kr-answer del return/webhook.
     // En ese caso lo capturamos desde KR.onOrderUpdate en el navegador y lo guardamos aquí.
