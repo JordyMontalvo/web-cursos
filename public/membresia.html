@@ -1420,8 +1420,7 @@
             <button class="izi-close" onclick="closeIziModal()">✕</button>
 
             <div class="izipay-header-logo">
-                <img src="/assets/izipay-logo.png" alt="Izipay"
-                    onerror="this.onerror=null; this.src='https://static.micuentaweb.pe/static/img/izipay-logo.png'">
+                <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay">
             </div>
 
             <div class="kr-smart-form" id="myPaymentForm">
@@ -2026,6 +2025,30 @@
             btnSpin.style.display = 'inline-block';
 
             try {
+                // Guard para evitar pagos duplicados: si el usuario ya tiene membresía activa,
+                // por defecto no iniciamos otro checkout (salvo que se fuerce con ?forcePay=1).
+                try {
+                    const qs = new URLSearchParams(window.location.search);
+                    const forcePay = qs.get('forcePay') === '1';
+                    if (!forcePay) {
+                        await configReady;
+                        const t0 = localStorage.getItem('authToken');
+                        if (t0) {
+                            const r0 = await fetch(apiUrl('/api/auth/check-access'), {
+                                headers: { 'Authorization': `Bearer ${t0}` }
+                            });
+                            const j0 = await r0.json().catch(() => null);
+                            console.log('[MEMBRESIA][PAYMENT] preflight check-access', j0);
+                            if (j0 && j0.success && j0.hasMembership) {
+                                showToast('info', '✅', 'Ya tienes una membresía activa', 'Si quieres pagar de nuevo para pruebas: agrega ?forcePay=1');
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[MEMBRESIA][PAYMENT] preflight check-access falló (se continúa)', e);
+                }
+
                 console.log('[MEMBRESIA][IZIPAY] startIzipayCheckout()', {
                     selectedPlanId,
                     appliedCouponCode: appliedCouponCode || '',
