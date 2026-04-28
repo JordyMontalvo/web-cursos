@@ -25,6 +25,10 @@ const IZIPAY_KEY     = IS_PRODUCTION ? IZIPAY_PROD_KEY     : IZIPAY_TEST_KEY;
 const IZIPAY_HMAC    = IS_PRODUCTION ? IZIPAY_PROD_HMAC    : IZIPAY_TEST_HMAC;
 const IZIPAY_PUBLIC  = IS_PRODUCTION ? IZIPAY_PROD_PUBLIC  : IZIPAY_TEST_PUBLIC;
 
+// Wallet (CustomerWallet) endpoint path puede variar por PSP/white-label.
+// Permite ajustar sin redeploy de lógica.
+const IZIPAY_WALLET_PATH = process.env.IZIPAY_WALLET_PATH || '/api-payment/V4/Customer/Wallet';
+
 // Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
 function normalizeShopId(id) {
     if (!id) return null;
@@ -475,6 +479,84 @@ module.exports = async (req, res) => {
     const url = req.url.split('?')[0];
     const body = parseIncomingBody(req);
     console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method} | Auth: ${req.headers['authorization']?.slice(0, 20)}...`);
+
+    // ── GET /api/payments/wallet-tokens (consultar tokens de wallet y opcionalmente guardarlos) ──
+    // Uso:
+    // - GET /api/payments/wallet-tokens         -> lista tokens (si existen)
+    // - GET /api/payments/wallet-tokens?save=1  -> guarda primer token ACTIVE en el usuario
+    if (req.method === 'GET' && url.includes('wallet-tokens')) {
+        const decoded = verifyToken(req);
+        if (!decoded) return res.status(401).json({ success: false, message: 'No autorizado' });
+
+        try {
+            await connectDB();
+            const shopId = normalizeShopId(IZIPAY_SHOP_ID);
+            const key = IZIPAY_KEY;
+            const mode = 'TEST';
+
+            const payload = JSON.stringify({
+                customerReference: decoded.id,
+                ctx_mode: mode
+            });
+
+            console.log('[IZIPAY] WalletTokens request', { path: IZIPAY_WALLET_PATH, customerReference: decoded.id });
+            const iziRes = await callIzipay(payload, shopId, key, 'api.micuentaweb.pe', IZIPAY_WALLET_PATH);
+
+            const ok = iziRes && iziRes.status === 'SUCCESS';
+            const tokens = (iziRes && iziRes.answer && Array.isArray(iziRes.answer.tokens)) ? iziRes.answer.tokens : [];
+
+            // Normalizar un poco la salida
+            const mapped = tokens.map(t => ({
+                status: t.status || null,
+                paymentMethodType: t.paymentMethodType || null,
+                paymentMethodToken: t.paymentMethodToken || null,
+                creationDate: t.creationDate || null,
+                cancellationDate: t.cancellationDate || null,
+                tokenDetails: t.tokenDetails ? {
+                    effectiveBrand: t.tokenDetails.effectiveBrand,
+                    pan: t.tokenDetails.pan,
+                    expiryMonth: t.tokenDetails.expiryMonth,
+                    expiryYear: t.tokenDetails.expiryYear
+                } : null
+            }));
+
+            const qs = new URLSearchParams(req.url.split('?')[1] || '');
+            const shouldSave = qs.get('save') === '1';
+            let saved = false;
+
+            if (shouldSave) {
+                const firstActive = mapped.find(t => (t.status || '').toUpperCase() === 'ACTIVE' && t.paymentMethodToken);
+                if (firstActive) {
+                    const user = await User.findById(decoded.id);
+                    if (user) {
+                        user.izipayPaymentMethodToken = firstActive.paymentMethodToken;
+                        user.membershipAutoRenew = true;
+                        user.membershipCanceledAt = null;
+                        user.membershipCancelReason = '';
+                        user.updatedAt = new Date();
+                        await user.save();
+                        saved = true;
+                        console.log('[IZIPAY] ✅ Wallet token guardado en usuario', {
+                            userId: decoded.id,
+                            tokenPreview: firstActive.paymentMethodToken.slice(0, 10) + '...'
+                        });
+                    }
+                }
+            }
+
+            return res.json({
+                success: true,
+                endpointPathUsed: IZIPAY_WALLET_PATH,
+                status: iziRes?.status || null,
+                tokenCount: mapped.length,
+                saved,
+                tokens: mapped
+            });
+        } catch (e) {
+            console.error('[IZIPAY] WalletTokens error:', e?.message);
+            return res.status(500).json({ success: false, message: 'Error consultando wallet', error: e.message });
+        }
+    }
 
     // ── POST /api/payments/client-log (replicar logs del navegador en Vercel) ──
     if (req.method === 'POST' && url.includes('client-log')) {
