@@ -317,6 +317,47 @@ function safeString(v) {
     return (v == null) ? '' : String(v);
 }
 
+function findTokenRecursively(root) {
+    // Busca paymentMethodToken/cardToken en cualquier profundidad (con límites para no explotar logs/memoria)
+    const MAX_NODES = 5000;
+    const MAX_DEPTH = 8;
+    let seen = 0;
+
+    const isObj = (v) => v && typeof v === 'object';
+
+    function visit(node, depth, path) {
+        if (!isObj(node)) return null;
+        if (seen++ > MAX_NODES) return null;
+        if (depth > MAX_DEPTH) return null;
+
+        if (Array.isArray(node)) {
+            for (let i = 0; i < node.length; i++) {
+                const found = visit(node[i], depth + 1, path + `[${i}]`);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        for (const k of Object.keys(node)) {
+            const v = node[k];
+            const key = String(k);
+            if (/paymentMethodToken|cardToken/i.test(key)) {
+                const s = safeString(v).trim();
+                if (s) return { token: s, path: path ? `${path}.${key}` : key };
+            }
+        }
+
+        for (const k of Object.keys(node)) {
+            const v = node[k];
+            const found = visit(v, depth + 1, path ? `${path}.${k}` : String(k));
+            if (found) return found;
+        }
+        return null;
+    }
+
+    return visit(root, 0, '');
+}
+
 function extractPaymentMethodToken(answer) {
     const candidates = [
         answer?.paymentMethodToken,
@@ -329,7 +370,15 @@ function extractPaymentMethodToken(answer) {
         answer?.transactions?.[0]?.cardDetails?.token,
         answer?.transactions?.[0]?.cardDetails?.cardToken
     ].map(safeString).map(s => s.trim()).filter(Boolean);
-    return candidates[0] || '';
+    if (candidates[0]) return candidates[0];
+
+    // Fallback: búsqueda recursiva, porque el token puede venir en estructuras nuevas del PSP.
+    const deep = findTokenRecursively(answer);
+    if (deep && deep.token) {
+        console.log('[IZIPAY] Token encontrado por búsqueda profunda en:', deep.path);
+        return deep.token;
+    }
+    return '';
 }
 
 function computeNextExpiry({ currentExpiresAt, durationDays }) {
