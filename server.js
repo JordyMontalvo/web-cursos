@@ -79,10 +79,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // Conexión a MongoDB
-const REMOTA_URI = 'mongodb://admin:ADMIN_sifrah@ec2-18-220-240-71.us-east-2.compute.amazonaws.com:27017/cursos_db?authSource=admin';
-const LOCAL_URI = 'mongodb://localhost:27017/cursos_db';
-const USE_LOCAL_DB = process.env.USE_LOCAL_DB === 'true';
-const MONGODB_URI = USE_LOCAL_DB ? LOCAL_URI : REMOTA_URI;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cursos_db';
 
 // Middleware de autenticación JWT
 function authMiddleware(req, res, next) {
