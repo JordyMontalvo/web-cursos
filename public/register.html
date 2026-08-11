@@ -2,6 +2,15 @@
 <html lang="es">
 
 <head>
+    <script>
+        (function () {
+            document.documentElement.style.display = 'none';
+            var ref = new URLSearchParams(window.location.search).get('ref');
+            if (ref) { try { localStorage.setItem('referralCode', ref); } catch (e) {} }
+            var qs = window.location.search || '';
+            window.location.replace('/membresia' + qs);
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Cuenta - IATIBET ZUREON</title>

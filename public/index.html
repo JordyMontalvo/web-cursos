@@ -2,6 +2,16 @@
 <html lang="es">
 
 <head>
+  <script>
+    (function () {
+      var token = localStorage.getItem('authToken');
+      if (!token) {
+        document.documentElement.style.display = 'none';
+        var qs = window.location.search || '';
+        window.location.replace('/membresia' + qs);
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IATIBET ZUREON - Plataforma de Cursos Online</title>
@@ -185,17 +195,9 @@
   <script src="/config.js"></script>
 
 
-  <script>
-    // ── Flujo principal: Si no hay sesión activa, redirigir a Planes de Membresía ──
-    (function () {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        const qs = window.location.search ? window.location.search : '';
-        window.location.href = `/membresia${qs}`;
-        return;
-      }
-    })();
 
+
+  <script>
     // ── Auth header dinámico para usuarios autenticados ────────────
     (function () {
       const user = JSON.parse(localStorage.getItem('authUser') || 'null');
