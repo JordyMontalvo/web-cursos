@@ -953,53 +953,338 @@
         }
 
         .confirm-modal {
-            background: #13131F;
-            border: 1px solid rgba(124, 58, 237, 0.3);
+            background: #12121e;
+            border: 1px solid rgba(124, 58, 237, 0.35);
             border-radius: 24px;
-            padding: 2.5rem;
-            max-width: 440px;
+            padding: 2rem 2.25rem;
+            max-width: 520px;
             width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
             transform: scale(0.95) translateY(10px);
             transition: transform 0.25s;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 40px rgba(124, 58, 237, 0.15);
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(124, 58, 237, 0.4) transparent;
+        }
+
+        .confirm-modal::-webkit-scrollbar {
+            width: 6px;
+        }
+        .confirm-modal::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, 0.4);
+            border-radius: 4px;
         }
 
         .modal-overlay.open .confirm-modal {
             transform: scale(1) translateY(0);
         }
 
+        .checkout-close-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: rgba(255,255,255,0.07);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+            z-index: 5;
+        }
+        .checkout-close-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
         .confirm-modal h3 {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: 800;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .confirm-modal .plan-summary {
             background: rgba(124, 58, 237, 0.08);
-            border: 1px solid rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.22);
             border-radius: 14px;
-            padding: 1.25rem;
-            margin: 1.25rem 0;
+            padding: 1rem 1.25rem;
+            margin: 0.75rem 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .confirm-modal .plan-summary-name {
-            font-weight: 700;
-            font-size: 1.1rem;
+            font-weight: 800;
+            font-size: 1.05rem;
         }
 
         .confirm-modal .plan-summary-price {
-            font-size: 1.5rem;
+            font-size: 1.45rem;
             font-weight: 900;
             color: var(--purple-light);
         }
 
-        .confirm-modal p {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.875rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
+        .checkout-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 4px;
+            margin: 1rem 0 0.85rem;
+            gap: 4px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .checkout-tab {
+            flex: 1;
+            padding: 0.55rem 0.5rem;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.55);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .checkout-tab.active {
+            background: rgba(124, 58, 237, 0.3);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 1px solid rgba(124, 58, 237, 0.45);
+        }
+
+        .checkout-form-group {
+            margin-bottom: 0.85rem;
+            text-align: left;
+        }
+
+        .checkout-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 480px) {
+            .checkout-form-row {
+                grid-template-columns: 1fr;
+            }
+            .confirm-modal {
+                padding: 1.5rem 1.15rem;
+            }
+        }
+
+        .checkout-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 0.35rem;
+        }
+
+        .checkout-input {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.88rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .checkout-input:focus {
+            border-color: #7C3AED;
+            background: rgba(124, 58, 237, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+        }
+
+        .checkout-input.error {
+            border-color: #FF4B55;
+            background: rgba(255, 75, 85, 0.05);
+        }
+
+        .checkout-field-error {
+            font-size: 0.73rem;
+            color: #FF6B70;
+            margin-top: 0.25rem;
+            display: none;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .checkout-phone-wrap {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .checkout-country-code {
+            width: 92px;
+            padding: 0.65rem 0.4rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        .checkout-country-code option, .checkout-input option {
+            background: #1e1e2f;
+            color: #fff;
+        }
+
+        .checkout-pw-wrap {
+            position: relative;
+        }
+
+        .checkout-pw-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            padding: 0;
+            transition: color 0.2s;
+        }
+        .checkout-pw-toggle:hover { color: #fff; }
+
+        .checkout-pw-strength {
+            margin-top: 0.3rem;
+        }
+        .checkout-strength-bar {
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin-bottom: 0.2rem;
+        }
+        .checkout-strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .checkout-strength-text {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .checkout-terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin: 0.65rem 0 0.4rem;
+            font-size: 0.76rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.4;
+            text-align: left;
+        }
+        .checkout-terms input {
+            margin-top: 2px;
+            accent-color: #7C3AED;
+            cursor: pointer;
+        }
+        .checkout-terms a {
+            color: #a78bfa;
+            text-decoration: underline;
+        }
+
+        .checkout-user-box {
+            background: rgba(79, 255, 176, 0.08);
+            border: 1px solid rgba(79, 255, 176, 0.25);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            text-align: left;
+        }
+
+        .checkout-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .checkout-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7C3AED, #4FFFB0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .checkout-user-name {
+            font-weight: 700;
+            font-size: 0.86rem;
+            color: #fff;
+        }
+        .checkout-user-email {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.55);
+        }
+
+        .checkout-switch-user {
+            font-size: 0.75rem;
+            color: #FF6B70;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .checkout-alert {
+            background: rgba(255, 75, 85, 0.12);
+            border: 1px solid rgba(255, 75, 85, 0.35);
+            color: #ff999d;
+            border-radius: 10px;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.85rem;
+            display: none;
+            text-align: left;
+        }
+
+        .checkout-security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.45);
+            margin-top: 0.85rem;
         }
 
         .modal-actions {
@@ -1008,10 +1293,9 @@
         }
 
         .modal-actions button {
-            flex: 1;
-            padding: 0.875rem;
+            padding: 0.85rem;
             border-radius: 12px;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 700;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
@@ -1026,6 +1310,7 @@
 
         .btn-confirm:hover {
             box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45);
+            filter: brightness(1.05);
         }
 
         .btn-cancel-modal:hover {
@@ -1382,34 +1667,193 @@
     </section>
 
 
-    <!-- CONFIRM MODAL -->
+    <!-- CONFIRM & CHECKOUT MODAL UNIFICADO -->
     <div class="modal-overlay" id="confirmModal">
         <div class="confirm-modal">
-            <h3>Confirmar suscripción</h3>
+            <button class="checkout-close-btn" onclick="closeModal()" title="Cerrar">✕</button>
+
+            <h3 style="margin-top: 0;">Adquirir Membresía</h3>
+            <p style="margin-bottom: 0.65rem; font-size: 0.82rem; color: rgba(255,255,255,0.5);">Completa tu compra y accede inmediatamente a todos los cursos.</p>
+
+            <!-- RESUMEN DEL PLAN -->
             <div class="plan-summary">
                 <div>
                     <div class="plan-summary-name" id="modalPlanName">-</div>
-                    <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);" id="modalPlanDuration">-</div>
+                    <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);" id="modalPlanDuration">-</div>
                 </div>
                 <div class="plan-summary-price" id="modalPlanPrice">S/ -</div>
             </div>
-            <div style="margin-top:1rem;">
-                <label for="couponInput" style="display:block;font-size:0.8rem;color:rgba(255,255,255,.6);font-weight:700;margin-bottom:.4rem;">Cupón de descuento</label>
+
+            <!-- CUPÓN DE DESCUENTO -->
+            <div style="margin-bottom: 0.75rem;">
                 <div style="display:flex;gap:.5rem;align-items:center;">
-                    <input id="couponInput" type="text" placeholder="Ingresa tu cupón de descuento" autocomplete="off" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.75rem 1rem;color:#fff;font-weight:700;outline:none;">
-                    <button type="button" onclick="applyCoupon()" style="white-space:nowrap;height:44px;padding:0 1rem;border-radius:12px;border:1px solid rgba(124,58,237,.35);background:linear-gradient(135deg, rgba(124,58,237,.95), rgba(91,33,182,.92));color:#fff;font-weight:800;cursor:pointer;box-shadow:0 10px 24px rgba(124,58,237,.25);">
+                    <input id="couponInput" type="text" placeholder="¿Tienes un cupón de descuento?" autocomplete="off" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.55rem .85rem;color:#fff;font-size:0.85rem;font-weight:600;outline:none;">
+                    <button type="button" onclick="applyCoupon()" style="white-space:nowrap;height:36px;padding:0 .9rem;border-radius:10px;border:1px solid rgba(124,58,237,.4);background:linear-gradient(135deg, rgba(124,58,237,.95), rgba(91,33,182,.92));color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer;box-shadow:0 6px 16px rgba(124,58,237,.25);">
                         Aplicar
                     </button>
                 </div>
-                <div id="couponFeedback" style="margin-top:.5rem;font-size:.8rem;color:rgba(255,255,255,.55);"></div>
+                <div id="couponFeedback" style="margin-top:.35rem;font-size:.78rem;color:rgba(255,255,255,.55);text-align:left;"></div>
             </div>
-            <p id="modalPlanNote">Al confirmar, procederás al pago seguro con Izipay.</p>
-            <div class="modal-actions" id="purchaseActions" style="display: flex; gap: 0.75rem;">
-                <button class="btn-cancel-modal" onclick="closeModal()" style="flex:1;">Cancelar</button>
-                <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()" style="flex:1;">
-                    <span id="confirmBtnText">💳 Pagar con tarjeta</span>
-                    <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
+
+            <!-- ALERTA DE ERRORES -->
+            <div class="checkout-alert" id="checkoutAlert"></div>
+
+            <!-- CONTENEDOR USUARIO AUTENTICADO -->
+            <div id="checkoutUserAuthWrap" style="display: none;">
+                <div class="checkout-user-box">
+                    <div class="checkout-user-info">
+                        <div class="checkout-user-avatar" id="checkoutUserAvatar">?</div>
+                        <div>
+                            <div class="checkout-user-name" id="checkoutUserName">Usuario</div>
+                            <div class="checkout-user-email" id="checkoutUserEmail">correo@ejemplo.com</div>
+                        </div>
+                    </div>
+                    <button type="button" class="checkout-switch-user" onclick="checkoutLogout()">Cambiar cuenta</button>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR NO AUTENTICADO (REGISTRO / LOGIN) -->
+            <div id="checkoutGuestWrap">
+                <!-- TABS: REGISTRO / LOGIN -->
+                <div class="checkout-tabs">
+                    <button type="button" class="checkout-tab active" id="tabRegisterBtn" onclick="switchCheckoutTab('register')">
+                        📝 1. Crear Cuenta
+                    </button>
+                    <button type="button" class="checkout-tab" id="tabLoginBtn" onclick="switchCheckoutTab('login')">
+                        🔑 Ya tengo cuenta
+                    </button>
+                </div>
+
+                <!-- FORMULARIO DE REGISTRO INTEGRADO -->
+                <div id="checkoutRegisterSection">
+                    <div class="checkout-form-row">
+                        <div class="checkout-form-group">
+                            <label class="checkout-label" for="checkoutName">Nombre completo *</label>
+                            <input type="text" id="checkoutName" class="checkout-input" placeholder="Juan Pérez" autocomplete="name">
+                            <div class="checkout-field-error" id="checkoutNameError">Ingresa tu nombre</div>
+                        </div>
+                        <div class="checkout-form-group">
+                            <label class="checkout-label" for="checkoutEmail">Correo electrónico *</label>
+                            <input type="email" id="checkoutEmail" class="checkout-input" placeholder="tu@email.com" autocomplete="email">
+                            <div class="checkout-field-error" id="checkoutEmailError">Ingresa un correo válido</div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-form-row">
+                        <div class="checkout-form-group">
+                            <label class="checkout-label" for="checkoutCountry">País *</label>
+                            <select id="checkoutCountry" class="checkout-input" style="cursor:pointer;" onchange="onCheckoutCountryChange(this.value)">
+                                <option value="" disabled selected>Selecciona tu país</option>
+                                <option value="Perú">Perú</option>
+                                <option value="Argentina">Argentina</option>
+                                <option value="Bolivia">Bolivia</option>
+                                <option value="Brasil">Brasil</option>
+                                <option value="Chile">Chile</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Ecuador">Ecuador</option>
+                                <option value="España">España</option>
+                                <option value="Estados Unidos">Estados Unidos</option>
+                                <option value="México">México</option>
+                                <option value="Paraguay">Paraguay</option>
+                                <option value="Uruguay">Uruguay</option>
+                                <option value="Venezuela">Venezuela</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                            <div class="checkout-field-error" id="checkoutCountryError">Selecciona un país</div>
+                        </div>
+                        <div class="checkout-form-group">
+                            <label class="checkout-label" for="checkoutPhone">Número de celular</label>
+                            <div class="checkout-phone-wrap">
+                                <select id="checkoutCountryCode" class="checkout-country-code">
+                                    <option value="+51">🇵🇪 +51</option>
+                                    <option value="+1">🇺🇸 +1</option>
+                                    <option value="+34">🇪🇸 +34</option>
+                                    <option value="+52">🇲🇽 +52</option>
+                                    <option value="+57">🇨🇴 +57</option>
+                                    <option value="+54">🇦🇷 +54</option>
+                                    <option value="+56">🇨🇱 +56</option>
+                                    <option value="+593">🇪🇨 +593</option>
+                                    <option value="+591">🇧🇴 +591</option>
+                                    <option value="+595">🇵🇾 +595</option>
+                                    <option value="+598">🇺🇾 +598</option>
+                                    <option value="+58">🇻🇪 +58</option>
+                                    <option value="+55">🇧🇷 +55</option>
+                                    <option value="+44">🇬🇧 +44</option>
+                                    <option value="+33">🇫🇷 +33</option>
+                                    <option value="+49">🇩🇪 +49</option>
+                                </select>
+                                <input type="tel" id="checkoutPhone" class="checkout-input" placeholder="987 654 321" autocomplete="tel">
+                            </div>
+                            <div class="checkout-field-error" id="checkoutPhoneError">Celular inválido</div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-form-row">
+                        <div class="checkout-form-group">
+                            <label class="checkout-label" for="checkoutPassword">Crear contraseña *</label>
+                            <div class="checkout-pw-wrap">
+                                <input type="password" id="checkoutPassword" class="checkout-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="checkCheckoutPwStrength(this.value)">
+                                <button type="button" class="checkout-pw-toggle" onclick="toggleCheckoutPw('checkoutPassword', this)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                            </div>
+                            <div class="checkout-pw-strength">
+                                <div class="checkout-strength-bar"><div class="checkout-strength-fill" id="checkoutStrengthFill"></div></div>
+                                <span class="checkout-strength-text" id="checkoutStrengthText"></span>
+                            </div>
+                            <div class="checkout-field-error" id="checkoutPasswordError">Mínimo 6 caracteres</div>
+                        </div>
+                        <div class="checkout-form-group">
+                            <label class="checkout-label" for="checkoutConfirm">Confirmar contraseña *</label>
+                            <div class="checkout-pw-wrap">
+                                <input type="password" id="checkoutConfirm" class="checkout-input" placeholder="Repite tu contraseña" autocomplete="new-password">
+                                <button type="button" class="checkout-pw-toggle" onclick="toggleCheckoutPw('checkoutConfirm', this)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                            </div>
+                            <div class="checkout-field-error" id="checkoutConfirmError">Las contraseñas no coinciden</div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-terms">
+                        <input type="checkbox" id="checkoutAcceptTerms" checked>
+                        <span>Acepto los <a href="#" target="_blank">Términos de Servicio</a> y la <a href="#" target="_blank">Política de Privacidad</a></span>
+                    </div>
+                    <div class="checkout-field-error" id="checkoutTermsError" style="margin-bottom: 0.4rem;">Debes aceptar los términos para continuar</div>
+                </div>
+
+                <!-- FORMULARIO DE LOGIN RÁPIDO DENTRO DEL MODAL -->
+                <div id="checkoutLoginSection" style="display: none;">
+                    <div class="checkout-form-group">
+                        <label class="checkout-label" for="checkoutLoginEmail">Correo electrónico</label>
+                        <input type="email" id="checkoutLoginEmail" class="checkout-input" placeholder="tu@email.com" autocomplete="email">
+                        <div class="checkout-field-error" id="checkoutLoginEmailError">Ingresa tu correo</div>
+                    </div>
+                    <div class="checkout-form-group">
+                        <label class="checkout-label" for="checkoutLoginPassword">Contraseña</label>
+                        <div class="checkout-pw-wrap">
+                            <input type="password" id="checkoutLoginPassword" class="checkout-input" placeholder="Tu contraseña" autocomplete="current-password">
+                            <button type="button" class="checkout-pw-toggle" onclick="toggleCheckoutPw('checkoutLoginPassword', this)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <div class="checkout-field-error" id="checkoutLoginPasswordError">Ingresa tu contraseña</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <div class="modal-actions" id="purchaseActions" style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+                <button type="button" class="btn-cancel-modal" onclick="closeModal()" style="flex: 0 0 100px;">Cancelar</button>
+                <button type="button" class="btn-confirm" id="btnConfirm" onclick="handleCheckoutSubmit()" style="flex: 1;">
+                    <span id="confirmBtnText">💳 Proceder al Pago Seguro</span>
+                    <span id="confirmBtnSpinner" style="display:none;"><span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;"></span> Procesando...</span>
                 </button>
+            </div>
+
+            <div class="checkout-security-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Pago 100% seguro con Izipay · SSL 256-bit · Sin permanencia</span>
             </div>
         </div>
     </div>
@@ -1658,10 +2102,10 @@
                 renderPlans(plans);
                 checkCurrentPlan();
                 
-                // Auto-selección si viene el parámetro plan en la URL y el usuario está logueado
+                // Auto-selección si viene el parámetro plan en la URL
                 const params = new URLSearchParams(window.location.search);
                 const planId = params.get('plan');
-                if (planId && token) {
+                if (planId) {
                     const selected = plans.find(p => p._id === planId);
                     if (selected) {
                         selectPlan(selected._id, selected.name, selected.price, selected.durationDays);
@@ -1779,14 +2223,134 @@
             document.getElementById('currentPlanInfo').textContent = `Plan ${user.membershipPlan || 'activo'} · Acceso completo a todos los cursos`;
         }
 
+        // ── Referral Code Capture ─────────────────────────────────────────
+        (function initReferral() {
+            try {
+                const ref = new URLSearchParams(window.location.search).get('ref');
+                if (ref) localStorage.setItem('referralCode', ref.trim());
+            } catch (e) {}
+        })();
+
+        // ── Country Phone Codes ───────────────────────────────────────────
+        const countryToPhoneCode = {
+            "Perú": "+51", "Estados Unidos": "+1", "España": "+34", "México": "+52",
+            "Colombia": "+57", "Argentina": "+54", "Chile": "+56", "Ecuador": "+593",
+            "Bolivia": "+591", "Paraguay": "+595", "Uruguay": "+598", "Venezuela": "+58",
+            "Brasil": "+55", "Reino Unido": "+44", "Francia": "+33", "Alemania": "+49"
+        };
+
+        function onCheckoutCountryChange(val) {
+            const code = countryToPhoneCode[val];
+            if (code) {
+                const ccEl = document.getElementById('checkoutCountryCode');
+                if (ccEl) ccEl.value = code;
+            }
+            const err = document.getElementById('checkoutCountryError');
+            if (err) err.style.display = 'none';
+            const sel = document.getElementById('checkoutCountry');
+            if (sel) sel.classList.remove('error');
+        }
+
+        // ── Modal Tab Management (Register / Login) ───────────────────────
+        let checkoutCurrentTab = 'register';
+        function switchCheckoutTab(tab) {
+            checkoutCurrentTab = tab;
+            const regSection = document.getElementById('checkoutRegisterSection');
+            const loginSection = document.getElementById('checkoutLoginSection');
+            const tabRegBtn = document.getElementById('tabRegisterBtn');
+            const tabLoginBtn = document.getElementById('tabLoginBtn');
+            const alertEl = document.getElementById('checkoutAlert');
+            if (alertEl) { alertEl.style.display = 'none'; alertEl.textContent = ''; }
+
+            if (tab === 'login') {
+                if (regSection) regSection.style.display = 'none';
+                if (loginSection) loginSection.style.display = 'block';
+                if (tabRegBtn) tabRegBtn.classList.remove('active');
+                if (tabLoginBtn) tabLoginBtn.classList.add('active');
+                const btnText = document.getElementById('confirmBtnText');
+                if (btnText) btnText.textContent = '🔑 Iniciar Sesión y Pagar';
+            } else {
+                if (regSection) regSection.style.display = 'block';
+                if (loginSection) loginSection.style.display = 'none';
+                if (tabRegBtn) tabRegBtn.classList.add('active');
+                if (tabLoginBtn) tabLoginBtn.classList.remove('active');
+                const btnText = document.getElementById('confirmBtnText');
+                if (btnText) btnText.textContent = '💳 Proceder al Pago Seguro';
+            }
+        }
+
+        // ── Modal Auth State Manager ──────────────────────────────────────
+        function updateCheckoutAuthState() {
+            const curToken = localStorage.getItem('authToken');
+            const curUser = JSON.parse(localStorage.getItem('authUser') || 'null');
+            const authWrap = document.getElementById('checkoutUserAuthWrap');
+            const guestWrap = document.getElementById('checkoutGuestWrap');
+            const btnText = document.getElementById('confirmBtnText');
+
+            if (curToken && curUser) {
+                if (authWrap) authWrap.style.display = 'block';
+                if (guestWrap) guestWrap.style.display = 'none';
+                const avatar = document.getElementById('checkoutUserAvatar');
+                const nameEl = document.getElementById('checkoutUserName');
+                const emailEl = document.getElementById('checkoutUserEmail');
+                if (avatar) avatar.textContent = curUser.name ? curUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+                if (nameEl) nameEl.textContent = curUser.name || 'Usuario';
+                if (emailEl) emailEl.textContent = curUser.email || '';
+                if (btnText) btnText.textContent = '💳 Proceder al Pago Seguro';
+            } else {
+                if (authWrap) authWrap.style.display = 'none';
+                if (guestWrap) guestWrap.style.display = 'block';
+                switchCheckoutTab(checkoutCurrentTab || 'register');
+            }
+        }
+
+        function checkoutLogout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('authUser');
+            renderHeader();
+            updateCheckoutAuthState();
+            showToast('info', 'ℹ️', 'Sesión cerrada', 'Ahora puedes registrarte con una nueva cuenta.');
+        }
+
+        // ── Password Helper Tools ─────────────────────────────────────────
+        function toggleCheckoutPw(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const isText = input.type === 'text';
+            input.type = isText ? 'password' : 'text';
+            btn.querySelector('svg').innerHTML = isText
+                ? '<path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"/><circle cx="12" cy="12" r="3"/>'
+                : '<path d="M17.94 17.94C16.23 19.24 14.19 20 12 20C5 20 1 12 1 12C2.24 9.68 4.02 7.72 6.06 6.39M9.9 4.24C10.59 4.09 11.29 4 12 4C19 4 23 12 23 12C22.44 13.12 21.73 14.17 20.89 15.09M1 1L23 23"/>';
+        }
+
+        function checkCheckoutPwStrength(val) {
+            const fill = document.getElementById('checkoutStrengthFill');
+            const text = document.getElementById('checkoutStrengthText');
+            if (!fill || !text) return;
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const levels = [
+                { color: '#FF4B55', label: 'Muy débil', w: '20%' },
+                { color: '#FF8C42', label: 'Débil', w: '40%' },
+                { color: '#FFD93D', label: 'Regular', w: '60%' },
+                { color: '#4FFFB0', label: 'Fuerte', w: '80%' },
+                { color: '#00E676', label: 'Muy fuerte', w: '100%' },
+            ];
+            if (!val) { fill.style.width = '0'; text.textContent = ''; return; }
+            const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+            fill.style.width = lvl.w;
+            fill.style.background = lvl.color;
+            text.textContent = lvl.label;
+            text.style.color = lvl.color;
+        }
+
         // ── Plan selection ───────────────────────────────────────────────
         async function selectPlan(id, name, price, durationDays) {
-            if (!token) {
-                showToast('info', '🔐', 'Crea una cuenta para suscribirte', 'Serás redirigido al registro...');
-                setTimeout(() => { window.location.href = `/register?plan=${id}`; }, 1800);
-                return;
-            }
-
             selectedPlanId = id;
             selectedPlanPrice = Number(price) || 0;
             resetCheckout(); // Limpiar rastro anterior
@@ -1807,6 +2371,7 @@
                 btnConfirm.style.boxShadow = `0 8px 25px ${btnBg}40`;
             }
 
+            updateCheckoutAuthState();
             document.getElementById('confirmModal').classList.add('open');
 
             // Verificar AdBlock
@@ -1824,22 +2389,14 @@
                 actions.style.display = 'flex';
                 actions.style.opacity = '1';
                 actions.style.pointerEvents = 'auto';
-                // Restaurar contenido de los botones si fue vaciado
-                if (!document.getElementById('btnConfirm')) {
-                    actions.innerHTML = `
-                        <button class="btn-cancel-modal" onclick="closeModal()" style="flex:1;">Cancelar</button>
-                        <button class="btn-confirm" id="btnConfirm" onclick="startIzipayCheckout()" style="flex:1;">
-                            <span id="confirmBtnText">💳 Pagar con tarjeta</span>
-                            <span id="confirmBtnSpinner" style="display:none;">Generando orden...</span>
-                        </button>`;
-                }
             }
-            const popin = document.getElementById('izipayPopinContainer');
-            if (popin) popin.style.display = 'none';
 
-            const adWarn = document.getElementById('adblockWarning');
-            if (adWarn) adWarn.style.display = 'none';
+            const alertEl = document.getElementById('checkoutAlert');
+            if (alertEl) { alertEl.style.display = 'none'; alertEl.textContent = ''; }
 
+            // Limpiar errores en inputs
+            document.querySelectorAll('.checkout-field-error').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.checkout-input').forEach(el => el.classList.remove('error'));
 
             const btn = document.getElementById('btnConfirm');
             if (btn) {
@@ -1889,9 +2446,13 @@
             feedback.textContent = 'Validando cupón...';
             try {
                 await configReady;
+                const curToken = localStorage.getItem('authToken');
+                const headers = { 'Content-Type': 'application/json' };
+                if (curToken) headers['Authorization'] = `Bearer ${curToken}`;
+
                 const res = await fetch(apiUrl('/api/coupons/validate'), {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers,
                     body: JSON.stringify({ code, membershipId: selectedPlanId })
                 });
                 const data = await res.json();
@@ -1912,6 +2473,171 @@
                 appliedPricing = null;
                 priceEl.textContent = formatMoney(selectedPlanCurrency, selectedPlanPrice);
                 feedback.innerHTML = `<span style="color:#FF6B70;font-weight:800;">${err.message}</span>`;
+            }
+        }
+
+        // ── Checkout & Account Creation Handler ───────────────────────────
+        async function handleCheckoutSubmit() {
+            const btn = document.getElementById('btnConfirm');
+            const btnText = document.getElementById('confirmBtnText');
+            const btnSpin = document.getElementById('confirmBtnSpinner');
+            const alertEl = document.getElementById('checkoutAlert');
+            if (alertEl) { alertEl.style.display = 'none'; alertEl.textContent = ''; }
+
+            const curToken = localStorage.getItem('authToken');
+
+            // 1. Si ya está autenticado: proceder directo a pasarela
+            if (curToken) {
+                return startIzipayCheckout();
+            }
+
+            // 2. Si seleccionó la pestaña de iniciar sesión
+            if (checkoutCurrentTab === 'login') {
+                const email = document.getElementById('checkoutLoginEmail').value.trim();
+                const password = document.getElementById('checkoutLoginPassword').value;
+
+                let valid = true;
+                const emailErr = !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                document.getElementById('checkoutLoginEmailError').style.display = emailErr ? 'block' : 'none';
+                document.getElementById('checkoutLoginEmail').classList.toggle('error', emailErr);
+                if (emailErr) valid = false;
+
+                const pwErr = !password;
+                document.getElementById('checkoutLoginPasswordError').style.display = pwErr ? 'block' : 'none';
+                document.getElementById('checkoutLoginPassword').classList.toggle('error', pwErr);
+                if (pwErr) valid = false;
+
+                if (!valid) return;
+
+                btn.disabled = true;
+                btnText.style.display = 'none';
+                btnSpin.style.display = 'inline-block';
+
+                try {
+                    await configReady;
+                    const res = await fetch(apiUrl('/api/auth/login'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.message || 'Credenciales incorrectas');
+
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('authUser', JSON.stringify(data.user));
+                    renderHeader();
+                    updateCheckoutAuthState();
+                    showToast('success', '👋', `¡Bienvenido/a ${data.user.name}!`, 'Generando orden de pago...');
+
+                    await startIzipayCheckout();
+                } catch (err) {
+                    if (alertEl) {
+                        alertEl.textContent = err.message || 'Error al iniciar sesión';
+                        alertEl.style.display = 'block';
+                    }
+                    btn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnSpin.style.display = 'none';
+                }
+                return;
+            }
+
+            // 3. Crear cuenta nueva dentro del flujo de compra
+            const name = document.getElementById('checkoutName').value.trim();
+            const email = document.getElementById('checkoutEmail').value.trim();
+            const country = document.getElementById('checkoutCountry').value;
+            const countryCode = document.getElementById('checkoutCountryCode').value;
+            const phone = document.getElementById('checkoutPhone').value.trim();
+            const password = document.getElementById('checkoutPassword').value;
+            const confirm = document.getElementById('checkoutConfirm').value;
+            const terms = document.getElementById('checkoutAcceptTerms').checked;
+
+            let valid = true;
+
+            const nameErr = !name || name.length < 2;
+            document.getElementById('checkoutNameError').style.display = nameErr ? 'block' : 'none';
+            document.getElementById('checkoutName').classList.toggle('error', nameErr);
+            if (nameErr) valid = false;
+
+            const emailErr = !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            document.getElementById('checkoutEmailError').style.display = emailErr ? 'block' : 'none';
+            document.getElementById('checkoutEmail').classList.toggle('error', emailErr);
+            if (emailErr) valid = false;
+
+            const countryErr = !country;
+            document.getElementById('checkoutCountryError').style.display = countryErr ? 'block' : 'none';
+            document.getElementById('checkoutCountry').classList.toggle('error', countryErr);
+            if (countryErr) valid = false;
+
+            const phoneErr = phone && !/^[0-9\s\-\(\)]{6,15}$/.test(phone);
+            document.getElementById('checkoutPhoneError').style.display = phoneErr ? 'block' : 'none';
+            document.getElementById('checkoutPhone').classList.toggle('error', phoneErr);
+            if (phoneErr) valid = false;
+
+            const pwErr = !password || password.length < 6;
+            document.getElementById('checkoutPasswordError').style.display = pwErr ? 'block' : 'none';
+            document.getElementById('checkoutPassword').classList.toggle('error', pwErr);
+            if (pwErr) valid = false;
+
+            const confirmErr = password !== confirm;
+            document.getElementById('checkoutConfirmError').style.display = confirmErr ? 'block' : 'none';
+            document.getElementById('checkoutConfirm').classList.toggle('error', confirmErr);
+            if (confirmErr) valid = false;
+
+            document.getElementById('checkoutTermsError').style.display = !terms ? 'block' : 'none';
+            if (!terms) valid = false;
+
+            if (!valid) return;
+
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            btnSpin.style.display = 'inline-block';
+
+            try {
+                await configReady;
+                const ref = new URLSearchParams(window.location.search).get('ref') || localStorage.getItem('referralCode') || '';
+                const fullPhone = phone ? `${countryCode}${phone.replace(/\s/g, '')}` : '';
+
+                // Crear cuenta del nuevo usuario
+                const regRes = await fetch(apiUrl('/api/auth/register'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        country,
+                        phone: fullPhone,
+                        ref
+                    })
+                });
+                const regData = await regRes.json();
+                if (!regData.success) {
+                    if (regData.message && regData.message.toLowerCase().includes('registrado')) {
+                        throw new Error('Este correo ya está registrado. Haz clic en "🔑 Ya tengo cuenta" arriba para iniciar sesión.');
+                    }
+                    throw new Error(regData.message || 'Error al crear la cuenta');
+                }
+
+                // Guardar credenciales de sesión en localStorage
+                localStorage.setItem('authToken', regData.token);
+                localStorage.setItem('authUser', JSON.stringify(regData.user));
+                renderHeader();
+                updateCheckoutAuthState();
+
+                showToast('success', '🎉', '¡Cuenta creada con éxito!', 'Conectando con la pasarela de pago seguro...');
+
+                // Iniciar pasarela de Izipay inmediatamente
+                await startIzipayCheckout();
+
+            } catch (err) {
+                if (alertEl) {
+                    alertEl.textContent = err.message || 'Error al procesar la solicitud';
+                    alertEl.style.display = 'block';
+                }
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnSpin.style.display = 'none';
             }
         }
 
@@ -2118,19 +2844,13 @@
                                 });
                             }
 
-                            // En tu PSP estamos viendo "AUTHORISED" en onOrderUpdate (aunque el return luego viene PAID).
-                            // Disparamos wallet también aquí para no perdernos la creación asíncrona del token.
                             if (isAuthorised || isPaid) {
                                 trySaveTokenFromWallet(`KR.onOrderUpdate status=${detailedStatus}`);
                             }
 
-                            // Importante: por defecto el SDK redirige a kr-post-url-success y se pierden los logs.
-                            // Según la documentación, si devolvemos false en un pago CAPTURED/PAID, se detiene la redirección
-                            // y podemos manejar el flujo nosotros.
                             if (isPaid) {
                                 console.log('[MEMBRESIA][KR] Pago detectado como CAPTURED/PAID; bloqueando redirección automática para mantener logs.');
                                 sendClientLog('info', 'KR', 'Pago CAPTURED/PAID (bloqueando redirección automática)', { detailedStatus });
-                                // Opcional: refrescar estado de membresía y redirigir manualmente después de unos segundos
                                 setTimeout(() => {
                                     try { startActivationPolling(); } catch {}
                                 }, 250);
@@ -2141,7 +2861,6 @@
                             sendClientLog('error', 'KR', 'onOrderUpdate handler error', { message: e && e.message });
                         }
                     });
-                    // Algunas versiones devuelven promesa, otras no. Logueamos igual para saber si quedó registrado.
                     if (register && typeof register.then === 'function') {
                         register.then(() => console.log('[MEMBRESIA][KR] onOrderUpdate registrado (promise resolved)'))
                             .catch((e) => console.warn('[MEMBRESIA][KR] onOrderUpdate promise rejected', e));
@@ -2169,10 +2888,15 @@
         async function startIzipayCheckout() {
             if (!selectedPlanId) return;
 
+            const curToken = localStorage.getItem('authToken');
+            if (!curToken) {
+                showToast('error', '⚠️', 'Sesión requerida', 'Por favor completa tus datos para crear la cuenta.');
+                return;
+            }
+
             const btn = document.getElementById('btnConfirm');
             const btnText = document.getElementById('confirmBtnText');
             const btnSpin = document.getElementById('confirmBtnSpinner');
-            const popinContainer = document.getElementById('izipayPopinContainer');
 
             btn.disabled = true;
             btnText.style.display = 'none';
@@ -2184,13 +2908,13 @@
                     appliedCouponCode: appliedCouponCode || '',
                     hasKR: !!window.KR,
                     apiBase: (typeof API_BASE !== 'undefined' ? API_BASE : undefined),
-                    tokenPresent: !!token
+                    tokenPresent: !!curToken
                 });
                 await configReady;
                 console.log('[MEMBRESIA][IZIPAY] configReady OK');
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${curToken}` },
                     body: JSON.stringify({ membershipId: selectedPlanId, couponCode: appliedCouponCode || '' })
                 });
 
@@ -2211,7 +2935,6 @@
                     throw new Error(msg);
                 }
                 if (!data) {
-                    // Normalmente esto pasa cuando se devuelve HTML (por ejemplo 404/redirect/login)
                     throw new Error('No se pudo iniciar el pago. Intenta recargar la página e iniciar sesión de nuevo.');
                 }
                 if (!data.success) throw new Error(data.message || 'Error al generar el pago');

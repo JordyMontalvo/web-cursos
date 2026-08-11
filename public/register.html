@@ -704,13 +704,12 @@
         const params = new URLSearchParams(window.location.search);
         const planId = params.get('plan');
         const ref = params.get('ref');
-
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            window.location.href = planId ? `/membresia?plan=${planId}` : '/';
-        } else if (!planId && !ref) {
-            window.location.href = '/membresia';
+        if (ref) {
+            try { localStorage.setItem('referralCode', ref); } catch (e) {}
         }
+        const qs = window.location.search ? window.location.search : '';
+        window.location.href = `/membresia${qs}`;
+    </script>
 
         // ── OAuth helpers ──────────────────────────────────────────────
         async function handleOAuthSuccess(data) {

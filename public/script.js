@@ -1,6 +1,13 @@
 // ===================================
 // API & Data
 // ===================================
+(function captureReferral() {
+    try {
+        const ref = new URLSearchParams(window.location.search).get('ref');
+        if (ref) localStorage.setItem('referralCode', ref.trim());
+    } catch (e) {}
+})();
+
 let coursesData = [];
 let episodesData = [];
 let featuredCourses = [];
