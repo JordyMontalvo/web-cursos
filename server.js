@@ -79,6 +79,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // Conexión a MongoDB
+const USE_LOCAL_DB = process.env.USE_LOCAL_DB === 'true';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cursos_db';
 
 // Middleware de autenticación JWT

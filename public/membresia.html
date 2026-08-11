@@ -1511,10 +1511,7 @@
             window.__hideIzipayTestToolbarEnabled = shouldHide;
         })();
 
-        // ── Guard: redirigir al login si no hay sesión ───────────────────
-        if (!token) {
-            window.location.href = '/login?redirect=/membresia';
-        }
+
 
         const user = JSON.parse(localStorage.getItem('authUser') || 'null');
 
@@ -1660,6 +1657,16 @@
                 plans = data.memberships || [];
                 renderPlans(plans);
                 checkCurrentPlan();
+                
+                // Auto-selección si viene el parámetro plan en la URL y el usuario está logueado
+                const params = new URLSearchParams(window.location.search);
+                const planId = params.get('plan');
+                if (planId && token) {
+                    const selected = plans.find(p => p._id === planId);
+                    if (selected) {
+                        selectPlan(selected._id, selected.name, selected.price, selected.durationDays);
+                    }
+                }
             } catch (err) {
                 const html = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">Error al cargar los planes. Intenta de nuevo.</div>`;
                 const top = document.getElementById('plansGrid');
@@ -1775,8 +1782,8 @@
         // ── Plan selection ───────────────────────────────────────────────
         async function selectPlan(id, name, price, durationDays) {
             if (!token) {
-                showToast('info', '🔐', 'Inicia sesión para suscribirte', 'Serás redirigido al login...');
-                setTimeout(() => { window.location.href = `/login?redirect=/membresia`; }, 1800);
+                showToast('info', '🔐', 'Crea una cuenta para suscribirte', 'Serás redirigido al registro...');
+                setTimeout(() => { window.location.href = `/register?plan=${id}`; }, 1800);
                 return;
             }
 
