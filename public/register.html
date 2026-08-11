@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Cuenta - IATIBET ZUREON</title>
+    <!-- SDK de Izipay oficial V4 -->
+    <script src="https://static.micuentaweb.pe/static/js/krypton-client/V4.0/stable/kr-payment-form.min.js"
+        kr-public-key="38106701:testpublickey_XdWqqaCVK27gEgKSYJOEofci1FL6eAs4MxpWzSWZwInIh"
+        kr-post-url-success="/api/payments/izipay-return" kr-client-domain="https://api.micuentaweb.pe"
+        kr-language="es-PE" kr-theme="classic">
+    </script>
     <meta name="description" content="Crea tu cuenta en IATIBET ZUREON y accede a la mejor plataforma de series online">
     <link rel="stylesheet" href="/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,8 +50,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-y: auto;
             position: relative;
+            padding: 2rem 1rem;
         }
 
         .auth-bg {
@@ -78,27 +85,13 @@
         }
 
         @keyframes float1 {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(-20px, 20px);
-            }
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, 20px); }
         }
 
         @keyframes float2 {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(20px, -20px);
-            }
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
         }
 
         .grid-lines {
@@ -115,14 +108,12 @@
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 500px;
-            padding: 1.5rem;
-            max-height: 100vh;
-            overflow-y: auto;
+            max-width: 480px;
+            padding: 1rem 0;
         }
 
         .auth-card {
-            background: rgba(20, 20, 35, 0.88);
+            background: rgba(20, 20, 35, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(124, 58, 237, 0.2);
             border-radius: 24px;
@@ -134,7 +125,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .auth-logo-icon {
@@ -165,19 +156,7 @@
         .auth-subtitle {
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 2rem;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        @media (max-width: 480px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
@@ -220,9 +199,9 @@
         }
 
         .field-error {
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             color: #FF6B70;
-            margin-top: 0.35rem;
+            margin-top: 0.4rem;
             display: none;
         }
 
@@ -249,61 +228,103 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Password strength */
         .password-strength {
             margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .strength-bar {
+            flex: 1;
             height: 4px;
-            border-radius: 2px;
             background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
             overflow: hidden;
-            margin-bottom: 0.25rem;
         }
 
         .strength-fill {
             height: 100%;
-            width: 0%;
-            border-radius: 2px;
+            width: 0;
             transition: all 0.3s;
         }
 
         .strength-text {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+            min-width: 60px;
+            text-align: right;
         }
 
-        /* Terms */
+        .phone-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .country-code-select {
+            width: 90px;
+            padding: 0.875rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.6rem center;
+            background-color: rgba(255,255,255,0.05);
+            padding-right: 1.8rem;
+        }
+
+        .country-code-select option, #regCountry option, #regPlan option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .country-code-select:focus {
+            border-color: #7C3AED;
+            background-color: rgba(124, 58, 237, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .phone-input {
+            flex: 1;
+        }
+
         .terms-group {
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
-            margin-bottom: 1.25rem;
+            margin: 1.25rem 0;
+            cursor: pointer;
         }
 
         .terms-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            margin-top: 2px;
+            margin-top: 0.2rem;
             accent-color: #7C3AED;
             cursor: pointer;
-            flex-shrink: 0;
         }
 
         .terms-text {
-            font-size: 0.83rem;
-            color: rgba(255, 255, 255, 0.5);
-            line-height: 1.5;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.4;
         }
 
         .terms-text a {
             color: #7C3AED;
             text-decoration: none;
+            font-weight: 500;
         }
 
         .terms-text a:hover {
-            color: #9B6FF5;
+            text-decoration: underline;
         }
 
         .btn-submit {
@@ -318,6 +339,7 @@
             font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.25s;
+            margin-top: 0.5rem;
             position: relative;
             overflow: hidden;
         }
@@ -365,9 +387,7 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .divider {
@@ -392,7 +412,7 @@
 
         .auth-footer {
             text-align: center;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.5);
         }
@@ -436,95 +456,193 @@
             display: none !important;
         }
 
-        /* Phone field */
-        .phone-group {
+        /* ── IZIPAY PREMIUM MODAL ── */
+        #izipayOfficialModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000;
+            padding: 1rem;
+        }
+
+        #izipayOfficialModal.open {
             display: flex;
-            gap: 0.5rem;
-            align-items: stretch;
         }
 
-        .country-code-select {
-            flex-shrink: 0;
-            width: 120px;
-            padding: 0.875rem 0.75rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 0.9rem;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-            outline: none;
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.6rem center;
-            background-color: rgba(255,255,255,0.05);
-            padding-right: 1.8rem;
-        }
-
-        .country-code-select option, #regCountry option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        .country-code-select:focus {
-            border-color: #7C3AED;
-            background-color: rgba(124, 58, 237, 0.08);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-        }
-
-        .phone-input {
-            flex: 1;
-        }
-
-        /* Social auth buttons */
-        .social-btn {
+        .izipay-white-container {
+            background: #ffffff !important;
             width: 100%;
-            padding: 0.875rem 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.04);
-            color: #fff;
-            font-size: 0.95rem;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
+            max-width: 380px;
+            border-radius: 16px;
+            padding: 1.5rem 1.25rem 1.25rem;
+            position: relative;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+            animation: iziSlideUp 0.3s ease-out;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .izipay-header-logo {
+            text-align: center;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .izipay-header-logo img {
+            height: 32px;
+            width: auto;
+        }
+
+        .izi-close {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: #f1f5f9;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            color: #64748b;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.75rem;
             transition: all 0.2s;
-            text-decoration: none;
-            margin-bottom: 0.75rem;
+            z-index: 10;
         }
-        .social-btn:hover {
-            background: rgba(255, 255, 255, 0.09);
-            border-color: rgba(255, 255, 255, 0.25);
-            transform: translateY(-1px);
+
+        .izi-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
         }
-        .social-btn:active { transform: translateY(0); }
-        .social-btn.google { border-color: rgba(66, 133, 244, 0.4); }
-        .social-btn.google:hover { background: rgba(66, 133, 244, 0.08); border-color: rgba(66, 133, 244, 0.6); }
-        .social-btn.github { border-color: rgba(255, 255, 255, 0.15); }
-        .social-btn.github:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.35); }
-        .social-btn svg { flex-shrink: 0; }
-        .social-section { margin-bottom: 1.25rem; }
-        .provider-badge {
-            display: inline-flex;
+
+        .izipay-white-container * {
+            box-sizing: border-box !important;
+            font-family: 'Inter', sans-serif !important;
+            letter-spacing: -0.01em !important;
+            line-height: 1.2 !important;
+        }
+
+        .kr-smart-form,
+        .kr-smart-form * {
+            max-width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .kr-smart-form .kr-field-wrapper {
+            margin-bottom: 8px !important;
+            padding: 0 !important;
+        }
+
+        .kr-smart-form .kr-label {
+            font-size: 13px !important;
+            color: #475569 !important;
+            font-weight: 600 !important;
+            margin-bottom: 4px !important;
+            display: block !important;
+        }
+
+        .kr-smart-form .kr-field-element,
+        .kr-smart-form input,
+        .kr-smart-form select {
+            font-size: 14px !important;
+            color: #1e293b !important;
+            height: 42px !important;
+            border-radius: 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            background: #fff !important;
+            padding: 0 12px !important;
+            width: 100% !important;
+        }
+
+        .kr-smart-form .kr-payment-button {
+            height: 46px !important;
+            background: #00d1b2 !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            margin-top: 10px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        #izipayTestToolbarCover {
+            position: fixed;
+            left: 50%;
+            bottom: 10px;
+            transform: translateX(-50%);
+            width: min(96vw, 400px);
+            height: 52px;
+            z-index: 2147483647;
+            pointer-events: auto;
+            background: #0A0A0F;
+            border-radius: 999px;
+            box-shadow: 0 0 0 4px #0A0A0F;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes iziSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Toast ───────────────────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast-item {
+            display: flex;
             align-items: center;
-            gap: 0.3rem;
-            font-size: 0.72rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.06);
-            color: rgba(255,255,255,0.45);
-            margin-top: 0.4rem;
+            gap: 0.75rem;
+            background: #1A1A2E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            min-width: 280px;
+            max-width: 380px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #fff;
+        }
+
+        .toast-item.success { border-color: rgba(79, 255, 176, 0.3); }
+        .toast-item.error { border-color: rgba(255, 107, 112, 0.3); }
+        .toast-item.info { border-color: rgba(124, 58, 237, 0.35); }
+
+        .toast-icon-wrap { font-size: 1.25rem; flex-shrink: 0; }
+        .toast-text { font-size: 0.9rem; font-weight: 500; flex: 1; }
+        .toast-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            padding: 0.2rem;
+            font-size: 1rem;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
     </style>
-
 </head>
 
 <body>
@@ -538,30 +656,8 @@
                 <span class="auth-logo-text">IATIBET ZUREON</span>
             </div>
 
-            <h1 class="auth-title">Crea tu cuenta</h1>
-            <p class="auth-subtitle">Únete a miles de estudiantes que ya transformaron su vida</p>
-
-            <!-- Social Auth 
-            <div class="social-section">
-                <div id="g_id_onload"
-                    data-client_id="841725081856-japgunu2lo2im84i33vlq45odjgh4ijt.apps.googleusercontent.com"
-                    data-callback="handleGoogleSignIn"
-                    data-auto_prompt="false">
-                </div>
-                <button type="button" class="social-btn google" id="googleSignUpBtn" onclick="initGoogleSignUp()">
-                    <svg width="20" height="20" viewBox="0 0 48 48">
-                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
-                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
-                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
-                        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
-                    </svg>
-                    Continuar con Google
-                </button>
-            </div>
-            -->
-
-            <!-- <div class="divider"><span>o regístrate con email</span></div> -->
-
+            <h1 class="auth-title">Adquiere tu Plan</h1>
+            <p class="auth-subtitle">Regístrate y suscríbete para acceder al contenido premium</p>
 
             <div class="alert hidden" id="registerAlert">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -574,19 +670,26 @@
                 <span id="registerAlertMsg"></span>
             </div>
 
-
             <form id="registerForm" novalidate>
+                <!-- Selección de Membresía -->
+                <div class="form-group">
+                    <label class="form-label" for="regPlan">Plan de Membresía</label>
+                    <select id="regPlan" class="form-input" style="appearance: none; -webkit-appearance: none; cursor: pointer; background-color: rgba(255,255,255,0.05); color: #fff; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 1.2rem center; padding-right: 2.5rem;" required>
+                        <option value="" disabled selected>Cargando planes...</option>
+                    </select>
+                    <div class="field-error" id="planError">Por favor selecciona un plan</div>
+                    <div id="planPriceNotice" style="margin-top:0.5rem;font-size:0.9rem;font-weight:700;color:#4FFFB0;"></div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label" for="regName">Nombre completo</label>
-                    <input type="text" id="regName" class="form-input" placeholder="Juan Pérez" autocomplete="name"
-                        required>
+                    <input type="text" id="regName" class="form-input" placeholder="Juan Pérez" autocomplete="name" required>
                     <div class="field-error" id="nameError">Por favor ingresa tu nombre</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="regEmail">Correo electrónico</label>
-                    <input type="email" id="regEmail" class="form-input" placeholder="tu@email.com" autocomplete="email"
-                        required>
+                    <input type="email" id="regEmail" class="form-input" placeholder="tu@email.com" autocomplete="email" required>
                     <div class="field-error" id="regEmailError">Por favor ingresa un email válido</div>
                 </div>
 
@@ -633,8 +736,7 @@
                             <option value="+33">🇫🇷 +33</option>
                             <option value="+49">🇩🇪 +49</option>
                         </select>
-                        <input type="tel" id="regPhone" class="form-input phone-input"
-                            placeholder="987 654 321" autocomplete="tel-national">
+                        <input type="tel" id="regPhone" class="form-input phone-input" placeholder="987 654 321" autocomplete="tel-national">
                     </div>
                     <div class="field-error" id="phoneError">Ingresa un número de celular válido</div>
                 </div>
@@ -642,12 +744,10 @@
                 <div class="form-group">
                     <label class="form-label" for="regPassword">Contraseña</label>
                     <div class="password-wrapper">
-                        <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres"
-                            autocomplete="new-password" required oninput="checkStrength(this.value)">
+                        <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required oninput="checkStrength(this.value)">
                         <button type="button" class="toggle-password" onclick="togglePassword('regPassword', this)">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
-                                    stroke="currentColor" stroke-width="2" />
+                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" />
                                 <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
                             </svg>
                         </button>
@@ -664,12 +764,10 @@
                 <div class="form-group">
                     <label class="form-label" for="regConfirm">Confirmar contraseña</label>
                     <div class="password-wrapper">
-                        <input type="password" id="regConfirm" class="form-input" placeholder="Repite tu contraseña"
-                            autocomplete="new-password" required>
+                        <input type="password" id="regConfirm" class="form-input" placeholder="Repite tu contraseña" autocomplete="new-password" required>
                         <button type="button" class="toggle-password" onclick="togglePassword('regConfirm', this)">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
-                                    stroke="currentColor" stroke-width="2" />
+                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" />
                                 <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
                             </svg>
                         </button>
@@ -679,14 +777,12 @@
 
                 <div class="terms-group">
                     <input type="checkbox" id="acceptTerms">
-                    <span class="terms-text">Acepto los <a href="#">Términos de Servicio</a> y la <a href="#">Política
-                            de Privacidad</a> de IATIBET ZUREON</span>
+                    <span class="terms-text">Acepto los <a href="#">Términos de Servicio</a> y la <a href="#">Política de Privacidad</a> de IATIBET ZUREON</span>
                 </div>
-                <div class="field-error" id="termsError" style="margin-top: -0.75rem; margin-bottom: 1rem;">Debes
-                    aceptar los términos para continuar</div>
+                <div class="field-error" id="termsError" style="margin-top: -0.75rem; margin-bottom: 1rem;">Debes aceptar los términos para continuar</div>
 
                 <button type="submit" class="btn-submit" id="registerBtn">
-                    Crear Cuenta
+                    Proceder al Pago
                 </button>
             </form>
 
@@ -698,84 +794,80 @@
         </div>
     </div>
 
-    <!-- <script src="https://accounts.google.com/gsi/client" async defer></script> -->
+    <!-- MODAL OFICIAL IZIPAY (REPLICA DE IMAGEN) -->
+    <div id="izipayOfficialModal">
+        <div class="izipay-white-container">
+            <button class="izi-close" onclick="closeIziModal()">✕</button>
+
+            <div class="izipay-header-logo">
+                <img src="/assets/izipay-logo.png" alt="Izipay"
+                    onerror="this.onerror=null; this.src='https://static.micuentaweb.pe/static/img/izipay-logo.png'">
+            </div>
+
+            <div class="kr-smart-form" id="myPaymentForm">
+                <!-- El formulario oficial se renderiza aquí -->
+            </div>
+
+            <p style="text-align:center; font-size: 11px; color: #94a3b8; margin-top: 1.5rem;">
+                Pago procesado de forma segura por Izipay · SSL 256 bits
+            </p>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script src="/config.js"></script>
     <script>
         const token = localStorage.getItem('authToken');
         if (token) window.location.href = '/';
 
-        // ── OAuth helpers ──────────────────────────────────────────────
-        async function handleOAuthSuccess(data) {
-            if (data.success) {
-                localStorage.setItem('authToken', data.token);
-                localStorage.setItem('authUser', JSON.stringify(data.user));
-                showAlert('¡Cuenta creada! Redirigiendo a membresías...', 'success');
-                setTimeout(() => window.location.href = '/membresia', 1200);
-            } else {
-                showAlert(data.message || 'Error al autenticar');
-            }
-        }
+        let plans = [];
+        let selectedPlan = null;
+        let izipayInitAttempts = 0;
+        let izipayToolbarTick = null;
 
-        /*
-        // ── Google Sign In (Redirect Flow) ─────────────────────────────────────────────
-        function initGoogleSignUp() {
-            const btn = document.getElementById('googleSignUpBtn');
-            btn.disabled = true;
-            btn.textContent = 'Redirigiendo a Google...';
-            
-            const clientId = '841725081856-japgunu2lo2im84i33vlq45odjgh4ijt.apps.googleusercontent.com';
-            const redirectUri = window.location.origin + '/register'; // Redirigir de vuelta a esta tabla
-            const nonce = Math.random().toString(36).substring(2);
-            
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=id_token&scope=email%20profile%20openid&nonce=${nonce}`;
-            window.location.href = authUrl;
-        }
-
-        // Manejar el retorno de Google (el id_token viene en el hash de la URL)
-        (function handleGoogleCallback() {
-            const hash = window.location.hash;
-            if (hash && hash.includes('id_token=')) {
-                const params = new URLSearchParams(hash.substring(1));
-                const idToken = params.get('id_token');
-                
-                if (idToken) {
-                    history.replaceState(null, null, ' '); // Limpiar URL
-                    
-                    // Simular respuesta usando tu lógica existente
-                    setTimeout(() => processGoogleToken(idToken), 100);
-                }
-            }
-        })();
-
-        async function processGoogleToken(credential) {
-            const btn = document.getElementById('googleSignUpBtn');
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = 'Conectando con Google...';
-            }
+        // Cargar Planes al cargar página
+        document.addEventListener('DOMContentLoaded', async () => {
+            await configReady;
             try {
-                await configReady;
-                const res = await fetch(apiUrl('/api/auth/google'), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: credential })
-                });
+                const res = await fetch(apiUrl('/api/memberships'));
                 const data = await res.json();
-                await handleOAuthSuccess(data);
-            } catch (err) {
-                showAlert('Error al conectar con Google. Intenta de nuevo.');
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg> Continuar con Google`;
+                if (data.success && data.memberships) {
+                    plans = data.memberships;
+                    const select = document.getElementById('regPlan');
+                    select.innerHTML = '<option value="" disabled selected>Selecciona tu plan</option>';
+                    plans.forEach(plan => {
+                        const opt = document.createElement('option');
+                        opt.value = plan._id;
+                        const sym = plan.currency === 'USD' ? '$' : 'S/';
+                        opt.textContent = `${plan.name} - ${sym} ${plan.price}`;
+                        select.appendChild(opt);
+                    });
+                    
+                    // Si viene preseleccionado por URL
+                    const params = new URLSearchParams(window.location.search);
+                    const planIdParam = params.get('plan') || params.get('membershipId');
+                    if (planIdParam) {
+                        select.value = planIdParam;
+                        select.dispatchEvent(new Event('change'));
+                    }
                 }
+            } catch (err) {
+                console.error('Error cargando planes:', err);
             }
-        }
-        */
+        });
 
-
-
-
+        document.getElementById('regPlan').addEventListener('change', function() {
+            selectedPlan = plans.find(p => p._id === this.value);
+            const notice = document.getElementById('planPriceNotice');
+            if (selectedPlan) {
+                const sym = selectedPlan.currency === 'USD' ? '$' : 'S/';
+                notice.textContent = `Total a pagar: ${sym} ${selectedPlan.price}`;
+            } else {
+                notice.textContent = '';
+            }
+        });
 
         function togglePassword(inputId, btn) {
             const input = document.getElementById(inputId);
@@ -843,9 +935,102 @@
             }
         });
 
+        // ── Izipay Helpers ──────────────────────────────────────────────
+        function ensureIzipayToolbarCover() {
+            let el = document.getElementById('izipayTestToolbarCover');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'izipayTestToolbarCover';
+                el.setAttribute('aria-hidden', 'true');
+                document.body.appendChild(el);
+            }
+        }
+        function removeIzipayToolbarCover() {
+            const el = document.getElementById('izipayTestToolbarCover');
+            if (el) el.remove();
+        }
+        function hideIzipayTestToolbar() {
+            const LO = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            function looksLikeTestBar(el) {
+                const t = LO((el.textContent || '').trim());
+                return t.includes('metodos de prueba') || (t.includes('informacion') && t.includes('metodos'));
+            }
+            function applyHide(el) {
+                if (!el || el.id === 'izipayTestToolbarCover') return;
+                el.style.setProperty('display', 'none', 'important');
+                el.style.setProperty('visibility', 'hidden', 'important');
+                el.style.setProperty('pointer-events', 'none', 'important');
+                el.style.setProperty('height', '0', 'important');
+            }
+            function scanRoot(root) {
+                if (!root || !root.querySelectorAll) return;
+                try {
+                    root.querySelectorAll('[role="toolbar"]').forEach((el) => {
+                        if (looksLikeTestBar(el)) applyHide(el);
+                    });
+                    const nodes = root.querySelectorAll('*');
+                    nodes.forEach((el) => {
+                        if (el.shadowRoot) scanRoot(el.shadowRoot);
+                    });
+                } catch (e) {}
+            }
+            const modal = document.getElementById('izipayOfficialModal');
+            if (modal) scanRoot(modal);
+            if (document.body) scanRoot(document.body);
+        }
+        function startIzipayToolbarGuards() {
+            stopIzipayToolbarGuards();
+            ensureIzipayToolbarCover();
+            hideIzipayTestToolbar();
+            izipayToolbarTick = setInterval(hideIzipayTestToolbar, 320);
+        }
+        function stopIzipayToolbarGuards() {
+            if (izipayToolbarTick) {
+                clearInterval(izipayToolbarTick);
+                izipayToolbarTick = null;
+            }
+            removeIzipayToolbarCover();
+        }
+        function closeIziModal() {
+            document.getElementById('izipayOfficialModal').classList.remove('open');
+            stopIzipayToolbarGuards();
+            // Redirigir a membresías para pagar si canceló después del registro
+            window.location.href = '/membresia';
+        }
+        function showToast(type, icon, title, msg, duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const id = 'toast-' + Date.now();
+            const el = document.createElement('div');
+            el.className = `toast-item ${type}`;
+            el.id = id;
+            el.innerHTML = `
+                <div class="toast-icon-wrap">${icon}</div>
+                <div class="toast-text"><strong>${title}</strong><br><span style="font-weight:400;opacity:.7;">${msg}</span></div>
+                <button class="toast-close" onclick="document.getElementById('${id}').remove()">✕</button>`;
+            container.appendChild(el);
+            setTimeout(() => { const t = document.getElementById(id); if (t) t.remove(); }, duration);
+        }
+        function initIzipay() {
+            if (window.KR) {
+                console.log("[IZIPAY] SDK detectado con éxito");
+                KR.onError((err) => {
+                    showToast('error', '❌', 'Error de pago', err.errorMessage || 'Verifica los datos de tu tarjeta');
+                });
+                hideIzipayTestToolbar();
+            } else {
+                izipayInitAttempts++;
+                if (izipayInitAttempts < 15) {
+                    setTimeout(initIzipay, 500);
+                }
+            }
+        }
+        initIzipay();
+
+        // Form Submit handler
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const planVal = document.getElementById('regPlan').value;
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const country = document.getElementById('regCountry').value;
@@ -856,7 +1041,13 @@
             const terms = document.getElementById('acceptTerms').checked;
 
             let valid = true;
+
             // Validaciones
+            const planErr = !planVal;
+            document.getElementById('planError').style.display = planErr ? 'block' : 'none';
+            document.getElementById('regPlan').classList.toggle('error', planErr);
+            if (planErr) valid = false;
+
             const nameErr = !name || name.length < 2;
             document.getElementById('nameError').style.display = nameErr ? 'block' : 'none';
             document.getElementById('regName').classList.toggle('error', nameErr);
@@ -894,14 +1085,15 @@
 
             const btn = document.getElementById('registerBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+            btn.innerHTML = '<span class="spinner"></span> Creando cuenta y procesando pago...';
 
             try {
                 await configReady;
                 const params = new URLSearchParams(window.location.search);
                 const ref = params.get('ref') || '';
                 
-                const res = await fetch(apiUrl('/api/auth/register'), {
+                // 1. Crear la cuenta
+                const regRes = await fetch(apiUrl('/api/auth/register'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -910,22 +1102,50 @@
                         ref
                     })
                 });
-                const data = await res.json();
+                const regData = await regRes.json();
 
-                if (data.success) {
-                    localStorage.setItem('authToken', data.token);
-                    localStorage.setItem('authUser', JSON.stringify(data.user));
-                    showAlert('¡Cuenta creada exitosamente! Redirigiendo a membresías...', 'success');
-                    setTimeout(() => window.location.href = '/membresia', 1200);
-                } else {
-                    showAlert(data.message || 'Error al crear la cuenta');
-                    btn.disabled = false;
-                    btn.innerHTML = 'Crear Cuenta';
+                if (!regData.success) {
+                    throw new Error(regData.message || 'Error al crear la cuenta');
                 }
-            } catch (err) {
-                showAlert('Error de conexión. Intenta de nuevo.');
+
+                // Guardar sesión temporalmente
+                localStorage.setItem('authToken', regData.token);
+                localStorage.setItem('authUser', JSON.stringify(regData.user));
+
+                // 2. Generar el Checkout con Izipay
+                const payRes = await fetch(apiUrl('/api/payments/izipay-checkout'), {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${regData.token}`
+                    },
+                    body: JSON.stringify({ membershipId: planVal, couponCode: '' })
+                });
+                
+                const payData = await payRes.json();
+                if (!payData.success) {
+                    throw new Error(payData.message || 'Error al inicializar el pago de membresía');
+                }
+
+                if (!window.KR) {
+                    throw new Error('El formulario de pago no está disponible. Por favor recarga la página.');
+                }
+
+                // 3. Abrir pasarela de Izipay
+                await KR.setFormToken(payData.formToken);
+                document.getElementById('izipayOfficialModal').classList.add('open');
+                showToast('success', '🔐', 'Redirigiendo a pago seguro...', 'Se abrirá el formulario oficial de Izipay');
+                
+                KR.showForm();
+                startIzipayToolbarGuards();
+                
                 btn.disabled = false;
-                btn.innerHTML = 'Crear Cuenta';
+                btn.innerHTML = 'Proceder al Pago';
+
+            } catch (err) {
+                showAlert(err.message || 'Error de conexión. Intenta de nuevo.');
+                btn.disabled = false;
+                btn.innerHTML = 'Proceder al Pago';
             }
         });
     </script>

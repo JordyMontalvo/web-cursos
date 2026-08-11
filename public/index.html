@@ -67,7 +67,6 @@
 
         <div class="header-actions" id="headerActions">
           <a href="/login" class="btn-link">Entrar</a>
-          <a href="/register" class="btn-primary">Crear Cuenta</a>
         </div>
       </div>
     </div>
@@ -199,7 +198,7 @@
       const actionsEl = document.getElementById('headerActions');
       if (!user) {
         // Token existe pero no user data — mostrar botones básicos
-        actionsEl.innerHTML = `<a href="/login" class="btn-link">Entrar</a><a href="/register" class="btn-primary">Crear Cuenta</a>`;
+        actionsEl.innerHTML = `<a href="/login" class="btn-link">Entrar</a>`;
         return;
       }
       if (user) {
