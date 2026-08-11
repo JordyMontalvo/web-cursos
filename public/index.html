@@ -186,7 +186,17 @@
 
 
   <script>
-    // ── Auth header dinámico ──────────────────────────────────────
+    // ── Flujo principal: Si no hay sesión activa, redirigir a Planes de Membresía ──
+    (function () {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        const qs = window.location.search ? window.location.search : '';
+        window.location.href = `/membresia${qs}`;
+        return;
+      }
+    })();
+
+    // ── Auth header dinámico para usuarios autenticados ────────────
     (function () {
       const user = JSON.parse(localStorage.getItem('authUser') || 'null');
       const actionsEl = document.getElementById('headerActions');

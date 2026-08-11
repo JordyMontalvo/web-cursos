@@ -3042,7 +3042,7 @@
                         // Intentar guardar token desde Wallet justo después de activación (por si se crea async)
                         trySaveTokenFromWallet('activationPolling detected change');
                         stopActivationPolling();
-                        setTimeout(() => { window.location.href = '/perfil'; }, 900);
+                        setTimeout(() => { window.location.href = '/'; }, 900);
                         return;
                     }
                 } catch (e) {
