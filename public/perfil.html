@@ -493,6 +493,8 @@
                     currentUser = data.user;
                     renderProfile();
                     loadContinueWatching();
+                    // Sincronizar localStorage para que el header (script.js) no muestre "Sin plan" por caché vieja
+                    updateLocalUser(data.user);
                     if(window.updateHeader) updateHeader();
                 } else {
                     if (data.message === 'Token inválido') logout();
@@ -627,7 +629,15 @@
 
         function updateLocalUser(u) {
             const current = JSON.parse(localStorage.getItem('authUser') || '{}');
-            localStorage.setItem('authUser', JSON.stringify({ ...current, name: u.name, phone: u.phone }));
+            localStorage.setItem('authUser', JSON.stringify({
+                ...current,
+                name: u.name,
+                phone: u.phone,
+                hasMembership: !!u.hasMembership,
+                membershipPlan: u.membershipPlan || current.membershipPlan || null,
+                membershipExpiresAt: u.membershipExpiresAt || current.membershipExpiresAt || null,
+                membershipAutoRenew: !!u.membershipAutoRenew
+            }));
             if (window.updateHeader) updateHeader();
         }
 

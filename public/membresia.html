@@ -38,10 +38,10 @@
         .izipay-white-container {
             background: #ffffff !important;
             width: 100%;
-            max-width: 380px;
+            max-width: 420px;
             /* Más pequeño para que sea elegante */
             border-radius: 16px;
-            padding: 1.5rem 1.25rem 1.25rem;
+            padding: 1.25rem 1.25rem 1.1rem;
             position: relative;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
             animation: iziSlideUp 0.3s ease-out;
@@ -56,9 +56,10 @@
         }
 
         .izipay-header-logo img {
-            height: 32px;
+            height: 30px;
             /* Logo más pequeño */
             width: auto;
+            opacity: 0.95;
         }
 
         .izi-close {
@@ -100,15 +101,27 @@
             margin-right: 0 !important;
         }
 
+        /* Fondo y paddings del form embebido (evitar “caja” gris fea) */
+        .kr-smart-form {
+            background: transparent !important;
+        }
+
+        /* Ocultar assets/placeholder rotos del SDK (ícono de imagen arriba) */
+        .kr-smart-form img[alt=""],
+        .kr-smart-form img:not([src]),
+        .kr-smart-form img[src=""] {
+            display: none !important;
+        }
+
         .kr-smart-form .kr-field-wrapper {
-            margin-bottom: 8px !important;
+            margin-bottom: 10px !important;
             /* Espacio mínimo */
             padding: 0 !important;
         }
 
         .kr-smart-form .kr-label {
             font-size: 13px !important;
-            color: #475569 !important;
+            color: #334155 !important;
             font-weight: 600 !important;
             margin-bottom: 4px !important;
             display: block !important;
@@ -122,32 +135,98 @@
             height: 42px !important;
             /* Altura fija oficial */
             border-radius: 8px !important;
-            border: 1px solid #cbd5e1 !important;
-            background: #fff !important;
+            border: 1px solid rgba(15, 23, 42, 0.14) !important;
+            background: rgba(255, 255, 255, 0.98) !important;
             padding: 0 12px !important;
             width: 100% !important;
+            box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03) !important;
+            transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
+        }
+
+        .kr-smart-form .kr-field-element:focus,
+        .kr-smart-form input:focus,
+        .kr-smart-form select:focus {
+            outline: none !important;
+            border-color: rgba(124, 58, 237, 0.55) !important;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.14) !important;
+        }
+
+        .kr-smart-form select {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            background-image:
+                linear-gradient(45deg, transparent 50%, rgba(15,23,42,.6) 50%),
+                linear-gradient(135deg, rgba(15,23,42,.6) 50%, transparent 50%);
+            background-position:
+                calc(100% - 18px) 18px,
+                calc(100% - 12px) 18px;
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+            padding-right: 34px !important;
         }
 
         /* Botón de Pago Compacto */
         .kr-smart-form .kr-payment-button {
             height: 46px !important;
-            background: #00d1b2 !important;
+            background: linear-gradient(135deg, #00d1b2, #17c2ff) !important;
             border-radius: 10px !important;
             font-weight: 700 !important;
             font-size: 16px !important;
             margin-top: 10px !important;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            border: none !important;
+            letter-spacing: -0.02em !important;
+            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
+        }
+
+        .kr-smart-form .kr-payment-button:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18) !important;
+            filter: brightness(1.02) !important;
+        }
+
+        .kr-smart-form .kr-payment-button:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14) !important;
+        }
+
+        /* Textos secundarios del SDK (consistencia) */
+        .kr-smart-form .kr-legal,
+        .kr-smart-form .kr-text,
+        .kr-smart-form .kr-help {
+            font-size: 11px !important;
+            color: rgba(51, 65, 85, 0.75) !important;
+            line-height: 1.35 !important;
+        }
+
+        /* Alinear marcas de tarjeta y cabecera del SDK */
+        .kr-smart-form .kr-payment-logo,
+        .kr-smart-form .kr-payment-header,
+        .kr-smart-form .kr-payment-logo-wrapper {
+            justify-content: center !important;
+            text-align: center !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* En móviles: un poco más aire */
+        @media (max-width: 420px) {
+            .izipay-white-container { border-radius: 18px; padding: 1.1rem 1rem 1rem; }
+            .kr-smart-form .kr-field-element,
+            .kr-smart-form input,
+            .kr-smart-form select { height: 44px !important; }
+            .kr-smart-form .kr-payment-button { height: 48px !important; }
         }
 
         /*
          * Barra "Información / Métodos de prueba" (SDK Izipay / Krypton, modo prueba).
-         * No está en nuestro HTML: la inyecta el script externo; suele ir en body o en shadow DOM.
-         * CSS cubre toolbars conocidas; el JS refuerza búsqueda por texto y todo el documento.
+         * NOTA: ahora se controla con una clase en <body>.
+         * - En producción se oculta (body.hide-izipay-test-toolbar).
+         * - En testing (localhost o ?showTestMethods=1) se deja visible.
          */
         /* Barra de prueba sobre la grilla de planes (SDK la inserta sin abrir el modal) */
-        #plansGrid [role="toolbar"],
-        .plans-grid [role="toolbar"],
-        .plan-card [role="toolbar"] {
+        body.hide-izipay-test-toolbar #plansGrid [role="toolbar"],
+        body.hide-izipay-test-toolbar .plans-grid [role="toolbar"],
+        body.hide-izipay-test-toolbar .plan-card [role="toolbar"] {
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
@@ -159,9 +238,9 @@
             clip: rect(0, 0, 0, 0) !important;
         }
 
-        #izipayOfficialModal [role="toolbar"],
-        .izipay-white-container [role="toolbar"],
-        body > [role="toolbar"] {
+        body.hide-izipay-test-toolbar #izipayOfficialModal [role="toolbar"],
+        body.hide-izipay-test-toolbar .izipay-white-container [role="toolbar"],
+        body.hide-izipay-test-toolbar body > [role="toolbar"] {
             display: none !important;
             visibility: hidden !important;
             height: 0 !important;
@@ -175,7 +254,7 @@
         }
 
         /* Tapadera visual si el SDK pinta la barra encima de todo (z-index altísimo) */
-        #izipayTestToolbarCover {
+        body.hide-izipay-test-toolbar #izipayTestToolbarCover {
             position: fixed;
             left: 50%;
             bottom: 10px;
@@ -269,7 +348,8 @@
             padding: 0.75rem 1rem;
             font-size: 0.9rem;
             font-weight: 600;
-            display: flex;
+            /* Oculto por defecto: se muestra solo si está configurado en Admin */
+            display: none;
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
@@ -1340,8 +1420,7 @@
             <button class="izi-close" onclick="closeIziModal()">✕</button>
 
             <div class="izipay-header-logo">
-                <img src="/assets/izipay-logo.png" alt="Izipay"
-                    onerror="this.onerror=null; this.src='https://static.micuentaweb.pe/static/img/izipay-logo.png'">
+                <img src="https://static.micuentaweb.pe/static/img/izipay-logo.png" alt="Izipay">
             </div>
 
             <div class="kr-smart-form" id="myPaymentForm">
@@ -1367,6 +1446,70 @@
         let appliedPricing = null; // {currency, original, discount, final}
         let plans = [];
         const token = localStorage.getItem('authToken');
+        let __lastCheckoutOrderId = '';
+        let __savedTokenForOrderId = '';
+        let __walletSaveAttemptedForOrderId = '';
+
+        function sendClientLog(level, tag, message, data) {
+            try {
+                fetch(apiUrl('/api/payments/client-log'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        level,
+                        tag,
+                        orderId: __lastCheckoutOrderId || '',
+                        message,
+                        data: data || null
+                    })
+                }).catch(() => {});
+            } catch {}
+        }
+
+        async function trySaveTokenFromWallet(reason) {
+            try {
+                const oid = __lastCheckoutOrderId || '';
+                if (!oid) {
+                    sendClientLog('warn', 'WALLET', 'sin orderId aún; no se consulta wallet', { reason });
+                    return;
+                }
+                if (__walletSaveAttemptedForOrderId === oid) return;
+                __walletSaveAttemptedForOrderId = oid;
+
+                const t = localStorage.getItem('authToken');
+                if (!t) return;
+
+                sendClientLog('info', 'WALLET', 'consultando wallet-tokens?save=1', { reason });
+                const r = await fetch(apiUrl('/api/payments/wallet-tokens?save=1'), {
+                    headers: { 'Authorization': `Bearer ${t}` }
+                });
+                const j = await r.json().catch(() => null);
+                sendClientLog('info', 'WALLET', 'respuesta wallet-tokens', {
+                    ok: r.ok,
+                    status: r.status,
+                    tokenCount: j && j.tokenCount,
+                    saved: j && j.saved,
+                    endpointPathUsed: j && j.endpointPathUsed,
+                    errorCode: j && j.errorCode,
+                    errorMessage: j && j.errorMessage
+                });
+            } catch (e) {
+                sendClientLog('warn', 'WALLET', 'error consultando wallet-tokens', { message: e && e.message });
+            }
+        }
+
+        // ── Test toolbar visibility (Izipay/Krypton) ──────────────────────
+        // Antes se ocultaba SIEMPRE. Ahora:
+        // - localhost o ?showTestMethods=1  => mostrar barra de prueba (tarjetas/metodos)
+        // - resto (producción)              => ocultar barra de prueba
+        (function setIzipayTestToolbarMode() {
+            // Pedido: mantener visible "Métodos de prueba" para TODO.
+            // Si más adelante quieres volver a ocultarlo en producción,
+            // reintroducimos la lógica por entorno/query param.
+            const shouldHide = false;
+            document.body.classList.toggle('hide-izipay-test-toolbar', shouldHide);
+            window.__hideIzipayTestToolbarEnabled = shouldHide;
+        })();
 
         // ── Guard: redirigir al login si no hay sesión ───────────────────
         if (!token) {
@@ -1375,10 +1518,10 @@
 
         const user = JSON.parse(localStorage.getItem('authUser') || 'null');
 
-        // ── Countdown (duración desde admin o modo sesión local) ───────
+        // ── Countdown (solo si está configurado en Admin) ──────────────
         (async function startCountdown() {
-            const key = 'offerEnd';
             let endMs = null;
+            let enabled = false;
 
             try {
                 await configReady;
@@ -1386,23 +1529,34 @@
                 const data = await res.json();
                 if (data.success && data.settings) {
                     const s = data.settings;
-                    // Preferimos fin GLOBAL guardado en BD (no se reinicia al entrar)
-                    if (s.membershipOfferEndsAt) {
+                    // Solo mostrar si hay oferta configurada en Admin:
+                    // - Fin global (membershipOfferEndsAt), o
+                    // - Duración (membershipOfferDurationHours/minutes) > 0
+                    const durH = Number(s.membershipOfferDurationHours) || 0;
+                    const durM = Number(s.membershipOfferDurationMinutes) || 0;
+                    const hasDuration = (durH > 0 || durM > 0);
+                    const hasEndsAt = !!s.membershipOfferEndsAt;
+
+                    enabled = hasEndsAt || hasDuration;
+
+                    if (hasEndsAt) {
                         const t = new Date(s.membershipOfferEndsAt).getTime();
                         if (!Number.isNaN(t)) endMs = t;
+                    } else if (hasDuration) {
+                        endMs = Date.now() + (durH * 60 * 60 + durM * 60) * 1000;
                     }
                 }
-            } catch (e) { /* fallback local */ }
+            } catch (e) { /* ignore */ }
 
-            if (endMs == null) {
-                let stored = localStorage.getItem(key);
-                if (!stored || Date.now() > Number(stored)) {
-                    endMs = Date.now() + (3 * 60 * 60 + 47 * 60 + 33) * 1000;
-                    localStorage.setItem(key, String(endMs));
-                } else {
-                    endMs = Number(stored);
-                }
+            // Si no hay oferta configurada, ocultar banner y salir.
+            if (!enabled || endMs == null) {
+                const b = document.getElementById('offerBanner');
+                if (b) b.style.display = 'none';
+                return;
             }
+            // Oferta activa: mostrar banner (está oculto por defecto en CSS).
+            const banner = document.getElementById('offerBanner');
+            if (banner) banner.style.display = 'flex';
 
             function tick() {
                 const left = Math.max(0, endMs - Date.now());
@@ -1413,7 +1567,6 @@
                 document.getElementById('cdM').textContent = m;
                 document.getElementById('cdS').textContent = s;
                 if (left <= 0) {
-                    localStorage.removeItem(key);
                     document.getElementById('offerBanner').style.display = 'none';
                 }
             }
@@ -1802,6 +1955,7 @@
         }
 
         function startIzipayToolbarGuards() {
+            if (!window.__hideIzipayTestToolbarEnabled) return;
             stopIzipayToolbarGuards();
             ensureIzipayToolbarCover();
             hideIzipayTestToolbar();
@@ -1824,6 +1978,7 @@
 
         /** Oculta la barra de prueba del SDK (Información / Métodos de prueba) sin borrarla del DOM. */
         function hideIzipayTestToolbar() {
+            if (!window.__hideIzipayTestToolbarEnabled) return;
             const LO = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             function looksLikeTestBar(el) {
                 const t = LO((el.textContent || '').trim());
@@ -1896,6 +2051,102 @@
                 KR.onError((err) => {
                     showToast('error', '❌', 'Error de pago', err.errorMessage || 'Verifica los datos de tu tarjeta');
                 });
+
+                // Debug + captura de token para recurrentes:
+                // KR.onOrderUpdate entrega la respuesta completa del servidor (clientAnswer).
+                // A veces el paymentMethodToken NO llega en kr-answer del return/webhook.
+                try {
+                    const register = KR.onOrderUpdate(async (payload) => {
+                        try {
+                            const name = payload && payload._name;
+                            const ca = payload && payload.clientAnswer;
+                            const t0 = ca && Array.isArray(ca.transactions) ? ca.transactions[0] : null;
+                            const detailedStatus = t0 && (t0.detailedStatus || t0.status);
+                            const paymentMethodType = t0 && (t0.paymentMethodType || t0.paymentMethod);
+                            const pmToken =
+                                (t0 && (t0.paymentMethodToken || (t0.paymentMethod && t0.paymentMethod.token))) ||
+                                (ca && ca.paymentMethodToken) ||
+                                '';
+
+                            console.log('[MEMBRESIA][KR] onOrderUpdate', {
+                                _name: name,
+                                detailedStatus,
+                                paymentMethodType,
+                                hasClientAnswer: !!ca,
+                                hasToken: !!pmToken,
+                                tokenPreview: pmToken ? String(pmToken).slice(0, 10) + '...' : ''
+                            });
+                            sendClientLog('info', 'KR', 'onOrderUpdate', {
+                                _name: name,
+                                detailedStatus,
+                                paymentMethodType,
+                                hasClientAnswer: !!ca,
+                                hasToken: !!pmToken
+                            });
+
+                            // Cuando el pago queda CAPTURED/PAID, intentamos guardar token
+                            const isPaid =
+                                String(detailedStatus || '').toUpperCase() === 'CAPTURED' ||
+                                String(detailedStatus || '').toUpperCase() === 'PAID';
+
+                            const isAuthorised = String(detailedStatus || '').toUpperCase() === 'AUTHORISED';
+
+                            if (isPaid && pmToken) {
+                                // Evitar re-guardar el mismo token en bucle
+                                const oid = __lastCheckoutOrderId || '';
+                                if (oid && __savedTokenForOrderId === oid) return;
+
+                                const t = localStorage.getItem('authToken');
+                                await fetch(apiUrl('/api/payments/izipay-save-token'), {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` },
+                                    body: JSON.stringify({ paymentMethodToken: pmToken, orderId: oid })
+                                }).then(r => r.json().catch(() => null)).then(j => {
+                                    console.log('[MEMBRESIA][KR] save-token response', j);
+                                    sendClientLog('info', 'KR', 'save-token response', j);
+                                    if (j && j.success && oid) __savedTokenForOrderId = oid;
+                                }).catch(e => {
+                                    console.warn('[MEMBRESIA][KR] save-token error', e);
+                                    sendClientLog('warn', 'KR', 'save-token error', { message: e && e.message });
+                                });
+                            }
+
+                            // En tu PSP estamos viendo "AUTHORISED" en onOrderUpdate (aunque el return luego viene PAID).
+                            // Disparamos wallet también aquí para no perdernos la creación asíncrona del token.
+                            if (isAuthorised || isPaid) {
+                                trySaveTokenFromWallet(`KR.onOrderUpdate status=${detailedStatus}`);
+                            }
+
+                            // Importante: por defecto el SDK redirige a kr-post-url-success y se pierden los logs.
+                            // Según la documentación, si devolvemos false en un pago CAPTURED/PAID, se detiene la redirección
+                            // y podemos manejar el flujo nosotros.
+                            if (isPaid) {
+                                console.log('[MEMBRESIA][KR] Pago detectado como CAPTURED/PAID; bloqueando redirección automática para mantener logs.');
+                                sendClientLog('info', 'KR', 'Pago CAPTURED/PAID (bloqueando redirección automática)', { detailedStatus });
+                                // Opcional: refrescar estado de membresía y redirigir manualmente después de unos segundos
+                                setTimeout(() => {
+                                    try { startActivationPolling(); } catch {}
+                                }, 250);
+                                return false;
+                            }
+                        } catch (e) {
+                            console.warn('[MEMBRESIA][KR] onOrderUpdate handler error', e);
+                            sendClientLog('error', 'KR', 'onOrderUpdate handler error', { message: e && e.message });
+                        }
+                    });
+                    // Algunas versiones devuelven promesa, otras no. Logueamos igual para saber si quedó registrado.
+                    if (register && typeof register.then === 'function') {
+                        register.then(() => console.log('[MEMBRESIA][KR] onOrderUpdate registrado (promise resolved)'))
+                            .catch((e) => console.warn('[MEMBRESIA][KR] onOrderUpdate promise rejected', e));
+                    } else {
+                        console.log('[MEMBRESIA][KR] onOrderUpdate registrado');
+                    }
+                    sendClientLog('info', 'KR', 'onOrderUpdate registrado', {});
+                } catch (e) {
+                    console.warn('[MEMBRESIA][KR] No se pudo registrar onOrderUpdate', e);
+                    sendClientLog('error', 'KR', 'No se pudo registrar onOrderUpdate', { message: e && e.message });
+                }
+
                 hideIzipayTestToolbar();
                 [200, 800, 2000].forEach((ms) => setTimeout(hideIzipayTestToolbar, ms));
             } else {
@@ -1921,7 +2172,15 @@
             btnSpin.style.display = 'inline-block';
 
             try {
+                console.log('[MEMBRESIA][IZIPAY] startIzipayCheckout()', {
+                    selectedPlanId,
+                    appliedCouponCode: appliedCouponCode || '',
+                    hasKR: !!window.KR,
+                    apiBase: (typeof API_BASE !== 'undefined' ? API_BASE : undefined),
+                    tokenPresent: !!token
+                });
                 await configReady;
+                console.log('[MEMBRESIA][IZIPAY] configReady OK');
                 const res = await fetch(apiUrl('/api/payments/izipay-checkout'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -1930,6 +2189,12 @@
 
                 const ct = (res.headers.get('content-type') || '').toLowerCase();
                 const raw = await res.text();
+                console.log('[MEMBRESIA][IZIPAY] /api/payments/izipay-checkout response', {
+                    ok: res.ok,
+                    status: res.status,
+                    contentType: ct,
+                    rawPreview: (raw || '').slice(0, 500)
+                });
                 let data = null;
                 if (ct.includes('application/json')) {
                     try { data = JSON.parse(raw); } catch {}
@@ -1948,7 +2213,16 @@
                     throw new Error('El formulario de pago no está disponible. Recarga la página.');
                 }
 
+                console.log('[MEMBRESIA][IZIPAY] checkout payload OK', {
+                    hasFormToken: !!data.formToken,
+                    publicKeyPreview: (data.publicKey || '').slice(0, 22) + '...',
+                    orderId: data.orderId
+                });
+                __lastCheckoutOrderId = data.orderId || '';
+                // Intentar consultar wallet inmediatamente después de generar el orderId (a veces el token aparece con delay)
+                trySaveTokenFromWallet('checkout created (post orderId)');
                 await KR.setFormToken(data.formToken);
+                console.log('[MEMBRESIA][IZIPAY] KR.setFormToken OK');
 
                 // Mostramos el modal blanco con el diseño premium
                 closeModal(); // Cerramos el de confirmación
@@ -1958,8 +2232,14 @@
 
                 // Forzamos el renderizado del formulario si fuera necesario
                 KR.showForm();
+                console.log('[MEMBRESIA][IZIPAY] KR.showForm called');
                 startIzipayToolbarGuards();
                 [80, 200, 500, 1200, 2500, 4000].forEach((ms) => setTimeout(hideIzipayTestToolbar, ms));
+
+                // Mientras el usuario paga dentro del modal embebido, el redirect de "kr-post-url-success"
+                // puede ocurrir dentro del iframe/SDK (y no refrescar la SPA). Para debug + UX,
+                // hacemos polling de /api/auth/check-access y logueamos hasta detectar membresía activa.
+                startActivationPolling();
 
                 // Resetear botones por si el usuario cancela y vuelve a intentar
                 btn.disabled = false;
@@ -1967,11 +2247,95 @@
                 btnSpin.style.display = 'none';
 
             } catch (err) {
+                console.error('[MEMBRESIA][IZIPAY] startIzipayCheckout error', err);
                 showToast('error', '❌', 'Error al iniciar el pago', err.message);
                 btn.disabled = false;
                 btnText.style.display = 'inline';
                 btnSpin.style.display = 'none';
             }
+        }
+
+        let __activationPollTimer = null;
+        let __activationPollStartedAt = 0;
+        let __activationBaseline = null; // { hasMembership, membershipPlan, membershipExpiresAt }
+        async function startActivationPolling() {
+            if (__activationPollTimer) return;
+            const t = localStorage.getItem('authToken');
+            if (!t) return;
+            __activationPollStartedAt = Date.now();
+            try {
+                const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                __activationBaseline = {
+                    hasMembership: !!u.hasMembership,
+                    membershipPlan: u.membershipPlan || null,
+                    membershipExpiresAt: u.membershipExpiresAt || null
+                };
+            } catch {
+                __activationBaseline = { hasMembership: false, membershipPlan: null, membershipExpiresAt: null };
+            }
+            console.log('[MEMBRESIA][PAYMENT] Iniciando polling de activación (check-access)...');
+
+            async function tick() {
+                try {
+                    await configReady;
+                    const r = await fetch(apiUrl('/api/auth/check-access'), {
+                        headers: { 'Authorization': `Bearer ${t}` }
+                    });
+                    const j = await r.json().catch(() => null);
+                    console.log('[MEMBRESIA][PAYMENT] poll check-access', {
+                        ok: r.ok,
+                        status: r.status,
+                        hasMembership: j && j.hasMembership,
+                        membershipPlan: j && j.membershipPlan,
+                        membershipExpiresAt: j && j.membershipExpiresAt
+                    });
+
+                    // Evitar falso positivo: si el usuario ya tenía membresía, solo consideramos "éxito"
+                    // cuando cambie el plan o cambie la fecha de vencimiento vs el baseline.
+                    const baseline = __activationBaseline || { hasMembership: false, membershipPlan: null, membershipExpiresAt: null };
+                    const changed =
+                        !baseline.hasMembership ||
+                        (baseline.membershipPlan && j && j.membershipPlan && baseline.membershipPlan !== j.membershipPlan) ||
+                        (baseline.membershipExpiresAt && j && j.membershipExpiresAt && baseline.membershipExpiresAt !== j.membershipExpiresAt) ||
+                        (!baseline.membershipExpiresAt && j && j.membershipExpiresAt); // antes no había, ahora sí
+
+                    if (j && j.success && j.hasMembership && changed) {
+                        const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                        u.hasMembership = true;
+                        u.membershipPlan = j.membershipPlan;
+                        if (j.membershipExpiresAt) u.membershipExpiresAt = j.membershipExpiresAt;
+                        localStorage.setItem('authUser', JSON.stringify(u));
+
+                        console.log('[MEMBRESIA][PAYMENT] ✅ Membresía detectada como activa. Cerrando modal y redirigiendo.');
+                        try { closeIziModal(); } catch {}
+                        showToast('success', '✅', '¡Membresía activada!', 'Ya tienes acceso premium.');
+                        // Intentar guardar token desde Wallet justo después de activación (por si se crea async)
+                        trySaveTokenFromWallet('activationPolling detected change');
+                        stopActivationPolling();
+                        setTimeout(() => { window.location.href = '/perfil'; }, 900);
+                        return;
+                    }
+                } catch (e) {
+                    console.error('[MEMBRESIA][PAYMENT] poll error', e);
+                }
+
+                // Timeout 2 minutos
+                if (Date.now() - __activationPollStartedAt > 2 * 60 * 1000) {
+                    console.warn('[MEMBRESIA][PAYMENT] Poll timeout: no se detectó membresía activa.');
+                    stopActivationPolling();
+                }
+            }
+
+            __activationPollTimer = setInterval(tick, 3500);
+            tick();
+        }
+
+        function stopActivationPolling() {
+            if (__activationPollTimer) {
+                clearInterval(__activationPollTimer);
+                __activationPollTimer = null;
+            }
+            __activationBaseline = null;
         }
 
         function closeIziModal() {
@@ -1995,6 +2359,38 @@
                 showToast('info', '🔒', 'Acceso restringido', courseName ? `"${courseName}" requiere membresía activa` : 'Este curso requiere una membresía activa');
             }, 500);
         }
+
+        // Debug: cuando volvemos de pago exitoso, forzar refresh de acceso y loguear resultado.
+        (function debugRefreshAfterPayment() {
+            const qs = new URLSearchParams(window.location.search);
+            if (qs.get('payment') !== 'success') return;
+            console.log('[MEMBRESIA][PAYMENT] payment=success detectado. Refrescando /api/auth/check-access...');
+            const t = localStorage.getItem('authToken');
+            if (!t) {
+                console.warn('[MEMBRESIA][PAYMENT] No hay authToken en localStorage');
+                return;
+            }
+            (async () => {
+                try {
+                    await configReady;
+                    const r = await fetch(apiUrl('/api/auth/check-access'), {
+                        headers: { 'Authorization': `Bearer ${t}` }
+                    });
+                    const j = await r.json().catch(() => null);
+                    console.log('[MEMBRESIA][PAYMENT] check-access response', { ok: r.ok, status: r.status, body: j });
+                    if (j && j.success) {
+                        const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                        u.hasMembership = j.hasMembership;
+                        u.membershipPlan = j.membershipPlan;
+                        if (j.membershipExpiresAt) u.membershipExpiresAt = j.membershipExpiresAt;
+                        localStorage.setItem('authUser', JSON.stringify(u));
+                        console.log('[MEMBRESIA][PAYMENT] authUser actualizado en localStorage', u);
+                    }
+                } catch (e) {
+                    console.error('[MEMBRESIA][PAYMENT] error refrescando check-access', e);
+                }
+            })();
+        })();
     </script>
 </body>
 

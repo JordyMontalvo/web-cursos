@@ -143,6 +143,11 @@ try { User = mongoose.model('User'); } catch {
         activeMembership:    { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan:      { type: String, default: null },
+        membershipAutoRenew: { type: Boolean, default: false },
+        membershipCanceledAt: { type: Date, default: null },
+        membershipCancelReason: { type: String, default: '' },
+        izipayPaymentMethodToken: { type: String, default: '' },
+        izipayLastOrderId: { type: String, default: '' },
         resetPasswordToken:  { type: String },
         resetPasswordExpires:{ type: Date },
         progress:            { type: Object, default: {} },
@@ -194,6 +199,9 @@ function formatUser(user) {
         provider: user.provider || 'local',
         hasMembership: user.hasMembership ? user.hasMembership() : false,
         membershipPlan: user.membershipPlan,
+        membershipExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+        membershipAutoRenew: !!user.membershipAutoRenew,
+        membershipCanceledAt: user.membershipCanceledAt ? new Date(user.membershipCanceledAt).toISOString() : null,
         progress: user.progress || {}
     };
 }
@@ -414,7 +422,15 @@ module.exports = async (req, res) => {
         if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
         const hasMem = user.hasMembership();
         const hasAccess = hasMem || user.role === 'admin';
-        return res.json({ success: true, hasAccess, hasMembership: hasMem, membershipPlan: user.membershipPlan, role: user.role, progress: user.progress || {} });
+        return res.json({
+            success: true,
+            hasAccess,
+            hasMembership: hasMem,
+            membershipPlan: user.membershipPlan,
+            membershipExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+            role: user.role,
+            progress: user.progress || {}
+        });
     }
 
     // ── POST /api/auth/progress ──────────────────────────────────

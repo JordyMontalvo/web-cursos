@@ -25,6 +25,16 @@ const IZIPAY_KEY     = IS_PRODUCTION ? IZIPAY_PROD_KEY     : IZIPAY_TEST_KEY;
 const IZIPAY_HMAC    = IS_PRODUCTION ? IZIPAY_PROD_HMAC    : IZIPAY_TEST_HMAC;
 const IZIPAY_PUBLIC  = IS_PRODUCTION ? IZIPAY_PROD_PUBLIC  : IZIPAY_TEST_PUBLIC;
 
+// Wallet (CustomerWallet) endpoint path puede variar por PSP/white-label.
+// Permite ajustar sin redeploy de lógica.
+// - IZIPAY_WALLET_PATH: path único
+// - IZIPAY_WALLET_PATHS: lista separada por comas para probar varios
+const IZIPAY_WALLET_PATH = process.env.IZIPAY_WALLET_PATH || '/api-payment/V4/Customer/Wallet';
+const IZIPAY_WALLET_PATHS = (process.env.IZIPAY_WALLET_PATHS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
 // Función para normalizar el Shop ID a 8 dígitos (Izipay es estricto)
 function normalizeShopId(id) {
     if (!id) return null;
@@ -91,6 +101,11 @@ try { User = mongoose.model('User'); } catch {
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
+        membershipAutoRenew: { type: Boolean, default: false },
+        membershipCanceledAt: { type: Date, default: null },
+        membershipCancelReason: { type: String, default: '' },
+        izipayPaymentMethodToken: { type: String, default: '' },
+        izipayLastOrderId: { type: String, default: '' },
         updatedAt: { type: Date, default: Date.now }
     });
     User = mongoose.model('User', schema);
@@ -129,6 +144,23 @@ try { Transaction = mongoose.model('Transaction'); } catch {
         createdAt: { type: Date, default: Date.now }
     });
     Transaction = mongoose.model('Transaction', schema);
+}
+
+let Payment;
+try { Payment = mongoose.model('Payment'); } catch {
+    const schema = new mongoose.Schema({
+        orderId: { type: String, default: '' },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
+        kind: { type: String, enum: ['checkout', 'renewal'], default: 'checkout' },
+        status: { type: String, enum: ['paid', 'failed', 'pending'], default: 'pending' },
+        amountCents: { type: Number, default: 0 },
+        currency: { type: String, default: '' },
+        raw: { type: Object, default: {} },
+        createdAt: { type: Date, default: Date.now }
+    });
+    schema.index({ orderId: 1 }, { unique: true, sparse: true });
+    Payment = mongoose.model('Payment', schema);
 }
 
 let Coupon;
@@ -291,6 +323,158 @@ function verifyHash(answer, hash, key) {
     return calculatedHash === hash;
 }
 
+function safeString(v) {
+    return (v == null) ? '' : String(v);
+}
+
+function findTokenRecursively(root) {
+    // Busca paymentMethodToken/cardToken en cualquier profundidad (con límites para no explotar logs/memoria)
+    const MAX_NODES = 5000;
+    const MAX_DEPTH = 8;
+    let seen = 0;
+
+    const isObj = (v) => v && typeof v === 'object';
+
+    function visit(node, depth, path) {
+        if (!isObj(node)) return null;
+        if (seen++ > MAX_NODES) return null;
+        if (depth > MAX_DEPTH) return null;
+
+        if (Array.isArray(node)) {
+            for (let i = 0; i < node.length; i++) {
+                const found = visit(node[i], depth + 1, path + `[${i}]`);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        for (const k of Object.keys(node)) {
+            const v = node[k];
+            const key = String(k);
+            if (/paymentMethodToken|cardToken/i.test(key)) {
+                const s = safeString(v).trim();
+                if (s) return { token: s, path: path ? `${path}.${key}` : key };
+            }
+        }
+
+        for (const k of Object.keys(node)) {
+            const v = node[k];
+            const found = visit(v, depth + 1, path ? `${path}.${k}` : String(k));
+            if (found) return found;
+        }
+        return null;
+    }
+
+    return visit(root, 0, '');
+}
+
+function collectTokenLikeValues(root) {
+    const MAX_NODES = 7000;
+    const MAX_DEPTH = 9;
+    let seen = 0;
+    const out = [];
+
+    const isObj = (v) => v && typeof v === 'object';
+    const looksInteresting = (k, v) => {
+        const key = String(k || '');
+        if (!/token/i.test(key)) return false;
+        if (typeof v !== 'string') return false;
+        const s = v.trim();
+        if (s.length < 10) return false;
+        if (s.length > 512) return false;
+        return true;
+    };
+
+    function walk(node, depth, path) {
+        if (!isObj(node)) return;
+        if (seen++ > MAX_NODES) return;
+        if (depth > MAX_DEPTH) return;
+
+        if (Array.isArray(node)) {
+            for (let i = 0; i < node.length; i++) walk(node[i], depth + 1, `${path}[${i}]`);
+            return;
+        }
+
+        for (const k of Object.keys(node)) {
+            const v = node[k];
+            if (looksInteresting(k, v)) {
+                out.push({ path: path ? `${path}.${k}` : String(k), value: String(v).trim() });
+            }
+        }
+        for (const k of Object.keys(node)) {
+            walk(node[k], depth + 1, path ? `${path}.${k}` : String(k));
+        }
+    }
+
+    walk(root, 0, '');
+    return out.slice(0, 25);
+}
+
+function extractPaymentMethodToken(answer) {
+    const candidates = [
+        answer?.paymentMethodToken,
+        answer?.paymentMethod?.token,
+        answer?.orderDetails?.paymentMethodToken,
+        answer?.transactions?.[0]?.paymentMethodToken,
+        answer?.transactions?.[0]?.paymentMethod?.token,
+        answer?.cardDetails?.token,
+        answer?.cardDetails?.cardToken,
+        answer?.transactions?.[0]?.cardDetails?.token,
+        answer?.transactions?.[0]?.cardDetails?.cardToken
+    ].map(safeString).map(s => s.trim()).filter(Boolean);
+    if (candidates[0]) return candidates[0];
+
+    // Fallback: búsqueda recursiva, porque el token puede venir en estructuras nuevas del PSP.
+    const deep = findTokenRecursively(answer);
+    if (deep && deep.token) {
+        console.log('[IZIPAY] Token encontrado por búsqueda profunda en:', deep.path);
+        return deep.token;
+    }
+
+    // Último fallback: algunos PSP envían tokens bajo claves genéricas "*token*".
+    // Esto NO garantiza que sea un paymentMethodToken reutilizable; solo ayuda a diagnosticar.
+    try {
+        const tokenLikes = collectTokenLikeValues(answer);
+        const filtered = tokenLikes
+            .filter(x => !/transaction|uuid|orderId/i.test(x.path))
+            .map(x => ({ path: x.path, preview: x.value.slice(0, 10) + '...', len: x.value.length }));
+        if (filtered.length) {
+            console.log('[IZIPAY] Token-like values encontrados (diagnóstico):', filtered);
+        }
+    } catch { /* ignore */ }
+    return '';
+}
+
+function computeNextExpiry({ currentExpiresAt, durationDays }) {
+    if (!durationDays || Number(durationDays) === 0) return new Date('2099-12-31');
+    const now = Date.now();
+    const base = currentExpiresAt && new Date(currentExpiresAt).getTime() > now
+        ? new Date(currentExpiresAt).getTime()
+        : now;
+    return new Date(base + Number(durationDays) * 24 * 60 * 60 * 1000);
+}
+
+function parseIncomingBody(req) {
+    const b = req.body;
+    if (!b) return {};
+    if (typeof b === 'string') {
+        // Puede llegar como JSON o como application/x-www-form-urlencoded (kr-answer=...&kr-hash=...)
+        try { return JSON.parse(b); } catch { /* ignore */ }
+        try {
+            const params = new URLSearchParams(b);
+            const obj = {};
+            for (const [k, v] of params.entries()) obj[k] = v;
+            return obj;
+        } catch { return {}; }
+    }
+    if (Buffer.isBuffer(b)) {
+        const s = b.toString('utf8');
+        return parseIncomingBody({ ...req, body: s });
+    }
+    // Vercel suele parsear JSON a objeto automáticamente
+    return b;
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -299,10 +483,197 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const url = req.url.split('?')[0];
+    const body = parseIncomingBody(req);
     console.log(`[IZIPAY] Request URL: ${url} | Method: ${req.method} | Auth: ${req.headers['authorization']?.slice(0, 20)}...`);
 
+    // ── GET /api/payments/wallet-tokens (consultar tokens de wallet y opcionalmente guardarlos) ──
+    // Uso:
+    // - GET /api/payments/wallet-tokens         -> lista tokens (si existen)
+    // - GET /api/payments/wallet-tokens?save=1  -> guarda primer token ACTIVE en el usuario
+    if (req.method === 'GET' && url.includes('wallet-tokens')) {
+        const decoded = verifyToken(req);
+        if (!decoded) return res.status(401).json({ success: false, message: 'No autorizado' });
+
+        try {
+            await connectDB();
+            const shopId = normalizeShopId(IZIPAY_SHOP_ID);
+            const key = IZIPAY_KEY;
+            const mode = 'TEST';
+
+            const payload = JSON.stringify({
+                customerReference: decoded.id,
+                ctx_mode: mode
+            });
+
+            const candidatePaths = [
+                ...IZIPAY_WALLET_PATHS,
+                IZIPAY_WALLET_PATH,
+                // Fallbacks comunes Lyra/Scellius (nombres y versiones)
+                '/api-payment/V4/CustomerWallet',
+                '/api-payment/V4/Customer/Wallet',
+                '/api-payment/V4.1/CustomerWallet',
+                '/api-payment/V4.1/Customer/Wallet'
+            ].filter((v, i, a) => a.indexOf(v) === i);
+
+            let iziRes = null;
+            let usedPath = null;
+            const attempts = [];
+
+            for (const p of candidatePaths) {
+                console.log('[IZIPAY] WalletTokens request', { path: p, customerReference: decoded.id });
+                const r = await callIzipay(payload, shopId, key, 'api.micuentaweb.pe', p);
+                const st = r?.status || 'UNKNOWN';
+                const errCode = r?.answer?.errorCode || r?.errorCode || null;
+                const errMsg = r?.answer?.errorMessage || r?.errorMessage || null;
+                attempts.push({ path: p, status: st, errorCode: errCode, errorMessage: errMsg });
+
+                // SUCCESS => listo. ERROR => probar siguiente path.
+                if (st === 'SUCCESS') {
+                    iziRes = r;
+                    usedPath = p;
+                    break;
+                }
+                // Algunos PSP devuelven 200 pero con ERROR para "Unknown web service" / "Invalid attribute"
+                // seguimos iterando.
+                iziRes = r;
+                usedPath = p;
+            }
+
+            const ok = iziRes && iziRes.status === 'SUCCESS';
+            const tokens = (iziRes && iziRes.answer && Array.isArray(iziRes.answer.tokens)) ? iziRes.answer.tokens : [];
+
+            // Normalizar un poco la salida
+            const mapped = tokens.map(t => ({
+                status: t.status || null,
+                paymentMethodType: t.paymentMethodType || null,
+                paymentMethodToken: t.paymentMethodToken || null,
+                creationDate: t.creationDate || null,
+                cancellationDate: t.cancellationDate || null,
+                tokenDetails: t.tokenDetails ? {
+                    effectiveBrand: t.tokenDetails.effectiveBrand,
+                    pan: t.tokenDetails.pan,
+                    expiryMonth: t.tokenDetails.expiryMonth,
+                    expiryYear: t.tokenDetails.expiryYear
+                } : null
+            }));
+
+            const qs = new URLSearchParams(req.url.split('?')[1] || '');
+            const shouldSave = qs.get('save') === '1';
+            let saved = false;
+
+            if (shouldSave) {
+                const firstActive = mapped.find(t => (t.status || '').toUpperCase() === 'ACTIVE' && t.paymentMethodToken);
+                if (firstActive) {
+                    const user = await User.findById(decoded.id);
+                    if (user) {
+                        user.izipayPaymentMethodToken = firstActive.paymentMethodToken;
+                        user.membershipAutoRenew = true;
+                        user.membershipCanceledAt = null;
+                        user.membershipCancelReason = '';
+                        user.updatedAt = new Date();
+                        await user.save();
+                        saved = true;
+                        console.log('[IZIPAY] ✅ Wallet token guardado en usuario', {
+                            userId: decoded.id,
+                            tokenPreview: firstActive.paymentMethodToken.slice(0, 10) + '...'
+                        });
+                    }
+                }
+            }
+
+            console.log('[IZIPAY] WalletTokens result', {
+                status: iziRes?.status || null,
+                tokenCount: mapped.length,
+                saved,
+                usedPath,
+                errorCode: iziRes?.answer?.errorCode || iziRes?.errorCode || null,
+                errorMessage: iziRes?.answer?.errorMessage || iziRes?.errorMessage || null
+            });
+
+            // Resumen compacto (1 línea) para debugging rápido en Vercel
+            try {
+                const compact = attempts.slice(0, 6).map(a => `${a.path}:${a.status}${a.errorCode ? '(' + a.errorCode + ')' : ''}`).join(' | ');
+                console.log(`[IZIPAY] WalletTokens attempts (compact): ${compact}${attempts.length > 6 ? ' | ...' : ''}`);
+            } catch {}
+
+            return res.json({
+                success: true,
+                endpointPathUsed: usedPath,
+                status: iziRes?.status || null,
+                errorCode: iziRes?.answer?.errorCode || iziRes?.errorCode || null,
+                errorMessage: iziRes?.answer?.errorMessage || iziRes?.errorMessage || null,
+                attempts,
+                tokenCount: mapped.length,
+                saved,
+                tokens: mapped
+            });
+        } catch (e) {
+            console.error('[IZIPAY] WalletTokens error:', e?.message);
+            return res.status(500).json({ success: false, message: 'Error consultando wallet', error: e.message });
+        }
+    }
+
+    // ── POST /api/payments/client-log (replicar logs del navegador en Vercel) ──
+    if (req.method === 'POST' && url.includes('client-log')) {
+        // No requerimos auth para debug (puedes endurecerlo luego). Limitamos el tamaño y sanitizamos.
+        try {
+            const level = (body.level || 'info').toString().slice(0, 10);
+            const tag = (body.tag || 'CLIENT').toString().slice(0, 40);
+            const orderId = (body.orderId || '').toString().slice(0, 80);
+            const message = (body.message || '').toString().slice(0, 1000);
+            const data = body.data != null ? body.data : null;
+            const out = { tag, orderId, message, data };
+            const line = `[CLIENTLOG][${level}][${tag}]${orderId ? ' orderId=' + orderId : ''} ${message}`;
+            if (level === 'error') console.error(line, out);
+            else if (level === 'warn') console.warn(line, out);
+            else console.log(line, out);
+            return res.json({ success: true });
+        } catch (e) {
+            return res.status(400).json({ success: false });
+        }
+    }
+
+    // ── POST /api/payments/izipay-save-token (Guardar token desde frontend SDK) ──
+    // Algunos PSP no envían paymentMethodToken en kr-answer del return/webhook.
+    // En ese caso lo capturamos desde KR.onOrderUpdate en el navegador y lo guardamos aquí.
+    if (req.method === 'POST' && url.includes('izipay-save-token')) {
+        const decoded = verifyToken(req);
+        if (!decoded) return res.status(401).json({ success: false, message: 'No autorizado' });
+
+        try {
+            await connectDB();
+            const token = (body.paymentMethodToken || body.token || '').toString().trim();
+            const orderId = (body.orderId || '').toString().trim();
+            if (!token) return res.status(400).json({ success: false, message: 'Token requerido' });
+
+            const user = await User.findById(decoded.id);
+            if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+
+            user.izipayPaymentMethodToken = token;
+            // Si hay una membresía activa (o se acaba de activar), dejamos auto-renovación habilitada.
+            user.membershipAutoRenew = true;
+            user.membershipCanceledAt = null;
+            user.membershipCancelReason = '';
+            if (orderId) user.izipayLastOrderId = orderId;
+            user.updatedAt = new Date();
+            await user.save();
+
+            console.log('[IZIPAY] ✅ Token guardado desde frontend', {
+                userId: decoded.id,
+                orderId,
+                tokenPreview: token.slice(0, 10) + '...'
+            });
+            return res.json({ success: true });
+        } catch (e) {
+            console.error('[IZIPAY] Error guardando token desde frontend:', e?.message);
+            return res.status(500).json({ success: false, message: 'Error guardando token' });
+        }
+    }
+
     // ── POST /api/izipay (Checkout) ──────────────────────────────────
-    if (req.method === 'POST' && (url.includes('/checkout') || !req.body?.['kr-answer'])) {
+    // Importante: Izipay webhooks/return llegan como x-www-form-urlencoded; si el body no se parsea,
+    // antes caía por error en "checkout" y devolvía 401 (rompiendo la activación).
+    if (req.method === 'POST' && (body?.membershipId && !body?.['kr-answer'])) {
         const decoded = verifyToken(req);
         if (!decoded) {
             console.warn('[IZIPAY] Unauthorized attempt: decoded is null');
@@ -310,10 +681,10 @@ module.exports = async (req, res) => {
         }
 
         try {
-            console.log(`[IZIPAY] Starting checkout for memberId: ${req.body?.membershipId}`);
+            console.log(`[IZIPAY] Starting checkout for memberId: ${body?.membershipId}`);
             
             await connectDB();
-            const { membershipId, couponCode } = req.body;
+            const { membershipId, couponCode } = body;
             if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
 
             const membership = await Membership.findById(membershipId);
@@ -371,6 +742,7 @@ module.exports = async (req, res) => {
                 console.log('[IZIPAY] Checkout SUCCESS');
                 return res.json({ 
                     success: true, 
+                    orderId,
                     formToken: iziRes.answer.formToken,
                     publicKey: IZIPAY_PUBLIC  // Clave pública pareada con este token
                 });
@@ -386,8 +758,8 @@ module.exports = async (req, res) => {
 
     // ── POST /api/izipay (Webhook IPN desde Izipay) ──────────────────
     // Solo captura si NO es el retorno del cliente (izipay-return)
-    if (req.method === 'POST' && req.body['kr-answer'] && !url.includes('izipay-return') && !url.includes('izipay-success')) {
-        const { "kr-answer": krAnswer, "kr-hash": krHash } = req.body;
+    if (req.method === 'POST' && body['kr-answer'] && !url.includes('izipay-return') && !url.includes('izipay-success')) {
+        const { "kr-answer": krAnswer, "kr-hash": krHash } = body;
 
         const answerStr = (typeof krAnswer === 'string') ? krAnswer : JSON.stringify(krAnswer);
         // Intentar verificar con HMAC key y también con password (Izipay puede usar cualquiera)
@@ -399,6 +771,11 @@ module.exports = async (req, res) => {
         }
 
         const answer = JSON.parse(answerStr);
+        console.log('[IZIPAY] Webhook received', {
+            orderStatus: answer.orderStatus,
+            orderId: answer.orderDetails?.orderId,
+            customerRef: answer.customer?.reference
+        });
         if (answer.orderStatus !== 'PAID') return res.status(200).send('Not paid');
 
         try {
@@ -423,16 +800,60 @@ module.exports = async (req, res) => {
             // Solo se comisiona la PRIMERA compra (primer plan) de este usuario referido
             const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
 
-            const expiresAt = (!membership.durationDays || membership.durationDays === 0) 
-                ? new Date('2099-12-31') 
-                : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+            const expiresAt = computeNextExpiry({ currentExpiresAt: user.membershipExpiresAt, durationDays: membership.durationDays });
+            console.log('[IZIPAY] Webhook activation projection', {
+                userId: String(user._id),
+                membershipId: String(membership._id),
+                prevExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+                nextExpiresAt: expiresAt ? new Date(expiresAt).toISOString() : null
+            });
 
             user.activeMembership = membership._id;
             user.membershipExpiresAt = expiresAt;
             user.membershipPlan = membership.name;
+            user.izipayLastOrderId = rawOrderId;
+
+            const pmToken = extractPaymentMethodToken(answer);
+            console.log('[IZIPAY] Webhook payment method token', {
+                hasToken: !!pmToken,
+                tokenPreview: pmToken ? pmToken.slice(0, 10) + '...' : ''
+            });
+            if (!pmToken) {
+                try {
+                    const str = JSON.stringify(answer);
+                    const hasAnyTokenWord = /paymentMethodToken|cardToken|token/i.test(str);
+                    console.log('[IZIPAY] Webhook: token no encontrado en rutas conocidas', {
+                        hasTokenWordInAnswer: hasAnyTokenWord,
+                        topLevelKeys: Object.keys(answer || {}).slice(0, 40)
+                    });
+                } catch {}
+            }
+            if (pmToken) {
+                user.izipayPaymentMethodToken = pmToken;
+                user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);
+                user.membershipCanceledAt = null;
+                user.membershipCancelReason = '';
+            } else {
+                user.membershipAutoRenew = false;
+            }
             user.updatedAt = Date.now();
             await user.save();
             console.log('[IZIPAY] ✅ Webhook: Membresía activada para:', customerRef);
+
+            try {
+                await Payment.create({
+                    orderId: rawOrderId,
+                    userId: user._id,
+                    membershipId: membership._id,
+                    kind: 'checkout',
+                    status: 'paid',
+                    amountCents: Number(answer.orderDetails?.metadata?.finalAmountCents) || 0,
+                    currency: safeString(answer.orderDetails?.currency || answer.currency),
+                    raw: answer
+                });
+            } catch (e) {
+                console.warn('[IZIPAY] Webhook: no se pudo registrar Payment:', e?.message);
+            }
 
             // Registrar redención de cupón si vino en metadata
             const couponCode = answer.orderDetails?.metadata?.couponCode || '';
@@ -491,7 +912,7 @@ module.exports = async (req, res) => {
         }
         if (req.method !== 'POST') return res.status(405).end();
 
-        const { 'kr-answer': krAnswer, 'kr-hash': krHash } = req.body || {};
+        const { 'kr-answer': krAnswer, 'kr-hash': krHash } = body || {};
 
         if (!krAnswer || !krHash) {
             console.warn('[IZIPAY] izipay-return: faltan kr-answer o kr-hash');
@@ -499,7 +920,7 @@ module.exports = async (req, res) => {
         }
 
         const answerStr = typeof krAnswer === 'string' ? krAnswer : JSON.stringify(krAnswer);
-        const krHashAlgo = (req.body['kr-hash-algorithm'] || 'sha256').toLowerCase();
+        const krHashAlgo = (body['kr-hash-algorithm'] || 'sha256').toLowerCase();
 
         // Izipay puede firmar con la clave HMAC o con la password — intentamos ambas
         const hmacValid    = verifyHash(answerStr, krHash, IZIPAY_HMAC);
@@ -554,16 +975,60 @@ module.exports = async (req, res) => {
                 // Solo se comisiona la PRIMERA compra (primer plan) de este usuario referido
                 const isFirstPurchase = !user.activeMembership && !user.membershipPlan;
 
-                const expiresAt = (!membership.durationDays || membership.durationDays === 0)
-                    ? new Date('2099-12-31')
-                    : new Date(Date.now() + membership.durationDays * 24 * 60 * 60 * 1000);
+                const expiresAt = computeNextExpiry({ currentExpiresAt: user.membershipExpiresAt, durationDays: membership.durationDays });
+                console.log('[IZIPAY] Return activation projection', {
+                    userId: String(user._id),
+                    membershipId: String(membership._id),
+                    prevExpiresAt: user.membershipExpiresAt ? new Date(user.membershipExpiresAt).toISOString() : null,
+                    nextExpiresAt: expiresAt ? new Date(expiresAt).toISOString() : null
+                });
 
                 user.activeMembership = membership._id;
                 user.membershipExpiresAt = expiresAt;
                 user.membershipPlan = membership.name;
+                user.izipayLastOrderId = rawOrderId;
+
+                const pmToken = extractPaymentMethodToken(answer);
+                console.log('[IZIPAY] Return payment method token', {
+                    hasToken: !!pmToken,
+                    tokenPreview: pmToken ? pmToken.slice(0, 10) + '...' : ''
+                });
+                if (!pmToken) {
+                    try {
+                        const str = JSON.stringify(answer);
+                        const hasAnyTokenWord = /paymentMethodToken|cardToken|token/i.test(str);
+                        console.log('[IZIPAY] Return: token no encontrado en rutas conocidas', {
+                            hasTokenWordInAnswer: hasAnyTokenWord,
+                            topLevelKeys: Object.keys(answer || {}).slice(0, 40)
+                        });
+                    } catch {}
+                }
+                if (pmToken) {
+                    user.izipayPaymentMethodToken = pmToken;
+                    user.membershipAutoRenew = !!(membership.durationDays && membership.durationDays > 0);
+                    user.membershipCanceledAt = null;
+                    user.membershipCancelReason = '';
+                } else {
+                    user.membershipAutoRenew = false;
+                }
                 user.updatedAt = new Date();
                 await user.save();
                 console.log('[IZIPAY] ✅ Membresía activada exitosamente para:', user.email);
+
+                try {
+                    await Payment.create({
+                        orderId: rawOrderId,
+                        userId: user._id,
+                        membershipId: membership._id,
+                        kind: 'checkout',
+                        status: 'paid',
+                        amountCents: Number(answer.orderDetails?.metadata?.finalAmountCents) || 0,
+                        currency: safeString(answer.orderDetails?.currency || answer.currency),
+                        raw: answer
+                    });
+                } catch (e) {
+                    console.warn('[IZIPAY] Return: no se pudo registrar Payment:', e?.message);
+                }
 
                 // Registrar redención de cupón si vino en metadata
                 const couponCode = answer.orderDetails?.metadata?.couponCode || '';

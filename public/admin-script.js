@@ -2373,7 +2373,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function applyViewPermissions(user) {
     if (!user.permissions || user.permissions.length === 0) return;
-    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo', 'commissions'];
+    if (user.permissions.includes('all')) return; // 'all' means no tabs should be hidden
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo', 'commissions', 'coupons', 'landing'];
     allTabs.forEach(tab => {
         const menuItem = document.getElementById(`tab-${tab}`);
         if (menuItem && !user.permissions.includes(tab)) {
@@ -2384,7 +2385,8 @@ function applyViewPermissions(user) {
 
 function getFirstAllowedTab(user) {
     if (!user.permissions || user.permissions.length === 0) return 'courses';
-    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo', 'commissions'];
+    if (user.permissions.includes('all')) return 'courses';
+    const allTabs = ['courses', 'memberships', 'banners', 'users', 'categories', 'logo', 'commissions', 'coupons', 'landing'];
     for (const tab of allTabs) {
         if (user.permissions.includes(tab)) return tab;
     }

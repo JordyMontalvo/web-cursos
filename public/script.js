@@ -612,6 +612,7 @@ function updateHeader() {
                     <a href="/membresia" class="dropdown-item">💎 Membresía</a>
                     <a href="/perfil" class="dropdown-item">👤 Perfil</a>
                     ${user.role === 'admin' ? '<a href="/admin" class="dropdown-item">⚙️ Admin</a>' : ''}
+                    ${hasMem ? '<div class="dropdown-item" id="btnCancelSubscription">⛔ Anular suscripción</div>' : ''}
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-item danger" id="btnLogout">🚪 Cerrar sesión</div>
                 </div>
@@ -622,6 +623,7 @@ function updateHeader() {
             const badge = document.getElementById('dropdownBadge');
             const dd = document.getElementById('dropdownContent');
             const logoutBtn = document.getElementById('btnLogout');
+            const cancelBtn = document.getElementById('btnCancelSubscription');
 
             if (badge && dd) {
                 badge.onclick = (e) => {
@@ -637,6 +639,12 @@ function updateHeader() {
             if (logoutBtn) {
                 logoutBtn.onclick = logout;
             }
+            if (cancelBtn) {
+                cancelBtn.onclick = () => {
+                    if (dd) dd.style.display = 'none';
+                    openCancelSubscriptionModal();
+                };
+            }
         }, 0);
     }
 }
@@ -646,6 +654,378 @@ function logout() {
     localStorage.removeItem('authUser');
     window.location.href = '/login';
 }
+
+// ===================================
+// Cancelación: Motivo de abandono (UI)
+// ===================================
+function ensureCancelSubscriptionModal() {
+    if (document.getElementById('cancelSubscriptionOverlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'cancelSubscriptionOverlay';
+    overlay.className = 'cancel-sub-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.style.display = 'none';
+
+    overlay.innerHTML = `
+        <div class="cancel-sub-modal" role="document">
+            <button type="button" class="cancel-sub-back" aria-label="Volver">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button type="button" class="cancel-sub-close" aria-label="Cerrar">✕</button>
+            <div class="cancel-sub-step cancel-sub-step-1 is-active" id="cancelSubStep1">
+                <h3 class="cancel-sub-title">
+                    <span class="cancel-sub-title-line">¿Por qué deseas</span>
+                    <span class="cancel-sub-title-line">anular tu suscripción?</span>
+                </h3>
+                <p class="cancel-sub-subtitle">
+                    <span class="cancel-sub-subtitle-line">Tu opinión nos ayuda a mejorar</span>
+                    <span class="cancel-sub-subtitle-line">nuestro servicio.</span>
+                </p>
+                <div class="cancel-sub-options" id="cancelSubOptions">
+                    ${[
+                        { id: 'time', label: 'Falta de tiempo', icon: '🕒' },
+                        { id: 'price', label: 'Precio / ajuste de gastos', icon: '💲' },
+                        { id: 'done', label: 'Ya vi el contenido que necesitaba', icon: '✅' },
+                        { id: 'level', label: 'El contenido no se ajusta a mi nivel', icon: '📊' },
+                        { id: 'strategy', label: 'Cambié mi estrategia y/o no necesito la herramienta', icon: '🔁' }
+                    ].map((opt, idx) => `
+                        <label class="cancel-sub-option">
+                            <input type="radio" name="cancelSubReason" value="${opt.id}">
+                            <span class="cancel-sub-icon">${opt.icon}</span>
+                            <span class="cancel-sub-text"><span class="cancel-sub-num">${idx + 1}.</span> ${opt.label}</span>
+                            <span class="cancel-sub-radio" aria-hidden="true"></span>
+                        </label>
+                    `).join('')}
+                </div>
+                <button type="button" class="cancel-sub-continue" id="cancelSubContinue" disabled>Continuar</button>
+                <div class="cancel-sub-footnote">🔒 Tu información está segura</div>
+            </div>
+
+            <div class="cancel-sub-step cancel-sub-step-2" id="cancelSubStep2" aria-hidden="true">
+                <div class="cancel-sub-hero">
+                    <div class="cancel-sub-hero-illus" aria-hidden="true">
+                        <div class="cancel-sub-hero-circle"></div>
+                        <div class="cancel-sub-hero-emoji">☕</div>
+                        <div class="cancel-sub-hero-coins">🪙🪙</div>
+                    </div>
+                    <div class="cancel-sub-ret-title">
+                        <span class="cancel-sub-ret-title-line">Antes de cancelar,</span>
+                        <span class="cancel-sub-ret-title-line">recuerda esto:</span>
+                    </div>
+                    <div class="cancel-sub-ret-desc">
+                        <span class="cancel-sub-ret-desc-line">Por menos de lo que cuesta un</span>
+                        <span class="cancel-sub-ret-desc-line">café, mantén tu acceso y no</span>
+                        <span class="cancel-sub-ret-desc-line">pierdas el progreso de tu</span>
+                        <span class="cancel-sub-ret-desc-line">aprendizaje hacia tu libertad</span>
+                        <span class="cancel-sub-ret-desc-line">financiera</span>
+                    </div>
+                    <div class="cancel-sub-ret-tip">
+                        <span class="cancel-sub-ret-tip-ic">i</span>
+                        <span>Mantendrás acceso a todo el contenido premium y nuevas actualizaciones.</span>
+                    </div>
+                </div>
+
+                <div class="cancel-sub-ret-actions">
+                    <button type="button" class="cancel-sub-ret-keep" id="cancelSubKeep">Mantener mi suscripción</button>
+                    <button type="button" class="cancel-sub-ret-cancel" id="cancelSubFinalize">Continuar con cancelación</button>
+                </div>
+                <div class="cancel-sub-footnote">🔒 Tu información está segura</div>
+            </div>
+
+            <div class="cancel-sub-step cancel-sub-step-3" id="cancelSubStep3" aria-hidden="true">
+                <div class="cancel-sub-confirm">
+                    <div class="cancel-sub-confirm-illus" aria-hidden="true">
+                        <span class="cancel-sub-confirm-illus-mark">!</span>
+                    </div>
+                    <div class="cancel-sub-confirm-title">¿Confirmas que deseas<br>anular tu suscripción?</div>
+                    <div class="cancel-sub-confirm-sub">Al anular tu suscripción:</div>
+
+                    <div class="cancel-sub-confirm-list">
+                        <div class="cancel-sub-confirm-item">
+                            <span class="cancel-sub-confirm-ic cancel-sub-confirm-ic-red">✕</span>
+                            <span>No se realizarán nuevos cobros automáticos.</span>
+                        </div>
+                        <div class="cancel-sub-confirm-item">
+                            <span class="cancel-sub-confirm-ic cancel-sub-confirm-ic-green">✓</span>
+                            <span>Mantendrás el acceso a todo el contenido premium.</span>
+                        </div>
+                        <div class="cancel-sub-confirm-item">
+                            <span class="cancel-sub-confirm-ic cancel-sub-confirm-ic-green">✓</span>
+                            <span>Tu acceso continuará hasta el final de tu periodo de facturación actual.</span>
+                        </div>
+                    </div>
+
+                    <div class="cancel-sub-confirm-date">
+                        <div class="cancel-sub-confirm-date-ic">📅</div>
+                        <div>
+                            <div class="cancel-sub-confirm-date-label">Fecha de renovación:</div>
+                            <div class="cancel-sub-confirm-date-val" id="cancelSubRenewalDate">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cancel-sub-confirm-actions">
+                    <button type="button" class="cancel-sub-confirm-keep" id="cancelSubNoCancel">No, mantener suscripción</button>
+                    <button type="button" class="cancel-sub-confirm-cancel" id="cancelSubYesCancel">Sí, anular suscripción</button>
+                </div>
+                <div class="cancel-sub-footnote">🔒 Tu información está segura</div>
+            </div>
+
+            <div class="cancel-sub-step cancel-sub-step-4" id="cancelSubStep4" aria-hidden="true">
+                <div class="cancel-sub-done">
+                    <div class="cancel-sub-done-illus" aria-hidden="true">✓</div>
+                    <div class="cancel-sub-done-title">Tu suscripción ha sido<br>cancelada exitosamente</div>
+                    <div class="cancel-sub-done-sub">Lamentamos verte partir, pero entendemos que las prioridades pueden cambiar.</div>
+
+                    <div class="cancel-sub-done-card">
+                        <div class="cancel-sub-done-card-row">
+                            <span class="cancel-sub-done-card-ic">✓</span>
+                            <span>Tendrás acceso a todo el contenido premium hasta que finalice tu periodo de facturación actual:</span>
+                        </div>
+                        <div class="cancel-sub-done-card-date" id="cancelSubAccessUntil">—</div>
+                    </div>
+
+                    <div class="cancel-sub-done-ask">¿Cambiaste de opinión?</div>
+                    <div class="cancel-sub-done-ask-sub">Puedes reactivar tu suscripción en cualquier momento y continuar donde lo dejaste.</div>
+                </div>
+
+                <div class="cancel-sub-done-actions">
+                    <button type="button" class="cancel-sub-done-reactivate" id="cancelSubReactivate">Reactivar mi suscripción</button>
+                    <button type="button" class="cancel-sub-done-account" id="cancelSubGoAccount">Ir a mi cuenta</button>
+                </div>
+                <div class="cancel-sub-footnote">🔒 Tu información está segura</div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const backBtn = overlay.querySelector('.cancel-sub-back');
+    const closeBtn = overlay.querySelector('.cancel-sub-close');
+    const continueBtn = overlay.querySelector('#cancelSubContinue');
+    const optionsWrap = overlay.querySelector('#cancelSubOptions');
+    const step1 = overlay.querySelector('#cancelSubStep1');
+    const step2 = overlay.querySelector('#cancelSubStep2');
+    const step3 = overlay.querySelector('#cancelSubStep3');
+    const step4 = overlay.querySelector('#cancelSubStep4');
+    const keepBtn = overlay.querySelector('#cancelSubKeep');
+    const finalizeBtn = overlay.querySelector('#cancelSubFinalize');
+    const noCancelBtn = overlay.querySelector('#cancelSubNoCancel');
+    const yesCancelBtn = overlay.querySelector('#cancelSubYesCancel');
+    const renewalDateEl = overlay.querySelector('#cancelSubRenewalDate');
+    const accessUntilEl = overlay.querySelector('#cancelSubAccessUntil');
+    const reactivateBtn = overlay.querySelector('#cancelSubReactivate');
+    const goAccountBtn = overlay.querySelector('#cancelSubGoAccount');
+
+    let currentStep = 1;
+
+    function gotoStep(n) {
+        currentStep = n;
+        overlay.dataset.cancelStep = String(n);
+        const s1 = n === 1;
+        const s2 = n === 2;
+        const s3 = n === 3;
+        const s4 = n === 4;
+
+        if (step1) step1.classList.toggle('is-active', s1);
+        if (step2) step2.classList.toggle('is-active', s2);
+        if (step3) step3.classList.toggle('is-active', s3);
+        if (step4) step4.classList.toggle('is-active', s4);
+
+        if (step2) step2.setAttribute('aria-hidden', s2 ? 'false' : 'true');
+        if (step3) step3.setAttribute('aria-hidden', s3 ? 'false' : 'true');
+        if (step4) step4.setAttribute('aria-hidden', s4 ? 'false' : 'true');
+    }
+
+    function setRenewalDateFromLocalUser() {
+        if (!renewalDateEl) return;
+        try {
+            const u = JSON.parse(localStorage.getItem('authUser') || 'null');
+            const raw = u && (u.membershipExpiresAt || u.membership_expires_at);
+            if (!raw) {
+                renewalDateEl.textContent = '—';
+                return;
+            }
+            const d = new Date(raw);
+            if (Number.isNaN(d.getTime())) {
+                renewalDateEl.textContent = '—';
+                return;
+            }
+            renewalDateEl.textContent = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch {
+            renewalDateEl.textContent = '—';
+        }
+    }
+
+    function setAccessUntilFromLocalUser() {
+        if (!accessUntilEl) return;
+        try {
+            const u = JSON.parse(localStorage.getItem('authUser') || 'null');
+            const raw = u && (u.membershipExpiresAt || u.membership_expires_at);
+            if (!raw) {
+                accessUntilEl.textContent = '—';
+                return;
+            }
+            const d = new Date(raw);
+            if (Number.isNaN(d.getTime())) {
+                accessUntilEl.textContent = '—';
+                return;
+            }
+            accessUntilEl.textContent = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch {
+            accessUntilEl.textContent = '—';
+        }
+    }
+
+    async function refreshMembershipExpiresAtFromBackend() {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+        try {
+            await configReady;
+            const res = await fetch(apiUrl('/api/auth/check-access'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!data || !data.success) return;
+            const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+            if (data.membershipExpiresAt) u.membershipExpiresAt = data.membershipExpiresAt;
+            if (typeof data.hasMembership === 'boolean') u.hasMembership = data.hasMembership;
+            if (data.membershipPlan) u.membershipPlan = data.membershipPlan;
+            localStorage.setItem('authUser', JSON.stringify(u));
+        } catch {
+            // ignore (fallback localStorage)
+        }
+    }
+
+    function syncSelectedStyles() {
+        overlay.querySelectorAll('.cancel-sub-option').forEach((label) => {
+            const input = label.querySelector('input[type="radio"]');
+            label.classList.toggle('is-selected', !!(input && input.checked));
+        });
+    }
+
+    function close() {
+        overlay.style.display = 'none';
+        overlay.classList.remove('open');
+        const checked = overlay.querySelector('input[name="cancelSubReason"]:checked');
+        if (checked) checked.checked = false;
+        if (continueBtn) continueBtn.disabled = true;
+        syncSelectedStyles();
+        gotoStep(1);
+    }
+
+    function open() {
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('open'));
+        gotoStep(1);
+        refreshMembershipExpiresAtFromBackend().finally(() => {
+            setRenewalDateFromLocalUser();
+            setAccessUntilFromLocalUser();
+        });
+    }
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (currentStep <= 1) {
+                close();
+                return;
+            }
+            gotoStep(currentStep - 1);
+        });
+    }
+
+    if (optionsWrap) {
+        optionsWrap.addEventListener('change', () => {
+            const checked = overlay.querySelector('input[name="cancelSubReason"]:checked');
+            if (continueBtn) continueBtn.disabled = !checked;
+            syncSelectedStyles();
+        });
+    }
+
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            const checked = overlay.querySelector('input[name="cancelSubReason"]:checked');
+            if (!checked) return;
+
+            // Guardar el motivo elegido (para el paso 2 / analítica)
+            localStorage.setItem('cancelSubscriptionReason', checked.value);
+            gotoStep(2);
+        });
+    }
+
+    if (keepBtn) {
+        keepBtn.addEventListener('click', () => {
+            if (typeof window.showToast === 'function') {
+                window.showToast('¡Perfecto! Tu suscripción se mantiene activa.', 'success');
+            }
+            close();
+        });
+    }
+
+    if (finalizeBtn) {
+        finalizeBtn.addEventListener('click', () => {
+            gotoStep(3);
+            refreshMembershipExpiresAtFromBackend().finally(() => {
+                setRenewalDateFromLocalUser();
+            });
+        });
+    }
+
+    if (noCancelBtn) {
+        noCancelBtn.addEventListener('click', () => {
+            if (typeof window.showToast === 'function') {
+                window.showToast('¡Perfecto! Tu suscripción se mantiene activa.', 'success');
+            }
+            close();
+        });
+    }
+
+    if (yesCancelBtn) {
+        yesCancelBtn.addEventListener('click', () => {
+            // Aquí luego puedes conectar la anulación real en backend.
+            // Por ahora mostramos la vista de cancelación exitosa.
+            gotoStep(4);
+            refreshMembershipExpiresAtFromBackend().finally(() => {
+                setAccessUntilFromLocalUser();
+            });
+        });
+    }
+
+    if (reactivateBtn) {
+        reactivateBtn.addEventListener('click', () => {
+            // Llevar al usuario a planes para reactivar
+            window.location.href = '/membresia';
+        });
+    }
+
+    if (goAccountBtn) {
+        goAccountBtn.addEventListener('click', () => {
+            window.location.href = '/perfil';
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+    });
+
+    window.__openCancelSubModal = open;
+}
+
+function openCancelSubscriptionModal() {
+    ensureCancelSubscriptionModal();
+    if (typeof window.__openCancelSubModal === 'function') window.__openCancelSubModal();
+}
+
+// Exponer al HTML inline (por ejemplo index.html)
+window.openCancelSubscriptionModal = openCancelSubscriptionModal;
 
 // ===================================
 // Initialize App
@@ -670,6 +1050,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const user = JSON.parse(localStorage.getItem('authUser') || '{}');
                     user.hasMembership = data.hasMembership;
                     user.membershipPlan = data.membershipPlan;
+                    if (data.membershipExpiresAt) user.membershipExpiresAt = data.membershipExpiresAt;
                     localStorage.setItem('authUser', JSON.stringify(user));
                     updateHeader();
                     
