@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentación Técnica: Sistema de Membresías y Registro Unificado</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 18mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: counter(page);
+        font-size: 9pt;
+        color: #64748b;
+      }
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 10pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    
+    /* Portada / Header */
+    .header-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #31104b 50%, #4c1d95 100%);
+      color: #ffffff;
+      padding: 28px 24px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(76, 29, 149, 0.2);
+    }
+    .badge-tag {
+      display: inline-block;
+      background: rgba(79, 255, 176, 0.2);
+      color: #4fffb0;
+      border: 1px solid rgba(79, 255, 176, 0.4);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .header-title {
+      font-size: 20pt;
+      font-weight: 800;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .header-subtitle {
+      font-size: 10.5pt;
+      color: #cbd5e1;
+      font-weight: 400;
+      margin-bottom: 14px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 12px;
+      font-size: 8.5pt;
+    }
+    .meta-item strong {
+      color: #f1f5f9;
+      display: block;
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.8;
+    }
+
+    h2 {
+      font-size: 13pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 20px 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      page-break-after: avoid;
+    }
+    h2::before {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 16px;
+      background: #7c3aed;
+      border-radius: 3px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #334155;
+      margin: 14px 0 6px 0;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 8px;
+      color: #334155;
+      font-size: 9.5pt;
+    }
+
+    /* Cards & Grids */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+      page-break-inside: avoid;
+    }
+    .flow-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      position: relative;
+    }
+    .flow-card.featured {
+      border-left: 4px solid #7c3aed;
+      background: #faf5ff;
+    }
+    .flow-card.secondary {
+      border-left: 4px solid #0284c7;
+      background: #f0f9ff;
+    }
+    .card-title {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Step Timeline */
+    .timeline {
+      margin: 10px 0;
+      padding-left: 12px;
+    }
+    .timeline-step {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 10px;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #7c3aed;
+    }
+    .timeline-step::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 16px;
+      width: 2px;
+      height: calc(100% - 2px);
+      background: #cbd5e1;
+    }
+    .timeline-step:last-child::after {
+      display: none;
+    }
+    .timeline-step strong {
+      color: #0f172a;
+      font-size: 9.5pt;
+    }
+
+    /* Callouts */
+    .callout {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-left: 4px solid #10b981;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 12px 0;
+      font-size: 9pt;
+      color: #065f46;
+      page-break-inside: avoid;
+    }
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 8.5pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 7.5pt;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .method-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 7pt;
+      color: #fff;
+    }
+    .method-post { background: #2563eb; }
+    .method-get { background: #16a34a; }
+
+    /* Code Snippets */
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #f1f5f9;
+      color: #7c3aed;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 8.5pt;
+    }
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 8pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      margin: 8px 0 12px 0;
+      page-break-inside: avoid;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      text-align: center;
+      font-size: 8pt;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado / Portada -->
+  <div class="header-banner">
+    <div class="badge-tag">Arquitectura & Flujo de Ventas v2.0</div>
+    <h1 class="header-title">Documentación Técnica: Sistema de Membresías y Registro Unificado</h1>
+    <div class="header-subtitle">Optimización del embudo de conversión, compra y aprovisionamiento automático de cuentas en IATIBET ZUREON</div>
+    
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Fecha de Entrega</strong>
+        11 de Agosto de 2026
+      </div>
+      <div class="meta-item">
+        <strong>Pasarela de Pago</strong>
+        Izipay (Krypton Embedded)
+      </div>
+      <div class="meta-item">
+        <strong>Estado de Despliegue</strong>
+        Producción / Listo para Presentación
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Resumen Ejecutivo -->
+  <h2>1. Resumen Ejecutivo</h2>
+  <p>
+    Se rediseñó integralmente el flujo de adquisición de usuarios. Anteriormente, los visitantes debían pasar por un formulario de registro aislado en <code>/register</code> antes de poder adquirir una membresía, lo que generaba fricción y altas tasas de abandono.
+  </p>
+  <p>
+    Con la nueva arquitectura:
+  </p>
+  
+  <div class="card-grid">
+    <div class="flow-card featured">
+      <div class="card-title">🚀 Flujo 1: Visitante / Nuevo Usuario</div>
+      <p style="font-size:8.5pt;margin-bottom:6px;">Ingresa a <code>/membresia</code> → Elige un plan → Se abre el modal unificado con creación de cuenta → Se conecta a Izipay → Paga → Ingresa directamente a los cursos.</p>
+    </div>
+    <div class="flow-card secondary">
+      <div class="card-title">🔑 Flujo 2: Usuario con Cuenta</div>
+      <p style="font-size:8.5pt;margin-bottom:6px;">Inicia sesión en <code>/login</code> o desde el modal → Autenticación directa → Entra inmediatamente a la plataforma de cursos (<code>/</code>).</p>
+    </div>
+  </div>
+
+  <!-- 2. Arquitectura de Flujos -->
+  <h2>2. Arquitectura y Experiencia de Usuario</h2>
+
+  <div class="timeline">
+    <div class="timeline-step">
+      <strong>Paso 1: Planes de Membresía como Página Principal (<code>/membresia</code>)</strong>
+      <p>Cualquier usuario sin sesión activa que ingrese a la raíz <code>/</code> o mediante enlaces de referidos de vendedores es dirigido instantáneamente a los planes.</p>
+    </div>
+    <div class="timeline-step">
+      <strong>Paso 2: Selección de Plan y Apertura de Modal de Compra</strong>
+      <p>Al hacer clic en "Elegir Plan", se abre el modal interactivo mostrando el resumen del plan, selector de cupones de descuento y el formulario de cuenta.</p>
+    </div>
+    <div class="timeline-step">
+      <strong>Paso 3: Creación de Cuenta Embebida & Validación</strong>
+      <p>El visitante completa: Nombre Completo, Correo, País (con asignación automática de código telefónico internacional), Teléfono y Contraseña (con medidor de seguridad). Si ya tiene cuenta, puede alternar a la pestaña <em>"🔑 Ya tengo cuenta"</em>.</p>
+    </div>
+    <div class="timeline-step">
+      <strong>Paso 4: Creación de Sesión & Conexión Instantánea con Izipay</strong>
+      <p>Al hacer clic en <em>"Proceder al Pago Seguro"</em>, el sistema registra la cuenta en <code>POST /api/auth/register</code>, establece la sesión e invoca <code>POST /api/payments/izipay-checkout</code> para abrir el formulario seguro de Izipay.</p>
+    </div>
+    <div class="timeline-step">
+      <strong>Paso 5: Aprobación y Acceso Inmediato a la Plataforma</strong>
+      <p>Tras la confirmación del pago, el sistema activa la membresía y redirige de inmediato al catálogo de cursos en <code>/</code>.</p>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- 3. Detalle Técnico por Archivo -->
+  <h2>3. Detalle Técnico por Archivo Modificado</h2>
+
+  <h3>3.1. <code>public/index.html</code> (Zero-Flash Head Redirect)</h3>
+  <p>Para garantizar una experiencia visualmente perfecta sin parpadeo del catálogo de cursos para nuevos usuarios, se implementó una redirección síncrona en la primera línea del <code>&lt;head&gt;</code>:</p>
+  <pre><code>&lt;head&gt;
+  &lt;script&gt;
+    (function () {
+      var token = localStorage.getItem('authToken');
+      if (!token) {
+        document.documentElement.style.display = 'none';
+        var qs = window.location.search || '';
+        window.location.replace('/membresia' + qs);
+      }
+    })();
+  &lt;/script&gt;
+  ...</code></pre>
+
+  <h3>3.2. <code>public/membresia.html</code> (Modal Unificado de Compra y Registro)</h3>
+  <p>Contiene la estructura visual y la lógica JavaScript para coordinar registro, autenticación, cupones y pasarela:</p>
+  <ul>
+    <li style="margin-left:18px;margin-bottom:4px;"><strong>Pestañas reactivas:</strong> <code>switchCheckoutTab('register' | 'login')</code></li>
+    <li style="margin-left:18px;margin-bottom:4px;"><strong>Mapeo de países:</strong> <code>onCheckoutCountryChange(val)</code> sincroniza automáticamente los prefijos (+51 Perú, +1 USA, +34 España, +52 México, etc.).</li>
+    <li style="margin-left:18px;margin-bottom:4px;"><strong>Validación y envío:</strong> <code>handleCheckoutSubmit()</code> coordina el registro con <code>/api/auth/register</code> e inicia <code>startIzipayCheckout()</code>.</li>
+    <li style="margin-left:18px;margin-bottom:4px;"><strong>Polling de activación:</strong> <code>startActivationPolling()</code> monitorea la activación de la suscripción para redirigir a <code>/</code>.</li>
+  </ul>
+
+  <h3>3.3. <code>public/script.js</code> & <code>public/vendedor.html</code> (Atribución de Referidos)</h3>
+  <p>Captura automática de <code>?ref=CODIGO</code> al cargar cualquier página y persistencia en <code>localStorage</code> para asegurar que las comisiones del afiliado se asignen correctamente durante la creación de la cuenta.</p>
+
+  <!-- 4. Endpoints y Seguridad -->
+  <h2>4. Matriz de Endpoints y Seguridad Backend</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Endpoint</th>
+        <th>Método</th>
+        <th>Autenticación</th>
+        <th>Función</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/api/auth/register</code></td>
+        <td><span class="method-badge method-post">POST</span></td>
+        <td>Pública</td>
+        <td>Crea la cuenta del usuario recibiendo <code>name, email, password, country, phone, ref</code>. Retorna JWT.</td>
+      </tr>
+      <tr>
+        <td><code>/api/auth/login</code></td>
+        <td><span class="method-badge method-post">POST</span></td>
+        <td>Pública</td>
+        <td>Autentica credenciales existentes y retorna JWT.</td>
+      </tr>
+      <tr>
+        <td><code>/api/payments/izipay-checkout</code></td>
+        <td><span class="method-badge method-post">POST</span></td>
+        <td>Bearer Token</td>
+        <td>Genera orden en Izipay con <code>membershipId</code> y <code>couponCode</code>. Retorna <code>formToken</code>.</td>
+      </tr>
+      <tr>
+        <td><code>/api/auth/check-access</code></td>
+        <td><span class="method-badge method-get">GET</span></td>
+        <td>Bearer Token</td>
+        <td>Verifica el estado actual de la membresía para desbloqueo automático en la SPA.</td>
+      </tr>
+      <tr>
+        <td><code>/api/coupons/validate</code></td>
+        <td><span class="method-badge method-post">POST</span></td>
+        <td>Opcional</td>
+        <td>Valida reglas y calcula descuentos en tiempo real en el modal.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="callout-title">🔒 Seguridad y Alta Disponibilidad</div>
+    El sistema incorpora tolerancia contra bloqueadores de anuncios (AdBlockers), captura segura de tokens para pagos recurrentes vía <code>KR.onOrderUpdate</code> y prevención de cuentas duplicadas con sugerencia inmediata de inicio de sesión.
+  </div>
+
+  <div class="footer-note">
+    Documento generado para presentación técnica · IATIBET ZUREON Platform © 2026
+  </div>
+
+</body>
+</html>
