@@ -183,16 +183,9 @@
   </section>
 
   <script src="/config.js"></script>
-  <script>
-    // ── Guard: redirigir al login si no hay sesión ────────────────
-    (function () {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        window.location.href = '/login';
-        return;
-      }
-    })();
 
+
+  <script>
     // ── Auth header dinámico ──────────────────────────────────────
     (function () {
       const user = JSON.parse(localStorage.getItem('authUser') || 'null');
