@@ -112,7 +112,7 @@ async function sendPasswordResetEmail(email, name, resetUrl) {
     }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
+const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
 const GOOGLE_CLIENT_ID    = process.env.GOOGLE_CLIENT_ID    || '';
 const GITHUB_CLIENT_ID    = process.env.GITHUB_CLIENT_ID    || '';
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';

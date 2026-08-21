@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const https = require('https');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
+const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
 const CRON_SECRET = process.env.CRON_SECRET || '';
 
 const IZIPAY_TEST_SHOP_ID = '38106701';

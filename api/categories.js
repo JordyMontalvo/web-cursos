@@ -2,7 +2,7 @@ const { connectDB } = require('../lib/db');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
+const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
 
 let Category;
 try { Category = mongoose.model('Category'); } catch {

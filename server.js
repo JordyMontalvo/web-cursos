@@ -1,3 +1,4 @@
+require('dotenv').config(); // Carga variables de entorno desde .env (solo entorno local)
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -22,7 +23,11 @@ const LandingConfig = require('./models/LandingConfig');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'iatibet_zureon_jwt_secret_2024';
+if (!process.env.JWT_SECRET) {
+    console.error('❌ FATAL: JWT_SECRET no está configurado. Define JWT_SECRET en las variables de entorno antes de iniciar el servidor.');
+    process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 function isEmailEnabled() {
     return (process.env.ENABLE_EMAIL || '').toLowerCase() === 'true';
