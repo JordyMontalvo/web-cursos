@@ -1,5 +1,18 @@
 const multer = require('multer');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
+
+function verifyAdmin(req) {
+    const auth = req.headers['authorization'];
+    const token = auth && auth.split(' ')[1];
+    if (!token) return null;
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        return decoded.role === 'admin' ? decoded : null;
+    } catch { return null; }
+}
 
 // Configurar multer para Vercel (usar /tmp)
 const storage = multer.diskStorage({
@@ -35,7 +48,7 @@ module.exports = async (req, res) => {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
@@ -43,6 +56,11 @@ module.exports = async (req, res) => {
     
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Método no permitido' });
+    }
+
+    // ─── GUARD: escritura requiere rol admin ─────────────────────────────────────
+    if (!verifyAdmin(req)) {
+        return res.status(401).json({ success: false, message: 'No autorizado. Se requiere rol de administrador.' });
     }
     
     // Procesar upload
