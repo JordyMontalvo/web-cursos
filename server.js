@@ -146,24 +146,28 @@ async function seedDatabase() {
             console.log('✅ Datos iniciales creados correctamente.');
         }
 
-        // Crear o actualizar admin
-        const ADMIN_EMAIL = 'admin@iatibet.com';
-        const ADMIN_PASSWORD = '123456';
-        const hashedPw = await bcrypt.hash(ADMIN_PASSWORD, 12);
-        
-        // Buscamos por EMAIL para asegurar que es el usuario correcto
-        await User.findOneAndUpdate(
-            { email: ADMIN_EMAIL },
-            {
-                name: 'Administrador',
-                email: ADMIN_EMAIL,
-                password: hashedPw,
-                role: 'admin',
-                updatedAt: new Date()
-            },
-            { upsert: true, new: true }
-        );
-        console.log(`👤 Admin listo: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+        // Crear admin inicial SOLO si no existe
+        // La contraseña se lee desde ADMIN_INIT_PASSWORD en las variables de entorno.
+        // Si el admin ya existe NO se toca (preserva cambios hechos desde el panel).
+        const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@iatibet.com';
+        const existingAdmin = await User.findOne({ email: ADMIN_EMAIL });
+        if (!existingAdmin) {
+            const ADMIN_INIT_PASSWORD = process.env.ADMIN_INIT_PASSWORD;
+            if (!ADMIN_INIT_PASSWORD) {
+                console.warn('⚠️  ADMIN_INIT_PASSWORD no configurado — se omite creación del admin inicial.');
+            } else {
+                const hashedPw = await bcrypt.hash(ADMIN_INIT_PASSWORD, 12);
+                await User.create({
+                    name: 'Administrador',
+                    email: ADMIN_EMAIL,
+                    password: hashedPw,
+                    role: 'admin'
+                });
+                console.log(`👤 Admin inicial creado: ${ADMIN_EMAIL}`);
+            }
+        } else {
+            console.log(`👤 Admin encontrado: ${ADMIN_EMAIL}`);
+        }
 
         // Crear membresías de ejemplo si no existen
         const membCount = await Membership.countDocuments();
@@ -1518,8 +1522,7 @@ app.listen(PORT, () => {
 ║   💎 Membresías: http://localhost:${PORT}/membresia   ║
 ║   🔧 Admin: http://localhost:${PORT}/admin            ║
 ║                                                       ║
-║   Admin por defecto:                                 ║
-║   📧 admin@iatibet.com  🔑 admin123                  ║
+║   Panel Admin: http://localhost:${PORT}/admin-login  ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
     `);
