@@ -1,10 +1,23 @@
 const { connectDB } = require('../lib/db');
 const Course = require('../lib/Course');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
+
+function verifyAdmin(req) {
+    const auth = req.headers['authorization'];
+    const token = auth && auth.split(' ')[1];
+    if (!token) return null;
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        return decoded.role === 'admin' ? decoded : null;
+    } catch { return null; }
+}
 
 function setCORS(res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
 module.exports = async (req, res) => {
@@ -30,6 +43,13 @@ module.exports = async (req, res) => {
         const course = await Course.findById(id);
         if (!course) return res.status(404).json({ success: false, message: 'Curso no encontrado' });
         return res.json({ success: true, course });
+    }
+
+    // ─── GUARD: escritura requiere rol admin ─────────────────────────────────────
+    if (req.method !== 'GET') {
+        if (!verifyAdmin(req)) {
+            return res.status(401).json({ success: false, message: 'No autorizado. Se requiere rol de administrador.' });
+        }
     }
 
     // ─── POST /api/courses ──────────────────────────────────────────────────────
