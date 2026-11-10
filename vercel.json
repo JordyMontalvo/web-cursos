@@ -8,6 +8,7 @@
     { "source": "/membresia",         "destination": "/membresia.html" },
     { "source": "/perfil",            "destination": "/perfil.html" },
     { "source": "/admin-login",       "destination": "/admin-login.html" },
+    { "source": "/vendedor-login",    "destination": "/vendedor-login.html" },
     { "source": "/admin/content/:id", "destination": "/content-manager.html" },
     { "source": "/admin",             "destination": "/admin.html" },
     { "source": "/vendedor",          "destination": "/vendedor.html" },

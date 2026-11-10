@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendedor — Iniciar Sesión · IATIBET ZUREON</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Acceso al panel de vendedores de IATIBET ZUREON">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            const name = localStorage.getItem('branding_companyName');
+            const logo = localStorage.getItem('branding_logoUrl');
+            if (name || logo) {
+                const style = document.createElement('style');
+                style.id = 'early-branding-style';
+                let css = '';
+                if (name) {
+                    css += `.logo-text, .logo-text-sm, .auth-logo-text { visibility: hidden; position: relative; } `;
+                    css += `.logo-text::after, .logo-text-sm::after, .auth-logo-text::after { content: "${name}"; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; height: 100%; } `;
+                }
+                if (logo) {
+                    css += `.logo-icon, .logo-icon-sm, .auth-logo-icon { background-image: url("${logo}") !important; background-size: cover !important; background-position: center !important; border: none !important; color: transparent !important; }`;
+                }
+                style.innerHTML = css;
+                document.head.appendChild(style);
+            }
+        })();
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: #0A0A0F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        .auth-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .auth-bg::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: -20%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, transparent 70%);
+            animation: float1 8s ease-in-out infinite;
+        }
+
+        .auth-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(79, 255, 176, 0.12) 0%, transparent 70%);
+            animation: float2 10s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(30px, -30px) scale(1.05);
+            }
+        }
+
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) scale(1.08);
+            }
+        }
+
+        /* Grid lines */
+        .grid-lines {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Auth card */
+        .auth-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 460px;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .auth-card {
+            background: rgba(20, 20, 35, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #7C3AED, #4FFFB0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .auth-logo-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.02em;
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-input:focus {
+            border-color: #7C3AED;
+            background: rgba(124, 58, 237, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .form-input.error {
+            border-color: #FF4B55;
+        }
+
+        .field-error {
+            font-size: 0.8rem;
+            color: #FF6B70;
+            margin-top: 0.4rem;
+            display: none;
+        }
+
+        /* Password wrapper */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Submit button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            margin-top: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.4s;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-submit .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .divider span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Footer link */
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .auth-footer a {
+            color: #7C3AED;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            color: #9B6FF5;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert.error {
+            background: rgba(255, 75, 85, 0.12);
+            border: 1px solid rgba(255, 75, 85, 0.3);
+            color: #FF6B70;
+            display: flex;
+        }
+
+        .alert.success {
+            background: rgba(79, 255, 176, 0.1);
+            border: 1px solid rgba(79, 255, 176, 0.3);
+            color: #4FFFB0;
+            display: flex;
+        }
+
+        .alert.hidden {
+            display: none !important;
+        }
+
+        /* Remember me */
+        .remember-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #7C3AED;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 0.875rem;
+            color: #7C3AED;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #9B6FF5;
+        }
+
+        /* Social auth buttons */
+        .social-btn {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-bottom: 0.75rem;
+        }
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .social-btn:active { transform: translateY(0); }
+        .social-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .social-btn.google { border-color: rgba(66, 133, 244, 0.35); }
+        .social-btn.google:hover { background: rgba(66, 133, 244, 0.09); border-color: rgba(66, 133, 244, 0.6); }
+        .social-btn.github { border-color: rgba(255, 255, 255, 0.15); }
+        .social-btn.github:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.35); }
+        .social-btn svg { flex-shrink: 0; }
+        .social-section { margin-bottom: 1.5rem; }
+    </style>
+</head>
+
+<body>
+    <div class="auth-bg"></div>
+    <div class="grid-lines"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="auth-logo">
+                <div class="auth-logo-icon">⚡</div>
+                <span class="auth-logo-text">IATIBET ZUREON</span>
+            </div>
+
+            <h1 class="auth-title">Acceso vendedor</h1>
+            <p class="auth-subtitle">Inicia sesión como vendedor para ver tus referidos, comisiones y retiros</p>
+
+            <!-- Social Auth Buttons 
+            <div class="social-section">
+                <div id="g_id_onload"
+                    data-client_id="841725081856-japgunu2lo2im84i33vlq45odjgh4ijt.apps.googleusercontent.com"
+                    data-callback="handleGoogleLogin"
+                    data-auto_prompt="false">
+                </div>
+                <button type="button" class="social-btn google" id="googleLoginBtn" onclick="initGoogleLogin()">
+                    <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                    </svg>
+                    Continuar con Google
+                </button>
+            </div>
+            -->
+
+            <!-- <div class="divider"><span>o inicia con email</span></div> -->
+
+
+            <div class="alert hidden" id="loginAlert">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                        stroke="currentColor" stroke-width="2" />
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <span id="loginAlertMsg"></span>
+            </div>
+
+            <!-- Form -->
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Correo electrónico</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com"
+                        autocomplete="email" required>
+                    <div class="field-error" id="emailError">Por favor ingresa un email válido</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Contraseña</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••"
+                            autocomplete="current-password" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)"
+                            title="Mostrar/ocultar contraseña">
+                            <svg id="eyeIconLogin" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="field-error" id="passwordError">La contraseña es requerida</div>
+                </div>
+
+                <div class="remember-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe"> Recordarme
+                    </label>
+                    <a href="/forgot-password.html" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn-submit" id="loginBtn">
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="auth-footer" style="margin-top: 1.5rem; text-align: center;">
+                <a href="/">← Volver al sitio</a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- <script src="https://accounts.google.com/gsi/client" async defer></script> -->
+    <script src="/config.js"></script>
+    <script>
+        // ── Rol que acepta esta página de login ──────────────────────
+        // 'user' (usuario con membresía) | 'vendedor' | 'admin'
+        const LOGIN_ROLE = 'vendedor';
+        const ROLE_LOGIN_URLS = { user: '/login', vendedor: '/vendedor-login', admin: '/admin-login' };
+        const ROLE_LABELS = { user: 'usuario', vendedor: 'vendedor', admin: 'administrador' };
+
+        function normalizeRole(role) {
+            return role === 'admin' || role === 'vendedor' ? role : 'user';
+        }
+
+        // Solo permite redirecciones internas (evita open redirect)
+        function safeRedirect(fallback) {
+            const target = new URLSearchParams(window.location.search).get('redirect');
+            return target && target.startsWith('/') && !target.startsWith('//') ? target : fallback;
+        }
+
+        // Redirigir si ya hay una sesión activa del mismo rol
+        (function () {
+            const token = localStorage.getItem('authToken');
+            const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+            if (token && user && normalizeRole(user.role) === LOGIN_ROLE) {
+                if (LOGIN_ROLE === 'admin') window.location.href = '/admin';
+                else if (LOGIN_ROLE === 'vendedor') window.location.href = '/vendedor';
+                else window.location.href = safeRedirect('/');
+            }
+        })();
+
+        function redirectAfterLogin(user) {
+            const role = normalizeRole(user.role);
+            if (role === 'admin') {
+                showAlert('¡Sesión iniciada! Redirigiendo al panel de administración...', 'success');
+                setTimeout(() => window.location.href = '/admin', 800);
+            } else if (role === 'vendedor') {
+                showAlert('¡Sesión iniciada! Redirigiendo al panel de vendedor...', 'success');
+                setTimeout(() => window.location.href = '/vendedor', 800);
+            } else if (!user.hasMembership) {
+                showAlert('Tu plan está inactivo o vencido. Redirigiendo a membresías...', 'error');
+                setTimeout(() => window.location.href = '/membresia', 1200);
+            } else {
+                showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
+                setTimeout(() => window.location.href = safeRedirect('/'), 800);
+            }
+        }
+
+        // La cuenta es válida pero pertenece a otro rol: no se guarda la sesión
+        function showWrongRole(role) {
+            const alert = document.getElementById('loginAlert');
+            alert.className = 'alert error';
+            const msg = document.getElementById('loginAlertMsg');
+            msg.textContent = `Esta cuenta es de ${ROLE_LABELS[role]}. `;
+            const link = document.createElement('a');
+            link.href = ROLE_LOGIN_URLS[role];
+            link.textContent = `Ir al login de ${ROLE_LABELS[role]}`;
+            link.style.cssText = 'color:inherit;font-weight:700;text-decoration:underline;';
+            msg.appendChild(link);
+        }
+
+        /*
+        // ── Google Login (Redirect Flow) ─────────────────────────────
+        function initGoogleLogin() {
+            const btn = document.getElementById('googleLoginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Redirigiendo a Google...';
+            
+            const clientId = '841725081856-japgunu2lo2im84i33vlq45odjgh4ijt.apps.googleusercontent.com';
+            const redirectUri = window.location.origin + '/login';
+            const nonce = Math.random().toString(36).substring(2);
+            
+            // Redirige usando el Implicit Flow (response_type=id_token)
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=id_token&scope=email%20profile%20openid&nonce=${nonce}`;
+            window.location.href = authUrl;
+        }
+
+        // Manejar el retorno de Google (el id_token viene en el hash de la URL)
+        (function handleGoogleCallback() {
+            const hash = window.location.hash;
+            if (hash && hash.includes('id_token=')) {
+                const params = new URLSearchParams(hash.substring(1));
+                const idToken = params.get('id_token');
+                
+                if (idToken) {
+                    history.replaceState(null, null, ' '); // Limpiar URL
+                    
+                    // Simular respuesta para reusar tu función handleGoogleLogin existente
+                    setTimeout(() => processGoogleToken(idToken), 100);
+                }
+            }
+        })();
+
+        async function processGoogleToken(credential) {
+            const btn = document.getElementById('googleLoginBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Conectando...';
+            }
+            try {
+                await configReady;
+                const res = await fetch(apiUrl('/api/auth/google'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: credential })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('authUser', JSON.stringify(data.user));
+                    redirectAfterLogin(data.user);
+                } else {
+                    showAlert(data.message || 'Error al iniciar sesión con Google');
+                }
+            } catch (err) {
+                showAlert('Error al conectar con Google. Intenta de nuevo.');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg> Continuar con Google`;
+                }
+            }
+        }
+        */
+
+
+
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isText = input.type === 'text';
+            input.type = isText ? 'password' : 'text';
+            btn.querySelector('svg').innerHTML = isText
+                ? '<path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>'
+                : '<path d="M17.94 17.94C16.23 19.24 14.19 20 12 20C5 20 1 12 1 12C2.24 9.68 4.02 7.72 6.06 6.39M9.9 4.24C10.59 4.09 11.29 4 12 4C19 4 23 12 23 12C22.44 13.12 21.73 14.17 20.89 15.09M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+        }
+
+        function showAlert(msg, type = 'error') {
+            const alert = document.getElementById('loginAlert');
+            alert.className = `alert ${type}`;
+            document.getElementById('loginAlertMsg').textContent = msg;
+        }
+        function hideAlert() {
+            document.getElementById('loginAlert').className = 'alert hidden';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            let valid = true;
+
+            // Validación básica
+            document.getElementById('emailError').style.display = !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'block' : 'none';
+            document.getElementById('loginEmail').classList.toggle('error', !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+            document.getElementById('passwordError').style.display = !password ? 'block' : 'none';
+            document.getElementById('loginPassword').classList.toggle('error', !password);
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !password) return;
+
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
+
+            try {
+                await configReady;
+                const res = await fetch(apiUrl('/api/auth/login'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    const role = normalizeRole(data.user.role);
+                    if (role !== LOGIN_ROLE) {
+                        showWrongRole(role);
+                        btn.disabled = false;
+                        btn.innerHTML = 'Iniciar Sesión';
+                        return;
+                    }
+
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('authUser', JSON.stringify(data.user));
+                    redirectAfterLogin(data.user);
+                } else {
+                    showAlert(data.message || 'Credenciales incorrectas');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Iniciar Sesión';
+                }
+            } catch (err) {
+                showAlert('Error de conexión. Intenta de nuevo.');
+                btn.disabled = false;
+                btn.innerHTML = 'Iniciar Sesión';
+            }
+        });
+    </script>
+</body>
+
+</html>

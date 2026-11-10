@@ -735,7 +735,7 @@ function adminToken() {
 function adminLogout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
-    window.location.href = '/login';
+    window.location.href = '/admin-login';
 }
 
 function authHeaders() {

@@ -296,7 +296,7 @@
             const user = JSON.parse(localStorage.getItem('authUser') || '{}');
 
             if (!token || (user.role !== 'vendedor' && user.role !== 'admin')) {
-                window.location.href = '/login';
+                window.location.href = '/vendedor-login';
                 return;
             }
 
@@ -544,7 +544,7 @@
         function sellerLogout() {
             localStorage.removeItem('authToken');
             localStorage.removeItem('authUser');
-            window.location.href = '/login';
+            window.location.href = '/vendedor-login';
         }
     </script>
 </body>
