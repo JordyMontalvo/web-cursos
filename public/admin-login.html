@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin — Acceso Restringido · IATIBET ZUREON</title>
+    <title>Admin — Iniciar Sesión · IATIBET ZUREON</title>
     <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Acceso al panel de administración de IATIBET ZUREON">
+    <link rel="stylesheet" href="/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         (function () {
             const name = localStorage.getItem('branding_companyName');
@@ -19,11 +20,11 @@
                 style.id = 'early-branding-style';
                 let css = '';
                 if (name) {
-                    css += `.logo-text, .logo-text-sm, .auth-logo-text, .card-title { visibility: hidden; position: relative; } `;
-                    css += `.logo-text::after, .logo-text-sm::after, .auth-logo-text::after, .card-title::after { content: "${name}"; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; height: 100%; } `;
+                    css += `.logo-text, .logo-text-sm, .auth-logo-text { visibility: hidden; position: relative; } `;
+                    css += `.logo-text::after, .logo-text-sm::after, .auth-logo-text::after { content: "${name}"; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; height: 100%; } `;
                 }
                 if (logo) {
-                    css += `.logo-icon, .logo-icon-sm, .auth-logo-icon, .admin-shield { background-image: url("${logo}") !important; background-size: cover !important; background-position: center !important; border: none !important; color: transparent !important; }`;
+                    css += `.logo-icon, .logo-icon-sm, .auth-logo-icon { background-image: url("${logo}") !important; background-size: cover !important; background-position: center !important; border: none !important; color: transparent !important; }`;
                 }
                 style.innerHTML = css;
                 document.head.appendChild(style);
@@ -31,67 +32,54 @@
         })();
     </script>
     <style>
-        *,
-        *::before,
-        *::after {
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        :root {
-            --bg: #070710;
-            --surface: rgba(12, 12, 22, 0.92);
-            --border: rgba(255, 255, 255, 0.07);
-            --purple: #7C3AED;
-            --red: #EF4444;
-            --green: #4FFFB0;
-            --muted: rgba(255, 255, 255, 0.45);
-        }
-
-        html,
         body {
-            height: 100%;
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: #fff;
+            min-height: 100vh;
+            background: #0A0A0F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
+            position: relative;
         }
 
-        /* ── Animated background ──────────────────────────────── */
-        .bg-layer {
+        /* Animated background */
+        .auth-bg {
             position: fixed;
             inset: 0;
             z-index: 0;
             overflow: hidden;
         }
 
-        .bg-orb {
+        .auth-bg::before {
+            content: '';
             position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            animation: drift 12s ease-in-out infinite;
+            top: -40%;
+            left: -20%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, transparent 70%);
+            animation: float1 8s ease-in-out infinite;
         }
 
-        .bg-orb-1 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(124, 58, 237, 0.18), transparent 70%);
-            top: -120px;
-            left: -80px;
-            animation-delay: 0s;
+        .auth-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(79, 255, 176, 0.12) 0%, transparent 70%);
+            animation: float2 10s ease-in-out infinite;
         }
 
-        .bg-orb-2 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(239, 68, 68, 0.1), transparent 70%);
-            bottom: -100px;
-            right: -60px;
-            animation-delay: -6s;
-        }
-
-        @keyframes drift {
+        @keyframes float1 {
 
             0%,
             100% {
@@ -99,232 +87,175 @@
             }
 
             50% {
-                transform: translate(20px, -25px) scale(1.06);
+                transform: translate(30px, -30px) scale(1.05);
             }
         }
 
-        /* ── Grid ─────────────────────────────────────────────── */
-        .grid-bg {
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) scale(1.08);
+            }
+        }
+
+        /* Grid lines */
+        .grid-lines {
             position: fixed;
             inset: 0;
             z-index: 0;
             background-image:
-                linear-gradient(rgba(124, 58, 237, 0.035) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(124, 58, 237, 0.035) 1px, transparent 1px);
-            background-size: 50px 50px;
+                linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
         }
 
-        /* ── Scanline effect ──────────────────────────────────── */
-        .scanline {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background: repeating-linear-gradient(to bottom,
-                    transparent 0px,
-                    transparent 3px,
-                    rgba(0, 0, 0, 0.05) 3px,
-                    rgba(0, 0, 0, 0.05) 4px);
-        }
-
-        /* ── Layout ───────────────────────────────────────────── */
-        .page {
+        /* Auth card */
+        .auth-wrapper {
             position: relative;
             z-index: 10;
-            min-height: 100vh;
+            width: 100%;
+            max-width: 460px;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .auth-card {
+            background: rgba(20, 20, 35, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-logo {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 420px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2.5rem;
-            backdrop-filter: blur(24px);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(124, 58, 237, 0.12);
-            animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes cardIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.97);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* ── Header ───────────────────────────────────────────── */
-        .card-header {
-            text-align: center;
+            gap: 0.75rem;
             margin-bottom: 2rem;
         }
 
-        .admin-shield {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(239, 68, 68, 0.15));
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            border-radius: 18px;
+        .auth-logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #7C3AED, #4FFFB0);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem;
-            margin: 0 auto 1.25rem;
-            position: relative;
-            overflow: hidden;
+            font-size: 1.3rem;
         }
 
-        .admin-shield::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), transparent);
-            animation: shimmer 3s ease infinite;
-        }
-
-        @keyframes shimmer {
-
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        .restricted-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.25);
-            color: #F87171;
-            font-size: 0.72rem;
+        .auth-logo-text {
+            font-size: 1.1rem;
             font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 0.3rem 0.75rem;
-            border-radius: 100px;
-            margin-bottom: 0.875rem;
+            color: #fff;
+            letter-spacing: 0.02em;
         }
 
-        .card-title {
-            font-size: 1.6rem;
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.35rem;
-        }
-
-        .card-subtitle {
-            color: var(--muted);
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-
-        /* ── Form ─────────────────────────────────────────────── */
-        .form-group {
-            margin-bottom: 1.1rem;
-        }
-
-        .form-label {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.55);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
+        .auth-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
             margin-bottom: 0.5rem;
         }
 
-        .form-label .dot {
-            width: 5px;
-            height: 5px;
-            background: var(--purple);
-            border-radius: 50%;
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
         }
 
-        .input-wrap {
-            position: relative;
+        /* Form */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
         }
 
         .form-input {
             width: 100%;
             padding: 0.875rem 1rem;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             color: #fff;
             font-size: 0.95rem;
             font-family: 'Inter', sans-serif;
             transition: all 0.2s;
             outline: none;
-            letter-spacing: 0.01em;
         }
 
         .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.3);
         }
 
         .form-input:focus {
-            border-color: rgba(124, 58, 237, 0.6);
-            background: rgba(124, 58, 237, 0.06);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+            border-color: #7C3AED;
+            background: rgba(124, 58, 237, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
         }
 
         .form-input.error {
-            border-color: rgba(239, 68, 68, 0.5);
-            background: rgba(239, 68, 68, 0.04);
+            border-color: #FF4B55;
         }
 
-        .toggle-pw {
+        .field-error {
+            font-size: 0.8rem;
+            color: #FF6B70;
+            margin-top: 0.4rem;
+            display: none;
+        }
+
+        /* Password wrapper */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
             position: absolute;
-            right: 0.875rem;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.3);
             cursor: pointer;
-            padding: 0.25rem;
-            transition: color 0.2s;
+            color: rgba(255, 255, 255, 0.4);
             display: flex;
+            align-items: center;
+            padding: 0;
+            transition: color 0.2s;
         }
 
-        .toggle-pw:hover {
-            color: rgba(255, 255, 255, 0.7);
+        .toggle-password:hover {
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        /* ── Submit ───────────────────────────────────────────── */
+        /* Submit button */
         .btn-submit {
             width: 100%;
-            padding: 0.95rem 1rem;
-            margin-top: 0.5rem;
-            background: linear-gradient(135deg, #7C3AED, #5B21B6);
+            padding: 1rem;
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
             border: none;
             border-radius: 12px;
             color: #fff;
-            font-size: 0.95rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.25s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            margin-top: 0.5rem;
             position: relative;
             overflow: hidden;
         }
@@ -336,8 +267,8 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.4s;
         }
 
         .btn-submit:hover::before {
@@ -346,7 +277,7 @@
 
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(124, 58, 237, 0.45);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
         }
 
         .btn-submit:active {
@@ -354,18 +285,21 @@
         }
 
         .btn-submit:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
-        .spinner-icon {
-            width: 18px;
-            height: 18px;
+        .btn-submit .spinner {
+            width: 20px;
+            height: 20px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-top-color: #fff;
             border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+            vertical-align: middle;
         }
 
         @keyframes spin {
@@ -374,254 +308,405 @@
             }
         }
 
-        /* ── Alert ────────────────────────────────────────────── */
-        .alert {
-            display: none;
+        /* Divider */
+        .divider {
+            display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .divider span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Footer link */
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .auth-footer a {
+            color: #7C3AED;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            color: #9B6FF5;
+        }
+
+        /* Alert */
+        .alert {
             padding: 0.875rem 1rem;
             border-radius: 10px;
             font-size: 0.875rem;
             margin-bottom: 1.25rem;
-            font-weight: 500;
-        }
-
-        .alert.show {
-            display: flex;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .alert.error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.25);
-            color: #F87171;
+            background: rgba(255, 75, 85, 0.12);
+            border: 1px solid rgba(255, 75, 85, 0.3);
+            color: #FF6B70;
+            display: flex;
         }
 
         .alert.success {
-            background: rgba(79, 255, 176, 0.08);
-            border: 1px solid rgba(79, 255, 176, 0.2);
-            color: var(--green);
+            background: rgba(79, 255, 176, 0.1);
+            border: 1px solid rgba(79, 255, 176, 0.3);
+            color: #4FFFB0;
+            display: flex;
         }
 
-        /* ── Footer ───────────────────────────────────────────── */
-        .card-footer {
-            margin-top: 1.75rem;
-            padding-top: 1.25rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        .alert.hidden {
+            display: none !important;
+        }
+
+        /* Remember me */
+        .remember-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.2);
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
         }
 
-        .card-footer a {
-            color: rgba(255, 255, 255, 0.35);
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #7C3AED;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 0.875rem;
+            color: #7C3AED;
             text-decoration: none;
+            font-weight: 500;
             transition: color 0.2s;
         }
 
-        .card-footer a:hover {
-            color: rgba(255, 255, 255, 0.7);
+        .forgot-link:hover {
+            color: #9B6FF5;
         }
 
-        /* ── Attempt counter ──────────────────────────────────── */
-        .attempts-bar {
-            margin-top: 0.75rem;
-            display: none;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .attempts-bar.show {
+        /* Social auth buttons */
+        .social-btn {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-bottom: 0.75rem;
         }
-
-        .attempt-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(239, 68, 68, 0.35);
-            transition: background 0.3s;
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
-
-        .attempt-dot.used {
-            background: #EF4444;
-        }
-
-        .attempts-label {
-            font-size: 0.75rem;
-            color: #F87171;
-            margin-left: 0.25rem;
-        }
+        .social-btn:active { transform: translateY(0); }
+        .social-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .social-btn.google { border-color: rgba(66, 133, 244, 0.35); }
+        .social-btn.google:hover { background: rgba(66, 133, 244, 0.09); border-color: rgba(66, 133, 244, 0.6); }
+        .social-btn.github { border-color: rgba(255, 255, 255, 0.15); }
+        .social-btn.github:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.35); }
+        .social-btn svg { flex-shrink: 0; }
+        .social-section { margin-bottom: 1.5rem; }
     </style>
 </head>
 
 <body>
-    <div class="bg-layer">
-        <div class="bg-orb bg-orb-1"></div>
-        <div class="bg-orb bg-orb-2"></div>
-    </div>
-    <div class="grid-bg"></div>
-    <div class="scanline"></div>
+    <div class="auth-bg"></div>
+    <div class="grid-lines"></div>
 
-    <div class="page">
-        <div class="card">
-
-            <!-- Header -->
-            <div class="card-header">
-                <div class="admin-shield">🛡️</div>
-                <div class="restricted-badge">
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
-                        <circle cx="4" cy="4" r="4" />
-                    </svg>
-                    ACCESO RESTRINGIDO
-                </div>
-                <h1 class="card-title">Panel de Administración</h1>
-                <p class="card-subtitle">Solo personal autorizado.<br>Cada acceso queda registrado.</p>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="auth-logo">
+                <div class="auth-logo-icon">⚡</div>
+                <span class="auth-logo-text">IATIBET ZUREON</span>
             </div>
 
-            <!-- Alert -->
-            <div class="alert" id="alert">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
+            <h1 class="auth-title">Acceso administrador</h1>
+            <p class="auth-subtitle">Inicia sesión como administrador para gestionar cursos, usuarios y membresías</p>
+
+            <!-- Social Auth Buttons 
+            <div class="social-section">
+                <div id="g_id_onload"
+                    data-client_id="841725081856-japgunu2lo2im84i33vlq45odjgh4ijt.apps.googleusercontent.com"
+                    data-callback="handleGoogleLogin"
+                    data-auto_prompt="false">
+                </div>
+                <button type="button" class="social-btn google" id="googleLoginBtn" onclick="initGoogleLogin()">
+                    <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                    </svg>
+                    Continuar con Google
+                </button>
+            </div>
+            -->
+
+            <!-- <div class="divider"><span>o inicia con email</span></div> -->
+
+
+            <div class="alert hidden" id="loginAlert">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                        stroke="currentColor" stroke-width="2" />
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
-                <span id="alertMsg"></span>
+                <span id="loginAlertMsg"></span>
             </div>
 
             <!-- Form -->
-            <form id="adminLoginForm" novalidate>
+            <form id="loginForm" novalidate>
                 <div class="form-group">
-                    <label class="form-label" for="adminEmail">
-                        <span class="dot"></span> Correo administrativo
-                    </label>
-                    <input type="email" id="adminEmail" class="form-input" placeholder="admin@iatibet.com"
-                        autocomplete="username" value="admin@iatibet.com" required>
+                    <label class="form-label" for="loginEmail">Correo electrónico</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com"
+                        autocomplete="email" required>
+                    <div class="field-error" id="emailError">Por favor ingresa un email válido</div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="adminPassword">
-                        <span class="dot"></span> Contraseña
-                    </label>
-                    <div class="input-wrap">
-                        <input type="password" id="adminPassword" class="form-input" placeholder="••••••••••••"
+                    <label class="form-label" for="loginPassword">Contraseña</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••"
                             autocomplete="current-password" required>
-                        <button type="button" class="toggle-pw" onclick="togglePw()" title="Mostrar contraseña">
-                            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" />
-                                <circle cx="12" cy="12" r="3" />
+                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)"
+                            title="Mostrar/ocultar contraseña">
+                            <svg id="eyeIconLogin" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
                             </svg>
                         </button>
                     </div>
+                    <div class="field-error" id="passwordError">La contraseña es requerida</div>
                 </div>
 
-                <!-- Attempts indicator -->
-                <div class="attempts-bar" id="attemptsBar">
-                    <div class="attempt-dot" id="dot1"></div>
-                    <div class="attempt-dot" id="dot2"></div>
-                    <div class="attempt-dot" id="dot3"></div>
-                    <span class="attempts-label" id="attemptsLabel"></span>
+                <div class="remember-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe"> Recordarme
+                    </label>
+                    <a href="/forgot-password.html" class="forgot-link">¿Olvidaste tu contraseña?</a>
                 </div>
 
-                <button type="submit" class="btn-submit" id="submitBtn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    Acceder al Panel
+                <button type="submit" class="btn-submit" id="loginBtn">
+                    Iniciar Sesión
                 </button>
             </form>
 
-            <!-- Footer -->
-            <div class="card-footer">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                Conexión segura
-                <span>·</span>
+            <div class="auth-footer" style="margin-top: 1.5rem; text-align: center;">
                 <a href="/">← Volver al sitio</a>
             </div>
+
         </div>
     </div>
 
+    <!-- <script src="https://accounts.google.com/gsi/client" async defer></script> -->
     <script src="/config.js"></script>
     <script>
-        // ── Guard: si ya es admin, ir al panel ─────────────────────────
+        // ── Rol que acepta esta página de login ──────────────────────
+        // 'user' (usuario con membresía) | 'vendedor' | 'admin'
+        const LOGIN_ROLE = 'admin';
+        const ROLE_LOGIN_URLS = { user: '/login', vendedor: '/vendedor-login', admin: '/admin-login' };
+        const ROLE_LABELS = { user: 'usuario', vendedor: 'vendedor', admin: 'administrador' };
+
+        function normalizeRole(role) {
+            return role === 'admin' || role === 'vendedor' ? role : 'user';
+        }
+
+        // Solo permite redirecciones internas (evita open redirect)
+        function safeRedirect(fallback) {
+            const target = new URLSearchParams(window.location.search).get('redirect');
+            return target && target.startsWith('/') && !target.startsWith('//') ? target : fallback;
+        }
+
+        // Redirigir si ya hay una sesión activa del mismo rol
         (function () {
             const token = localStorage.getItem('authToken');
             const user = JSON.parse(localStorage.getItem('authUser') || 'null');
-            if (token && user && user.role === 'admin') {
-                window.location.href = '/admin';
+            if (token && user && normalizeRole(user.role) === LOGIN_ROLE) {
+                if (LOGIN_ROLE === 'admin') window.location.href = '/admin';
+                else if (LOGIN_ROLE === 'vendedor') window.location.href = '/vendedor';
+                else window.location.href = safeRedirect('/');
             }
         })();
 
-        // ── Toggle password ────────────────────────────────────────────
-        function togglePw() {
-            const inp = document.getElementById('adminPassword');
-            const icon = document.getElementById('eyeIcon');
-            const show = inp.type === 'password';
-            inp.type = show ? 'text' : 'password';
-            icon.innerHTML = show
-                ? `<path d="M17.94 17.94C16.23 19.24 14.19 20 12 20C5 20 1 12 1 12C2.24 9.68 4.02 7.72 6.06 6.39M9.9 4.24C10.59 4.09 11.29 4 12 4C19 4 23 12 23 12C22.44 13.12 21.73 14.17 20.89 15.09M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`
-                : `<path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"/><circle cx="12" cy="12" r="3"/>`;
+        function redirectAfterLogin(user) {
+            const role = normalizeRole(user.role);
+            if (role === 'admin') {
+                showAlert('¡Sesión iniciada! Redirigiendo al panel de administración...', 'success');
+                setTimeout(() => window.location.href = '/admin', 800);
+            } else if (role === 'vendedor') {
+                showAlert('¡Sesión iniciada! Redirigiendo al panel de vendedor...', 'success');
+                setTimeout(() => window.location.href = '/vendedor', 800);
+            } else if (!user.hasMembership) {
+                showAlert('Tu plan está inactivo o vencido. Redirigiendo a membresías...', 'error');
+                setTimeout(() => window.location.href = '/membresia', 1200);
+            } else {
+                showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
+                setTimeout(() => window.location.href = safeRedirect('/'), 800);
+            }
         }
 
-        // ── Alert ──────────────────────────────────────────────────────
+        // La cuenta es válida pero pertenece a otro rol: no se guarda la sesión
+        function showWrongRole(role) {
+            const alert = document.getElementById('loginAlert');
+            alert.className = 'alert error';
+            const msg = document.getElementById('loginAlertMsg');
+            msg.textContent = `Esta cuenta es de ${ROLE_LABELS[role]}. `;
+            const link = document.createElement('a');
+            link.href = ROLE_LOGIN_URLS[role];
+            link.textContent = `Ir al login de ${ROLE_LABELS[role]}`;
+            link.style.cssText = 'color:inherit;font-weight:700;text-decoration:underline;';
+            msg.appendChild(link);
+        }
+
+        /*
+        // ── Google Login (Redirect Flow) ─────────────────────────────
+        function initGoogleLogin() {
+            const btn = document.getElementById('googleLoginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Redirigiendo a Google...';
+            
+            const clientId = '841725081856-japgunu2lo2im84i33vlq45odjgh4ijt.apps.googleusercontent.com';
+            const redirectUri = window.location.origin + '/login';
+            const nonce = Math.random().toString(36).substring(2);
+            
+            // Redirige usando el Implicit Flow (response_type=id_token)
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=id_token&scope=email%20profile%20openid&nonce=${nonce}`;
+            window.location.href = authUrl;
+        }
+
+        // Manejar el retorno de Google (el id_token viene en el hash de la URL)
+        (function handleGoogleCallback() {
+            const hash = window.location.hash;
+            if (hash && hash.includes('id_token=')) {
+                const params = new URLSearchParams(hash.substring(1));
+                const idToken = params.get('id_token');
+                
+                if (idToken) {
+                    history.replaceState(null, null, ' '); // Limpiar URL
+                    
+                    // Simular respuesta para reusar tu función handleGoogleLogin existente
+                    setTimeout(() => processGoogleToken(idToken), 100);
+                }
+            }
+        })();
+
+        async function processGoogleToken(credential) {
+            const btn = document.getElementById('googleLoginBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Conectando...';
+            }
+            try {
+                await configReady;
+                const res = await fetch(apiUrl('/api/auth/google'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: credential })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('authUser', JSON.stringify(data.user));
+                    redirectAfterLogin(data.user);
+                } else {
+                    showAlert(data.message || 'Error al iniciar sesión con Google');
+                }
+            } catch (err) {
+                showAlert('Error al conectar con Google. Intenta de nuevo.');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg> Continuar con Google`;
+                }
+            }
+        }
+        */
+
+
+
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isText = input.type === 'text';
+            input.type = isText ? 'password' : 'text';
+            btn.querySelector('svg').innerHTML = isText
+                ? '<path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>'
+                : '<path d="M17.94 17.94C16.23 19.24 14.19 20 12 20C5 20 1 12 1 12C2.24 9.68 4.02 7.72 6.06 6.39M9.9 4.24C10.59 4.09 11.29 4 12 4C19 4 23 12 23 12C22.44 13.12 21.73 14.17 20.89 15.09M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+        }
+
         function showAlert(msg, type = 'error') {
-            const el = document.getElementById('alert');
-            el.className = `alert ${type} show`;
-            document.getElementById('alertMsg').textContent = msg;
+            const alert = document.getElementById('loginAlert');
+            alert.className = `alert ${type}`;
+            document.getElementById('loginAlertMsg').textContent = msg;
         }
         function hideAlert() {
-            document.getElementById('alert').className = 'alert';
+            document.getElementById('loginAlert').className = 'alert hidden';
         }
 
-        // ── Attempt counter (bloqueo suave tras 3 intentos) ────────────
-        let attempts = 0;
-        let lockUntil = 0;
-
-        function updateAttempts() {
-            if (attempts === 0) {
-                document.getElementById('attemptsBar').classList.remove('show');
-                return;
-            }
-            document.getElementById('attemptsBar').classList.add('show');
-            [1, 2, 3].forEach(i => {
-                document.getElementById('dot' + i).classList.toggle('used', i <= attempts);
-            });
-            const left = 3 - attempts;
-            document.getElementById('attemptsLabel').textContent =
-                left > 0 ? `${left} intento${left !== 1 ? 's' : ''} restante${left !== 1 ? 's' : ''}` : 'Bloqueado temporalmente';
-        }
-
-        // ── Submit ─────────────────────────────────────────────────────
-        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             hideAlert();
 
-            // Bloqueo temporal
-            if (Date.now() < lockUntil) {
-                const secs = Math.ceil((lockUntil - Date.now()) / 1000);
-                showAlert(`Demasiados intentos. Espera ${secs}s.`);
-                return;
-            }
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            let valid = true;
 
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
+            // Validación básica
+            document.getElementById('emailError').style.display = !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'block' : 'none';
+            document.getElementById('loginEmail').classList.toggle('error', !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+            document.getElementById('passwordError').style.display = !password ? 'block' : 'none';
+            document.getElementById('loginPassword').classList.toggle('error', !password);
 
-            if (!email || !password) {
-                showAlert('Completa todos los campos.');
-                return;
-            }
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !password) return;
 
-            const btn = document.getElementById('submitBtn');
+            const btn = document.getElementById('loginBtn');
             btn.disabled = true;
-            btn.innerHTML = `<div class="spinner-icon"></div> Verificando...`;
+            btn.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
 
             try {
                 await configReady;
@@ -633,65 +718,27 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    // ¿Es admin o vendedor?
-                    if (data.user.role !== 'admin' && data.user.role !== 'vendedor') {
-                        attempts++;
-                        updateAttempts();
-                        showAlert('Esta cuenta no tiene permisos administrativos.');
+                    const role = normalizeRole(data.user.role);
+                    if (role !== LOGIN_ROLE) {
+                        showWrongRole(role);
                         btn.disabled = false;
-                        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Acceder al Panel`;
-                        if (attempts >= 3) {
-                            lockUntil = Date.now() + 30000; // bloqueo 30s
-                            btn.disabled = true;
-                            setTimeout(() => { btn.disabled = false; lockUntil = 0; }, 30000);
-                        }
+                        btn.innerHTML = 'Iniciar Sesión';
                         return;
                     }
 
-                    // Login exitoso
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('authUser', JSON.stringify(data.user));
-                    
-                    const redirectUrl = data.user.role === 'admin' ? '/admin' : '/vendedor';
-                    showAlert(`✓ Acceso concedido al panel de ${data.user.role}. Cargando...`, 'success');
-                    attempts = 0;
-
-                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Acceso concedido`;
-                    setTimeout(() => { window.location.href = redirectUrl; }, 900);
-
+                    redirectAfterLogin(data.user);
                 } else {
-                    attempts++;
-                    updateAttempts();
-                    showAlert(data.message || 'Credenciales incorrectas.');
+                    showAlert(data.message || 'Credenciales incorrectas');
                     btn.disabled = false;
-                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Acceder al Panel`;
-                    if (attempts >= 3) {
-                        lockUntil = Date.now() + 30000;
-                        btn.disabled = true;
-                        showAlert('Demasiados intentos. Bloqueado 30 segundos.');
-                        setTimeout(() => {
-                            btn.disabled = false;
-                            lockUntil = 0;
-                            hideAlert();
-                        }, 30000);
-                    }
-                    document.getElementById('adminEmail').classList.toggle('error', true);
-                    document.getElementById('adminPassword').classList.toggle('error', true);
-                    setTimeout(() => {
-                        document.getElementById('adminEmail').classList.remove('error');
-                        document.getElementById('adminPassword').classList.remove('error');
-                    }, 1500);
+                    btn.innerHTML = 'Iniciar Sesión';
                 }
             } catch (err) {
                 showAlert('Error de conexión. Intenta de nuevo.');
                 btn.disabled = false;
-                btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Acceder al Panel`;
+                btn.innerHTML = 'Iniciar Sesión';
             }
-        });
-
-        // ── Limpiar error al escribir ──────────────────────────────────
-        ['adminEmail', 'adminPassword'].forEach(id => {
-            document.getElementById(id).addEventListener('input', hideAlert);
         });
     </script>
 </body>

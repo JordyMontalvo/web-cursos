@@ -462,7 +462,7 @@
             </div>
 
             <h1 class="auth-title">Bienvenido de nuevo</h1>
-            <p class="auth-subtitle">Ingresa tus credenciales para continuar</p>
+            <p class="auth-subtitle">Inicia sesión como usuario con membresía para acceder a todas las series</p>
 
             <!-- Social Auth Buttons 
             <div class="social-section">
@@ -545,12 +545,32 @@
     <!-- <script src="https://accounts.google.com/gsi/client" async defer></script> -->
     <script src="/config.js"></script>
     <script>
-        // Redirigir si ya está logueado
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            const params = new URLSearchParams(window.location.search);
-            window.location.href = params.get('redirect') || '/';
+        // ── Rol que acepta esta página de login ──────────────────────
+        // 'user' (usuario con membresía) | 'vendedor' | 'admin'
+        const LOGIN_ROLE = 'user';
+        const ROLE_LOGIN_URLS = { user: '/login', vendedor: '/vendedor-login', admin: '/admin-login' };
+        const ROLE_LABELS = { user: 'usuario', vendedor: 'vendedor', admin: 'administrador' };
+
+        function normalizeRole(role) {
+            return role === 'admin' || role === 'vendedor' ? role : 'user';
         }
+
+        // Solo permite redirecciones internas (evita open redirect)
+        function safeRedirect(fallback) {
+            const target = new URLSearchParams(window.location.search).get('redirect');
+            return target && target.startsWith('/') && !target.startsWith('//') ? target : fallback;
+        }
+
+        // Redirigir si ya hay una sesión activa del mismo rol
+        (function () {
+            const token = localStorage.getItem('authToken');
+            const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+            if (token && user && normalizeRole(user.role) === LOGIN_ROLE) {
+                if (LOGIN_ROLE === 'admin') window.location.href = '/admin';
+                else if (LOGIN_ROLE === 'vendedor') window.location.href = '/vendedor';
+                else window.location.href = safeRedirect('/');
+            }
+        })();
 
         // ── Manejar callback de GitHub OAuth (redirect de vuelta al login) ──
         (function handleGithubCallback() {
@@ -579,16 +599,33 @@
         })();
 
         function redirectAfterLogin(user) {
-            if (user.role === 'admin') {
-                showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
+            const role = normalizeRole(user.role);
+            if (role === 'admin') {
+                showAlert('¡Sesión iniciada! Redirigiendo al panel de administración...', 'success');
                 setTimeout(() => window.location.href = '/admin', 800);
+            } else if (role === 'vendedor') {
+                showAlert('¡Sesión iniciada! Redirigiendo al panel de vendedor...', 'success');
+                setTimeout(() => window.location.href = '/vendedor', 800);
             } else if (!user.hasMembership) {
-                showAlert('Tu plan está inactivo. Redirigiendo a membresías...', 'error');
+                showAlert('Tu plan está inactivo o vencido. Redirigiendo a membresías...', 'error');
                 setTimeout(() => window.location.href = '/membresia', 1200);
             } else {
                 showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
-                setTimeout(() => window.location.href = '/', 800);
+                setTimeout(() => window.location.href = safeRedirect('/'), 800);
             }
+        }
+
+        // La cuenta es válida pero pertenece a otro rol: no se guarda la sesión
+        function showWrongRole(role) {
+            const alert = document.getElementById('loginAlert');
+            alert.className = 'alert error';
+            const msg = document.getElementById('loginAlertMsg');
+            msg.textContent = `Esta cuenta es de ${ROLE_LABELS[role]}. `;
+            const link = document.createElement('a');
+            link.href = ROLE_LOGIN_URLS[role];
+            link.textContent = `Ir al login de ${ROLE_LABELS[role]}`;
+            link.style.cssText = 'color:inherit;font-weight:700;text-decoration:underline;';
+            msg.appendChild(link);
         }
 
         /*
@@ -706,22 +743,17 @@
                 const data = await res.json();
 
                 if (data.success) {
+                    const role = normalizeRole(data.user.role);
+                    if (role !== LOGIN_ROLE) {
+                        showWrongRole(role);
+                        btn.disabled = false;
+                        btn.innerHTML = 'Iniciar Sesión';
+                        return;
+                    }
+
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('authUser', JSON.stringify(data.user));
-
-                    if (data.user.role === 'admin') {
-                        showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
-                        setTimeout(() => window.location.href = '/admin', 800);
-                    } else if (data.user.role === 'vendedor') {
-                        showAlert('¡Sesión iniciada! Redirigiendo al panel de vendedor...', 'success');
-                        setTimeout(() => window.location.href = '/vendedor', 800);
-                    } else if (!data.user.hasMembership) {
-                        showAlert('Tu plan está inactivo o vencido. Redirigiendo a membresías...', 'error');
-                        setTimeout(() => window.location.href = '/membresia', 1200);
-                    } else {
-                        showAlert('¡Sesión iniciada! Redirigiendo...', 'success');
-                        setTimeout(() => window.location.href = '/', 800);
-                    }
+                    redirectAfterLogin(data.user);
                 } else {
                     showAlert(data.message || 'Credenciales incorrectas');
                     btn.disabled = false;

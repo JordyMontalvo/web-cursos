@@ -1401,6 +1401,7 @@ app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/membresia', (req, res) => res.sendFile(path.join(__dirname, 'public', 'membresia.html')));
 app.get('/perfil', (req, res) => res.sendFile(path.join(__dirname, 'public', 'perfil.html')));
 app.get('/admin-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin-login.html')));
+app.get('/vendedor-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor-login.html')));
 app.get('/curso/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'curso.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/content/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'content-manager.html')));
