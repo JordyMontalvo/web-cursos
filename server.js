@@ -7,7 +7,6 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
 const Course = require('./models/Course');
@@ -156,11 +155,11 @@ async function seedDatabase() {
             if (!ADMIN_INIT_PASSWORD) {
                 console.warn('⚠️  ADMIN_INIT_PASSWORD no configurado — se omite creación del admin inicial.');
             } else {
-                const hashedPw = await bcrypt.hash(ADMIN_INIT_PASSWORD, 12);
+                // Texto plano: el hook pre('save') de User la cifra
                 await User.create({
                     name: 'Administrador',
                     email: ADMIN_EMAIL,
-                    password: hashedPw,
+                    password: ADMIN_INIT_PASSWORD,
                     role: 'admin'
                 });
                 console.log(`👤 Admin inicial creado: ${ADMIN_EMAIL}`);
@@ -1480,11 +1479,11 @@ app.post('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, r
         const existingCode = await User.findOne({ sellerCode });
         if (existingCode) return res.status(400).json({ success: false, message: 'El código de vendedor ya está en uso' });
 
-        const hashedPw = await bcrypt.hash(password, 12);
+        // Texto plano: el hook pre('save') de User la cifra
         const vendedor = new User({
             name,
             email: email.toLowerCase(),
-            password: hashedPw,
+            password,
             role: 'vendedor',
             sellerCode
         });
