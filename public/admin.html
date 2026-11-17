@@ -299,15 +299,28 @@
             <div id="section-users" style="display:none;">
 
                 <!-- Header -->
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
                     <div>
                         <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Gestión de Usuarios</h2>
                         <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Administra usuarios, vendedores y administradores de la plataforma</p>
                     </div>
-                    <button class="btn-primary" id="btnNewUserMain" onclick="openCreateUserModal()" style="background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:12px;padding:.6rem 1.4rem;font-weight:700;display:flex;align-items:center;gap:.5rem;">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Nuevo Usuario
-                    </button>
+                    <div style="display:flex;align-items:center;gap:.75rem;">
+                        <button class="btn-primary" id="btnNewUserMain" onclick="openCreateUserModal()" style="background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:12px;padding:.6rem 1.4rem;font-weight:700;display:flex;align-items:center;gap:.5rem;">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Nuevo Usuario
+                        </button>
+                        <!-- Sustitución exacta del botón Nuevo Vendedor por el Enlace de Invitación -->
+                        <div id="sellerInviteHeaderContainer" style="display:none;align-items:center;gap:.5rem;background:rgba(20,20,35,.85);border:1px solid rgba(124,58,237,.35);padding:.4rem .6rem .4rem 1rem;border-radius:12px;">
+                            <span style="font-size:.8rem;color:rgba(255,255,255,.75);font-weight:700;display:flex;align-items:center;gap:.35rem;white-space:nowrap;">
+                                <span>🏷️</span> Enlace para invitar vendedores:
+                            </span>
+                            <code id="sellerInviteLinkTop" style="color:#c4b5fd;font-size:.8rem;font-family:monospace;background:rgba(0,0,0,.35);padding:.35rem .6rem;border-radius:8px;border:1px solid rgba(255,255,255,.08);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;user-select:all;">[Cargando...]</code>
+                            <button type="button" onclick="copySellerInviteLink()" style="background:#7C3AED;color:#fff;border:none;padding:.5rem 1rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;font-family:inherit;white-space:nowrap;transition:all .2s;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copiar enlace
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Sub-tabs -->
@@ -1545,8 +1558,8 @@
         </div>
     </div>
 
-    <script src="/config.js"></script>
-    <script src="/admin-script.js"></script>
+    <script src="/config.js?v=2.2"></script>
+    <script src="/admin-script.js?v=2.2"></script>
 </body>
 
 </html>

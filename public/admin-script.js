@@ -1411,23 +1411,25 @@ function switchUserSubTab(type) {
             section.style.display = 'none';
         }
     });
-    // Update button text for "Nuevo Usuario"
     const btn = document.getElementById('btnNewUserMain');
-    if (btn) {
-        // En "vendedor" (solo por invitación) y "commission" no se muestra botón de creación manual
-        if (type === 'vendedor' || type === 'commission') {
-            btn.style.display = 'none';
-            btn.onclick = null;
-        } else {
-            btn.style.display = '';
+    const inviteHeader = document.getElementById('sellerInviteHeaderContainer');
+
+    if (type === 'vendedor') {
+        if (btn) btn.style.display = 'none';
+        if (inviteHeader) inviteHeader.style.display = 'inline-flex';
+        updateSellerInviteLink();
+    } else if (type === 'commission') {
+        if (btn) btn.style.display = 'none';
+        if (inviteHeader) inviteHeader.style.display = 'none';
+        loadMemberships();
+    } else {
+        if (inviteHeader) inviteHeader.style.display = 'none';
+        if (btn) {
+            btn.style.display = 'inline-flex';
             const labels = { user: 'Nuevo Usuario', admin: 'Nuevo Admin' };
             btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type] || 'Nuevo'}`;
             btn.onclick = () => openCreateUserModal(type);
         }
-    }
-
-    if (type === 'vendedor') {
-        updateSellerInviteLink();
     }
 
     if (type === 'commission') {
@@ -1541,10 +1543,11 @@ function getSellerInviteUrl() {
 }
 
 function updateSellerInviteLink() {
-    const el = document.getElementById('sellerInviteLinkDisplay');
-    if (el) {
-        el.textContent = getSellerInviteUrl();
-    }
+    const url = getSellerInviteUrl();
+    const topEl = document.getElementById('sellerInviteLinkTop');
+    if (topEl) topEl.textContent = url;
+    const bannerEl = document.getElementById('sellerInviteLinkDisplay');
+    if (bannerEl) bannerEl.textContent = url;
 }
 
 function copySellerInviteLink() {
