@@ -471,9 +471,17 @@ app.post('/api/auth/register', async (req, res) => {
         // Buscar si hay un código de referido
         let referredById = null;
         if (ref) {
-            const seller = await User.findOne({ sellerCode: ref, role: 'vendedor' });
+            const seller = await User.findOne({ sellerCode: ref });
             if (seller) {
                 referredById = seller._id;
+            }
+        }
+
+        // Si no hay ref o no existe el código, reconocer a la empresa como su patrocinador comercial directo
+        if (!referredById) {
+            const company = await User.findOne({ role: 'admin' });
+            if (company) {
+                referredById = company._id;
             }
         }
 

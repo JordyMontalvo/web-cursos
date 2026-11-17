@@ -256,13 +256,15 @@ module.exports = async (req, res) => {
                     await user.save();
                 }
             } else {
-                // Nuevo usuario via Google
+                // Nuevo usuario via Google (atribuir a empresa si no tiene patrocinador)
+                const company = await User.findOne({ role: 'admin' });
                 user = new User({
                     name: googleData.name,
                     email: googleData.email,
                     googleId: googleData.googleId,
                     avatar: googleData.avatar,
-                    provider: 'google'
+                    provider: 'google',
+                    referredBy: company ? company._id : null
                 });
                 await user.save();
                 
@@ -316,12 +318,14 @@ module.exports = async (req, res) => {
                     await user.save();
                 }
             } else {
+                const company = await User.findOne({ role: 'admin' });
                 user = new User({
                     name: githubData.name,
                     email: githubData.email,
                     githubId: githubData.githubId,
                     avatar: githubData.avatar,
-                    provider: 'github'
+                    provider: 'github',
+                    referredBy: company ? company._id : null
                 });
                 await user.save();
             }

@@ -99,6 +99,10 @@ module.exports = async (req, res) => {
         user.activeMembership = membership._id;
         user.membershipExpiresAt = expiresAt;
         user.membershipPlan = membership.name;
+        if (!user.referredBy) {
+            const company = await User.findOne({ role: 'admin' });
+            if (company) user.referredBy = company._id;
+        }
         // Activación directa (sin PSP): no habilitar auto-renovación aquí.
         user.membershipAutoRenew = false;
         user.membershipCanceledAt = null;

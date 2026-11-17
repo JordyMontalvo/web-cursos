@@ -377,12 +377,20 @@ module.exports = async (req, res) => {
         const exists = await User.findOne({ email });
         if (exists) return res.status(409).json({ success: false, message: 'El email ya está registrado' });
         
-        // Buscar vendedor si se proporciona ref
+        // Buscar vendedor/patrocinador si se proporciona ref
         let referredBy = null;
         if (ref) {
             const seller = await User.findOne({ sellerCode: ref });
             if (seller) {
                 referredBy = seller._id;
+            }
+        }
+
+        // Si no hay ref o no existe el vendedor, reconocer a la empresa como su patrocinador comercial directo
+        if (!referredBy) {
+            const company = await User.findOne({ role: 'admin' });
+            if (company) {
+                referredBy = company._id;
             }
         }
 

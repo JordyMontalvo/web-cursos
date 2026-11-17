@@ -812,6 +812,10 @@ module.exports = async (req, res) => {
             user.membershipExpiresAt = expiresAt;
             user.membershipPlan = membership.name;
             user.izipayLastOrderId = rawOrderId;
+            if (!user.referredBy) {
+                const company = await User.findOne({ role: 'admin' });
+                if (company) user.referredBy = company._id;
+            }
 
             const pmToken = extractPaymentMethodToken(answer);
             console.log('[IZIPAY] Webhook payment method token', {
@@ -987,6 +991,10 @@ module.exports = async (req, res) => {
                 user.membershipExpiresAt = expiresAt;
                 user.membershipPlan = membership.name;
                 user.izipayLastOrderId = rawOrderId;
+                if (!user.referredBy) {
+                    const company = await User.findOne({ role: 'admin' });
+                    if (company) user.referredBy = company._id;
+                }
 
                 const pmToken = extractPaymentMethodToken(answer);
                 console.log('[IZIPAY] Return payment method token', {

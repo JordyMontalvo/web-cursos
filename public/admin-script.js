@@ -1389,21 +1389,31 @@ async function deleteMembership(id, name) {
 // ===================================
 
 // ===================================
-// GESTIÓN DE USUARIOS (3 sub-tabs)
+// GESTIÓN DE USUARIOS (Punto 5 del PDF)
 // ===================================
 
-let activeUserSubTab = 'user'; // 'user' | 'vendedor' | 'admin'
+let activeUserSubTab = 'user'; // 'user' | 'vendedor' | 'director' | 'enlaces' | 'admin'
 
 function switchUserSubTab(type) {
     activeUserSubTab = type;
-    ['user', 'vendedor', 'admin', 'commission'].forEach(t => {
+    ['user', 'vendedor', 'director', 'enlaces', 'admin', 'commission'].forEach(t => {
         const tab = document.getElementById(`usub-tab-${t}`);
         const section = document.getElementById(`usersub-${t}`);
         if (!tab || !section) return;
 
         if (t === type) {
-            tab.style.background = t === 'user' ? 'rgba(79,255,176,.15)' : t === 'vendedor' ? 'rgba(124,58,237,.2)' : t === 'commission' ? 'rgba(167,139,250,.2)' : 'rgba(79,70,229,.2)';
-            tab.style.color = t === 'user' ? '#4FFFB0' : t === 'vendedor' ? '#c4b5fd' : t === 'commission' ? '#A78BFA' : '#818cf8';
+            tab.style.background = t === 'user' ? 'rgba(79,255,176,.15)' :
+                                   t === 'vendedor' ? 'rgba(124,58,237,.2)' :
+                                   t === 'director' ? 'rgba(79,70,229,.25)' :
+                                   t === 'enlaces' ? 'rgba(59,130,246,.2)' :
+                                   t === 'commission' ? 'rgba(167,139,250,.2)' :
+                                   'rgba(79,70,229,.2)';
+            tab.style.color = t === 'user' ? '#4FFFB0' :
+                              t === 'vendedor' ? '#c4b5fd' :
+                              t === 'director' ? '#a5b4fc' :
+                              t === 'enlaces' ? '#93c5fd' :
+                              t === 'commission' ? '#A78BFA' :
+                              '#818cf8';
             section.style.display = 'block';
         } else {
             tab.style.background = 'transparent';
@@ -1411,30 +1421,131 @@ function switchUserSubTab(type) {
             section.style.display = 'none';
         }
     });
+
     const btn = document.getElementById('btnNewUserMain');
     const inviteHeader = document.getElementById('sellerInviteHeaderContainer');
 
     if (type === 'vendedor') {
         if (btn) btn.style.display = 'none';
-        if (inviteHeader) inviteHeader.style.display = 'inline-flex';
+        if (inviteHeader) inviteHeader.style.display = 'none';
         updateSellerInviteLink();
-    } else if (type === 'commission') {
+    } else if (type === 'director') {
         if (btn) btn.style.display = 'none';
         if (inviteHeader) inviteHeader.style.display = 'none';
-        loadMemberships();
-    } else {
+        updateDirectorInviteLink();
+    } else if (type === 'enlaces') {
+        if (btn) btn.style.display = 'none';
+        if (inviteHeader) inviteHeader.style.display = 'none';
+        updateAllCompanyLinks();
+    } else if (type === 'admin') {
         if (inviteHeader) inviteHeader.style.display = 'none';
         if (btn) {
             btn.style.display = 'inline-flex';
-            const labels = { user: 'Nuevo Usuario', admin: 'Nuevo Admin' };
-            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type] || 'Nuevo'}`;
-            btn.onclick = () => openCreateUserModal(type);
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Nuevo Admin`;
+            btn.onclick = () => openCreateUserModal('admin');
         }
+    } else {
+        // 'user' / Clientes
+        if (inviteHeader) inviteHeader.style.display = 'none';
+        if (btn) {
+            btn.style.display = 'inline-flex';
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Nuevo Cliente`;
+            btn.onclick = () => openCreateUserModal('user');
+        }
+        updateCompanyDirectSaleLink();
     }
+}
 
-    if (type === 'commission') {
-        loadMemberships(); // Asegurar que los datos de planes estén cargados
+function getCompanyCode() {
+    return (window.currentUser && window.currentUser.sellerCode) || 'TBEMP01';
+}
+
+function getCompanyDirectSaleUrl() {
+    return `${window.location.origin}/membresias?ref=${getCompanyCode()}`;
+}
+
+function getSellerInviteUrl() {
+    return `${window.location.origin}/registro/vendedor?ref=${getCompanyCode()}`;
+}
+
+function getDirectorInviteUrl() {
+    return `${window.location.origin}/registro/director?ref=${getCompanyCode()}`;
+}
+
+function updateCompanyDirectSaleLink() {
+    const url = getCompanyDirectSaleUrl();
+    const el = document.getElementById('companyDirectSaleLinkDisplay');
+    if (el) el.textContent = url;
+}
+
+function updateSellerInviteLink() {
+    const url = getSellerInviteUrl();
+    const topEl = document.getElementById('sellerInviteLinkTop');
+    if (topEl) topEl.textContent = url;
+    const bannerEl = document.getElementById('sellerInviteLinkDisplay');
+    if (bannerEl) bannerEl.textContent = url;
+}
+
+function updateDirectorInviteLink() {
+    const url = getDirectorInviteUrl();
+    const el = document.getElementById('directorInviteLinkDisplay');
+    if (el) el.textContent = url;
+}
+
+function updateAllCompanyLinks() {
+    const saleUrl = getCompanyDirectSaleUrl();
+    const sellerUrl = getSellerInviteUrl();
+    const directorUrl = getDirectorInviteUrl();
+
+    const s1 = document.getElementById('companyCardLinkSale');
+    if (s1) s1.value = saleUrl;
+    const s2 = document.getElementById('companyCardLinkSeller');
+    if (s2) s2.value = sellerUrl;
+    const s3 = document.getElementById('companyCardLinkDirector');
+    if (s3) s3.value = directorUrl;
+}
+
+function copyCompanyDirectSaleLink() {
+    const url = getCompanyDirectSaleUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('¡Enlace de venta directa de la empresa copiado!');
+        }).catch(() => fallbackCopySellerLink(url));
+    } else {
+        fallbackCopySellerLink(url);
     }
+}
+
+function copySellerInviteLink() {
+    const url = getSellerInviteUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('¡Enlace para invitar vendedores copiado al portapapeles!');
+        }).catch(() => fallbackCopySellerLink(url));
+    } else {
+        fallbackCopySellerLink(url);
+    }
+}
+
+function copyDirectorInviteLink() {
+    const url = getDirectorInviteUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('¡Enlace para invitar directores de ventas copiado!');
+        }).catch(() => fallbackCopySellerLink(url));
+    } else {
+        fallbackCopySellerLink(url);
+    }
+}
+
+function fallbackCopySellerLink(text) {
+    const temp = document.createElement('input');
+    temp.value = text;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    showToast('¡Enlace copiado al portapapeles!');
 }
 
 async function loadUsers() {
@@ -1455,34 +1566,59 @@ async function loadUsers() {
 function renderAllUserTables(users) {
     const normalUsers = users.filter(u => u.role === 'user');
     const vendors = users.filter(u => u.role === 'vendedor');
+    const directors = users.filter(u => u.role === 'director');
     const admins = users.filter(u => u.role === 'admin');
 
     renderUsersTable(normalUsers);
     renderVendedoresTable(vendors);
+    renderDirectoresTable(directors);
     renderAdminsTable(admins);
-    renderUserStatsBar(normalUsers.length, vendors.length, admins.length);
+    renderUserStatsBar(normalUsers.length, vendors.length, directors.length, admins.length);
+    updateCompanyDirectSaleLink();
+    updateSellerInviteLink();
+    updateDirectorInviteLink();
+    updateAllCompanyLinks();
 }
 
 function filterUsersTable(query) {
     if (!usersData) return;
-    const q = query.toLowerCase();
-    const filtered = usersData.filter(u =>
-        u.name?.toLowerCase().includes(q) ||
-        u.email?.toLowerCase().includes(q) ||
-        u.lastName?.toLowerCase().includes(q) ||
-        u.sellerCode?.toLowerCase().includes(q)
-    );
+    const q = (query || '').toLowerCase().trim();
+    const originFilter = document.getElementById('clientOriginFilter')?.value || 'all';
+
+    const filtered = usersData.filter(u => {
+        // Filtro de origen solo aplica para rol 'user' (Clientes)
+        if (u.role === 'user') {
+            const isDirectCompany = !u.referredBy ||
+                (typeof u.referredBy === 'object' && (!u.referredBy.role || u.referredBy.role === 'admin' || u.referredBy.sellerCode === 'TBEMP01')) ||
+                (typeof u.referredBy === 'string' && u.referredBy === 'TBEMP01');
+
+            if (originFilter === 'empresa' && !isDirectCompany) return false;
+            if (originFilter === 'vendedores' && isDirectCompany) return false;
+        }
+
+        if (!q) return true;
+        return (
+            u.name?.toLowerCase().includes(q) ||
+            u.email?.toLowerCase().includes(q) ||
+            u.lastName?.toLowerCase().includes(q) ||
+            u.phone?.toLowerCase().includes(q) ||
+            u.country?.toLowerCase().includes(q) ||
+            u.sellerCode?.toLowerCase().includes(q)
+        );
+    });
+
     renderAllUserTables(filtered);
 }
 
-function renderUserStatsBar(users, vendors, admins) {
+function renderUserStatsBar(users, vendors, directors, admins) {
     const bar = document.getElementById('usersStatsBar');
     if (!bar) return;
     bar.innerHTML = [
-        { label: 'Usuarios', count: users, color: '#4FFFB0', bg: 'rgba(79,255,176,.1)', border: 'rgba(79,255,176,.2)' },
+        { label: 'Clientes', count: users, color: '#4FFFB0', bg: 'rgba(79,255,176,.1)', border: 'rgba(79,255,176,.2)' },
         { label: 'Vendedores', count: vendors, color: '#c4b5fd', bg: 'rgba(124,58,237,.1)', border: 'rgba(124,58,237,.3)' },
+        { label: 'Directores', count: directors, color: '#a5b4fc', bg: 'rgba(79,70,229,.1)', border: 'rgba(79,70,229,.3)' },
         { label: 'Admins', count: admins, color: '#818cf8', bg: 'rgba(79,70,229,.1)', border: 'rgba(79,70,229,.3)' },
-        { label: 'Total', count: users + vendors + admins, color: '#fff', bg: 'rgba(255,255,255,.05)', border: 'rgba(255,255,255,.1)' },
+        { label: 'Total', count: users + vendors + directors + admins, color: '#fff', bg: 'rgba(255,255,255,.05)', border: 'rgba(255,255,255,.1)' },
     ].map(s => `
         <div style="padding:.6rem 1.25rem;background:${s.bg};border:1px solid ${s.border};border-radius:10px;min-width:90px;">
             <div style="font-size:1.5rem;font-weight:800;color:${s.color};">${s.count}</div>
@@ -1495,7 +1631,7 @@ function renderUsersTable(users) {
     const tbody = document.getElementById('usersTableBody');
     const paginationContainer = document.getElementById('usersPagination');
     if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="loading-row"><p>No hay usuarios registrados</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-row"><p>No hay clientes registrados</p></td></tr>';
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -1508,19 +1644,40 @@ function renderUsersTable(users) {
     tbody.innerHTML = paginated.map(u => {
         const isActive = u.membershipExpiresAt && new Date(u.membershipExpiresAt) > now;
         const expDate = u.membershipExpiresAt ? new Date(u.membershipExpiresAt).toLocaleDateString('es-PE') : '-';
+
+        // Determinar patrocinador / responsable comercial
+        const isDirectCompany = !u.referredBy ||
+            (typeof u.referredBy === 'object' && (!u.referredBy.role || u.referredBy.role === 'admin' || u.referredBy.sellerCode === 'TBEMP01')) ||
+            (typeof u.referredBy === 'string' && u.referredBy === 'TBEMP01');
+
+        let sponsorHtml = '';
+        if (isDirectCompany) {
+            sponsorHtml = `<span style="background:rgba(124,58,237,.15);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(124,58,237,.3);display:inline-flex;align-items:center;gap:.3rem;">🏢 Empresa (Directo)</span>`;
+        } else if (typeof u.referredBy === 'object') {
+            const sName = `${u.referredBy.name || ''} ${u.referredBy.lastName || ''}`.trim() || u.referredBy.email;
+            const sRole = u.referredBy.role === 'director' ? 'Director' : 'Vendedor';
+            sponsorHtml = `<span style="color:#c4b5fd;font-weight:600;font-size:.8rem;">👤 ${sName}</span><br><span style="font-size:.7rem;color:rgba(196,181,253,.6);">${sRole}</span>`;
+        } else {
+            const seller = usersData && usersData.find(s => s._id === u.referredBy || s._id?.toString() === u.referredBy?.toString());
+            if (seller) {
+                if (seller.role === 'admin') {
+                    sponsorHtml = `<span style="background:rgba(124,58,237,.15);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(124,58,237,.3);display:inline-flex;align-items:center;gap:.3rem;">🏢 Empresa (Directo)</span>`;
+                } else {
+                    const sRole = seller.role === 'director' ? 'Director' : 'Vendedor';
+                    sponsorHtml = `<span style="color:#c4b5fd;font-weight:600;font-size:.8rem;">👤 ${seller.name} ${seller.lastName || ''}</span><br><code style="font-size:.7rem;color:rgba(196,181,253,.6);">${seller.sellerCode || sRole}</code>`;
+                }
+            } else {
+                sponsorHtml = `<span style="background:rgba(124,58,237,.15);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(124,58,237,.3);display:inline-flex;align-items:center;gap:.3rem;">🏢 Empresa (Directo)</span>`;
+            }
+        }
+
         return `
         <tr>
             <td><strong style="color:#fff;">${u.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${u.lastName || ''}</span></td>
             <td style="font-size:.85rem;color:#fff;">${u.email}</td>
             <td style="font-size:.85rem;color:#fff;">${u.phone || '-'}</td>
             <td style="font-size:.85rem;color:#fff;">${u.country || '-'}</td>
-            <td style="font-size:.8rem;">${(() => {
-                if (!u.referredBy) return '<span style="color:rgba(255,255,255,.3);">-</span>';
-                // Buscar el vendedor por su _id en usersData
-                const seller = usersData && usersData.find(s => s._id === u.referredBy || s._id?.toString() === u.referredBy?.toString());
-                if (seller) return `<span style="color:#c4b5fd;font-weight:600;">${seller.name} ${seller.lastName || ''}</span><br><code style="font-size:.7rem;color:rgba(196,181,253,.6);">${seller.sellerCode || ''}</code>`;
-                return '<span style="color:rgba(196,181,253,.5);font-size:.75rem;">Referido</span>';
-            })()}</td>
+            <td style="font-size:.8rem;">${sponsorHtml}</td>
             <td>${isActive ? `<span style="background:rgba(79,255,176,.15);color:#4FFFB0;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;border:1px solid rgba(79,255,176,.3);">${u.membershipPlan || 'Activa'}</span>` : '<span style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin membresía</span>'}</td>
             <td style="font-size:.8rem;color:#fff;">${isActive ? expDate : '-'}</td>
             <td>
@@ -1534,41 +1691,6 @@ function renderUsersTable(users) {
         </tr>`;
     }).join('');
     renderUsersPagination(users.length);
-}
-
-function getSellerInviteUrl() {
-    const origin = window.location.origin;
-    const companyCode = (window.currentUser && window.currentUser.sellerCode) || 'TBEMP01';
-    return `${origin}/registro/vendedor?ref=${companyCode}`;
-}
-
-function updateSellerInviteLink() {
-    const url = getSellerInviteUrl();
-    const topEl = document.getElementById('sellerInviteLinkTop');
-    if (topEl) topEl.textContent = url;
-    const bannerEl = document.getElementById('sellerInviteLinkDisplay');
-    if (bannerEl) bannerEl.textContent = url;
-}
-
-function copySellerInviteLink() {
-    const url = getSellerInviteUrl();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-            showToast('¡Enlace para invitar vendedores copiado al portapapeles!');
-        }).catch(() => fallbackCopySellerLink(url));
-    } else {
-        fallbackCopySellerLink(url);
-    }
-}
-
-function fallbackCopySellerLink(text) {
-    const temp = document.createElement('input');
-    temp.value = text;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
-    document.body.removeChild(temp);
-    showToast('¡Enlace para invitar vendedores copiado al portapapeles!');
 }
 
 function renderVendedoresTable(vendors) {
@@ -1615,13 +1737,83 @@ function renderVendedoresTable(vendors) {
             <td>
                 <div style="display:flex;gap:.4rem;">
                     <button onclick='openEditPermissionsModal(${editPermsArgs})'
-                        title="Permisiones" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">🔑</button>
+                        title="Permisos" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">🔑</button>
                     <button onclick='openUserDetailsModal(${JSON.stringify(v._id)})'
                         title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">📝</button>
                 </div>
             </td>
         </tr>`;
     }).join('');
+}
+
+function renderDirectoresTable(directors) {
+    const tbody = document.getElementById('directoresTableBody');
+    if (!tbody) return;
+    if (!directors || directors.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-row"><p>No hay directores de ventas registrados</p></td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = directors.map(d => {
+        const fullName = `${d.name || ''} ${d.lastName || ''}`.trim();
+        const permsCsv = (d.permissions || []).join(',');
+        const editPermsArgs = [
+            d._id,
+            fullName,
+            d.role,
+            permsCsv,
+            d.canCreate,
+            d.canEdit
+        ].map(a => JSON.stringify(a ?? '')).join(',');
+
+        let belongsToHtml = '';
+        if (!d.referredBy || (typeof d.referredBy === 'object' && (!d.referredBy.role || d.referredBy.role === 'admin'))) {
+            belongsToHtml = `<span style="background:rgba(124,58,237,.15);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(124,58,237,.3);display:inline-flex;align-items:center;gap:.3rem;">🏢 Empresa</span>`;
+        } else if (typeof d.referredBy === 'object') {
+            const inviterName = `${d.referredBy.name || ''} ${d.referredBy.lastName || ''}`.trim() || d.referredBy.email;
+            belongsToHtml = `<span style="background:rgba(79,70,229,.15);color:#a5b4fc;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(79,70,229,.3);display:inline-flex;align-items:center;gap:.3rem;" title="${d.referredBy.email}">👤 ${inviterName}</span>`;
+        } else {
+            belongsToHtml = `<span style="background:rgba(124,58,237,.15);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(124,58,237,.3);display:inline-flex;align-items:center;gap:.3rem;">🏢 Empresa</span>`;
+        }
+
+        const regDate = d.createdAt ? new Date(d.createdAt).toLocaleDateString('es-PE') : '-';
+
+        return `
+        <tr>
+            <td><strong style="color:#fff;">${d.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${d.lastName || ''}</span></td>
+            <td style="font-size:.85rem;color:#fff;">${d.email}</td>
+            <td>${d.sellerCode
+                ? `<code style="background:rgba(79,70,229,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#a5b4fc;border:1px solid rgba(79,70,229,.3);letter-spacing:.05em;">${d.sellerCode}</code>`
+                : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
+            </td>
+            <td>${belongsToHtml}</td>
+            <td style="font-size:.85rem;color:#fff;">${d.phone || '-'}</td>
+            <td style="font-size:.85rem;color:#fff;">${d.country || '-'}</td>
+            <td style="font-size:.8rem;color:rgba(255,255,255,.7);">${regDate}</td>
+            <td>
+                <div style="display:flex;gap:.4rem;">
+                    <button onclick='openEditPermissionsModal(${editPermsArgs})'
+                        title="Permisos" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">🔑</button>
+                    <button onclick='openUserDetailsModal(${JSON.stringify(d._id)})'
+                        title="Editar Perfil" style="padding:.35rem .6rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:8px;cursor:pointer;">📝</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function filterDirectorsTable(origin) {
+    if (!usersData) return;
+    const directors = usersData.filter(u => u.role === 'director');
+    if (origin === 'all') {
+        renderDirectoresTable(directors);
+    } else if (origin === 'empresa') {
+        const filtered = directors.filter(d => !d.referredBy || (typeof d.referredBy === 'object' && (!d.referredBy.role || d.referredBy.role === 'admin')));
+        renderDirectoresTable(filtered);
+    } else {
+        const filtered = directors.filter(d => d.referredBy && typeof d.referredBy === 'object' && d.referredBy.role !== 'admin');
+        renderDirectoresTable(filtered);
+    }
 }
 
 function renderCommissionPlansTable(plans) {
