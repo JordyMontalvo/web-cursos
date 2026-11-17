@@ -8,11 +8,13 @@ let Membership;
 try { Membership = mongoose.model('Membership'); } catch {
     const schema = new mongoose.Schema({
         name: { type: String, required: true, trim: true },
+        planType: { type: String, enum: ['mensual', 'anual', 'trianual'] },
         description: { type: String, default: '' },
         price: { type: Number, required: true, min: 0 },
         currency: { type: String, enum: ['PEN', 'USD'], default: 'PEN' },
         durationDays: { type: Number, required: true, default: 30 },
         badge: { type: String, default: '' },
+        icon: { type: String, default: '🚀' },
         color: { type: String, default: '#7C3AED' },
         buttonColor: { type: String, default: '#7C3AED' },
         features: [{ type: String }],
@@ -58,11 +60,7 @@ module.exports = async (req, res) => {
     // Improved ID extraction
     let id = req.query.id;
     if (!id) {
-        // Try to find the ID in the URL parts (expected at the end: /api/admin/memberships/ID)
-        // If the route is /api/admin-memberships, parts might be ['api', 'admin-memberships', 'ID']
-        // If the route is /api/admin/memberships, parts might be ['api', 'admin', 'memberships', 'ID']
         id = parts[parts.length - 1];
-        // Validate it looks like a MongoID if possible, or at least isn't 'memberships'
         if (id === 'memberships' || id === 'admin-memberships') id = null;
     }
 
@@ -70,39 +68,33 @@ module.exports = async (req, res) => {
 
     // GET /api/admin/memberships
     if (req.method === 'GET') {
+        const orderMap = { mensual: 1, anual: 2, trianual: 3 };
         const memberships = await Membership.find().sort({ order: 1, price: 1 });
+        memberships.sort((a, b) => (orderMap[a.planType] || a.order || 99) - (orderMap[b.planType] || b.order || 99));
         return res.json({ success: true, memberships });
     }
 
-    // POST /api/admin/memberships
+    // POST /api/admin/memberships -> Deshabilitado (solo 3 planes fijos)
     if (req.method === 'POST') {
-        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, sellerCommission, order } = req.body;
-        if (!name || price === undefined) return res.status(400).json({ success: false, message: 'Nombre y precio requeridos' });
-        const m = new Membership({
-            name, description, price: Number(price),
-            currency: currency || 'PEN',
-            durationDays: Number(durationDays) || 30,
-            badge, color, buttonColor, features: Array.isArray(features) ? features : [],
-            isActive: isActive !== false,
-            sellerCommission: Number(sellerCommission) || 0,
-            order: Number(order) || 0
+        return res.status(403).json({
+            success: false,
+            message: 'No está permitido crear planes adicionales. Solo existen los 3 planes fijos (Mensual, Anual y TriAnual).'
         });
-        await m.save();
-        return res.json({ success: true, membership: m });
     }
 
     // PUT /api/admin/memberships/:id
     if (req.method === 'PUT' && id) {
-        const { name, description, price, currency, durationDays, badge, color, buttonColor, features, isActive, sellerCommission, order } = req.body;
+        const { name, description, price, currency, badge, color, buttonColor, icon, features, isActive, sellerCommission, order } = req.body;
         const updateData = { updatedAt: Date.now() };
         if (name !== undefined) updateData.name = name;
         if (description !== undefined) updateData.description = description;
         if (price !== undefined) updateData.price = Number(price);
         if (currency !== undefined) updateData.currency = currency;
-        if (durationDays !== undefined) updateData.durationDays = Number(durationDays);
+        // durationDays y planType son fijos según las reglas de negocio
         if (badge !== undefined) updateData.badge = badge;
         if (color !== undefined) updateData.color = color;
         if (buttonColor !== undefined) updateData.buttonColor = buttonColor;
+        if (icon !== undefined) updateData.icon = icon;
         if (features !== undefined) updateData.features = Array.isArray(features) ? features : [];
         if (isActive !== undefined) updateData.isActive = isActive;
         if (sellerCommission !== undefined) updateData.sellerCommission = Number(sellerCommission);
@@ -117,10 +109,12 @@ module.exports = async (req, res) => {
         return res.json({ success: true, membership: m });
     }
 
-    // DELETE /api/admin/memberships/:id
+    // DELETE /api/admin/memberships/:id -> Deshabilitado (planes fijos no se eliminan)
     if (req.method === 'DELETE' && id) {
-        await Membership.findByIdAndDelete(id);
-        return res.json({ success: true, message: 'Plan eliminado' });
+        return res.status(403).json({
+            success: false,
+            message: 'No está permitido eliminar los planes fijos (Mensual, Anual y TriAnual).'
+        });
     }
 
     return res.status(405).json({ success: false, message: 'Método no permitido' });

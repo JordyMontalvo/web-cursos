@@ -11,6 +11,7 @@ if (mongoose.models.Membership) {
 } else {
     const schema = new mongoose.Schema({
         name: { type: String, required: true, trim: true },
+        planType: { type: String, enum: ['mensual', 'anual', 'trianual'] },
         description: { type: String, default: '' },
         price: { type: Number, required: true, min: 0 },
         currency: { type: String, enum: ['PEN', 'USD'], default: 'PEN' },

@@ -1187,12 +1187,20 @@ function renderMembershipsGrid(plans) {
     if (!plans || plans.length === 0) {
         grid.innerHTML = `<div style="text-align:center;padding:3rem;color:rgba(255,255,255,.4);grid-column:1/-1;">
             <div style="font-size:2rem;margin-bottom:.75rem;">📭</div>
-            <p>No hay planes creados. Crea el primero con el botón "Nuevo Plan".</p>
+            <p>No se encontraron los planes de membresía fijos.</p>
         </div>`;
         return;
     }
-    grid.innerHTML = plans.map(p => `
-        <div style="background:rgba(20,20,35,.85);border:1px solid ${p.isActive ? 'rgba(124,58,237,.3)' : 'rgba(255,255,255,.08)'};border-radius:20px;padding:1.5rem;position:relative;transition:all .25s;">
+
+    const orderMap = { mensual: 1, anual: 2, trianual: 3 };
+    const sortedPlans = [...plans].sort((a, b) => {
+        const orderA = orderMap[a.planType] || a.order || 99;
+        const orderB = orderMap[b.planType] || b.order || 99;
+        return orderA - orderB;
+    });
+
+    grid.innerHTML = sortedPlans.map(p => `
+        <div style="background:rgba(20,20,35,.85);border:1px solid ${p.isActive ? 'rgba(124,58,237,.3)' : 'rgba(255,255,255,.08)'};border-radius:20px;padding:1.5rem;position:relative;transition:all .25s;display:flex;flex-direction:column;">
             ${!p.isActive ? '<div style="position:absolute;top:1rem;right:1rem;background:rgba(255,75,85,.15);border:1px solid rgba(255,75,85,.3);color:#FF6B70;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:100px;">INACTIVO</div>' : ''}
             ${p.badge ? `<div style="position:absolute;top:1rem;right:1rem;background:${p.color || '#7C3AED'};color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .75rem;border-radius:100px;">${p.badge}</div>` : ''}
             <div style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:.5rem;">
@@ -1205,19 +1213,24 @@ function renderMembershipsGrid(plans) {
             <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-bottom:1rem;">${getDurationLabel(p.durationDays)}</div>
             ${p.description ? `<div style="font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:1rem;">${p.description}</div>` : ''}
             ${p.features && p.features.length ? `<ul style="list-style:none;margin-bottom:1rem;">${p.features.slice(0, 3).map(f => `<li style="font-size:.8rem;color:rgba(255,255,255,.6);padding:.2rem 0;">✓ ${f}</li>`).join('')}${p.features.length > 3 ? `<li style="font-size:.75rem;color:rgba(255,255,255,.3);">+${p.features.length - 3} más...</li>` : ''}</ul>` : ''}
-            <div style="display:flex;gap:.5rem;margin-top:auto;">
-                <button onclick="editMembership('${p._id}')" style="flex:1;padding:.6rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#A78BFA;border-radius:10px;cursor:pointer;font-size:.875rem;font-family:inherit;transition:all .2s;">✏️ Editar</button>
-                <button onclick="deleteMembership('${p._id}','${p.name}')" style="padding:.6rem .75rem;background:rgba(255,75,85,.1);border:1px solid rgba(255,75,85,.2);color:#FF6B70;border-radius:10px;cursor:pointer;font-size:.875rem;font-family:inherit;transition:all .2s;">🗑️</button>
+            <div style="margin-top:auto;padding-top:1rem;">
+                <button onclick="editMembership('${p._id}')" style="width:100%;padding:.65rem;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#A78BFA;border-radius:10px;cursor:pointer;font-size:.875rem;font-weight:600;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.4rem;">
+                    <span>✏️ Editar</span>
+                </button>
             </div>
         </div>
     `).join('');
 }
 
 function openMembershipModal(id) {
-    editingMembershipId = id || null;
-    document.getElementById('membershipModalTitle').textContent = id ? 'Editar Plan' : 'Nuevo Plan de Membresía';
+    if (!id) {
+        showToast('Solo se pueden editar los planes existentes.', 'warning');
+        return;
+    }
+    editingMembershipId = id;
+    document.getElementById('membershipModalTitle').textContent = 'Editar Plan';
     document.getElementById('membershipForm').reset();
-    document.getElementById('membershipId').value = '';
+    document.getElementById('membershipId').value = id;
     document.getElementById('membIcon').value = '🚀';
     document.getElementById('membColor').value = '#7C3AED';
 
@@ -1229,49 +1242,52 @@ function openMembershipModal(id) {
             <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
         </div>`;
 
-    if (id) {
-        const plan = membershipsData.find(p => p._id === id);
-        if (plan) {
-            document.getElementById('membershipId').value = plan._id;
-            document.getElementById('membName').value = plan.name;
-            document.getElementById('membPrice').value = plan.price;
-            document.getElementById('membCurrency').value = plan.currency || 'PEN';
-            document.getElementById('membDuration').value = plan.durationDays;
-            document.getElementById('membBadge').value = plan.badge || '';
-            document.getElementById('membDesc').value = plan.description || '';
-            
-            const iconInput = document.getElementById('membIcon');
-            if (plan.icon && (plan.icon.startsWith('http') || plan.icon.startsWith('data:'))) {
-                iconInput.value = '🖼️ Imagen Cargada';
-                iconInput.dataset.iconUrl = plan.icon;
-            } else {
-                iconInput.value = plan.icon || '🚀';
-                delete iconInput.dataset.iconUrl;
-            }
+    const plan = membershipsData.find(p => p._id === id);
+    if (plan) {
+        document.getElementById('membershipId').value = plan._id;
+        if (document.getElementById('membPlanType')) {
+            document.getElementById('membPlanType').value = plan.planType || '';
+        }
+        document.getElementById('membName').value = plan.name;
+        document.getElementById('membPrice').value = plan.price;
+        document.getElementById('membCurrency').value = plan.currency || 'PEN';
+        document.getElementById('membDuration').value = plan.durationDays;
+        if (document.getElementById('membDurationText')) {
+            document.getElementById('membDurationText').value = `${getDurationLabel(plan.durationDays)} (Fija)`;
+        }
+        document.getElementById('membBadge').value = plan.badge || '';
+        document.getElementById('membDesc').value = plan.description || '';
+        
+        const iconInput = document.getElementById('membIcon');
+        if (plan.icon && (plan.icon.startsWith('http') || plan.icon.startsWith('data:'))) {
+            iconInput.value = '🖼️ Imagen Cargada';
+            iconInput.dataset.iconUrl = plan.icon;
+        } else {
+            iconInput.value = plan.icon || '🚀';
+            delete iconInput.dataset.iconUrl;
+        }
 
-            const preview = document.getElementById('membIconPreview');
-            if (preview && plan.icon && (plan.icon.startsWith('http') || plan.icon.startsWith('data:'))) {
-                preview.style.backgroundImage = `url('${plan.icon}')`;
-                preview.textContent = '';
-            } else if (preview) {
-                preview.style.backgroundImage = '';
-                preview.textContent = '📷';
-            }
+        const preview = document.getElementById('membIconPreview');
+        if (preview && plan.icon && (plan.icon.startsWith('http') || plan.icon.startsWith('data:'))) {
+            preview.style.backgroundImage = `url('${plan.icon}')`;
+            preview.textContent = '';
+        } else if (preview) {
+            preview.style.backgroundImage = '';
+            preview.textContent = '📷';
+        }
 
-            document.getElementById('membColor').value = plan.color || '#7C3AED';
+        document.getElementById('membColor').value = plan.color || '#7C3AED';
+        document.getElementById('membButtonColor').value = plan.buttonColor || plan.color || '#7C3AED';
+        document.getElementById('membActive').checked = plan.isActive;
 
-            document.getElementById('membButtonColor').value = plan.buttonColor || plan.color || '#7C3AED';
-            document.getElementById('membActive').checked = plan.isActive;
-
-            // Features
-            const container = document.getElementById('featuresContainer');
-            if (plan.features && plan.features.length) {
-                container.innerHTML = plan.features.map(f => `
-                    <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
-                        <input type="text" class="feature-input" value="${f}" style="flex:1;">
-                        <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
-                    </div>`).join('');
-            }
+        // Features
+        const container = document.getElementById('featuresContainer');
+        if (plan.features && plan.features.length) {
+            container.innerHTML = plan.features.map(f => `
+                <div class="feature-row" style="display:flex;gap:.5rem;margin-bottom:.5rem;">
+                    <input type="text" class="feature-input" value="${f}" style="flex:1;">
+                    <button type="button" onclick="removeFeatureRow(this)" style="background:rgba(255,75,85,.15);border:none;color:#FF6B70;border-radius:8px;padding:0 .75rem;cursor:pointer;font-size:1.1rem;">×</button>
+                </div>`).join('');
         }
     }
     document.getElementById('membershipModal').classList.add('active');
@@ -1305,6 +1321,10 @@ function removeFeatureRow(btn) {
 async function saveMembership(e) {
     e.preventDefault();
     const id = document.getElementById('membershipId').value;
+    if (!id) {
+        showToast('Solo se permite editar planes existentes.', 'warning');
+        return;
+    }
     const features = [...document.querySelectorAll('.feature-input')].map(i => i.value.trim()).filter(Boolean);
 
     const iconInput = document.getElementById('membIcon');
@@ -1312,7 +1332,6 @@ async function saveMembership(e) {
         name: document.getElementById('membName').value,
         price: document.getElementById('membPrice').value,
         currency: document.getElementById('membCurrency').value,
-        durationDays: document.getElementById('membDuration').value,
         badge: document.getElementById('membBadge').value,
         description: document.getElementById('membDesc').value,
         icon: iconInput.dataset.iconUrl || iconInput.value,
@@ -1322,15 +1341,14 @@ async function saveMembership(e) {
         features
     };
 
-
     console.log('📦 Saving Membership:', { id, payload });
 
     document.getElementById('membSubmitText').style.display = 'none';
     document.getElementById('membSubmitSpinner').style.display = 'inline-block';
 
     try {
-        const url = id ? apiUrl(`/api/admin/memberships/${id}`) : apiUrl('/api/admin/memberships');
-        const method = id ? 'PUT' : 'POST';
+        const url = apiUrl(`/api/admin/memberships/${id}`);
+        const method = 'PUT';
 
         console.log(`🚀 Sending ${method} request to: ${url}`);
 
@@ -1344,7 +1362,7 @@ async function saveMembership(e) {
         console.log('📥 Server Response:', data);
 
         if (data.success) {
-            showToast(id ? 'Plan actualizado' : 'Plan creado exitosamente');
+            showToast('Plan actualizado exitosamente');
             closeMembershipModal();
             loadMemberships();
         } else {
@@ -1360,19 +1378,7 @@ async function saveMembership(e) {
 }
 
 async function deleteMembership(id, name) {
-    if (!confirm(`¿Eliminar el plan "${name}"?`)) return;
-    try {
-        const res = await fetch(apiUrl(`/api/admin/memberships/${id}`), { method: 'DELETE', headers: authHeaders() });
-        const data = await res.json();
-        if (data.success) {
-            showToast('Plan eliminado');
-            loadMemberships();
-        } else {
-            showToast(data.message || 'Error', 'error');
-        }
-    } catch (err) {
-        showToast('Error de conexión', 'error');
-    }
+    showToast('Los planes fijos (Mensual, Anual y TriAnual) no se pueden eliminar.', 'warning');
 }
 
 // ===================================

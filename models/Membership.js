@@ -6,6 +6,12 @@ const membershipSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    planType: {
+        type: String,
+        enum: ['mensual', 'anual', 'trianual'],
+        required: false,
+        index: true
+    },
     description: {
         type: String,
         default: ''
@@ -86,6 +92,7 @@ membershipSchema.pre('save', function () {
 // Helper para descripción de duración
 membershipSchema.virtual('durationLabel').get(function () {
     if (this.durationDays === 0) return 'De por vida';
+    if (this.durationDays === 1095) return '3 años';
     if (this.durationDays === 365) return '1 año';
     if (this.durationDays === 30) return '1 mes';
     if (this.durationDays === 7) return '1 semana';

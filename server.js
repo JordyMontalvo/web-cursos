@@ -168,42 +168,57 @@ async function seedDatabase() {
             console.log(`👤 Admin encontrado: ${ADMIN_EMAIL}`);
         }
 
-        // Crear membresías de ejemplo si no existen
+        // Crear membresías si no existen o asegurar los 3 planes fijos
         const membCount = await Membership.countDocuments();
         if (membCount === 0) {
             const defaultMemberships = [
                 {
-                    name: 'Básico',
-                    description: 'Perfecto para comenzar tu camino de aprendizaje',
-                    price: 29,
+                    name: 'Mensual',
+                    planType: 'mensual',
+                    description: 'Acceso completo a todos los cursos por 1 mes',
+                    price: 10,
+                    currency: 'USD',
                     durationDays: 30,
-                    color: '#3B82F6',
-                    features: ['Acceso a todos los cursos', 'Soporte por email', 'Certificados de finalización'],
-                    order: 1
-                },
-                {
-                    name: 'Pro',
-                    description: 'El plan más popular para aprendices serios',
-                    price: 79,
-                    durationDays: 30,
-                    badge: 'Más Popular',
                     color: '#7C3AED',
-                    features: ['Todo lo del plan Básico', 'Acceso prioritario a nuevos cursos', 'Comunidad exclusiva VIP', 'Mentoría mensual en vivo'],
-                    order: 2
+                    buttonColor: '#7C3AED',
+                    icon: '🚀',
+                    features: ['Acceso a todos los cursos', 'Soporte por email', 'Certificados de finalización'],
+                    order: 1,
+                    isActive: true
                 },
                 {
                     name: 'Anual',
-                    description: 'Máximo valor, acceso por un año completo',
-                    price: 199,
+                    planType: 'anual',
+                    description: 'Acceso por un año completo con mayor ahorro',
+                    price: 100,
+                    currency: 'USD',
                     durationDays: 365,
+                    badge: 'Más Popular',
+                    color: '#7C3AED',
+                    buttonColor: '#7C3AED',
+                    icon: '🚀',
+                    features: ['Todo lo del plan Mensual', 'Acceso prioritario a nuevos cursos', 'Comunidad exclusiva VIP', 'Mentoría mensual en vivo'],
+                    order: 2,
+                    isActive: true
+                },
+                {
+                    name: 'TriAnual',
+                    planType: 'trianual',
+                    description: 'Máximo valor y ahorro con acceso por 3 años',
+                    price: 179.99,
+                    currency: 'USD',
+                    durationDays: 1095,
                     badge: 'Mejor Valor',
-                    color: '#10B981',
-                    features: ['Todo lo del plan Pro', 'Ahorra más del 50%', 'Descargable para ver offline', 'Acceso a materiales extra exclusivos'],
-                    order: 3
+                    color: '#7C3AED',
+                    buttonColor: '#7C3AED',
+                    icon: '🚀',
+                    features: ['Todo lo del plan Anual', 'Ahorra al máximo a largo plazo', 'Descargable para ver offline', 'Acceso a materiales extra exclusivos'],
+                    order: 3,
+                    isActive: true
                 }
             ];
             await Membership.insertMany(defaultMemberships);
-            console.log('💎 Membresías de ejemplo creadas.');
+            console.log('💎 3 Planes fijos creados (Mensual, Anual y TriAnual).');
         }
 
         // Crear banners de ejemplo si no existen
@@ -785,41 +800,27 @@ app.post('/api/memberships/subscribe', authMiddleware, async (req, res) => {
 // Obtener todos los planes (admin)
 app.get('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, res) => {
     try {
+        const orderMap = { mensual: 1, anual: 2, trianual: 3 };
         const memberships = await Membership.find().sort({ order: 1, price: 1 });
+        memberships.sort((a, b) => (orderMap[a.planType] || a.order || 99) - (orderMap[b.planType] || b.order || 99));
         res.json({ success: true, memberships });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error', error: error.message });
     }
 });
 
-// Crear plan
+// Crear plan (deshabilitado: solo existen 3 planes fijos)
 app.post('/api/admin/memberships', authMiddleware, adminMiddleware, async (req, res) => {
-    try {
-        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order, sellerCommission } = req.body;
-        if (!name || price === undefined || price === null) {
-            return res.status(400).json({ success: false, message: 'Nombre y precio son requeridos' });
-        }
-        const membership = new Membership({
-            name, description, price: Number(price),
-            currency: currency || 'PEN',
-            durationDays: Number(durationDays) || 30,
-            badge, icon, color, buttonColor, features: Array.isArray(features) ? features : [],
-            isActive: isActive !== false,
-            order: Number(order) || 0,
-            sellerCommission: Number(sellerCommission) || 0
-        });
-
-        await membership.save();
-        res.json({ success: true, membership });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error creando plan', error: error.message });
-    }
+    return res.status(403).json({
+        success: false,
+        message: 'No está permitido crear planes adicionales. Solo existen los 3 planes fijos (Mensual, Anual y TriAnual).'
+    });
 });
 
 // Actualizar plan
 app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, currency, durationDays, badge, icon, color, buttonColor, features, isActive, order, sellerCommission } = req.body;
+        const { name, description, price, currency, badge, icon, color, buttonColor, features, isActive, order, sellerCommission } = req.body;
         const id = req.params.id;
         const updateData = { updatedAt: Date.now() };
 
@@ -829,7 +830,7 @@ app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (re
         if (description !== undefined) updateData.description = description;
         if (price !== undefined) updateData.price = Number(price);
         if (currency !== undefined) updateData.currency = currency;
-        if (durationDays !== undefined) updateData.durationDays = Number(durationDays);
+        // durationDays y planType son fijos según reglas de negocio
         if (badge !== undefined) updateData.badge = badge;
         if (icon !== undefined) updateData.icon = icon;
         if (color !== undefined) updateData.color = color;
@@ -838,7 +839,6 @@ app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (re
         if (isActive !== undefined) updateData.isActive = isActive;
         if (order !== undefined) updateData.order = Number(order);
         if (sellerCommission !== undefined) updateData.sellerCommission = Number(sellerCommission);
-
 
         const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });
         if (!membership) {
@@ -854,15 +854,12 @@ app.put('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (re
     }
 });
 
-// Eliminar plan
+// Eliminar plan (deshabilitado: planes fijos no se eliminan)
 app.delete('/api/admin/memberships/:id', authMiddleware, adminMiddleware, async (req, res) => {
-    try {
-        const membership = await Membership.findByIdAndDelete(req.params.id);
-        if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
-        res.json({ success: true, message: 'Plan eliminado' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error eliminando plan', error: error.message });
-    }
+    return res.status(403).json({
+        success: false,
+        message: 'No está permitido eliminar los planes fijos (Mensual, Anual y TriAnual).'
+    });
 });
 
 // ===================================

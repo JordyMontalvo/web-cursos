@@ -190,15 +190,8 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
                     <div>
                         <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Planes de Membresía</h2>
-                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Crea y gestiona los planes que los
-                            usuarios pueden adquirir</p>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;">Gestiona los planes fijos que los usuarios pueden adquirir</p>
                     </div>
-                    <button class="btn-primary" onclick="openMembershipModal()">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:.5rem;">
-                            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                        Nuevo Plan
-                    </button>
                 </div>
 
                 <!-- Membership Cards -->
@@ -808,7 +801,7 @@
     <div class="modal" id="membershipModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="membershipModalTitle">Nuevo Plan de Membresía</h2>
+                <h2 id="membershipModalTitle">Editar Plan</h2>
                 <button class="modal-close" onclick="closeMembershipModal()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -817,10 +810,11 @@
             </div>
             <form id="membershipForm" class="course-form" onsubmit="saveMembership(event)">
                 <input type="hidden" id="membershipId">
+                <input type="hidden" id="membPlanType">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="membName">Nombre del Plan *</label>
-                        <input type="text" id="membName" required placeholder="Ej: Pro, Anual, Básico">
+                        <input type="text" id="membName" required placeholder="Ej: Mensual, Anual, TriAnual">
                     </div>
                     <div class="form-group">
                         <label for="membPrice">Precio *</label>
@@ -834,16 +828,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="membDuration">Duración (días)</label>
-                        <select id="membDuration">
-                            <option value="7">1 semana (7 días)</option>
-                            <option value="30" selected>1 mes (30 días)</option>
-                            <option value="90">3 meses (90 días)</option>
-                            <option value="180">6 meses (180 días)</option>
-                            <option value="365">1 año (365 días)</option>
-                            <option value="1095">3 años (1095 días)</option>
-                            <option value="0">De por vida</option>
-                        </select>
+                        <label for="membDurationText">Duración (Fija)</label>
+                        <input type="text" id="membDurationText" disabled style="opacity:0.85;cursor:not-allowed;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);">
+                        <input type="hidden" id="membDuration" value="30">
                     </div>
                     <div class="form-group">
                         <label for="membBadge">Badge (opcional)</label>
