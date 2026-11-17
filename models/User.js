@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin', 'vendedor'],
+        enum: ['user', 'admin', 'vendedor', 'director'],
         default: 'user'
     },
     // Referral code (only for sellers)

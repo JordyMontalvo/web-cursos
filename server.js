@@ -1018,7 +1018,7 @@ app.post('/api/coupons/validate', authMiddleware, async (req, res) => {
 // Obtener todos los usuarios
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const users = await User.find().select('-password').sort({ createdAt: -1 });
+        const users = await User.find().select('-password').populate('referredBy', 'name lastName email role').sort({ createdAt: -1 });
         res.json({ success: true, users });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error', error: error.message });
@@ -1029,6 +1029,13 @@ app.post('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) =
     try {
         const { name, lastName, email, phone, country, password, role, sellerCode } = req.body;
         
+        if (role === 'vendedor') {
+            return res.status(403).json({
+                success: false,
+                message: 'La creación manual de vendedores está deshabilitada. Los vendedores deben registrarse mediante el enlace de invitación.'
+            });
+        }
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
@@ -1398,6 +1405,7 @@ app.get('/membresia', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/perfil', (req, res) => res.sendFile(path.join(__dirname, 'public', 'perfil.html')));
 app.get('/admin-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin-login.html')));
 app.get('/vendedor-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor-login.html')));
+app.get('/registro/vendedor', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor-login.html')));
 app.get('/curso/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'curso.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/content/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'content-manager.html')));

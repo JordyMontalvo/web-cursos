@@ -19,6 +19,7 @@ if (mongoose.models.User) {
         birthDate: String,
         role: { type: String, default: 'user' },
         sellerCode: { type: String, unique: true, sparse: true }, // Removed default: null to allow sparse index to work
+        referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
@@ -100,7 +101,7 @@ module.exports = async (req, res) => {
     try {
         // GET /api/admin-users (All Users)
         if (req.method === 'GET' && !url.includes('/transactions') && !url.includes('/withdrawals')) {
-            const users = await User.find().select('-password').sort({ createdAt: -1 });
+            const users = await User.find().select('-password').populate('referredBy', 'name lastName email role').sort({ createdAt: -1 });
             return res.json({ success: true, users });
         }
 
@@ -124,6 +125,13 @@ module.exports = async (req, res) => {
         if (req.method === 'POST') {
             const { name, lastName, email, phone, country, password, role, sellerCode, permissions, canCreate, canEdit } = req.body;
             
+            if (role === 'vendedor') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'La creación manual de vendedores está deshabilitada. Los vendedores deben registrarse mediante el enlace de invitación.'
+                });
+            }
+
             const existingUser = await User.findOne({ email });
             if (existingUser) {
                 return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });

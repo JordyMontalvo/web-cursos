@@ -793,7 +793,10 @@ function switchTab(tab) {
         }
         if (tab === 'banners') loadBanners();
     }
-    if (tab === 'users') loadUsers();
+    if (tab === 'users') {
+        loadUsers();
+        updateSellerInviteLink();
+    }
     if (tab === 'commissions') loadCommissionsData();
     if (tab === 'coupons') loadCoupons();
 }
@@ -1411,16 +1414,20 @@ function switchUserSubTab(type) {
     // Update button text for "Nuevo Usuario"
     const btn = document.getElementById('btnNewUserMain');
     if (btn) {
-        // En "Comisiones" no se debe mostrar un botón de creación aquí.
-        if (type === 'commission') {
+        // En "vendedor" (solo por invitación) y "commission" no se muestra botón de creación manual
+        if (type === 'vendedor' || type === 'commission') {
             btn.style.display = 'none';
             btn.onclick = null;
         } else {
             btn.style.display = '';
-            const labels = { user: 'Nuevo Usuario', vendedor: 'Nuevo Vendedor', admin: 'Nuevo Admin' };
+            const labels = { user: 'Nuevo Usuario', admin: 'Nuevo Admin' };
             btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> ${labels[type] || 'Nuevo'}`;
             btn.onclick = () => openCreateUserModal(type);
         }
+    }
+
+    if (type === 'vendedor') {
+        updateSellerInviteLink();
     }
 
     if (type === 'commission') {
@@ -1527,10 +1534,45 @@ function renderUsersTable(users) {
     renderUsersPagination(users.length);
 }
 
+function getSellerInviteUrl() {
+    const origin = window.location.origin;
+    const companyCode = (window.currentUser && window.currentUser.sellerCode) || 'TBEMP01';
+    return `${origin}/registro/vendedor?ref=${companyCode}`;
+}
+
+function updateSellerInviteLink() {
+    const el = document.getElementById('sellerInviteLinkDisplay');
+    if (el) {
+        el.textContent = getSellerInviteUrl();
+    }
+}
+
+function copySellerInviteLink() {
+    const url = getSellerInviteUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('¡Enlace para invitar vendedores copiado al portapapeles!');
+        }).catch(() => fallbackCopySellerLink(url));
+    } else {
+        fallbackCopySellerLink(url);
+    }
+}
+
+function fallbackCopySellerLink(text) {
+    const temp = document.createElement('input');
+    temp.value = text;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    showToast('¡Enlace para invitar vendedores copiado al portapapeles!');
+}
+
 function renderVendedoresTable(vendors) {
     const tbody = document.getElementById('vendedoresTableBody');
+    if (!tbody) return;
     if (!vendors || vendors.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-row"><p>No hay vendedores registrados</p></td></tr>';
         return;
     }
     tbody.innerHTML = vendors.map(v => {
@@ -1545,16 +1587,28 @@ function renderVendedoresTable(vendors) {
             v.canEdit
         ].map(a => JSON.stringify(a ?? '')).join(',');
 
+        let belongsToHtml = '';
+        if (!v.referredBy || (typeof v.referredBy === 'object' && (!v.referredBy.role || v.referredBy.role === 'admin'))) {
+            belongsToHtml = `<span style="background:rgba(124,58,237,.15);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(124,58,237,.3);display:inline-flex;align-items:center;gap:.3rem;">🏢 Empresa</span>`;
+        } else if (typeof v.referredBy === 'object') {
+            const directorName = `${v.referredBy.name || ''} ${v.referredBy.lastName || ''}`.trim() || v.referredBy.email;
+            const isDirector = v.referredBy.role === 'director';
+            belongsToHtml = `<span style="background:rgba(79,70,229,.15);color:#a5b4fc;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(79,70,229,.3);display:inline-flex;align-items:center;gap:.3rem;" title="${v.referredBy.email}">👤 ${isDirector ? 'Director: ' : ''}${directorName}</span>`;
+        } else {
+            belongsToHtml = `<span style="background:rgba(124,58,237,.15);color:#c4b5fd;font-size:.75rem;font-weight:700;padding:.25rem .65rem;border-radius:100px;border:1px solid rgba(124,58,237,.3);display:inline-flex;align-items:center;gap:.3rem;">🏢 Empresa</span>`;
+        }
+
         return `
         <tr>
             <td><strong style="color:#fff;">${v.name}</strong> <span style="color:rgba(255,255,255,.5);font-size:.8rem;">${v.lastName || ''}</span></td>
             <td style="font-size:.85rem;color:#fff;">${v.email}</td>
-                <td>${v.sellerCode
-                    ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
-                    : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
-                </td>
-                <td style="color:#fff;">$ ${(v.sellerBalance || 0).toFixed(2)}</td>
-                <td style="color:#fff;">${v.referralCount ?? 0}</td>
+            <td>${v.sellerCode
+                ? `<code style="background:rgba(124,58,237,.2);padding:.25rem .6rem;border-radius:6px;font-size:.8rem;font-weight:700;color:#c4b5fd;border:1px solid rgba(124,58,237,.3);letter-spacing:.05em;">${v.sellerCode}</code>`
+                : '<span style="color:rgba(255,75,85,.7);font-size:.8rem;">⚠ Sin código</span>'}
+            </td>
+            <td>${belongsToHtml}</td>
+            <td style="color:#fff;">$ ${(v.sellerBalance || 0).toFixed(2)}</td>
+            <td style="color:#fff;">${v.referralCount ?? 0}</td>
             <td>
                 <div style="display:flex;gap:.4rem;">
                     <button onclick='openEditPermissionsModal(${editPermsArgs})'
@@ -2417,6 +2471,7 @@ function selectCreateRole(role) {
     };
     ['user', 'vendedor', 'admin'].forEach(r => {
         const btn = document.getElementById(`roleBtn-${r}`);
+        if (!btn) return;
         if (r === role) {
             btn.style.border = `2px solid ${styles[r].border}`;
             btn.style.background = styles[r].bg;
