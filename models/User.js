@@ -30,6 +30,30 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    address: {
+        type: String,
+        trim: true
+    },
+    documentType: {
+        type: String,
+        enum: ['DNI', 'Cédula', 'Pasaporte'],
+        trim: true
+    },
+    documentNumber: {
+        type: String,
+        trim: true
+    },
+    termsAccepted: {
+        type: Boolean,
+        default: false
+    },
+    termsAcceptedAt: {
+        type: Date
+    },
+    termsVersion: {
+        type: String,
+        default: '1.0'
+    },
     birthDate: {
         type: String,
         trim: true

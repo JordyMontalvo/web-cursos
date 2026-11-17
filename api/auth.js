@@ -128,6 +128,9 @@ try { User = mongoose.model('User'); } catch {
         phone:       { type: String, trim: true },
         country:     { type: String, trim: true },
         city:        { type: String, trim: true },
+        address:     { type: String, trim: true },
+        documentType:{ type: String, enum: ['DNI', 'Cédula', 'Pasaporte'], trim: true },
+        documentNumber: { type: String, trim: true },
         birthDate:   { type: String, trim: true },
         password:    { type: String, required: false }, // opcional para usuarios OAuth
         // OAuth fields
@@ -135,11 +138,14 @@ try { User = mongoose.model('User'); } catch {
         githubId:    { type: String, sparse: true },
         avatar:      { type: String, default: null },
         provider:    { type: String, enum: ['local', 'google', 'github'], default: 'local' },
-        role:        { type: String, enum: ['user', 'admin', 'vendedor'], default: 'user' },
+        role:        { type: String, enum: ['user', 'admin', 'vendedor', 'director'], default: 'user' },
         sellerCode:  { type: String, unique: true, sparse: true },
         referredBy:  { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
         sellerBalance: { type: Number, default: 0 },
         sellerCommission: { type: Number, default: 10 },
+        termsAccepted:    { type: Boolean, default: false },
+        termsAcceptedAt:  { type: Date },
+        termsVersion:     { type: String, default: '1.0' },
         activeMembership:    { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan:      { type: String, default: null },
@@ -269,6 +275,96 @@ module.exports = async (req, res) => {
     }
 
     const url = req.url.split('?')[0];
+
+    // ── POST /api/auth/register-vendedor ─────────────────────────
+    if (req.method === 'POST' && (url.endsWith('/register-vendedor') || url.includes('register-vendedor'))) {
+        const { name, lastName, email, password, country, phone, address, documentType, documentNumber, ref, termsAccepted, termsVersion } = req.body;
+
+        if (!name || !lastName || !email || !password || !country || !phone || !address || !documentType || !documentNumber) {
+            return res.status(400).json({ success: false, message: 'Todos los campos personales y de contacto son requeridos.' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 6 caracteres.' });
+        }
+        if (!termsAccepted) {
+            return res.status(400).json({ success: false, message: 'Debes leer y aceptar los Términos y Condiciones para registrarte.' });
+        }
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({ success: false, message: 'Este correo electrónico ya está registrado.' });
+        }
+
+        // Buscar quién lo invitó (Empresa o Director)
+        let referredById = null;
+        if (ref) {
+            const inviter = await User.findOne({ sellerCode: ref });
+            if (inviter) referredById = inviter._id;
+        }
+        if (!referredById) {
+            const admin = await User.findOne({ role: 'admin' });
+            if (admin) referredById = admin._id;
+        }
+
+        // Generar código único automático sin nombres ni documento (ej. TB7K92Q4)
+        const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+        let sellerCode = '';
+        let codeExists = true;
+        let attempts = 0;
+        while (codeExists && attempts < 20) {
+            attempts++;
+            let rand = '';
+            for (let i = 0; i < 6; i++) {
+                rand += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            sellerCode = `TB${rand}`;
+            codeExists = await User.findOne({ sellerCode });
+        }
+
+        const user = new User({
+            name: name.trim(),
+            lastName: lastName.trim(),
+            email: email.toLowerCase().trim(),
+            password,
+            country: country.trim(),
+            phone: phone.trim(),
+            address: address.trim(),
+            documentType: documentType.trim(),
+            documentNumber: documentNumber.trim(),
+            role: 'vendedor',
+            sellerCode,
+            referredBy: referredById,
+            termsAccepted: true,
+            termsAcceptedAt: new Date(),
+            termsVersion: termsVersion || '1.0',
+            sellerBalance: 0,
+            sellerCommission: 10
+        });
+
+        await user.save();
+
+        await sendWelcomeEmail(email, name, password).catch(console.error);
+
+        const token = jwt.sign(
+            { id: user._id, email: user.email, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        return res.json({
+            success: true,
+            token,
+            sellerCode,
+            user: {
+                id: user._id,
+                name: user.name,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+                sellerCode: user.sellerCode
+            }
+        });
+    }
 
     // ── POST /api/auth/register ──────────────────────────────────
     if (req.method === 'POST' && url.endsWith('/register')) {

@@ -9,7 +9,7 @@
     { "source": "/perfil",            "destination": "/perfil.html" },
     { "source": "/admin-login",       "destination": "/admin-login.html" },
     { "source": "/vendedor-login",    "destination": "/vendedor-login.html" },
-    { "source": "/registro/vendedor", "destination": "/vendedor-login.html" },
+    { "source": "/registro/vendedor", "destination": "/registro-vendedor.html" },
     { "source": "/admin/content/:id", "destination": "/content-manager.html" },
     { "source": "/admin",             "destination": "/admin.html" },
     { "source": "/vendedor",          "destination": "/vendedor.html" },
@@ -28,6 +28,7 @@
     { "source": "/api/seller/withdraw",      "destination": "/api/seller" },
 
     { "source": "/api/auth/check-access",   "destination": "/api/auth" },
+    { "source": "/api/auth/register-vendedor", "destination": "/api/auth" },
     { "source": "/api/auth/register",       "destination": "/api/auth" },
     { "source": "/api/auth/login",          "destination": "/api/auth" },
     { "source": "/api/auth/forgot-password","destination": "/api/auth" },

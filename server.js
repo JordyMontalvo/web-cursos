@@ -351,6 +351,102 @@ const upload = multer({
 // RUTAS DE AUTENTICACIÓN
 // ===================================
 
+// Registro de Vendedor por Invitación (Punto 3)
+app.post('/api/auth/register-vendedor', async (req, res) => {
+    try {
+        const { name, lastName, email, password, country, phone, address, documentType, documentNumber, ref, termsAccepted, termsVersion } = req.body;
+
+        if (!name || !lastName || !email || !password || !country || !phone || !address || !documentType || !documentNumber) {
+            return res.status(400).json({ success: false, message: 'Todos los campos personales y de contacto son requeridos.' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 6 caracteres.' });
+        }
+        if (!termsAccepted) {
+            return res.status(400).json({ success: false, message: 'Debes leer y aceptar los Términos y Condiciones para registrarte.' });
+        }
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({ success: false, message: 'Este correo electrónico ya está registrado.' });
+        }
+
+        // Buscar quién lo invitó (Empresa o Director)
+        let referredById = null;
+        if (ref) {
+            const inviter = await User.findOne({ sellerCode: ref });
+            if (inviter) referredById = inviter._id;
+        }
+        if (!referredById) {
+            const admin = await User.findOne({ role: 'admin' });
+            if (admin) referredById = admin._id;
+        }
+
+        // Generar código único automático sin nombres ni documento (ej. TB7K92Q4)
+        const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+        let sellerCode = '';
+        let codeExists = true;
+        let attempts = 0;
+        while (codeExists && attempts < 20) {
+            attempts++;
+            let rand = '';
+            for (let i = 0; i < 6; i++) {
+                rand += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            sellerCode = `TB${rand}`;
+            codeExists = await User.findOne({ sellerCode });
+        }
+
+        const user = new User({
+            name: name.trim(),
+            lastName: lastName.trim(),
+            email: email.toLowerCase().trim(),
+            password,
+            country: country.trim(),
+            phone: phone.trim(),
+            address: address.trim(),
+            documentType: documentType.trim(),
+            documentNumber: documentNumber.trim(),
+            role: 'vendedor',
+            sellerCode,
+            referredBy: referredById,
+            termsAccepted: true,
+            termsAcceptedAt: new Date(),
+            termsVersion: termsVersion || '1.0',
+            sellerBalance: 0,
+            sellerCommission: 10
+        });
+
+        await user.save();
+
+        sendWelcomeEmail({ to: user.email, name: user.name })
+            .catch((err) => console.error('Error enviando email de bienvenida:', err && err.message ? err.message : err));
+
+        const token = jwt.sign(
+            { id: user._id, email: user.email, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.json({
+            success: true,
+            token,
+            sellerCode,
+            user: {
+                id: user._id,
+                name: user.name,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+                sellerCode: user.sellerCode
+            }
+        });
+    } catch (error) {
+        console.error('[RegisterVendedor] Error:', error);
+        res.status(500).json({ success: false, message: 'Error al registrar vendedor', error: error.message });
+    }
+});
+
 // Registro
 app.post('/api/auth/register', async (req, res) => {
     try {
@@ -1405,7 +1501,7 @@ app.get('/membresia', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/perfil', (req, res) => res.sendFile(path.join(__dirname, 'public', 'perfil.html')));
 app.get('/admin-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin-login.html')));
 app.get('/vendedor-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor-login.html')));
-app.get('/registro/vendedor', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor-login.html')));
+app.get('/registro/vendedor', (req, res) => res.sendFile(path.join(__dirname, 'public', 'registro-vendedor.html')));
 app.get('/curso/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'curso.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/content/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'content-manager.html')));

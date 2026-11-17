@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Vendedor por Invitación — IATIBET ZUREON</title>
+    <meta name="description" content="Regístrate como vendedor en IATIBET ZUREON mediante invitación oficial">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            const name = localStorage.getItem('branding_companyName');
+            const logo = localStorage.getItem('branding_logoUrl');
+            if (name || logo) {
+                const style = document.createElement('style');
+                style.id = 'early-branding-style';
+                let css = '';
+                if (name) {
+                    css += `.logo-text, .auth-logo-text { visibility: hidden; position: relative; } `;
+                    css += `.logo-text::after, .auth-logo-text::after { content: "${name}"; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; height: 100%; } `;
+                }
+                if (logo) {
+                    css += `.logo-icon, .auth-logo-icon { background-image: url("${logo}") !important; background-size: cover !important; background-position: center !important; border: none !important; color: transparent !important; }`;
+                }
+                style.innerHTML = css;
+                document.head.appendChild(style);
+            }
+        })();
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: #0A0A0F;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem 1rem;
+        }
+
+        /* Animated background */
+        .auth-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .auth-bg::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -15%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.22) 0%, transparent 70%);
+            animation: float1 9s ease-in-out infinite;
+        }
+
+        .auth-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(79, 255, 176, 0.12) 0%, transparent 70%);
+            animation: float2 11s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, 30px) scale(1.05); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-30px, -20px) scale(0.95); }
+        }
+
+        .card-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 680px;
+            background: rgba(18, 18, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(124, 58, 237, 0.15);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+        }
+
+        .logo-icon-box {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #7C3AED, #4F46E5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .logo-text-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        .badge-invite {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            color: #c4b5fd;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.35rem 0.85rem;
+            border-radius: 100px;
+            margin-bottom: 1rem;
+        }
+
+        .title-main {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+            background: linear-gradient(135deg, #FFFFFF 60%, rgba(255, 255, 255, 0.7));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sub-main {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 1.75rem;
+            line-height: 1.5;
+        }
+
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin: 1.5rem 0 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .card-container {
+                padding: 1.75rem 1.25rem;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .input-field, .select-field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #FFFFFF;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus, .select-field:focus {
+            border-color: #7C3AED;
+            background: rgba(124, 58, 237, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .select-field option {
+            background: #12121E;
+            color: #fff;
+        }
+
+        .phone-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .phone-prefix {
+            width: 110px;
+            flex-shrink: 0;
+        }
+
+        /* Auto Code Banner */
+        .auto-code-box {
+            background: rgba(124, 58, 237, 0.08);
+            border: 1px dashed rgba(124, 58, 237, 0.35);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .auto-code-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(124, 58, 237, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .auto-code-text {
+            font-size: 0.825rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.45;
+        }
+
+        .auto-code-text strong {
+            color: #c4b5fd;
+        }
+
+        /* Terms Acceptance Section */
+        .terms-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.15rem 1.25rem;
+            margin: 1.5rem 0 1.25rem;
+        }
+
+        .terms-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .terms-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .terms-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 100px;
+        }
+
+        .terms-badge.pending {
+            background: rgba(255, 107, 112, 0.15);
+            color: #FF6B70;
+            border: 1px solid rgba(255, 107, 112, 0.3);
+        }
+
+        .terms-badge.accepted {
+            background: rgba(79, 255, 176, 0.15);
+            color: #4FFFB0;
+            border: 1px solid rgba(79, 255, 176, 0.3);
+        }
+
+        .btn-open-terms {
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            color: #c4b5fd;
+            padding: 0.6rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-open-terms:hover {
+            background: rgba(124, 58, 237, 0.25);
+            border-color: #7C3AED;
+            color: #fff;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #7C3AED, #4F46E5);
+            border: none;
+            border-radius: 14px;
+            color: #FFFFFF;
+            padding: 0.95rem;
+            font-size: 1rem;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.25s;
+        }
+
+        .btn-submit:disabled {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-submit:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.55);
+        }
+
+        .hint-disabled {
+            font-size: 0.775rem;
+            color: rgba(255, 107, 112, 0.8);
+            text-align: center;
+            margin-top: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .hint-disabled.ok {
+            color: #4FFFB0;
+        }
+
+        /* MODAL DE TÉRMINOS Y CONDICIONES */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #141424;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.2rem;
+        }
+
+        .modal-scroll-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: 360px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.65;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .modal-scroll-body h4 {
+            color: #c4b5fd;
+            font-size: 0.95rem;
+            margin: 1.25rem 0 0.5rem;
+        }
+
+        .modal-scroll-body h4:first-child {
+            margin-top: 0;
+        }
+
+        .modal-scroll-body p {
+            margin-bottom: 0.85rem;
+        }
+
+        .modal-scroll-body ul {
+            margin: 0.5rem 0 1rem 1.25rem;
+        }
+
+        .modal-scroll-body li {
+            margin-bottom: 0.35rem;
+        }
+
+        .modal-footer {
+            padding: 1.25rem 1.5rem;
+            background: #141424;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .scroll-notice-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            color: #FF6B70;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-accept {
+            width: 100%;
+            background: #7C3AED;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 0.85rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-accept:disabled {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+        }
+
+        /* Success screen */
+        .success-box {
+            display: none;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .success-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        .code-display-box {
+            background: rgba(124, 58, 237, 0.15);
+            border: 2px dashed #7C3AED;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+        }
+
+        .code-display-box code {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #4FFFB0;
+            letter-spacing: 0.1em;
+            font-family: monospace;
+        }
+
+        /* Alert error */
+        .alert-error {
+            display: none;
+            background: rgba(255, 75, 85, 0.15);
+            border: 1px solid rgba(255, 75, 85, 0.3);
+            color: #FF6B70;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-bg"></div>
+
+    <div class="card-container">
+        <!-- Logo Header -->
+        <a href="/" class="header-logo">
+            <div class="logo-icon-box auth-logo-icon">🚀</div>
+            <span class="logo-text-title auth-logo-text">IATIBET ZUREON</span>
+        </a>
+
+        <!-- Form Container -->
+        <div id="registrationFormContainer">
+            <div style="text-align:center;">
+                <div class="badge-invite" id="invitationBadge">
+                    <span>🏢</span> Invitación Oficial de la Empresa
+                </div>
+                <h1 class="title-main">Registro de Vendedor</h1>
+                <p class="sub-main">Completa tus datos para unirte a nuestro equipo comercial y comenzar a generar ingresos.</p>
+            </div>
+
+            <div class="alert-error" id="formAlert">
+                <span id="alertMessage">Error al registrar</span>
+            </div>
+
+            <form id="sellerRegisterForm" onsubmit="handleSellerRegister(event)">
+                <input type="hidden" id="refCode" value="TBEMP01">
+                <input type="hidden" id="termsAcceptedInput" value="false">
+
+                <!-- DATOS PERSONALES -->
+                <div class="form-section-title">1. Datos Personales</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Nombres *</label>
+                        <input type="text" id="name" required class="input-field" placeholder="Ej: Carlos">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Apellidos *</label>
+                        <input type="text" id="lastName" required class="input-field" placeholder="Ej: Mendoza">
+                    </div>
+                    <div class="form-group">
+                        <label for="documentType">Tipo de Documento *</label>
+                        <select id="documentType" required class="select-field">
+                            <option value="DNI">DNI (Documento Nacional)</option>
+                            <option value="Cédula">Cédula de Identidad</option>
+                            <option value="Pasaporte">Pasaporte</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="documentNumber">Número de Documento *</label>
+                        <input type="text" id="documentNumber" required class="input-field" placeholder="Ej: 72849182">
+                    </div>
+                </div>
+
+                <!-- CONTACTO Y UBICACIÓN -->
+                <div class="form-section-title">2. Contacto y Ubicación</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="country">País *</label>
+                        <select id="country" required class="select-field" onchange="onCountryChange(this.value)">
+                            <option value="Perú" selected>🇵🇪 Perú</option>
+                            <option value="Colombia">🇨🇴 Colombia</option>
+                            <option value="México">🇲🇽 México</option>
+                            <option value="Chile">🇨🇱 Chile</option>
+                            <option value="Argentina">🇦🇷 Argentina</option>
+                            <option value="Ecuador">🇪🇨 Ecuador</option>
+                            <option value="Bolivia">🇧🇴 Bolivia</option>
+                            <option value="España">🇪🇸 España</option>
+                            <option value="Estados Unidos">🇺🇸 Estados Unidos</option>
+                            <option value="Otro">🌐 Otro País</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Celular con Prefijo *</label>
+                        <div class="phone-group">
+                            <input type="text" id="phonePrefix" class="input-field phone-prefix" value="+51" placeholder="+51">
+                            <input type="tel" id="phoneNumber" required class="input-field" placeholder="987654321">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="address">Dirección de Domicilio *</label>
+                        <input type="text" id="address" required class="input-field" placeholder="Av. Principal 123, Dpto / Distrito">
+                    </div>
+                </div>
+
+                <!-- ACCESO DE CUENTA -->
+                <div class="form-section-title">3. Cuenta de Acceso</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico *</label>
+                        <input type="email" id="email" required class="input-field" placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña *</label>
+                        <input type="password" id="password" required minlength="6" class="input-field" placeholder="Mínimo 6 caracteres">
+                    </div>
+                </div>
+
+                <!-- CÓDIGO AUTOMÁTICO INFORMATIVO -->
+                <div class="auto-code-box">
+                    <div class="auto-code-icon">⚡</div>
+                    <div class="auto-code-text">
+                        <strong>Código de Vendedor Automático:</strong> El sistema generará e indexará un código único alfanumérico intransferible (ej. <strong>TB7K92Q4</strong>) con el cual compartirás tus membresías.
+                    </div>
+                </div>
+
+                <!-- TÉRMINOS Y CONDICIONES (Aceptación paso a paso) -->
+                <div class="terms-box">
+                    <div class="terms-status-row">
+                        <div class="terms-label">
+                            <span>📜</span> Contrato y Términos de Vendedor
+                        </div>
+                        <span class="terms-badge pending" id="termsBadge">Pendiente de aceptación</span>
+                    </div>
+                    <button type="button" class="btn-open-terms" onclick="openTermsModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Leer y Aceptar Términos y Condiciones
+                    </button>
+                </div>
+
+                <!-- BOTÓN DE ENVÍO -->
+                <button type="submit" id="submitBtn" class="btn-submit" disabled>
+                    <span>Completar Registro de Vendedor</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+                </button>
+                <div class="hint-disabled" id="submitHint">
+                    <span>🔒</span> Desplázate al final de los Términos y acéptalos para habilitar el registro.
+                </div>
+            </form>
+
+            <div style="text-align:center;margin-top:1.5rem;font-size:0.85rem;color:rgba(255,255,255,0.45);">
+                ¿Ya tienes una cuenta de vendedor? <a href="/vendedor-login" style="color:#A78BFA;font-weight:700;text-decoration:none;">Inicia Sesión aquí</a>
+            </div>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="registrationSuccessContainer" class="success-box">
+            <div class="success-icon">🎉</div>
+            <h2 style="font-size:1.75rem;font-weight:800;color:#fff;margin-bottom:0.5rem;">¡Bienvenido al Equipo!</h2>
+            <p style="color:rgba(255,255,255,0.7);font-size:0.95rem;max-width:480px;margin:0 auto 1.5rem;">
+                Tu cuenta de vendedor ha sido creada exitosamente y tus términos fueron registrados formalmente.
+            </p>
+
+            <div class="code-display-box">
+                <div style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:700;">
+                    Tu Código de Vendedor Oficial:
+                </div>
+                <code id="displayAssignedCode">TB000000</code>
+            </div>
+
+            <p style="font-size:0.85rem;color:rgba(255,255,255,0.5);margin-bottom:2rem;">
+                Podrás usar este código para referir compras de membresías y acumular comisiones directas.
+            </p>
+
+            <a href="/vendedor" class="btn-submit" style="text-decoration:none;display:inline-flex;">
+                <span>Ingresar a mi Panel Comercial</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- MODAL DE TÉRMINOS Y CONDICIONES (CON VALIDACIÓN DE SCROLL HASTA EL FINAL) -->
+    <div class="modal-overlay" id="termsModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <h3>Términos y Condiciones del Vendedor</h3>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:2px;">Versión contractual 1.0 · IATIBET ZUREON</div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeTermsModal()">✕</button>
+            </div>
+
+            <div class="modal-scroll-body" id="termsScrollBox" onscroll="handleTermsScroll()">
+                <h4>1. Objeto y Alcance del Programa</h4>
+                <p>El presente acuerdo establece las condiciones de colaboración comercial entre el solicitante ("Vendedor") y la plataforma <strong>IATIBET ZUREON</strong> ("La Empresa"). Al registrarse, el Vendedor obtiene el derecho no exclusivo de recomendar y promover membresías oficiales de la plataforma.</p>
+
+                <h4>2. Generación y Uso del Código de Vendedor</h4>
+                <p>El sistema asignará de forma automática e irrevocable un código alfanumérico único para cada Vendedor (ej. TB7K92Q4). El Vendedor no podrá alterar, transferir ni sustituir dicho identificador. Cualquier intento de manipulación técnica causará la anulación de la cuenta comercial.</p>
+
+                <h4>3. Atribución de Ventas y Comisiones</h4>
+                <p>Las compras de membresías efectuadas por clientes finales a través del enlace del Vendedor quedarán vinculadas permanentemente al mismo. Las comisiones generadas se acreditarán según el porcentaje comercial fijado y serán liquidables bajo las reglas del apartado de retiros.</p>
+
+                <h4>4. Conducta Ética y Representación</h4>
+                <p>El Vendedor se compromete a promocionar la plataforma de forma veraz y transparente, sin ofrecer promesas financieras engañosas, spam ni conductas desleales. Queda prohibido publicitar enlaces haciéndose pasar por la cuenta principal de la empresa.</p>
+
+                <h4>5. Aceptación Formal y Registro</h4>
+                <p>Al pulsar "Aceptar", usted declara bajo juramento haber leído en su totalidad este documento, ser mayor de edad en su país de residencia y aceptar de manera vinculante los derechos y obligaciones estipulados. La fecha, hora y versión del presente acuerdo se registrarán en su perfil.</p>
+                
+                <div style="height: 40px; display: flex; align-items: center; justify-content: center; color: rgba(79, 255, 176, 0.8); font-size: 0.8rem; font-weight: 700;">
+                    ✓ Fin del documento
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="scroll-notice-text" id="scrollNotice">
+                    📜 Por favor desplázate hasta el final del documento para habilitar la aceptación.
+                </div>
+                <button type="button" id="acceptTermsModalBtn" class="modal-btn-accept" disabled onclick="confirmAcceptTerms()">
+                    He leído y Acepto los Términos y Condiciones
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/config.js?v=2.2"></script>
+    <script>
+        // Prefix map
+        const countryPrefixes = {
+            'Perú': '+51',
+            'Colombia': '+57',
+            'México': '+52',
+            'Chile': '+56',
+            'Argentina': '+54',
+            'Ecuador': '+593',
+            'Bolivia': '+591',
+            'España': '+34',
+            'Estados Unidos': '+1',
+            'Otro': '+'
+        };
+
+        function onCountryChange(val) {
+            const prefix = countryPrefixes[val] || '+';
+            document.getElementById('phonePrefix').value = prefix;
+        }
+
+        // Cargar código de referido de la URL o LocalStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('ref') || localStorage.getItem('seller_ref') || 'TBEMP01';
+            document.getElementById('refCode').value = ref;
+
+            const badge = document.getElementById('invitationBadge');
+            if (ref === 'TBEMP01') {
+                badge.innerHTML = '<span>🏢</span> Invitación Oficial de la Empresa';
+            } else {
+                badge.innerHTML = `<span>👤</span> Invitación del Equipo Comercial (Ref: <strong>${ref}</strong>)`;
+            }
+        });
+
+        // LÓGICA DE TÉRMINOS Y CONDICIONES (SCROLL AL FINAL)
+        let termsAccepted = false;
+
+        function openTermsModal() {
+            const modal = document.getElementById('termsModal');
+            modal.classList.add('active');
+            
+            // Si ya los aceptó antes, mantener habilitado
+            if (termsAccepted) {
+                document.getElementById('acceptTermsModalBtn').disabled = false;
+                document.getElementById('scrollNotice').textContent = '✅ Ya has aceptado estos términos.';
+                document.getElementById('scrollNotice').style.color = '#4ade80';
+            }
+        }
+
+        function closeTermsModal() {
+            document.getElementById('termsModal').classList.remove('active');
+        }
+
+        function handleTermsScroll() {
+            if (termsAccepted) return;
+            const box = document.getElementById('termsScrollBox');
+            const btn = document.getElementById('acceptTermsModalBtn');
+            const notice = document.getElementById('scrollNotice');
+
+            // Detectar si el usuario llegó al final (con 25px de margen)
+            const reachedBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) <= 25;
+
+            if (reachedBottom) {
+                btn.disabled = false;
+                notice.textContent = '✅ Has llegado al final. Ya puedes aceptar los términos.';
+                notice.style.color = '#4ade80';
+            }
+        }
+
+        function confirmAcceptTerms() {
+            termsAccepted = true;
+            document.getElementById('termsAcceptedInput').value = 'true';
+            
+            // Actualizar UI del formulario
+            const badge = document.getElementById('termsBadge');
+            badge.className = 'terms-badge accepted';
+            badge.textContent = '✓ Términos Aceptados';
+
+            // Habilitar botón de registro
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+
+            const hint = document.getElementById('submitHint');
+            hint.className = 'hint-disabled ok';
+            hint.innerHTML = '<span>✓</span> Términos aceptados. Ya puedes completar tu registro.';
+
+            closeTermsModal();
+        }
+
+        // SUBMISSION
+        async function handleSellerRegister(e) {
+            e.preventDefault();
+
+            if (!termsAccepted) {
+                openTermsModal();
+                return;
+            }
+
+            const alertBox = document.getElementById('formAlert');
+            const alertMsg = document.getElementById('alertMessage');
+            alertBox.style.display = 'none';
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Registrando cuenta...</span>';
+
+            const phonePrefix = document.getElementById('phonePrefix').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const fullPhone = `${phonePrefix} ${phoneNumber}`.trim();
+
+            const payload = {
+                name: document.getElementById('name').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                documentType: document.getElementById('documentType').value,
+                documentNumber: document.getElementById('documentNumber').value.trim(),
+                country: document.getElementById('country').value,
+                phone: fullPhone,
+                address: document.getElementById('address').value.trim(),
+                ref: document.getElementById('refCode').value.trim(),
+                termsAccepted: true,
+                termsVersion: '1.0'
+            };
+
+            try {
+                const res = await fetch('/api/auth/register-vendedor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    if (data.token) localStorage.setItem('token', data.token);
+                    if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+
+                    document.getElementById('displayAssignedCode').textContent = data.sellerCode || 'GENERADO';
+                    document.getElementById('registrationFormContainer').style.display = 'none';
+                    document.getElementById('registrationSuccessContainer').style.display = 'block';
+                } else {
+                    alertBox.style.display = 'flex';
+                    alertMsg.textContent = data.message || 'Error al procesar el registro.';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Completar Registro de Vendedor</span>';
+                }
+            } catch (err) {
+                alertBox.style.display = 'flex';
+                alertMsg.textContent = 'Error de conexión con el servidor. Intente nuevamente.';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Completar Registro de Vendedor</span>';
+            }
+        }
+    </script>
+</body>
+
+</html>
