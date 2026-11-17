@@ -1133,10 +1133,10 @@ app.post('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) =
     try {
         const { name, lastName, email, phone, country, password, role, sellerCode } = req.body;
         
-        if (role === 'vendedor') {
+        if (role === 'vendedor' || role === 'director') {
             return res.status(403).json({
                 success: false,
-                message: 'La creación manual de vendedores está deshabilitada. Los vendedores deben registrarse mediante el enlace de invitación.'
+                message: `La creación manual de ${role === 'director' ? 'directores de ventas' : 'vendedores'} está deshabilitada. Deben registrarse mediante el enlace de invitación oficial.`
             });
         }
 

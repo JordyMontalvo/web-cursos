@@ -438,27 +438,29 @@
                 <!-- SUB-SECTION: Directores de ventas -->
                 <div id="usersub-director" style="display:none;">
                     <!-- Enlace para invitar directores -->
-                    <div style="background:rgba(20,20,35,.85);border:1px solid rgba(79,70,229,.35);border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                    <div style="background:rgba(20,20,35,.85);border:1px solid rgba(124,58,237,.3);border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
                         <div>
                             <div style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem;">
                                 <span>💼</span> Enlace para invitar directores de ventas
                             </div>
                             <p style="margin:0;font-size:.825rem;color:rgba(255,255,255,.55);">
-                                Comparte este enlace oficial para que los directores de ventas completen su formulario y acepten sus documentos.
+                                Comparte el enlace de la empresa para que los directores de ventas completen su formulario y acepten sus documentos.
                             </p>
                         </div>
                         <div style="display:flex;align-items:center;gap:.5rem;background:rgba(0,0,0,.35);padding:.4rem .6rem .4rem 1rem;border-radius:10px;border:1px solid rgba(255,255,255,.1);max-width:100%;">
-                            <code id="directorInviteLinkDisplay" style="color:#a5b4fc;font-size:.85rem;font-family:monospace;letter-spacing:.02em;user-select:all;">[Cargando enlace...]</code>
-                            <button type="button" onclick="copyDirectorInviteLink()" style="background:#4F46E5;color:#fff;border:none;padding:.5rem 1.1rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s;font-family:inherit;">
+                            <code id="directorInviteLinkDisplay" style="color:#c4b5fd;font-size:.85rem;font-family:monospace;letter-spacing:.02em;user-select:all;">[Cargando enlace...]</code>
+                            <button type="button" onclick="copyDirectorInviteLink()" style="background:#7C3AED;color:#fff;border:none;padding:.5rem 1.1rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s;font-family:inherit;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                                 Copiar enlace
                             </button>
                         </div>
                     </div>
 
-                    <!-- Filter directores -->
-                    <div style="margin-bottom:1rem;display:flex;gap:1rem;align-items:center;">
-                        <select id="directorsFilterOrigin" onchange="filterDirectorsTable(this.value)"
+                    <!-- Search & Filter directores -->
+                    <div style="margin-bottom:1rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+                        <input type="text" id="directorsSearchInput" placeholder="🔍 Buscar director por nombre o email..." oninput="filterDirectorsTable(document.getElementById('directorsFilterOrigin').value, this.value)"
+                            style="width:100%;max-width:350px;padding:.6rem 1rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:inherit;font-size:.875rem;">
+                        <select id="directorsFilterOrigin" onchange="filterDirectorsTable(this.value, document.getElementById('directorsSearchInput').value)"
                             style="padding:.6rem 1rem;background:rgba(20,20,35,.85);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:inherit;font-size:.875rem;cursor:pointer;">
                             <option value="all">Todos los directores</option>
                             <option value="empresa">🏢 Directos de la empresa</option>
@@ -489,85 +491,59 @@
                     </div>
                 </div>
 
-                <!-- SUB-SECTION: Enlaces de la empresa -->
+                <!-- SUB-SECTION: Enlaces de la empresa (Mockup exacto de imagen 6) -->
                 <div id="usersub-enlaces" style="display:none;">
                     <div style="margin-bottom:1.5rem;">
-                        <h3 style="font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Enlaces Oficiales de la Empresa</h3>
+                        <h3 style="font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Enlaces de la empresa</h3>
                         <p style="font-size:.875rem;color:rgba(255,255,255,.55);margin:0;">
-                            Estos son los enlaces permanentes de la cuenta empresa para venta directa y reclutamiento de vendedores y directores.
+                            Cada tarjeta explica para qué sirve el enlace y permite copiarlo con un clic.
                         </p>
                     </div>
 
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:1.5rem;margin-bottom:2rem;">
-                        <!-- Card 1: Venta Directa -->
-                        <div style="background:rgba(20,20,35,.85);border:1px solid rgba(124,58,237,.35);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
-                            <div>
-                                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
-                                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🛒</div>
-                                    <div>
-                                        <h4 style="margin:0;font-size:1.05rem;font-weight:700;color:#fff;">Venta Directa de Membresías</h4>
-                                        <span style="font-size:.75rem;color:#c4b5fd;font-weight:600;">Clientes directos</span>
-                                    </div>
-                                </div>
-                                <p style="font-size:.825rem;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:1.25rem;">
-                                    Enlace oficial de venta. Los clientes que compren por aquí o directamente en la web sin referido quedan asignados como clientes directos de la empresa.
-                                </p>
+                    <div style="display:flex;flex-direction:column;gap:1.25rem;margin-bottom:2rem;max-width:960px;">
+                        <!-- Card 1: Invitar vendedores -->
+                        <div style="background:rgba(25,18,45,.85);border:1px solid rgba(124,58,237,.3);border-radius:14px;padding:1.4rem 1.75rem;box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                                <h4 style="margin:0;font-size:1.1rem;font-weight:700;color:#fff;">Invitar vendedores</h4>
+                                <span style="font-size:.75rem;color:rgba(255,255,255,.5);">Abre el formulario de vendedor y guarda a la empresa como responsable</span>
                             </div>
-                            <div>
-                                <input type="text" id="companyCardLinkSale" readonly style="width:100%;box-sizing:border-box;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.6rem .8rem;color:#c4b5fd;font-family:monospace;font-size:.8rem;margin-bottom:.75rem;" value="Cargando...">
-                                <button type="button" onclick="copyCompanyDirectSaleLink()" style="width:100%;background:#7C3AED;color:#fff;border:none;padding:.65rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .2s;">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                                    Copiar enlace de venta
+                            <div style="display:flex;gap:1rem;align-items:center;">
+                                <input type="text" id="companyCardLinkSeller" readonly style="flex:1;background:rgba(10,8,20,.7);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.75rem 1rem;color:#E2E8F0;font-family:monospace;font-size:.9rem;outline:none;" value="Cargando...">
+                                <button type="button" onclick="copySellerInviteLink()" style="background:#7C3AED;color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0;">
+                                    Copiar
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Card 2: Invitar Vendedores -->
-                        <div style="background:rgba(20,20,35,.85);border:1px solid rgba(16,185,129,.35);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
-                            <div>
-                                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
-                                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🏷️</div>
-                                    <div>
-                                        <h4 style="margin:0;font-size:1.05rem;font-weight:700;color:#fff;">Invitación a Vendedores</h4>
-                                        <span style="font-size:.75rem;color:#6ee7b7;font-weight:600;">Equipo directo</span>
-                                    </div>
-                                </div>
-                                <p style="font-size:.825rem;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:1.25rem;">
-                                    Enlace para invitar vendedores. Quienes completen su registro pertenecerán directamente al equipo comercial de la empresa.
-                                </p>
+                        <!-- Card 2: Invitar directores -->
+                        <div style="background:rgba(25,18,45,.85);border:1px solid rgba(124,58,237,.3);border-radius:14px;padding:1.4rem 1.75rem;box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                                <h4 style="margin:0;font-size:1.1rem;font-weight:700;color:#fff;">Invitar directores</h4>
+                                <span style="font-size:.75rem;color:rgba(255,255,255,.5);">Abre el formulario de director y guarda que lo invitó la empresa</span>
                             </div>
-                            <div>
-                                <input type="text" id="companyCardLinkSeller" readonly style="width:100%;box-sizing:border-box;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.6rem .8rem;color:#6ee7b7;font-family:monospace;font-size:.8rem;margin-bottom:.75rem;" value="Cargando...">
-                                <button type="button" onclick="copySellerInviteLink()" style="width:100%;background:#059669;color:#fff;border:none;padding:.65rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .2s;">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                                    Copiar enlace de vendedores
+                            <div style="display:flex;gap:1rem;align-items:center;">
+                                <input type="text" id="companyCardLinkDirector" readonly style="flex:1;background:rgba(10,8,20,.7);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.75rem 1rem;color:#E2E8F0;font-family:monospace;font-size:.9rem;outline:none;" value="Cargando...">
+                                <button type="button" onclick="copyDirectorInviteLink()" style="background:#7C3AED;color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0;">
+                                    Copiar
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Card 3: Invitar Directores -->
-                        <div style="background:rgba(20,20,35,.85);border:1px solid rgba(79,70,229,.35);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
-                            <div>
-                                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
-                                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(79,70,229,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">💼</div>
-                                    <div>
-                                        <h4 style="margin:0;font-size:1.05rem;font-weight:700;color:#fff;">Invitación a Directores</h4>
-                                        <span style="font-size:.75rem;color:#a5b4fc;font-weight:600;">Líderes comerciales</span>
-                                    </div>
-                                </div>
-                                <p style="font-size:.825rem;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:1.25rem;">
-                                    Enlace para invitar directores de ventas. Quienes completen el formulario y acepten los documentos liderarán sus propios equipos.
-                                </p>
+                        <!-- Card 3: Vender membresias -->
+                        <div style="background:rgba(25,18,45,.85);border:1px solid rgba(124,58,237,.3);border-radius:14px;padding:1.4rem 1.75rem;box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                                <h4 style="margin:0;font-size:1.1rem;font-weight:700;color:#fff;">Vender membresias</h4>
+                                <span style="font-size:.75rem;color:rgba(255,255,255,.5);">Abre la página de planes y vincula a los nuevos clientes con la empresa</span>
                             </div>
-                            <div>
-                                <input type="text" id="companyCardLinkDirector" readonly style="width:100%;box-sizing:border-box;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.6rem .8rem;color:#a5b4fc;font-family:monospace;font-size:.8rem;margin-bottom:.75rem;" value="Cargando...">
-                                <button type="button" onclick="copyDirectorInviteLink()" style="width:100%;background:#4F46E5;color:#fff;border:none;padding:.65rem;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .2s;">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                                    Copiar enlace de directores
+                            <div style="display:flex;gap:1rem;align-items:center;">
+                                <input type="text" id="companyCardLinkSale" readonly style="flex:1;background:rgba(10,8,20,.7);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.75rem 1rem;color:#E2E8F0;font-family:monospace;font-size:.9rem;outline:none;" value="Cargando...">
+                                <button type="button" onclick="copyCompanyDirectSaleLink()" style="background:#7C3AED;color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0;">
+                                    Copiar
                                 </button>
                             </div>
                         </div>
                     </div>
+                </div>
                 </div>
 
                 <!-- SUB-SECTION: Admins -->
@@ -1720,7 +1696,7 @@
     </div>
 
     <script src="/config.js?v=2.2"></script>
-    <script src="/admin-script.js?v=2.5"></script>
+    <script src="/admin-script.js?v=2.6"></script>
 </body>
 
 </html>

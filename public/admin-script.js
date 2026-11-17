@@ -1802,18 +1802,30 @@ function renderDirectoresTable(directors) {
     }).join('');
 }
 
-function filterDirectorsTable(origin) {
+function filterDirectorsTable(origin, query) {
     if (!usersData) return;
-    const directors = usersData.filter(u => u.role === 'director');
-    if (origin === 'all') {
-        renderDirectoresTable(directors);
-    } else if (origin === 'empresa') {
-        const filtered = directors.filter(d => !d.referredBy || (typeof d.referredBy === 'object' && (!d.referredBy.role || d.referredBy.role === 'admin')));
-        renderDirectoresTable(filtered);
-    } else {
-        const filtered = directors.filter(d => d.referredBy && typeof d.referredBy === 'object' && d.referredBy.role !== 'admin');
-        renderDirectoresTable(filtered);
+    const q = (query !== undefined ? query : (document.getElementById('directorsSearchInput')?.value || '')).toLowerCase().trim();
+    const orig = origin || document.getElementById('directorsFilterOrigin')?.value || 'all';
+
+    let directors = usersData.filter(u => u.role === 'director');
+
+    if (orig === 'empresa') {
+        directors = directors.filter(d => !d.referredBy || (typeof d.referredBy === 'object' && (!d.referredBy.role || d.referredBy.role === 'admin')));
+    } else if (orig === 'otros') {
+        directors = directors.filter(d => d.referredBy && typeof d.referredBy === 'object' && d.referredBy.role !== 'admin');
     }
+
+    if (q) {
+        directors = directors.filter(d =>
+            d.name?.toLowerCase().includes(q) ||
+            d.lastName?.toLowerCase().includes(q) ||
+            d.email?.toLowerCase().includes(q) ||
+            d.sellerCode?.toLowerCase().includes(q) ||
+            d.phone?.toLowerCase().includes(q)
+        );
+    }
+
+    renderDirectoresTable(directors);
 }
 
 function renderCommissionPlansTable(plans) {
