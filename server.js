@@ -1498,6 +1498,7 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.ht
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/membresia', (req, res) => res.sendFile(path.join(__dirname, 'public', 'membresia.html')));
+app.get('/membresias', (req, res) => res.sendFile(path.join(__dirname, 'public', 'membresia.html')));
 app.get('/perfil', (req, res) => res.sendFile(path.join(__dirname, 'public', 'perfil.html')));
 app.get('/admin-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin-login.html')));
 app.get('/vendedor-login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor-login.html')));
@@ -1511,6 +1512,51 @@ app.get('/vendedor', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 // RUTAS DE VENDEDORES (SELLER PANEL)
 // ===================================
 
+let TransactionModel;
+try {
+    TransactionModel = mongoose.model('Transaction');
+} catch {
+    const schema = new mongoose.Schema({
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        type: { type: String, enum: ['commission', 'withdrawal'], default: 'commission' },
+        amount: { type: Number, required: true },
+        status: { type: String, enum: ['pending', 'completed', 'approved', 'rejected'], default: 'completed' },
+        description: String,
+        orderId: { type: String, default: '' },
+        sourceUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
+        createdAt: { type: Date, default: Date.now }
+    });
+    TransactionModel = mongoose.model('Transaction', schema);
+}
+
+let PaymentModel;
+try {
+    PaymentModel = mongoose.model('Payment');
+} catch {
+    const schema = new mongoose.Schema({
+        orderId: { type: String, default: '' },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
+        kind: { type: String, enum: ['checkout', 'renewal'], default: 'checkout' },
+        status: { type: String, enum: ['paid', 'failed', 'pending'], default: 'pending' },
+        amountCents: { type: Number, default: 0 },
+        currency: { type: String, default: 'USD' },
+        raw: { type: Object, default: {} },
+        createdAt: { type: Date, default: Date.now }
+    });
+    PaymentModel = mongoose.model('Payment', schema);
+}
+
+function getPlanKeyHelper(planStr) {
+    if (!planStr) return 'otro';
+    const s = planStr.toString().toLowerCase();
+    if (s.includes('trianual') || s.includes('trienal')) return 'trianual';
+    if (s.includes('anual')) return 'anual';
+    if (s.includes('mensual')) return 'mensual';
+    return 'otro';
+}
+
 // Estadísticas del vendedor
 app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) => {
     try {
@@ -1518,14 +1564,89 @@ app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) 
         if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
 
         const count = await User.countDocuments({ referredBy: seller._id });
+        const buyersCount = await User.countDocuments({
+            referredBy: seller._id,
+            activeMembership: { $ne: null }
+        });
         
         res.json({
             success: true,
             stats: {
-                balance: seller.sellerBalance || 0,
-                referralsCount: count,
+                name: seller.name,
+                lastName: seller.lastName || '',
+                email: seller.email,
                 code: seller.sellerCode,
-                commission: seller.sellerCommission || 10
+                balance: seller.sellerBalance || 0,
+                commission: seller.sellerCommission || 10,
+                referralsCount: count,
+                buyersCount
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Perfil del vendedor
+app.get('/api/seller/profile', authMiddleware, sellerMiddleware, async (req, res) => {
+    try {
+        const seller = await User.findById(req.user.id);
+        if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+
+        res.json({
+            success: true,
+            profile: {
+                id: seller._id,
+                name: seller.name || '',
+                lastName: seller.lastName || '',
+                email: seller.email,
+                phone: seller.phone || '',
+                country: seller.country || '',
+                address: seller.address || '',
+                documentType: seller.documentType || 'DNI',
+                documentNumber: seller.documentNumber || '',
+                sellerCode: seller.sellerCode || '',
+                createdAt: seller.createdAt
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+app.put('/api/seller/profile', authMiddleware, sellerMiddleware, async (req, res) => {
+    try {
+        const seller = await User.findById(req.user.id);
+        if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+
+        const { name, lastName, phone, country, address, documentType, documentNumber } = req.body || {};
+        if (name) seller.name = name.trim();
+        if (lastName !== undefined) seller.lastName = lastName.trim();
+        if (phone !== undefined) seller.phone = phone.trim();
+        if (country !== undefined) seller.country = country.trim();
+        if (address !== undefined) seller.address = address.trim();
+        if (documentType && ['DNI', 'Cédula', 'Pasaporte'].includes(documentType)) {
+            seller.documentType = documentType;
+        }
+        if (documentNumber !== undefined) seller.documentNumber = documentNumber.trim();
+        // sellerCode, email, role, referredBy are protected
+        await seller.save();
+
+        res.json({
+            success: true,
+            message: 'Perfil actualizado correctamente',
+            profile: {
+                id: seller._id,
+                name: seller.name,
+                lastName: seller.lastName,
+                email: seller.email,
+                phone: seller.phone,
+                country: seller.country,
+                address: seller.address,
+                documentType: seller.documentType,
+                documentNumber: seller.documentNumber,
+                sellerCode: seller.sellerCode,
+                createdAt: seller.createdAt
             }
         });
     } catch (error) {
@@ -1537,15 +1658,244 @@ app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) 
 app.get('/api/seller/referrals', authMiddleware, sellerMiddleware, async (req, res) => {
     try {
         const referrals = await User.find({ referredBy: req.user.id })
-            .select('name lastName email phone country createdAt membershipPlan membershipExpiresAt activeMembership')
+            .select('name lastName email phone country address documentType documentNumber createdAt membershipPlan membershipExpiresAt activeMembership izipayLastOrderId')
             .sort({ createdAt: -1 });
-        
-        const results = referrals.map(u => ({
-            ...u.toObject(),
-            hasMembership: !!(u.activeMembership && u.membershipExpiresAt && new Date() < u.membershipExpiresAt)
-        }));
+
+        const allMemberships = await Membership.find().lean();
+        const priceMap = {};
+        allMemberships.forEach(m => {
+            if (m.planType) priceMap[m.planType.toLowerCase()] = m.price;
+            if (m.name) priceMap[m.name.toLowerCase()] = m.price;
+        });
+
+        const refIds = referrals.map(u => u._id);
+        const userPayments = await PaymentModel.find({ userId: { $in: refIds }, status: 'paid' }).sort({ createdAt: -1 }).lean();
+        const userComms = await TransactionModel.find({ userId: req.user.id, sourceUserId: { $in: refIds } }).sort({ createdAt: -1 }).lean();
+
+        const results = referrals.map(u => {
+            const isMember = !!(u.activeMembership && u.membershipExpiresAt && new Date() < u.membershipExpiresAt);
+            const clientPayments = userPayments.filter(p => String(p.userId) === String(u._id));
+            const clientComms = userComms.filter(c => String(c.sourceUserId) === String(u._id));
+
+            let purchases = [];
+            if (clientPayments.length > 0) {
+                purchases = clientPayments.map(p => ({
+                    orderId: p.orderId || ('ORD-' + String(p._id).slice(-6).toUpperCase()),
+                    plan: u.membershipPlan || 'Membresía',
+                    amount: p.amountCents ? p.amountCents / 100 : (priceMap[getPlanKeyHelper(u.membershipPlan)] || 0),
+                    currency: p.currency || 'USD',
+                    date: p.createdAt,
+                    status: 'Confirmada'
+                }));
+            } else if (clientComms.length > 0) {
+                purchases = clientComms.map(c => ({
+                    orderId: c.orderId || ('ORD-' + String(c._id).slice(-6).toUpperCase()),
+                    plan: u.membershipPlan || 'Membresía',
+                    amount: priceMap[getPlanKeyHelper(u.membershipPlan)] || 0,
+                    currency: 'USD',
+                    date: c.createdAt,
+                    status: 'Confirmada'
+                }));
+            } else if (u.activeMembership || u.membershipPlan) {
+                const planKey = getPlanKeyHelper(u.membershipPlan);
+                purchases = [{
+                    orderId: u.izipayLastOrderId || ('ORD-' + String(u._id).slice(-6).toUpperCase()),
+                    plan: u.membershipPlan || 'Membresía',
+                    amount: priceMap[planKey] || (planKey === 'mensual' ? 29 : planKey === 'anual' ? 199 : planKey === 'trianual' ? 399 : 0),
+                    currency: 'USD',
+                    date: u.createdAt,
+                    status: isMember ? 'Confirmada' : 'Expirada'
+                }];
+            }
+
+            return {
+                ...u.toObject(),
+                hasMembership: isMember,
+                purchases
+            };
+        });
 
         res.json({ success: true, referrals: results });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Resumen mensual de ventas del vendedor
+app.get('/api/seller/monthly-summary', authMiddleware, sellerMiddleware, async (req, res) => {
+    try {
+        const now = new Date();
+        const year = parseInt(req.query.year || now.getFullYear(), 10);
+        const month = parseInt(req.query.month || (now.getMonth() + 1), 10);
+
+        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0, 0);
+        const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+        const allMemberships = await Membership.find().lean();
+        const priceMap = { mensual: 29, anual: 199, trianual: 399 };
+        allMemberships.forEach(m => {
+            if (m.planType) priceMap[m.planType.toLowerCase()] = m.price;
+        });
+
+        const referrals = await User.find({ referredBy: req.user.id }).lean();
+        const refIds = referrals.map(u => u._id);
+        const refMap = {};
+        referrals.forEach(u => { refMap[String(u._id)] = u; });
+
+        const payments = await PaymentModel.find({
+            userId: { $in: refIds },
+            status: 'paid',
+            createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+        }).sort({ createdAt: -1 }).lean();
+
+        const commissions = await TransactionModel.find({
+            userId: req.user.id,
+            type: 'commission',
+            createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+        }).sort({ createdAt: -1 }).lean();
+
+        const sales = [];
+        const buyerIdSet = new Set();
+        const processedOrders = new Set();
+
+        payments.forEach(p => {
+            const u = refMap[String(p.userId)] || {};
+            const planKey = getPlanKeyHelper(u.membershipPlan || 'mensual');
+            const amount = p.amountCents ? p.amountCents / 100 : (priceMap[planKey] || 0);
+            buyerIdSet.add(String(p.userId));
+            if (p.orderId) processedOrders.add(p.orderId);
+
+            sales.push({
+                id: String(p._id),
+                orderId: p.orderId || ('ORD-' + String(p._id).slice(-6).toUpperCase()),
+                clientId: String(u._id || ''),
+                clientName: `${u.name || 'Cliente'} ${u.lastName || ''}`.trim(),
+                clientEmail: u.email || '',
+                plan: u.membershipPlan || (planKey.charAt(0).toUpperCase() + planKey.slice(1)),
+                planKey,
+                date: p.createdAt,
+                amount,
+                currency: p.currency || 'USD',
+                status: 'Confirmada'
+            });
+        });
+
+        commissions.forEach(c => {
+            if (c.orderId && processedOrders.has(c.orderId)) return;
+            const u = refMap[String(c.sourceUserId)] || {};
+            const planKey = getPlanKeyHelper(u.membershipPlan || 'mensual');
+            const amount = priceMap[planKey] || 0;
+            if (c.sourceUserId) buyerIdSet.add(String(c.sourceUserId));
+
+            sales.push({
+                id: String(c._id),
+                orderId: c.orderId || ('ORD-' + String(c._id).slice(-6).toUpperCase()),
+                clientId: String(u._id || ''),
+                clientName: `${u.name || 'Cliente'} ${u.lastName || ''}`.trim(),
+                clientEmail: u.email || '',
+                plan: u.membershipPlan || (planKey.charAt(0).toUpperCase() + planKey.slice(1)),
+                planKey,
+                date: c.createdAt,
+                amount,
+                currency: 'USD',
+                status: 'Confirmada'
+            });
+        });
+
+        referrals.forEach(u => {
+            const uCreated = new Date(u.createdAt);
+            if (uCreated >= startOfMonth && uCreated <= endOfMonth && (u.activeMembership || u.membershipPlan)) {
+                const alreadyRecorded = sales.some(s => s.clientId === String(u._id));
+                if (!alreadyRecorded) {
+                    const planKey = getPlanKeyHelper(u.membershipPlan);
+                    const amount = priceMap[planKey] || 0;
+                    buyerIdSet.add(String(u._id));
+                    sales.push({
+                        id: String(u._id),
+                        orderId: u.izipayLastOrderId || ('ORD-' + String(u._id).slice(-6).toUpperCase()),
+                        clientId: String(u._id),
+                        clientName: `${u.name || 'Cliente'} ${u.lastName || ''}`.trim(),
+                        clientEmail: u.email || '',
+                        plan: u.membershipPlan || (planKey.charAt(0).toUpperCase() + planKey.slice(1)),
+                        planKey,
+                        date: u.createdAt,
+                        amount,
+                        currency: 'USD',
+                        status: 'Confirmada'
+                    });
+                }
+            }
+        });
+
+        const totalSalesCount = sales.length;
+        const uniqueBuyers = buyerIdSet.size;
+        let totalAmount = 0;
+
+        const byPlan = {
+            mensual: { count: 0, amount: 0, label: 'Plan Mensual' },
+            anual: { count: 0, amount: 0, label: 'Plan Anual' },
+            trianual: { count: 0, amount: 0, label: 'Plan Trianual' }
+        };
+
+        sales.forEach(s => {
+            totalAmount += s.amount;
+            const k = byPlan[s.planKey] ? s.planKey : 'mensual';
+            byPlan[k].count += 1;
+            byPlan[k].amount += s.amount;
+        });
+
+        res.json({
+            success: true,
+            year,
+            month,
+            summary: {
+                uniqueBuyers,
+                totalSalesCount,
+                totalAmount,
+                byPlan,
+                sales
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Transacciones del vendedor
+app.get('/api/seller/transactions', authMiddleware, sellerMiddleware, async (req, res) => {
+    try {
+        const transactions = await TransactionModel.find({ userId: req.user.id }).sort({ createdAt: -1 });
+        res.json({ success: true, transactions });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error', error: error.message });
+    }
+});
+
+// Solicitar retiro
+app.post('/api/seller/withdraw', authMiddleware, sellerMiddleware, async (req, res) => {
+    try {
+        const { amount } = req.body || {};
+        if (!amount || amount <= 0) return res.status(400).json({ success: false, message: 'Monto inválido' });
+
+        const seller = await User.findById(req.user.id);
+        if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
+
+        if ((seller.sellerBalance || 0) < amount) {
+            return res.status(400).json({ success: false, message: 'Saldo insuficiente' });
+        }
+
+        await TransactionModel.create({
+            userId: seller._id,
+            type: 'withdrawal',
+            amount: amount,
+            status: 'pending',
+            description: 'Solicitud de retiro de saldo'
+        });
+
+        res.json({
+            success: true,
+            message: 'Solicitud de retiro registrada. Apartado preparado para la entrega de comisiones y retiros.'
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error', error: error.message });
     }

@@ -5,292 +5,1038 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Vendedor - IATIBET ZUREON</title>
-    <meta name="description" content="Panel de control para colaboradores y vendedores">
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/admin-styles.css">
+    <meta name="description" content="Panel de control para colaboradores y vendedores oficiales de IATIBET ZUREON">
+    <link rel="stylesheet" href="/styles.css?v=2.4">
+    <link rel="stylesheet" href="/admin-styles.css?v=2.4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-seller: #10B981; /* Verde esmeralda para vendedores */
-            --bg-darker: #0A0A0F;
-            --card-bg: rgba(20, 20, 35, 0.85);
+            --seller-purple: #7C3AED;
+            --seller-purple-hover: #6D28D9;
+            --seller-purple-glow: rgba(124, 58, 237, 0.35);
+            --seller-bg: #0A0A14;
+            --seller-card-bg: rgba(20, 18, 38, 0.85);
+            --seller-card-border: rgba(255, 255, 255, 0.08);
+            --seller-card-hover: rgba(30, 26, 56, 0.95);
         }
 
-        .seller-badge {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--primary-seller);
-            padding: 0.25rem 0.75rem;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid rgba(16, 185, 129, 0.2);
+        body {
+            background-color: var(--seller-bg);
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
         }
 
-        .referral-link-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+        /* Top Header */
+        .seller-header {
+            background: rgba(15, 14, 28, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--seller-card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .seller-header-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1.5rem;
+            height: 70px;
         }
 
-        .link-input-group {
-            flex: 1;
-            position: relative;
-        }
-
-        .link-input-group input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
+        .seller-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
             color: #fff;
-            font-family: monospace;
-            font-size: 0.9rem;
         }
 
-        .btn-copy {
-            background: var(--primary-seller);
-            color: #fff;
-            border: none;
-            padding: 0.75rem 1.5rem;
+        .seller-brand-icon {
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
+            background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px var(--seller-purple-glow);
+        }
+
+        .seller-brand-title {
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .seller-role-badge {
+            background: rgba(124, 58, 237, 0.15);
+            color: #A78BFA;
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .seller-logout-btn {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-        }
-
-        .btn-copy:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .membership-status {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            font-size: 0.8rem;
-            font-weight: 500;
         }
 
-        .status-active { color: #10B981; }
-        .status-inactive { color: rgba(255, 255, 255, 0.3); }
+        .seller-logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
 
-        .sidebar-vendedor {
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(15, 15, 25, 0.95);
+        /* Container & Page Title */
+        .seller-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 5rem;
+        }
+
+        .seller-page-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: #FFFFFF;
+        }
+
+        /* Nav Tabs */
+        .seller-nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .seller-nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .seller-nav-tab {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.75rem 0.25rem 1rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .seller-nav-tab:hover {
+            color: #FFFFFF;
+        }
+
+        .seller-nav-tab.active {
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+
+        .seller-nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--seller-purple);
+            border-radius: 3px 3px 0 0;
+            box-shadow: 0 0 12px var(--seller-purple-glow);
+        }
+
+        /* Tab Content Views */
+        .seller-view {
+            display: none;
+            animation: fadeInView 0.3s ease-out;
+        }
+
+        .seller-view.active {
+            display: block;
+        }
+
+        @keyframes fadeInView {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Referral Link Banner */
+        .seller-link-banner {
+            background: linear-gradient(135deg, rgba(35, 25, 60, 0.85) 0%, rgba(20, 16, 40, 0.9) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 16px;
+            padding: 1.75rem 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        .seller-link-banner h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #FFFFFF;
+        }
+
+        .banner-input-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .banner-input-row input {
+            flex: 1;
+            background: rgba(10, 8, 20, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 0.85rem 1.25rem;
+            color: #E2E8F0;
+            font-family: monospace;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .banner-input-row input:focus {
+            border-color: var(--seller-purple);
+        }
+
+        .btn-purple-copy {
+            background: var(--seller-purple);
+            color: #FFFFFF;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px var(--seller-purple-glow);
+            flex-shrink: 0;
+        }
+
+        .btn-purple-copy:hover {
+            background: var(--seller-purple-hover);
+            transform: translateY(-1px);
+        }
+
+        /* 3-4 Grid Cards */
+        .seller-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .seller-card-btn {
+            background: var(--seller-card-bg);
+            border: 1px solid var(--seller-card-border);
+            border-radius: 16px;
+            padding: 2rem 1.75rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+        }
+
+        .seller-card-btn:hover {
+            background: var(--seller-card-hover);
+            border-color: rgba(124, 58, 237, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(124, 58, 237, 0.15);
+        }
+
+        .seller-card-btn h4 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .seller-card-btn p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+        }
+
+        .seller-card-btn .card-arrow {
+            position: absolute;
+            right: 1.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+
+        .seller-card-btn:hover .card-arrow {
+            color: var(--seller-purple);
+            transform: translateY(-50%) translateX(4px);
+        }
+
+        /* Info helper note */
+        .seller-info-banner {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        /* Metric KPI Cards (for Resumen) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--seller-card-bg);
+            border: 1px solid var(--seller-card-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-sub {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Tables */
+        .seller-table-wrap {
+            background: var(--seller-card-bg);
+            border: 1px solid var(--seller-card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .seller-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .seller-table th {
+            background: rgba(15, 14, 28, 0.8);
+            padding: 1rem 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--seller-card-border);
+        }
+
+        .seller-table td {
+            padding: 1.1rem 1.25rem;
+            font-size: 0.88rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #E2E8F0;
+        }
+
+        .seller-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .seller-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Plan badges */
+        .badge-plan {
+            display: inline-block;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-plan-mensual {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-plan-anual {
+            background: rgba(124, 58, 237, 0.15);
+            color: #A78BFA;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .badge-plan-trianual {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-plan-none {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Status badges */
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-status.active {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .badge-status.inactive {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Plan Breakdown Cards */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .breakdown-card {
+            background: var(--seller-card-bg);
+            border: 1px solid var(--seller-card-border);
+            border-radius: 14px;
+            padding: 1.5rem;
+        }
+
+        .breakdown-card h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            color: #FFFFFF;
+        }
+
+        .breakdown-card .amount {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #34D399;
+            margin-bottom: 0.25rem;
+        }
+
+        .breakdown-card .sales-count {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Filter row */
+        .filter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .seller-input,
+        .seller-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .seller-input:focus,
+        .seller-select:focus {
+            border-color: var(--seller-purple);
+        }
+
+        /* Action button small */
+        .btn-view-purchases {
+            background: rgba(124, 58, 237, 0.15);
+            color: #A78BFA;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 8px;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .btn-view-purchases:hover {
+            background: var(--seller-purple);
+            color: #FFFFFF;
+        }
+
+        /* Form for Profile */
+        .profile-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: #FFFFFF;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--seller-purple);
+        }
+
+        .form-group input:disabled {
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .seller-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .seller-modal {
+            background: #141226;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: modalPop 0.25s ease-out;
+            position: relative;
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon" style="background: linear-gradient(135deg, #10B981, #3B82F6);"></div>
-                    <span class="logo-text">VENDEDOR PANEL</span>
-                </div>
+    <!-- Top Header -->
+    <header class="seller-header">
+        <div class="seller-page-container" style="padding-top:0; padding-bottom:0;">
+            <div class="seller-header-inner">
+                <a href="/vendedor" class="seller-brand">
+                    <div class="seller-brand-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                    </div>
+                    <span class="seller-brand-title">IATIBET ZUREON</span>
+                </a>
 
-                <nav class="nav" style="display:flex;gap:1rem;">
-                    <a href="#" class="nav-link active" onclick="switchView('referidos', this)">📈 Dashboard</a>
-                    <a href="#" class="nav-link" onclick="switchView('retiros', this)">💰 Retiros</a>
-                </nav>
-
-                <div class="header-actions">
-                    <span id="sellerName" style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin-right:0.5rem;"></span>
-                    <button class="btn-secondary" onclick="sellerLogout()">🚪 Salir</button>
+                <div style="display:flex; align-items:center; gap:1.25rem;">
+                    <span class="seller-role-badge">Vendedor</span>
+                    <span id="sellerHeaderName" style="font-size:0.875rem; color:rgba(255,255,255,0.7); font-weight:600;"></span>
+                    <button class="seller-logout-btn" onclick="sellerLogout()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Salir
+                    </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="admin-container">
-        <div class="container">
-            <!-- VIEW: REFERIDOS (Default) -->
-            <div id="viewReferidos" class="dashboard-view active">
-                <div class="admin-header">
-                    <div style="display:flex; align-items:center; gap: 1rem; margin-bottom: 0.5rem;">
-                        <h1 class="admin-title">Bienvenido, <span id="welcomeName">Vendedor</span></h1>
-                        <span class="seller-badge">Promotor Oficial</span>
-                    </div>
-                    <p class="admin-description">Monitorea tus referidos, comisiones y enlace de afiliado</p>
-                </div>
+    <!-- Main Container -->
+    <main class="seller-page-container">
+        <!-- Dynamic Page Title -->
+        <h1 id="pageTitle" class="seller-page-title">Inicio</h1>
 
-                <!-- Stats Section -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                                <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="sellerBalance">$ 0.00</div>
-                            <div class="stat-label">Saldo Acumulado</div>
-                        </div>
-                    </div>
+        <!-- Navigation Tabs -->
+        <nav class="seller-nav-tabs">
+            <button class="seller-nav-tab active" data-tab="inicio" onclick="switchSellerTab('inicio')">Inicio</button>
+            <button class="seller-nav-tab" data-tab="clientes" onclick="switchSellerTab('clientes')">Mis clientes</button>
+            <button class="seller-nav-tab" data-tab="resumen" onclick="switchSellerTab('resumen')">Resumen mensual</button>
+            <button class="seller-nav-tab" data-tab="retiros" onclick="switchSellerTab('retiros')">Retiros</button>
+            <button class="seller-nav-tab" data-tab="perfil" onclick="switchSellerTab('perfil')">Mi perfil</button>
+        </nav>
 
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="referralsCount">0</div>
-                            <div class="stat-label">Referidos Totales</div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="sellerCodeDisplay">---</div>
-                            <div class="stat-label">Tu Código</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Referral Link -->
-                <div class="referral-link-card">
-                    <div style="flex-shrink:0;">
-                        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.25rem;">Enlace de Referido</h3>
-                        <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Comparte este link para ganar comisiones</p>
-                    </div>
-                    <div class="link-input-group">
-                        <input type="text" id="referralUrl" readonly value="Cargando link...">
-                    </div>
-                    <button class="btn-copy" onclick="copyLink()">Copiar Link</button>
-                </div>
-
-                <!-- Referrals Table -->
-                <div class="table-container">
-                    <div class="table-header">
-                        <div style="display:flex; align-items:center; gap:1.5rem;">
-                            <h2>Tus Referidos</h2>
-                            <div class="table-actions" style="margin-left:auto; display:flex; gap:1rem;">
-                                <input type="text" id="referralSearch" oninput="handleSearch(this.value)" placeholder="Buscar por nombre, email o código..." class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none; width:300px;">
-                                <select id="referralFilter" onchange="filterReferrals()" class="search-table" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; outline:none;">
-                                    <option value="all">Todos los referidos</option>
-                                    <option value="active">Solo con Membresía Activa</option>
-                                    <option value="inactive">Sin Membresía</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table class="courses-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Contacto</th>
-                                    <th>Ubicación</th>
-                                    <th>Fecha Registro</th>
-                                    <th>Membresía</th>
-                                    <th>Estado</th>
-                                    <th>Código Membresía</th>
-                                </tr>
-                            </thead>
-                            <tbody id="referralsTableBody">
-                                <tr>
-                                    <td colspan="7" class="loading-row">
-                                        <div class="spinner"></div>
-                                        <p>Cargando lista...</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <!-- ============================================== -->
+        <!-- VIEW: INICIO (Punto 4 del PDF)                -->
+        <!-- ============================================== -->
+        <section id="viewInicio" class="seller-view active">
+            <!-- Referral Selling Link Banner -->
+            <div class="seller-link-banner">
+                <h3>Mi enlace para vender membresias</h3>
+                <div class="banner-input-row">
+                    <input type="text" id="sellerLinkInput" readonly value="Cargando enlace...">
+                    <button class="btn-purple-copy" id="btnCopyLink" onclick="copySellerLink()">Copiar</button>
                 </div>
             </div>
 
-            <!-- VIEW: RETIROS -->
-            <div id="viewRetiros" class="dashboard-view">
-                <div class="referral-link-card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);">
+            <!-- Cards Grid: Mis clientes, Resumen mensual, Retiros, Mi perfil -->
+            <div class="seller-cards-grid">
+                <div class="seller-card-btn" onclick="switchSellerTab('clientes')">
+                    <h4>Mis clientes</h4>
+                    <p>Ver clientes y compras</p>
+                    <span class="card-arrow">→</span>
+                </div>
+
+                <div class="seller-card-btn" onclick="switchSellerTab('resumen')">
+                    <h4>Resumen mensual</h4>
+                    <p>Consultar ventas del mes</p>
+                    <span class="card-arrow">→</span>
+                </div>
+
+                <div class="seller-card-btn" onclick="switchSellerTab('retiros')">
+                    <h4>Retiros</h4>
+                    <p>Consultar apartado</p>
+                    <span class="card-arrow">→</span>
+                </div>
+
+                <div class="seller-card-btn" onclick="switchSellerTab('perfil')">
+                    <h4>Mi perfil</h4>
+                    <p>Datos personales y código</p>
+                    <span class="card-arrow">→</span>
+                </div>
+            </div>
+
+            <!-- Descriptive Note from PDF -->
+            <div class="seller-info-banner">
+                <strong>Información importante:</strong> Tu enlace oficial contiene tu código automático único de vendedor para que el sistema reconozca a tus clientes cuando adquieran una membresía. Cada tarjeta abre su sección correspondiente. El vendedor ve únicamente sus propios clientes y ventas registradas.
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: MIS CLIENTES                            -->
+        <!-- ============================================== -->
+        <section id="viewClientes" class="seller-view">
+            <div class="filter-row">
+                <div>
+                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Clientes vinculados</h2>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Clientes registrados a través de tu enlace de venta de membresías.</p>
+                </div>
+                <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                    <input type="text" id="clientSearch" oninput="filterClients()" placeholder="Buscar por nombre o correo..." class="seller-input" style="width:260px;">
+                    <select id="clientPlanFilter" onchange="filterClients()" class="seller-select">
+                        <option value="all">Todos los planes</option>
+                        <option value="mensual">Plan Mensual</option>
+                        <option value="anual">Plan Anual</option>
+                        <option value="trianual">Plan Trianual</option>
+                        <option value="none">Sin membresía</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="seller-table-wrap">
+                <table class="seller-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>Fecha de registro</th>
+                            <th>Plan adquirido</th>
+                            <th>Estado</th>
+                            <th>Compras</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">
+                                Cargando clientes...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: RESUMEN MENSUAL                          -->
+        <!-- ============================================== -->
+        <section id="viewResumen" class="seller-view">
+            <div class="filter-row">
+                <div>
+                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Ventas del mes</h2>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Muestra ventas confirmadas generadas por tus clientes (no calcula ganancias todavía).</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <label for="monthSelector" style="font-size:0.85rem; color:rgba(255,255,255,0.6); font-weight:600;">Periodo:</label>
+                    <select id="monthSelector" onchange="loadMonthlySummary()" class="seller-select" style="font-weight:600; min-width:180px;">
+                        <!-- Generated by JS -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Clientes compradores</div>
+                    <div class="kpi-value" id="kpiBuyers">0</div>
+                    <div class="kpi-sub">Clientes con compras en el mes</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Ventas confirmadas</div>
+                    <div class="kpi-value" id="kpiSales" style="color:#A78BFA;">0</div>
+                    <div class="kpi-sub">Membresías vendidas en el periodo</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Importe vendido</div>
+                    <div class="kpi-value" id="kpiAmount" style="color:#34D399;">$ 0.00</div>
+                    <div class="kpi-sub">Volumen total de facturación</div>
+                </div>
+            </div>
+
+            <!-- Breakdown by Plan -->
+            <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:1rem;">Desglose por plan</h3>
+            <div class="breakdown-grid">
+                <div class="breakdown-card">
+                    <h5>Plan Mensual</h5>
+                    <div class="amount" id="breakdownMensualAmount">$ 0.00</div>
+                    <div class="sales-count" id="breakdownMensualCount">0 ventas confirmadas</div>
+                </div>
+
+                <div class="breakdown-card">
+                    <h5>Plan Anual</h5>
+                    <div class="amount" id="breakdownAnualAmount">$ 0.00</div>
+                    <div class="sales-count" id="breakdownAnualCount">0 ventas confirmadas</div>
+                </div>
+
+                <div class="breakdown-card">
+                    <h5>Plan Trianual</h5>
+                    <div class="amount" id="breakdownTrianualAmount">$ 0.00</div>
+                    <div class="sales-count" id="breakdownTrianualCount">0 ventas confirmadas</div>
+                </div>
+            </div>
+
+            <!-- Sales list table -->
+            <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:1rem;">Detalle de ventas confirmadas</h3>
+            <div class="seller-table-wrap">
+                <table class="seller-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Plan</th>
+                            <th>Fecha</th>
+                            <th>Importe ($)</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">
+                                Cargando ventas del mes...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: RETIROS                                  -->
+        <!-- ============================================== -->
+        <section id="viewRetiros" class="seller-view">
+            <!-- Notice Banner as required in PDF -->
+            <div class="seller-info-banner" style="background:rgba(124, 58, 237, 0.08); border-color:rgba(124, 58, 237, 0.25); margin-bottom:2rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <span style="font-size:1.5rem;">ℹ️</span>
                     <div>
-                        <h2 id="retiroBalanceDisplay" style="font-size:2.5rem; font-weight:900; color:var(--primary-seller);">$ 0.00</h2>
-                        <p style="opacity:0.6; font-size:0.9rem;">Saldo disponible para retirar</p>
-                    </div>
-                    <button class="btn-copy" onclick="openWithdrawModal()" style="padding: 1rem 2rem; font-size:1.1rem;">Solicitar Retiro</button>
-                </div>
-
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Historial de Movimientos</h2>
-                    </div>
-                    <div class="table-wrapper">
-                        <table class="courses-table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Tipo</th>
-                                    <th>Descripción</th>
-                                    <th>Monto</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transactionsTableBody">
-                                <tr><td colspan="5" style="text-align:center; padding:3rem; opacity:0.5;">Cargando historial de transacciones...</td></tr>
-                            </tbody>
-                        </table>
+                        <strong style="color:#A78BFA; font-size:0.95rem;">Entrada y pantalla preparadas</strong>
+                        <p style="margin:0.25rem 0 0; color:rgba(255,255,255,0.7); font-size:0.85rem;">
+                            La solicitud de retiro y sus reglas de cobro se habilitarán en la siguiente entrega de comisiones y retiros según el cronograma oficial.
+                        </p>
                     </div>
                 </div>
             </div>
+
+            <div class="seller-link-banner" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem;">
+                <div>
+                    <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; color:rgba(255,255,255,0.5); letter-spacing:0.04em;">Saldo disponible</div>
+                    <h2 id="retiroBalanceDisplay" style="font-size:2.75rem; font-weight:900; color:#34D399; margin:0.25rem 0;">$ 0.00</h2>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Acumulado por ventas de membresías</p>
+                </div>
+                <button class="btn-purple-copy" onclick="openWithdrawModal()" style="font-size:1rem; padding:0.9rem 2.25rem;">Solicitar Retiro</button>
+            </div>
+
+            <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:1rem;">Historial de movimientos</h3>
+            <div class="seller-table-wrap">
+                <table class="seller-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">
+                                Cargando historial...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: MI PERFIL                                -->
+        <!-- ============================================== -->
+        <section id="viewPerfil" class="seller-view">
+            <!-- Seller Code Card -->
+            <div class="seller-link-banner" style="margin-bottom:2rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                    <span style="font-size:1.25rem;">🔒</span>
+                    <h3 style="margin:0; font-size:1.15rem;">Tu código de vendedor</h3>
+                </div>
+                <p style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:1.25rem;">
+                    Código generado automáticamente por el sistema (no editable).
+                </p>
+                <div class="banner-input-row" style="max-width:500px;">
+                    <input type="text" id="profileSellerCode" readonly style="font-size:1.2rem; font-weight:800; letter-spacing:0.1em; color:#A78BFA; text-align:center;">
+                    <button class="btn-purple-copy" onclick="copyProfileCode()">Copiar código</button>
+                </div>
+            </div>
+
+            <!-- Personal Data Form -->
+            <div class="seller-card-bg" style="border:1px solid var(--seller-card-border); border-radius:16px; padding:2rem; margin-bottom:2rem;">
+                <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:0.5rem;">Datos personales</h3>
+                <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin-bottom:2rem;">
+                    Actualiza tu información personal, de contacto y de identificación.
+                </p>
+
+                <form id="profileForm" onsubmit="handleProfileSubmit(event)">
+                    <div class="profile-form-grid">
+                        <div class="form-group">
+                            <label>Nombres *</label>
+                            <input type="text" id="profileName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Apellidos *</label>
+                            <input type="text" id="profileLastName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Correo Electrónico (No editable)</label>
+                            <input type="email" id="profileEmail" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de Documento</label>
+                            <select id="profileDocType">
+                                <option value="DNI">DNI</option>
+                                <option value="Cédula">Cédula</option>
+                                <option value="Pasaporte">Pasaporte</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Número de Documento</label>
+                            <input type="text" id="profileDocNumber" placeholder="Número de identidad">
+                        </div>
+
+                        <div class="form-group">
+                            <label>País</label>
+                            <input type="text" id="profileCountry" placeholder="País de residencia">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Celular / Teléfono (con prefijo internacional)</label>
+                            <input type="tel" id="profilePhone" placeholder="+51 987654321">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Dirección</label>
+                            <input type="text" id="profileAddress" placeholder="Dirección de residencia">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fecha de Registro</label>
+                            <input type="text" id="profileCreatedAt" disabled>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button type="submit" class="btn-purple-copy" id="btnSaveProfile" style="padding:0.85rem 2.5rem;">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- MODAL: VER COMPRAS DEL CLIENTE                 -->
+    <!-- ============================================== -->
+    <div id="purchasesModal" class="seller-modal-backdrop" onclick="if(event.target === this) closePurchasesModal()">
+        <div class="seller-modal" style="max-width:680px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+                <div>
+                    <h3 id="modalClientName" style="margin:0 0 0.25rem 0; font-size:1.35rem; font-weight:700;">Compras del cliente</h3>
+                    <p id="modalClientEmail" style="margin:0; font-size:0.85rem; color:rgba(255,255,255,0.5);"></p>
+                </div>
+                <button onclick="closePurchasesModal()" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.5rem; cursor:pointer;">✕</button>
+            </div>
+
+            <div class="seller-table-wrap" style="margin-bottom:1.5rem;">
+                <table class="seller-table">
+                    <thead>
+                        <tr>
+                            <th>Orden</th>
+                            <th>Plan</th>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalPurchasesTableBody">
+                        <tr><td colspan="5" style="text-align:center; padding:2rem; opacity:0.5;">Sin compras</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end;">
+                <button class="seller-logout-btn" onclick="closePurchasesModal()" style="padding:0.6rem 1.5rem;">Cerrar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL RETIRO -->
-    <div id="withdrawModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); z-index:2000; align-items:center; justify-content:center;">
-        <div class="modal-content" style="max-width:400px; padding:2.5rem; background:var(--bg-darker); border: 1px solid var(--glass-border); border-radius:24px; animation: modalEnter 0.3s ease-out;">
-            <h2 style="font-weight:900; margin-bottom:0.5rem;">Solicitar Retiro</h2>
-            <p style="opacity:0.6; margin-bottom:2rem; font-size:0.9rem;">Indica el monto que deseas retirar a tu cuenta bancaria configurada.</p>
-            
-            <form id="withdrawForm" onsubmit="handleWithdrawSubmit(event)">
-                <div class="form-group" style="margin-bottom:1.5rem;">
-                    <label style="color:rgba(255,255,255,0.5); font-size:0.8rem; font-weight:700; display:block; margin-bottom:0.8rem; text-transform:uppercase;">Monto a Retirar ($)</label>
-                    <input type="number" id="withdrawAmount" step="0.01" required placeholder="0.00" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding:1rem; border-radius:12px; color:#fff; font-size:1.8rem; font-weight:800; text-align:center; outline:none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary-seller)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
-                </div>
-                
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
-                    <button type="button" class="btn-secondary" onclick="closeWithdrawModal()" style="padding:1rem; border-radius:12px; font-weight:700;">Cancelar</button>
-                    <button type="submit" class="btn-copy" id="btnConfirmWithdraw" style="padding:1rem; border-radius:12px; font-weight:700;">Confirmar</button>
-                </div>
-            </form>
+    <!-- ============================================== -->
+    <!-- MODAL: SOLICITAR RETIRO (AVISO PDF)            -->
+    <!-- ============================================== -->
+    <div id="withdrawModal" class="seller-modal-backdrop" onclick="if(event.target === this) closeWithdrawModal()">
+        <div class="seller-modal" style="max-width:480px; text-align:center;">
+            <div style="width:56px; height:56px; border-radius:50%; background:rgba(124, 58, 237, 0.15); border:1px solid rgba(124, 58, 237, 0.3); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+            </div>
+            <h3 style="font-size:1.35rem; font-weight:800; margin-bottom:0.75rem;">Apartado de Retiros Preparado</h3>
+            <p style="font-size:0.9rem; color:rgba(255,255,255,0.65); line-height:1.6; margin-bottom:1.75rem;">
+                La solicitud de retiro y sus reglas de pago (mínimos, cuenta de abono y plazos de liquidación) se habilitarán en la siguiente fase de <strong>"Comisiones y retiros"</strong> conforme a las especificaciones oficiales.
+            </p>
+            <button class="btn-purple-copy" onclick="closeWithdrawModal()" style="width:100%; padding:0.85rem;">
+                Entendido
+            </button>
         </div>
     </div>
 
-    <style>
-        .dashboard-view { display: none; width: 100%; }
-        .dashboard-view.active { display: block; animation: fadeIn 0.4s ease-out; }
-        .nav-link { cursor: pointer; transition: all 0.2s; }
-        .nav-link:hover { color: var(--primary-seller); }
-        .nav-link.active { color: var(--primary-seller); border-bottom: 2px solid var(--primary-seller); }
-        @keyframes modalEnter { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
-
-    <script src="/config.js"></script>
+    <!-- Scripts -->
+    <script src="/config.js?v=2.4"></script>
     <script>
-        // Auth Check
+        let currentSeller = null;
+        let allClients = [];
+
+        // Auth & Startup
         window.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('authToken');
             const user = JSON.parse(localStorage.getItem('authUser') || '{}');
@@ -300,104 +1046,316 @@
                 return;
             }
 
-            document.getElementById('sellerName').textContent = user.name;
-            document.getElementById('welcomeName').textContent = user.name;
-            
+            document.getElementById('sellerHeaderName').textContent = user.name || 'Vendedor';
+
+            initMonthSelector();
             await loadSellerData();
+            loadMonthlySummary();
             loadTransactions();
+            loadProfile();
         });
 
-        let allReferrals = [];
+        // Tab Navigation
+        function switchSellerTab(tabKey) {
+            // Update tabs
+            document.querySelectorAll('.seller-nav-tab').forEach(t => {
+                t.classList.toggle('active', t.getAttribute('data-tab') === tabKey);
+            });
 
+            // Update views
+            document.querySelectorAll('.seller-view').forEach(v => v.classList.remove('active'));
+            const target = document.getElementById('view' + tabKey.charAt(0).toUpperCase() + tabKey.slice(1));
+            if (target) target.classList.add('active');
+
+            // Update title
+            const titles = {
+                inicio: 'Inicio',
+                clientes: 'Mis clientes',
+                resumen: 'Resumen mensual',
+                retiros: 'Retiros',
+                perfil: 'Mi perfil'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabKey] || 'Panel de Vendedor';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize Month Selector Dropdown
+        function initMonthSelector() {
+            const selector = document.getElementById('monthSelector');
+            selector.innerHTML = '';
+            const now = new Date();
+            const monthNames = [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+
+            for (let i = 0; i < 12; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const opt = document.createElement('option');
+                opt.value = `${d.getFullYear()}-${d.getMonth() + 1}`;
+                opt.textContent = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+                if (i === 0) opt.selected = true;
+                selector.appendChild(opt);
+            }
+        }
+
+        // Load Seller Core Data & Referral Link
         async function loadSellerData() {
             try {
                 await configReady;
                 const token = localStorage.getItem('authToken');
 
-                // Load Stats
-                const statsRes = await fetch(apiUrl('/api/seller/stats'), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const statsData = await statsRes.json();
-
-                if (statsData.success) {
-                    const stats = statsData.stats;
-                    const balanceText = `$ ${stats.balance.toFixed(2)}`;
-                    document.getElementById('sellerBalance').textContent = balanceText;
-                    document.getElementById('retiroBalanceDisplay').textContent = balanceText;
-                    document.getElementById('referralsCount').textContent = stats.referralsCount;
-                    document.getElementById('sellerCodeDisplay').textContent = stats.code || 'N/A';
-                    
-                    const refUrl = `${window.location.origin}/membresia?ref=${stats.code}`;
-                    document.getElementById('referralUrl').value = refUrl;
-                }
-
-                // Load Referrals
-                const refRes = await fetch(apiUrl('/api/seller/referrals'), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const refData = await refRes.json();
-
-                if (refData.success) {
-                    allReferrals = refData.referrals;
-                    renderReferrals(allReferrals);
-                } else {
-                    const tableBody = document.getElementById('referralsTableBody');
-                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;opacity:0.4;">Ocurrió un error al cargar los datos.</td></tr>';
-                }
-
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        function switchView(view, btn) {
-            document.querySelectorAll('.dashboard-view').forEach(v => v.classList.remove('active'));
-            document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
-            
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        async function loadTransactions() {
-            try {
-                const token = localStorage.getItem('authToken');
-                const res = await fetch(apiUrl('/api/seller/transactions'), {
+                // 1. Stats
+                const res = await fetch(apiUrl('/api/seller/stats'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
+
                 if (data.success) {
-                    renderTransactions(data.transactions);
+                    currentSeller = data.stats;
+                    const code = currentSeller.code || '';
+
+                    // Referral selling link: [dominio]/membresias?ref=TB...
+                    const sellingUrl = `${window.location.origin}/membresias?ref=${code}`;
+                    document.getElementById('sellerLinkInput').value = sellingUrl;
+                    document.getElementById('retiroBalanceDisplay').textContent = `$ ${(currentSeller.balance || 0).toFixed(2)}`;
+
+                    if (currentSeller.name) {
+                        document.getElementById('sellerHeaderName').textContent = `${currentSeller.name} ${currentSeller.lastName || ''}`.trim();
+                    }
                 }
-            } catch (err) { console.error('Error loading transactions', err); }
+
+                // 2. Referrals / Clients
+                const clientRes = await fetch(apiUrl('/api/seller/referrals'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const clientData = await clientRes.json();
+                if (clientData.success) {
+                    allClients = clientData.referrals || [];
+                    renderClients(allClients);
+                }
+            } catch (err) {
+                console.error('Error loading seller data', err);
+            }
         }
 
-        function renderTransactions(transactions) {
-            const tbody = document.getElementById('transactionsTableBody');
-            if (!transactions || transactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; opacity:0.5;">No hay transacciones registradas.</td></tr>';
+        // Render Clients Table
+        function renderClients(clients) {
+            const tbody = document.getElementById('clientsTableBody');
+            if (!clients || clients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">No tienes clientes vinculados aún. Comparte tu enlace de venta para empezar.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = transactions.map(t => {
-                const isComm = t.type === 'commission';
-                const statusColor = (t.status === 'completed' || t.status === 'approved') ? '#10B981' : (t.status === 'pending' ? '#F59E0B' : '#EF4444');
+            tbody.innerHTML = clients.map((c, index) => {
+                const isMember = c.hasMembership;
+                const planName = c.membershipPlan || 'Sin membresía';
+                let planClass = 'badge-plan-none';
+                const lowerPlan = planName.toLowerCase();
+                if (lowerPlan.includes('trianual')) planClass = 'badge-plan-trianual';
+                else if (lowerPlan.includes('anual')) planClass = 'badge-plan-anual';
+                else if (lowerPlan.includes('mensual')) planClass = 'badge-plan-mensual';
+
+                const regDate = new Date(c.createdAt).toLocaleDateString();
+                const fullName = `${c.name || 'Cliente'} ${c.lastName || ''}`.trim();
+                const purchasesCount = (c.purchases && c.purchases.length) ? c.purchases.length : (isMember ? 1 : 0);
+
                 return `
                     <tr>
-                        <td style="font-size:0.85rem; opacity:0.6;">${new Date(t.createdAt).toLocaleString()}</td>
-                        <td><span style="font-weight:700; color:${isComm ? '#10B981' : '#3B82F6'};">${isComm ? 'COMISIÓN' : 'RETIRO'}</span></td>
-                        <td style="font-size:0.85rem;">${t.description}</td>
-                        <td style="font-weight:800; color:${isComm ? '#10B981' : '#EF4444'};">${isComm ? '+' : '-'} $ ${t.amount.toFixed(2)}</td>
                         <td>
-                            <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; padding:0.2rem 0.6rem; border-radius:6px; background:${statusColor}22; color:${statusColor}; border: 1px solid ${statusColor}44;">
-                                ${t.status}
+                            <div style="display:flex; align-items:center; gap:0.75rem;">
+                                <div style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, rgba(124,58,237,0.3), rgba(59,130,246,0.3)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; color:#fff; border:1px solid rgba(255,255,255,0.1);">
+                                    ${(c.name || 'C').charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600; color:#fff;">${fullName}</div>
+                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.45);">${c.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size:0.85rem;">${c.phone || '<span style="opacity:0.4;">Sin teléfono</span>'}</div>
+                            <div style="font-size:0.75rem; color:rgba(255,255,255,0.45);">${c.country || 'No especificado'}</div>
+                        </td>
+                        <td><span style="color:rgba(255,255,255,0.7);">${regDate}</span></td>
+                        <td><span class="badge-plan ${planClass}">${planName}</span></td>
+                        <td>
+                            <span class="badge-status ${isMember ? 'active' : 'inactive'}">
+                                <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
+                                ${isMember ? 'Activo' : 'Inactivo'}
                             </span>
+                        </td>
+                        <td>
+                            <button class="btn-view-purchases" onclick="openPurchasesModal(${index})">
+                                🛒 Ver compras (${purchasesCount})
+                            </button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
+        // Filter Clients
+        function filterClients() {
+            const query = (document.getElementById('clientSearch').value || '').toLowerCase().trim();
+            const planFilter = document.getElementById('clientPlanFilter').value;
+
+            const filtered = allClients.filter(c => {
+                const fullName = `${c.name || ''} ${c.lastName || ''}`.toLowerCase();
+                const email = (c.email || '').toLowerCase();
+                const matchesSearch = !query || fullName.includes(query) || email.includes(query);
+
+                if (!matchesSearch) return false;
+
+                if (planFilter !== 'all') {
+                    const p = (c.membershipPlan || '').toLowerCase();
+                    if (planFilter === 'none') {
+                        if (c.hasMembership || c.membershipPlan) return false;
+                    } else if (!p.includes(planFilter)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            renderClients(filtered);
+        }
+
+        // Modal: Ver compras de un cliente
+        function openPurchasesModal(clientIndex) {
+            const c = allClients[clientIndex];
+            if (!c) return;
+
+            document.getElementById('modalClientName').textContent = `${c.name || 'Cliente'} ${c.lastName || ''}`.trim();
+            document.getElementById('modalClientEmail').textContent = c.email || '';
+
+            const tbody = document.getElementById('modalPurchasesTableBody');
+            const purchases = c.purchases || [];
+
+            if (purchases.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color:rgba(255,255,255,0.4);">Este cliente no registra compras confirmadas todavía.</td></tr>';
+            } else {
+                tbody.innerHTML = purchases.map(p => `
+                    <tr>
+                        <td><code style="color:#A78BFA; font-weight:700;">${p.orderId || '---'}</code></td>
+                        <td><span style="font-weight:600;">${p.plan || 'Membresía'}</span></td>
+                        <td>${new Date(p.date).toLocaleDateString()}</td>
+                        <td style="font-weight:700; color:#34D399;">$ ${(p.amount || 0).toFixed(2)}</td>
+                        <td>
+                            <span class="badge-status active">
+                                <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
+                                ${p.status || 'Confirmada'}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            document.getElementById('purchasesModal').style.display = 'flex';
+        }
+
+        function closePurchasesModal() {
+            document.getElementById('purchasesModal').style.display = 'none';
+        }
+
+        // Load Monthly Summary
+        async function loadMonthlySummary() {
+            try {
+                await configReady;
+                const token = localStorage.getItem('authToken');
+                const selectorVal = document.getElementById('monthSelector').value || '';
+                const [year, month] = selectorVal.split('-');
+
+                const res = await fetch(apiUrl(`/api/seller/monthly-summary?year=${year}&month=${month}`), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success && data.summary) {
+                    const s = data.summary;
+                    document.getElementById('kpiBuyers').textContent = s.uniqueBuyers || 0;
+                    document.getElementById('kpiSales').textContent = s.totalSalesCount || 0;
+                    document.getElementById('kpiAmount').textContent = `$ ${(s.totalAmount || 0).toFixed(2)}`;
+
+                    // Breakdown
+                    const b = s.byPlan || {};
+                    document.getElementById('breakdownMensualAmount').textContent = `$ ${(b.mensual?.amount || 0).toFixed(2)}`;
+                    document.getElementById('breakdownMensualCount').textContent = `${b.mensual?.count || 0} ventas confirmadas`;
+
+                    document.getElementById('breakdownAnualAmount').textContent = `$ ${(b.anual?.amount || 0).toFixed(2)}`;
+                    document.getElementById('breakdownAnualCount').textContent = `${b.anual?.count || 0} ventas confirmadas`;
+
+                    document.getElementById('breakdownTrianualAmount').textContent = `$ ${(b.trianual?.amount || 0).toFixed(2)}`;
+                    document.getElementById('breakdownTrianualCount').textContent = `${b.trianual?.count || 0} ventas confirmadas`;
+
+                    // Sales list
+                    const tbody = document.getElementById('salesTableBody');
+                    const sales = s.sales || [];
+                    if (sales.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">No se registran ventas confirmadas en este periodo.</td></tr>';
+                    } else {
+                        tbody.innerHTML = sales.map(item => `
+                            <tr>
+                                <td>
+                                    <div style="font-weight:600; color:#fff;">${item.clientName}</div>
+                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">${item.clientEmail}</div>
+                                </td>
+                                <td><span style="font-weight:600; color:#A78BFA;">${item.plan}</span></td>
+                                <td>${new Date(item.date).toLocaleString()}</td>
+                                <td style="font-weight:800; color:#34D399;">$ ${(item.amount || 0).toFixed(2)}</td>
+                                <td>
+                                    <span class="badge-status active">
+                                        <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
+                                        ${item.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading monthly summary', err);
+            }
+        }
+
+        // Load Transactions / Retiros
+        async function loadTransactions() {
+            try {
+                await configReady;
+                const token = localStorage.getItem('authToken');
+                const res = await fetch(apiUrl('/api/seller/transactions'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                const tbody = document.getElementById('transactionsTableBody');
+                if (data.success && data.transactions && data.transactions.length > 0) {
+                    tbody.innerHTML = data.transactions.map(t => {
+                        const isComm = t.type === 'commission';
+                        const statusColor = (t.status === 'completed' || t.status === 'approved') ? '#34D399' : (t.status === 'pending' ? '#FBBF24' : '#EF4444');
+                        return `
+                            <tr>
+                                <td>${new Date(t.createdAt).toLocaleString()}</td>
+                                <td><strong style="color:${isComm ? '#34D399' : '#60A5FA'};">${isComm ? 'COMISIÓN' : 'RETIRO'}</strong></td>
+                                <td>${t.description || 'Movimiento de cuenta'}</td>
+                                <td style="font-weight:800; color:${isComm ? '#34D399' : '#EF4444'};">${isComm ? '+' : '-'} $ ${(t.amount || 0).toFixed(2)}</td>
+                                <td>
+                                    <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; padding:0.25rem 0.6rem; border-radius:6px; background:${statusColor}22; color:${statusColor}; border:1px solid ${statusColor}44;">
+                                        ${t.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">No hay movimientos registrados en este apartado aún.</td></tr>';
+                }
+            } catch (err) {
+                console.error('Error loading transactions', err);
+            }
+        }
+
+        // Modal: Retiros
         function openWithdrawModal() {
             document.getElementById('withdrawModal').style.display = 'flex';
         }
@@ -406,141 +1364,117 @@
             document.getElementById('withdrawModal').style.display = 'none';
         }
 
-        async function handleWithdrawSubmit(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            if (!amount || amount <= 0) return alert('Monto inválido');
-
-            const btn = document.getElementById('btnConfirmWithdraw');
-            const originalText = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Enviando...';
-
+        // Load Profile
+        async function loadProfile() {
             try {
+                await configReady;
                 const token = localStorage.getItem('authToken');
-                const res = await fetch(apiUrl('/api/seller/withdraw'), {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount })
+                const res = await fetch(apiUrl('/api/seller/profile'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
-                if (data.success) {
-                    alert('Solicitud de retiro enviada correctamente. El administrador la procesará pronto.');
-                    closeWithdrawModal();
-                    document.getElementById('withdrawForm').reset();
-                    loadSellerData();
-                    loadTransactions();
-                } else {
-                    alert(data.message);
+
+                if (data.success && data.profile) {
+                    const p = data.profile;
+                    document.getElementById('profileSellerCode').value = p.sellerCode || '';
+                    document.getElementById('profileName').value = p.name || '';
+                    document.getElementById('profileLastName').value = p.lastName || '';
+                    document.getElementById('profileEmail').value = p.email || '';
+                    document.getElementById('profileDocType').value = p.documentType || 'DNI';
+                    document.getElementById('profileDocNumber').value = p.documentNumber || '';
+                    document.getElementById('profileCountry').value = p.country || '';
+                    document.getElementById('profilePhone').value = p.phone || '';
+                    document.getElementById('profileAddress').value = p.address || '';
+                    document.getElementById('profileCreatedAt').value = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '---';
                 }
             } catch (err) {
-                alert('Error al enviar solicitud: ' + err.message);
+                console.error('Error loading profile', err);
+            }
+        }
+
+        // Save Profile Form
+        async function handleProfileSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveProfile');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            try {
+                await configReady;
+                const token = localStorage.getItem('authToken');
+                const payload = {
+                    name: document.getElementById('profileName').value.trim(),
+                    lastName: document.getElementById('profileLastName').value.trim(),
+                    documentType: document.getElementById('profileDocType').value,
+                    documentNumber: document.getElementById('profileDocNumber').value.trim(),
+                    country: document.getElementById('profileCountry').value.trim(),
+                    phone: document.getElementById('profilePhone').value.trim(),
+                    address: document.getElementById('profileAddress').value.trim()
+                };
+
+                const res = await fetch(apiUrl('/api/seller/profile'), {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('¡Datos personales actualizados correctamente!');
+                    // Update authUser in storage
+                    const stored = JSON.parse(localStorage.getItem('authUser') || '{}');
+                    stored.name = payload.name;
+                    localStorage.setItem('authUser', JSON.stringify(stored));
+                    document.getElementById('sellerHeaderName').textContent = `${payload.name} ${payload.lastName}`.trim();
+                } else {
+                    alert(data.message || 'Error al actualizar perfil');
+                }
+            } catch (err) {
+                alert('Error al guardar datos: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         }
 
-        function renderReferrals(referrals) {
-            const tableBody = document.getElementById('referralsTableBody');
-            if (referrals.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;opacity:0.4;">Aún no tienes referidos registrados.</td></tr>';
-                return;
-            }
-
-            tableBody.innerHTML = referrals.map(u => {
-                const isMember = u.hasMembership;
-                const userFullName = `${u.name} ${u.lastName || ''}`;
-                const membershipCode = isMember ? `MEM-${u._id.substring(18).toUpperCase()}` : '---';
-
-                return `
-                    <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:0.75rem;">
-                                <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;border:1px solid rgba(255,255,255,0.1);">
-                                    ${u.name.charAt(0)}
-                                </div>
-                                <div style="display:flex; flex-direction:column;">
-                                    <span style="font-weight:600;">${userFullName}</span>
-                                    <span style="opacity:0.4; font-size:0.7rem;">ID: ${u._id.substring(18)}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="display:flex; flex-direction:column; gap:0.25rem;">
-                                <span style="font-size:0.85rem;">${u.email}</span>
-                                ${u.phone ? `<span style="opacity:0.5; font-size:0.75rem;">📞 ${u.phone}</span>` : ''}
-                            </div>
-                        </td>
-                        <td>
-                            <span style="opacity:0.6;font-size:0.85rem;">${u.country || 'No especificado'}</span>
-                        </td>
-                        <td><span style="opacity:0.6;font-size:0.85rem;">${new Date(u.createdAt).toLocaleDateString()}</span></td>
-                        <td>
-                            <span style="font-size:0.85rem;font-weight:600;color:var(--primary-purple);">${u.membershipPlan || 'Sin Plan'}</span>
-                        </td>
-                        <td>
-                            <div class="membership-status ${isMember ? 'status-active' : 'status-inactive'}">
-                                <span style="width:8px;height:8px;border-radius:50%;background:currentColor;"></span>
-                                ${isMember ? 'Activo' : 'Inactivo'}
-                            </div>
-                        </td>
-                        <td>
-                            <code style="background:rgba(255,255,255,0.05);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.75rem; color:${isMember ? '#10B981' : 'rgba(255,255,255,0.4)'}; letter-spacing:0.05em; font-weight:700;">${membershipCode}</code>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function filterReferrals() {
-            const filterValue = document.getElementById('referralFilter').value;
-            const searchValue = document.getElementById('referralSearch').value.toLowerCase();
-            
-            let filtered = allReferrals.filter(u => {
-                const userFullName = `${u.name} ${u.lastName || ''}`.toLowerCase();
-                const userEmail = u.email.toLowerCase();
-                const isMember = u.hasMembership;
-                const membershipCode = isMember ? `MEM-${u._id.substring(18).toUpperCase()}` : '---';
-                
-                // Membership filter
-                if (filterValue === 'active' && !isMember) return false;
-                if (filterValue === 'inactive' && isMember) return false;
-                
-                // Search filter
-                if (searchValue && 
-                    !userFullName.includes(searchValue) && 
-                    !userEmail.includes(searchValue) && 
-                    !membershipCode.toLowerCase().includes(searchValue)) {
-                    return false;
-                }
-                
-                return true;
-            });
-            
-            renderReferrals(filtered);
-        }
-
-        function handleSearch() {
-            filterReferrals(); 
-        }
-
-        function copyLink() {
-            const input = document.getElementById('referralUrl');
+        // Copy Referral Link
+        function copySellerLink() {
+            const input = document.getElementById('sellerLinkInput');
             input.select();
-            document.execCommand('copy');
-            
-            const btn = document.querySelector('.btn-copy');
-            const originalText = btn.textContent;
-            btn.textContent = '¡Copiado!';
-            btn.style.background = '#059669';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '';
-            }, 2000);
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.getElementById('btnCopyLink');
+                const orig = btn.textContent;
+                btn.textContent = '¡Copiado!';
+                btn.style.background = '#059669';
+                setTimeout(() => {
+                    btn.textContent = orig;
+                    btn.style.background = '';
+                }, 2000);
+            }).catch(() => {
+                document.execCommand('copy');
+                alert('¡Enlace copiado al portapapeles!');
+            });
         }
 
+        // Copy Profile Seller Code
+        function copyProfileCode() {
+            const input = document.getElementById('profileSellerCode');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                alert('¡Código de vendedor copiado!');
+            }).catch(() => {
+                document.execCommand('copy');
+                alert('¡Código copiado!');
+            });
+        }
+
+        // Logout
         function sellerLogout() {
             localStorage.removeItem('authToken');
             localStorage.removeItem('authUser');
@@ -548,4 +1482,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -6,6 +6,7 @@
     { "source": "/login",             "destination": "/login.html" },
     { "source": "/register",          "destination": "/register.html" },
     { "source": "/membresia",         "destination": "/membresia.html" },
+    { "source": "/membresias",        "destination": "/membresia.html" },
     { "source": "/perfil",            "destination": "/perfil.html" },
     { "source": "/admin-login",       "destination": "/admin-login.html" },
     { "source": "/vendedor-login",    "destination": "/vendedor-login.html" },
@@ -24,6 +25,8 @@
 
     { "source": "/api/seller/stats",        "destination": "/api/seller" },
     { "source": "/api/seller/referrals",    "destination": "/api/seller" },
+    { "source": "/api/seller/monthly-summary", "destination": "/api/seller" },
+    { "source": "/api/seller/profile",      "destination": "/api/seller" },
     { "source": "/api/seller/transactions",  "destination": "/api/seller" },
     { "source": "/api/seller/withdraw",      "destination": "/api/seller" },
 
