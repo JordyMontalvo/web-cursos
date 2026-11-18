@@ -18,7 +18,7 @@ const Banner = require('./models/Banner');
 const Settings = require('./models/Settings');
 const Category = require('./models/Category');
 const LandingConfig = require('./models/LandingConfig');
-const { resolveRelation, companyRelation, registerDirector, getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales } = require('./lib/salesAccounts');
+const { resolveRelation, companyRelation, registerDirector, getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales, hasPermission } = require('./lib/salesAccounts');
 
 
 const app = express();
@@ -112,7 +112,7 @@ function adminMiddleware(req, res, next) {
 
 // Middleware de vendedor
 function sellerMiddleware(req, res, next) {
-    if (req.user.role !== 'vendedor' && req.user.role !== 'director' && req.user.role !== 'admin') {
+    if (!hasPermission(req.user.role, 'sales.panel')) {
         return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de vendedor.' });
     }
     next();
@@ -120,7 +120,7 @@ function sellerMiddleware(req, res, next) {
 
 // Middleware de director de ventas
 function directorMiddleware(req, res, next) {
-    if (req.user.role !== 'director') {
+    if (!hasPermission(req.user.role, 'team.view')) {
         return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de director de ventas.' });
     }
     next();
@@ -441,6 +441,7 @@ app.post('/api/auth/register-vendedor', async (req, res) => {
             referredBy: referredById,
             registeredRole: 'vendedor',
             invitedByRole: relation.invitedByRole,
+            teamDirectorId: relation.teamDirectorId,
             termsAccepted: true,
             termsAcceptedAt: new Date(),
             termsVersion: termsVersion || '1.0',
@@ -511,7 +512,8 @@ app.post('/api/auth/register', async (req, res) => {
             phone,
             referredBy: referredById,
             registeredRole: 'user',
-            invitedByRole: relation.invitedByRole
+            invitedByRole: relation.invitedByRole,
+            teamDirectorId: relation.teamDirectorId
         });
         await user.save();
 
@@ -875,6 +877,10 @@ app.post('/api/memberships/subscribe', authMiddleware, async (req, res) => {
         const membership = await Membership.findById(membershipId);
         if (!membership || !membership.isActive) {
             return res.status(404).json({ success: false, message: 'Plan de membresía no encontrado' });
+        }
+        // Punto 10: el acceso a un plan de pago solo se habilita al confirmarse el pago (webhook/retorno de Izipay)
+        if (Number(membership.price) > 0) {
+            return res.status(402).json({ success: false, message: 'Este plan requiere un pago confirmado. Completa la compra desde el checkout.' });
         }
 
         // Calcular duración
@@ -1605,23 +1611,7 @@ try {
     TransactionModel = mongoose.model('Transaction', schema);
 }
 
-let PaymentModel;
-try {
-    PaymentModel = mongoose.model('Payment');
-} catch {
-    const schema = new mongoose.Schema({
-        orderId: { type: String, default: '' },
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
-        kind: { type: String, enum: ['checkout', 'renewal'], default: 'checkout' },
-        status: { type: String, enum: ['paid', 'failed', 'pending'], default: 'pending' },
-        amountCents: { type: Number, default: 0 },
-        currency: { type: String, default: 'USD' },
-        raw: { type: Object, default: {} },
-        createdAt: { type: Date, default: Date.now }
-    });
-    PaymentModel = mongoose.model('Payment', schema);
-}
+const PaymentModel = require('./models/Payment');
 
 function getPlanKeyHelper(planStr) {
     if (!planStr) return 'otro';

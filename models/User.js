@@ -122,6 +122,12 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'director', 'vendedor', null],
         default: null
     },
+    // Equipo (Punto 10): director de ventas al que pertenece la cuenta. null = empresa.
+    teamDirectorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
     // Balance and metrics for sellers
     sellerBalance: {
         type: Number,

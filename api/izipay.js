@@ -146,22 +146,8 @@ try { Transaction = mongoose.model('Transaction'); } catch {
     Transaction = mongoose.model('Transaction', schema);
 }
 
-let Payment;
-try { Payment = mongoose.model('Payment'); } catch {
-    const schema = new mongoose.Schema({
-        orderId: { type: String, default: '' },
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
-        kind: { type: String, enum: ['checkout', 'renewal'], default: 'checkout' },
-        status: { type: String, enum: ['paid', 'failed', 'pending'], default: 'pending' },
-        amountCents: { type: Number, default: 0 },
-        currency: { type: String, default: '' },
-        raw: { type: Object, default: {} },
-        createdAt: { type: Date, default: Date.now }
-    });
-    schema.index({ orderId: 1 }, { unique: true, sparse: true });
-    Payment = mongoose.model('Payment', schema);
-}
+const Payment = require('../models/Payment');
+const { purchaseAttribution } = require('../lib/salesAccounts');
 
 let Coupon;
 try { Coupon = mongoose.model('Coupon'); } catch {
@@ -845,6 +831,8 @@ module.exports = async (req, res) => {
             console.log('[IZIPAY] ✅ Webhook: Membresía activada para:', customerRef);
 
             try {
+                // Punto 10: la compra queda vinculada a su responsable comercial al confirmarse el pago
+                const attribution = await purchaseAttribution(User, user).catch(() => ({}));
                 await Payment.create({
                     orderId: rawOrderId,
                     userId: user._id,
@@ -853,6 +841,7 @@ module.exports = async (req, res) => {
                     status: 'paid',
                     amountCents: Number(answer.orderDetails?.metadata?.finalAmountCents) || 0,
                     currency: safeString(answer.orderDetails?.currency || answer.currency),
+                    ...attribution,
                     raw: answer
                 });
             } catch (e) {
@@ -1024,6 +1013,8 @@ module.exports = async (req, res) => {
                 console.log('[IZIPAY] ✅ Membresía activada exitosamente para:', user.email);
 
                 try {
+                    // Punto 10: la compra queda vinculada a su responsable comercial al confirmarse el pago
+                    const attribution = await purchaseAttribution(User, user).catch(() => ({}));
                     await Payment.create({
                         orderId: rawOrderId,
                         userId: user._id,
@@ -1032,6 +1023,7 @@ module.exports = async (req, res) => {
                         status: 'paid',
                         amountCents: Number(answer.orderDetails?.metadata?.finalAmountCents) || 0,
                         currency: safeString(answer.orderDetails?.currency || answer.currency),
+                        ...attribution,
                         raw: answer
                     });
                 } catch (e) {

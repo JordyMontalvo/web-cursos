@@ -144,6 +144,7 @@ try { User = mongoose.model('User'); } catch {
         referredBy:  { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
         registeredRole: { type: String, default: null },
         invitedByRole:  { type: String, default: null },
+        teamDirectorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
         sellerBalance: { type: Number, default: 0 },
         sellerCommission: { type: Number, default: 10 },
         termsAccepted:    { type: Boolean, default: false },
@@ -351,6 +352,7 @@ module.exports = async (req, res) => {
             referredBy: referredById,
             registeredRole: 'vendedor',
             invitedByRole: relation.invitedByRole,
+            teamDirectorId: relation.teamDirectorId,
             termsAccepted: true,
             termsAcceptedAt: new Date(),
             termsVersion: termsVersion || '1.0',
@@ -402,7 +404,8 @@ module.exports = async (req, res) => {
             name, email, password, country, phone,
             referredBy,
             registeredRole: 'user',
-            invitedByRole: relation.invitedByRole
+            invitedByRole: relation.invitedByRole,
+            teamDirectorId: relation.teamDirectorId
         });
         await user.save();
         

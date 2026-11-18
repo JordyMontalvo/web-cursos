@@ -91,17 +91,8 @@ const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema(
     updatedAt: { type: Date, default: Date.now }
 }));
 
-const Payment = mongoose.models.Payment || mongoose.model('Payment', new mongoose.Schema({
-    orderId: { type: String, default: '' },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
-    kind: { type: String, enum: ['checkout', 'renewal'], default: 'renewal' },
-    status: { type: String, enum: ['paid', 'failed', 'pending'], default: 'pending' },
-    amountCents: { type: Number, default: 0 },
-    currency: { type: String, default: '' },
-    raw: { type: Object, default: {} },
-    createdAt: { type: Date, default: Date.now }
-}));
+const Payment = require('../models/Payment');
+const { purchaseAttribution } = require('../lib/salesAccounts');
 
 function setCORS(res, methods = 'GET, OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -286,6 +277,11 @@ module.exports = async (req, res) => {
                 const amountCents = Math.round(Number(membership.price || 0) * 100);
                 const orderId = `R${Date.now().toString().slice(-8)}--${String(user._id).slice(-6)}--${String(membership._id).slice(-6)}`;
 
+                // Punto 10: la renovación también queda vinculada al responsable comercial del cliente.
+                // .lean() porque el esquema inline de User de este archivo no declara referredBy.
+                const client = await User.findById(user._id).select('referredBy').lean();
+                const attribution = await purchaseAttribution(User, client).catch(() => ({}));
+
                 await Payment.create({
                     orderId,
                     userId: user._id,
@@ -294,6 +290,7 @@ module.exports = async (req, res) => {
                     status: 'pending',
                     amountCents,
                     currency: membership.currency || 'PEN',
+                    ...attribution,
                     raw: {}
                 }).catch(() => { /* ignore duplicates */ });
 

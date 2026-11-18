@@ -87,6 +87,10 @@ module.exports = async (req, res) => {
         if (!membershipId) return res.status(400).json({ success: false, message: 'Plan requerido' });
         const membership = await Membership.findById(membershipId);
         if (!membership) return res.status(404).json({ success: false, message: 'Plan no encontrado' });
+        // Punto 10: el acceso a un plan de pago solo se habilita al confirmarse el pago (webhook/retorno de Izipay)
+        if (Number(membership.price) > 0) {
+            return res.status(402).json({ success: false, message: 'Este plan requiere un pago confirmado. Completa la compra desde el checkout.' });
+        }
         const user = await User.findById(decoded.id);
         if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
 

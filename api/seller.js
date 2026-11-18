@@ -1,7 +1,7 @@
 const { connectDB } = require('../lib/db');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const { getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales } = require('../lib/salesAccounts');
+const { getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales, hasPermission } = require('../lib/salesAccounts');
 
 const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
 
@@ -40,24 +40,7 @@ try {
     Transaction = mongoose.model('Transaction', schema);
 }
 
-// Payment Model
-let Payment;
-try {
-    Payment = mongoose.model('Payment');
-} catch {
-    const schema = new mongoose.Schema({
-        orderId: { type: String, default: '' },
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-        membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
-        kind: { type: String, enum: ['checkout', 'renewal'], default: 'checkout' },
-        status: { type: String, enum: ['paid', 'failed', 'pending'], default: 'pending' },
-        amountCents: { type: Number, default: 0 },
-        currency: { type: String, default: 'USD' },
-        raw: { type: Object, default: {} },
-        createdAt: { type: Date, default: Date.now }
-    });
-    Payment = mongoose.model('Payment', schema);
-}
+const Payment = require('../models/Payment');
 
 function verifySeller(req) {
     const auth = req.headers['authorization'];
@@ -65,7 +48,7 @@ function verifySeller(req) {
     if (!token) return null;
     try {
         const d = jwt.verify(token, JWT_SECRET);
-        return (d.role === 'vendedor' || d.role === 'director' || d.role === 'admin') ? d : null;
+        return hasPermission(d.role, 'sales.panel') ? d : null;
     } catch {
         return null;
     }
@@ -105,7 +88,7 @@ module.exports = async (req, res) => {
 
         // GET /api/director/team y /api/director/directors (Punto 7)
         if (req.method === 'GET' && pathname.startsWith('/api/director/')) {
-            if (seller.role !== 'director') return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de director de ventas.' });
+            if (!hasPermission(seller.role, 'team.view')) return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de director de ventas.' });
             if (pathname.endsWith('/team-summary')) {
                 const now = new Date();
                 const year = parseInt(parsedUrl.searchParams.get('year') || now.getFullYear(), 10);
