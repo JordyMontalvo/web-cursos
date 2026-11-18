@@ -864,6 +864,14 @@
                 </div>
             </div>
 
+            <div class="director-only">
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="kpi-label">Total del mes</div><div class="kpi-value" id="combinedKpiAmount" style="color:#34D399;">$ 0.00</div><div class="kpi-sub">Ventas personales + ventas de tus vendedores</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Ventas personales</div><div class="kpi-value" id="combinedKpiPersonal">$ 0.00</div><div class="kpi-sub" id="combinedKpiPersonalCount">0 ventas</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Ventas de mis vendedores</div><div class="kpi-value" id="combinedKpiTeam" style="color:#A78BFA;">$ 0.00</div><div class="kpi-sub" id="combinedKpiTeamCount">0 ventas</div></div>
+                </div>
+            </div>
+
             <!-- KPIs -->
             <div class="kpi-grid">
                 <div class="kpi-card">
@@ -1163,6 +1171,23 @@
         let currentSeller = null;
         let isDirector = false;
         let allClients = [];
+        let personalTotals = null, teamTotals = null;
+
+        function renderCombinedTotals() {
+            if (!isDirector || !personalTotals || !teamTotals) return;
+            const combinedAmount = (personalTotals.totalAmount || 0) + (teamTotals.totalAmount || 0);
+            const elAmount = document.getElementById('combinedKpiAmount');
+            const elPersonal = document.getElementById('combinedKpiPersonal');
+            const elPersonalCount = document.getElementById('combinedKpiPersonalCount');
+            const elTeam = document.getElementById('combinedKpiTeam');
+            const elTeamCount = document.getElementById('combinedKpiTeamCount');
+
+            if (elAmount) elAmount.textContent = `$ ${combinedAmount.toFixed(2)}`;
+            if (elPersonal) elPersonal.textContent = `$ ${(personalTotals.totalAmount || 0).toFixed(2)}`;
+            if (elPersonalCount) elPersonalCount.textContent = `${personalTotals.totalSalesCount || 0} ventas`;
+            if (elTeam) elTeam.textContent = `$ ${(teamTotals.totalAmount || 0).toFixed(2)}`;
+            if (elTeamCount) elTeamCount.textContent = `${teamTotals.totalSalesCount || 0} ventas`;
+        }
 
         // Auth & Startup
         window.addEventListener('DOMContentLoaded', async () => {
@@ -1303,28 +1328,28 @@
                 else if (lowerPlan.includes('mensual')) planClass = 'badge-plan-mensual';
 
                 const regDate = new Date(c.createdAt).toLocaleDateString();
-                const fullName = `${c.name || 'Cliente'} ${c.lastName || ''}`.trim();
-                const purchasesCount = (c.purchases && c.purchases.length) ? c.purchases.length : (isMember ? 1 : 0);
+                const fullName = escapeHtml(`${c.name || 'Cliente'} ${c.lastName || ''}`.trim());
+                const purchasesCount = (c.purchases || []).length;
 
                 return `
                     <tr>
                         <td>
                             <div style="display:flex; align-items:center; gap:0.75rem;">
                                 <div style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, rgba(124,58,237,0.3), rgba(59,130,246,0.3)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; color:#fff; border:1px solid rgba(255,255,255,0.1);">
-                                    ${(c.name || 'C').charAt(0).toUpperCase()}
+                                    ${escapeHtml((c.name || 'C').charAt(0).toUpperCase())}
                                 </div>
                                 <div>
                                     <div style="font-weight:600; color:#fff;">${fullName}</div>
-                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.45);">${c.email}</div>
+                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.45);">${escapeHtml(c.email || '')}</div>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <div style="font-size:0.85rem;">${c.phone || '<span style="opacity:0.4;">Sin teléfono</span>'}</div>
-                            <div style="font-size:0.75rem; color:rgba(255,255,255,0.45);">${c.country || 'No especificado'}</div>
+                            <div style="font-size:0.85rem;">${c.phone ? escapeHtml(c.phone) : '<span style="opacity:0.4;">Sin teléfono</span>'}</div>
+                            <div style="font-size:0.75rem; color:rgba(255,255,255,0.45);">${escapeHtml(c.country || 'No especificado')}</div>
                         </td>
                         <td><span style="color:rgba(255,255,255,0.7);">${regDate}</span></td>
-                        <td><span class="badge-plan ${planClass}">${planName}</span></td>
+                        <td><span class="badge-plan ${planClass}">${escapeHtml(planName)}</span></td>
                         <td>
                             <span class="badge-status ${isMember ? 'active' : 'inactive'}">
                                 <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
@@ -1383,14 +1408,14 @@
             } else {
                 tbody.innerHTML = purchases.map(p => `
                     <tr>
-                        <td><code style="color:#A78BFA; font-weight:700;">${p.orderId || '---'}</code></td>
-                        <td><span style="font-weight:600;">${p.plan || 'Membresía'}</span></td>
+                        <td><code style="color:#A78BFA; font-weight:700;">${escapeHtml(p.orderId || '---')}</code></td>
+                        <td><span style="font-weight:600;">${escapeHtml(p.plan || 'Membresía')}</span></td>
                         <td>${new Date(p.date).toLocaleDateString()}</td>
                         <td style="font-weight:700; color:#34D399;">$ ${(p.amount || 0).toFixed(2)}</td>
                         <td>
                             <span class="badge-status active">
                                 <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
-                                ${p.status || 'Confirmada'}
+                                ${escapeHtml(p.status || 'Confirmada')}
                             </span>
                         </td>
                     </tr>
@@ -1406,6 +1431,8 @@
 
         // Load Monthly Summary
         async function loadMonthlySummary() {
+            personalTotals = null;
+            teamTotals = null;
             if (isDirector) loadTeamSummary();
             try {
                 await configReady;
@@ -1420,6 +1447,12 @@
 
                 if (data.success && data.summary) {
                     const s = data.summary;
+                    personalTotals = {
+                        totalAmount: s.totalAmount || 0,
+                        totalSalesCount: s.totalSalesCount || 0
+                    };
+                    renderCombinedTotals();
+
                     document.getElementById('kpiBuyers').textContent = s.uniqueBuyers || 0;
                     document.getElementById('kpiSales').textContent = s.totalSalesCount || 0;
                     document.getElementById('kpiAmount').textContent = `$ ${(s.totalAmount || 0).toFixed(2)}`;
@@ -1444,16 +1477,16 @@
                         tbody.innerHTML = sales.map(item => `
                             <tr>
                                 <td>
-                                    <div style="font-weight:600; color:#fff;">${item.clientName}</div>
-                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">${item.clientEmail}</div>
+                                    <div style="font-weight:600; color:#fff;">${escapeHtml(item.clientName)}</div>
+                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">${escapeHtml(item.clientEmail)}</div>
                                 </td>
-                                <td><span style="font-weight:600; color:#A78BFA;">${item.plan}</span></td>
+                                <td><span style="font-weight:600; color:#A78BFA;">${escapeHtml(item.plan)}</span></td>
                                 <td>${new Date(item.date).toLocaleString()}</td>
                                 <td style="font-weight:800; color:#34D399;">$ ${(item.amount || 0).toFixed(2)}</td>
                                 <td>
                                     <span class="badge-status active">
                                         <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
-                                        ${item.status}
+                                        ${escapeHtml(item.status)}
                                     </span>
                                 </td>
                             </tr>
@@ -1723,6 +1756,11 @@
                 const data = await fetchDirector(`/api/director/team-summary?year=${year}&month=${month}`);
                 if (!data.success) throw new Error(data.message);
                 const t = data.summary;
+                teamTotals = {
+                    totalAmount: t.totalAmount || 0,
+                    totalSalesCount: t.totalSalesCount || 0
+                };
+                renderCombinedTotals();
                 document.getElementById('teamKpiSellers').textContent = t.activeSellers || 0;
                 document.getElementById('teamKpiSales').textContent = t.totalSalesCount || 0;
                 document.getElementById('teamKpiAmount').textContent = `$ ${(t.totalAmount || 0).toFixed(2)}`;
