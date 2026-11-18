@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const https = require('https');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const { registerDirector } = require('../lib/salesAccounts');
+const { registerDirector, resolveRelation, companyRelation } = require('../lib/salesAccounts');
 
 function getEmailConfig() {
     const user = (process.env.SMTP_USER || process.env.EMAIL_USER || '').trim();
@@ -142,6 +142,8 @@ try { User = mongoose.model('User'); } catch {
         role:        { type: String, enum: ['user', 'admin', 'vendedor', 'director'], default: 'user' },
         sellerCode:  { type: String, unique: true, sparse: true },
         referredBy:  { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        registeredRole: { type: String, default: null },
+        invitedByRole:  { type: String, default: null },
         sellerBalance: { type: Number, default: 0 },
         sellerCommission: { type: Number, default: 10 },
         termsAccepted:    { type: Boolean, default: false },
@@ -312,16 +314,12 @@ module.exports = async (req, res) => {
             return res.status(409).json({ success: false, message: 'Este correo electrónico ya está registrado.' });
         }
 
-        // Buscar quién lo invitó (Empresa o Director)
-        let referredById = null;
-        if (ref) {
-            const inviter = await User.findOne({ sellerCode: ref });
-            if (inviter) referredById = inviter._id;
+        // Quién lo invitó: solo la empresa o un director (un vendedor no invita vendedores)
+        const relation = await resolveRelation(User, ref, 'vendedor');
+        if (relation.error) {
+            return res.status(403).json({ success: false, message: relation.error });
         }
-        if (!referredById) {
-            const admin = await User.findOne({ role: 'admin' });
-            if (admin) referredById = admin._id;
-        }
+        const referredById = relation.referredBy;
 
         // Generar código único automático sin nombres ni documento (ej. TB7K92Q4)
         const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -351,6 +349,8 @@ module.exports = async (req, res) => {
             role: 'vendedor',
             sellerCode,
             referredBy: referredById,
+            registeredRole: 'vendedor',
+            invitedByRole: relation.invitedByRole,
             termsAccepted: true,
             termsAcceptedAt: new Date(),
             termsVersion: termsVersion || '1.0',
@@ -394,26 +394,15 @@ module.exports = async (req, res) => {
         const exists = await User.findOne({ email });
         if (exists) return res.status(409).json({ success: false, message: 'El email ya está registrado' });
         
-        // Buscar vendedor/patrocinador si se proporciona ref
-        let referredBy = null;
-        if (ref) {
-            const seller = await User.findOne({ sellerCode: ref });
-            if (seller) {
-                referredBy = seller._id;
-            }
-        }
-
-        // Si no hay ref o no existe el vendedor, reconocer a la empresa como su patrocinador comercial directo
-        if (!referredBy) {
-            const company = await User.findOne({ role: 'admin' });
-            if (company) {
-                referredBy = company._id;
-            }
-        }
+        // Responsable comercial: quien compartió el enlace (empresa, director o vendedor); sin enlace, la empresa
+        const relation = await resolveRelation(User, ref, 'user');
+        const referredBy = relation.referredBy;
 
         const user = new User({ 
-            name, email, password, country, phone, 
-            referredBy 
+            name, email, password, country, phone,
+            referredBy,
+            registeredRole: 'user',
+            invitedByRole: relation.invitedByRole
         });
         await user.save();
         
@@ -588,7 +577,8 @@ module.exports = async (req, res) => {
             if (user) {
                 if (!user.googleId) { user.googleId = gData.googleId; user.provider = 'google'; if (!user.avatar) user.avatar = gData.avatar; await user.save(); }
             } else {
-                user = new User({ name: gData.name, email: gData.email, googleId: gData.googleId, avatar: gData.avatar, provider: 'google' });
+                const rel = await companyRelation(User);
+                user = new User({ name: gData.name, email: gData.email, googleId: gData.googleId, avatar: gData.avatar, provider: 'google', referredBy: rel.referredBy, registeredRole: 'user', invitedByRole: rel.invitedByRole });
                 await user.save();
                 
                 // Enviar correo de bienvenida al registrarse la primera vez con Google
@@ -621,7 +611,8 @@ module.exports = async (req, res) => {
             if (user) {
                 if (!user.githubId) { user.githubId = ghData.githubId; user.provider = 'github'; if (!user.avatar) user.avatar = ghData.avatar; await user.save(); }
             } else {
-                user = new User({ name: ghData.name, email: ghData.email, githubId: ghData.githubId, avatar: ghData.avatar, provider: 'github' });
+                const rel = await companyRelation(User);
+                user = new User({ name: ghData.name, email: ghData.email, githubId: ghData.githubId, avatar: ghData.avatar, provider: 'github', referredBy: rel.referredBy, registeredRole: 'user', invitedByRole: rel.invitedByRole });
                 await user.save();
             }
             const jwtToken = generateToken(user);

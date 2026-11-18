@@ -69,6 +69,9 @@ try { User = mongoose.model('User'); } catch {
         avatar:   { type: String, default: null },
         provider: { type: String, enum: ['local', 'google', 'github'], default: 'local' },
         role:     { type: String, enum: ['user', 'admin'], default: 'user' },
+        referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        registeredRole: { type: String, default: null },
+        invitedByRole:  { type: String, default: null },
         activeMembership:    { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan:      { type: String, default: null },
@@ -264,7 +267,9 @@ module.exports = async (req, res) => {
                     googleId: googleData.googleId,
                     avatar: googleData.avatar,
                     provider: 'google',
-                    referredBy: company ? company._id : null
+                    referredBy: company ? company._id : null,
+                    registeredRole: 'user',
+                    invitedByRole: company ? 'admin' : null
                 });
                 await user.save();
                 
@@ -325,7 +330,9 @@ module.exports = async (req, res) => {
                     githubId: githubData.githubId,
                     avatar: githubData.avatar,
                     provider: 'github',
-                    referredBy: company ? company._id : null
+                    referredBy: company ? company._id : null,
+                    registeredRole: 'user',
+                    invitedByRole: company ? 'admin' : null
                 });
                 await user.save();
             }

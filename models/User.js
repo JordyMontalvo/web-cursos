@@ -111,6 +111,17 @@ const userSchema = new mongoose.Schema({
         ref: 'User',
         default: null
     },
+    // Relación guardada al registrarse (Punto 9): rol con el que se registró y rol de quien lo invitó
+    registeredRole: {
+        type: String,
+        enum: ['user', 'admin', 'vendedor', 'director', null],
+        default: null
+    },
+    invitedByRole: {
+        type: String,
+        enum: ['admin', 'director', 'vendedor', null],
+        default: null
+    },
     // Balance and metrics for sellers
     sellerBalance: {
         type: Number,

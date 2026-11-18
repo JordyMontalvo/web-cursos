@@ -20,6 +20,8 @@ if (mongoose.models.User) {
         role: { type: String, default: 'user' },
         sellerCode: { type: String, unique: true, sparse: true }, // Removed default: null to allow sparse index to work
         referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        registeredRole: { type: String, default: null },
+        invitedByRole:  { type: String, default: null },
         activeMembership: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan: { type: String, default: null },
@@ -164,6 +166,10 @@ module.exports = async (req, res) => {
                 name, lastName, email, phone, country, password,
                 role: role || 'user',
                 sellerCode: finalSellerCode,
+                registeredRole: role || 'user',
+                // Un cliente creado por la empresa queda con la empresa como responsable comercial
+                referredBy: (role || 'user') === 'user' ? admin.id : null,
+                invitedByRole: (role || 'user') === 'user' ? 'admin' : null,
                 permissions: permissions || [],
                 canCreate: canCreate !== undefined ? canCreate : true,
                 canEdit: canEdit !== undefined ? canEdit : true

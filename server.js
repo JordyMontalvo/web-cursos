@@ -18,7 +18,7 @@ const Banner = require('./models/Banner');
 const Settings = require('./models/Settings');
 const Category = require('./models/Category');
 const LandingConfig = require('./models/LandingConfig');
-const { registerDirector, getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales } = require('./lib/salesAccounts');
+const { resolveRelation, companyRelation, registerDirector, getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales } = require('./lib/salesAccounts');
 
 
 const app = express();
@@ -169,7 +169,8 @@ async function seedDatabase() {
                     name: 'Administrador',
                     email: ADMIN_EMAIL,
                     password: ADMIN_INIT_PASSWORD,
-                    role: 'admin'
+                    role: 'admin',
+                    registeredRole: 'admin'
                 });
                 console.log(`👤 Admin inicial creado: ${ADMIN_EMAIL}`);
             }
@@ -403,16 +404,12 @@ app.post('/api/auth/register-vendedor', async (req, res) => {
             return res.status(409).json({ success: false, message: 'Este correo electrónico ya está registrado.' });
         }
 
-        // Buscar quién lo invitó (Empresa o Director)
-        let referredById = null;
-        if (ref) {
-            const inviter = await User.findOne({ sellerCode: ref });
-            if (inviter) referredById = inviter._id;
+        // Quién lo invitó: solo la empresa o un director (un vendedor no invita vendedores)
+        const relation = await resolveRelation(User, ref, 'vendedor');
+        if (relation.error) {
+            return res.status(403).json({ success: false, message: relation.error });
         }
-        if (!referredById) {
-            const admin = await User.findOne({ role: 'admin' });
-            if (admin) referredById = admin._id;
-        }
+        const referredById = relation.referredBy;
 
         // Generar código único automático sin nombres ni documento (ej. TB7K92Q4)
         const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -442,6 +439,8 @@ app.post('/api/auth/register-vendedor', async (req, res) => {
             role: 'vendedor',
             sellerCode,
             referredBy: referredById,
+            registeredRole: 'vendedor',
+            invitedByRole: relation.invitedByRole,
             termsAccepted: true,
             termsAcceptedAt: new Date(),
             termsVersion: termsVersion || '1.0',
@@ -500,22 +499,9 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(409).json({ success: false, message: 'Este correo ya está registrado' });
         }
 
-        // Buscar si hay un código de referido
-        let referredById = null;
-        if (ref) {
-            const seller = await User.findOne({ sellerCode: ref });
-            if (seller) {
-                referredById = seller._id;
-            }
-        }
-
-        // Si no hay ref o no existe el código, reconocer a la empresa como su patrocinador comercial directo
-        if (!referredById) {
-            const company = await User.findOne({ role: 'admin' });
-            if (company) {
-                referredById = company._id;
-            }
-        }
+        // Responsable comercial: quien compartió el enlace (empresa, director o vendedor); sin enlace, la empresa
+        const relation = await resolveRelation(User, ref, 'user');
+        const referredById = relation.referredBy;
 
         const user = new User({ 
             name, 
@@ -523,7 +509,9 @@ app.post('/api/auth/register', async (req, res) => {
             password, 
             country, 
             phone,
-            referredBy: referredById
+            referredBy: referredById,
+            registeredRole: 'user',
+            invitedByRole: relation.invitedByRole
         });
         await user.save();
 
@@ -1185,7 +1173,11 @@ app.post('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) =
             country,
             password,
             role: role || 'user',
-            sellerCode: sellerCode || undefined
+            sellerCode: sellerCode || undefined,
+            registeredRole: role || 'user',
+            // Un cliente creado por la empresa queda con la empresa como responsable comercial
+            referredBy: (role || 'user') === 'user' ? req.user.id : null,
+            invitedByRole: (role || 'user') === 'user' ? 'admin' : null
         });
 
         await user.save();
@@ -2001,6 +1993,8 @@ app.get('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, re
 
 // Crear un vendedor
 app.post('/api/admin/vendedores', authMiddleware, adminMiddleware, async (req, res) => {
+    // Punto 9: los vendedores solo se registran con el enlace de la empresa o de un director
+    return res.status(403).json({ success: false, message: 'La creación manual de vendedores está deshabilitada. Deben registrarse mediante el enlace de invitación oficial.' });
     try {
         const { name, email, password, sellerCode } = req.body;
         
