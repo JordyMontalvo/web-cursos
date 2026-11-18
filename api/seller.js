@@ -129,6 +129,12 @@ module.exports = async (req, res) => {
 
         // GET /api/seller/profile
         if (req.method === 'GET' && pathname.endsWith('/profile')) {
+            let invitedBy = null;
+            if (seller.referredBy) {
+                const inv = await User.findById(seller.referredBy).select('name lastName role').lean();
+                if (inv) invitedBy = { name: `${inv.name || ''} ${inv.lastName || ''}`.trim(), role: inv.role };
+            }
+
             return res.json({
                 success: true,
                 profile: {
@@ -142,43 +148,20 @@ module.exports = async (req, res) => {
                     documentType: seller.documentType || 'DNI',
                     documentNumber: seller.documentNumber || '',
                     sellerCode: seller.sellerCode || '',
-                    createdAt: seller.createdAt
+                    createdAt: seller.createdAt,
+                    role: seller.role,
+                    invitedBy,
+                    termsAcceptedAt: seller.termsAcceptedAt || null,
+                    contractVersion: seller.contractVersion || null,
+                    contractAcceptedAt: seller.contractAcceptedAt || null
                 }
             });
         }
 
         // PUT /api/seller/profile
         if (req.method === 'PUT' && pathname.endsWith('/profile')) {
-            const { name, lastName, phone, country, address, documentType, documentNumber } = req.body || {};
-            if (name) seller.name = name.trim();
-            if (lastName !== undefined) seller.lastName = lastName.trim();
-            if (phone !== undefined) seller.phone = phone.trim();
-            if (country !== undefined) seller.country = country.trim();
-            if (address !== undefined) seller.address = address.trim();
-            if (documentType && ['DNI', 'Cédula', 'Pasaporte'].includes(documentType)) {
-                seller.documentType = documentType;
-            }
-            if (documentNumber !== undefined) seller.documentNumber = documentNumber.trim();
-            // sellerCode, email, role, referredBy are protected and non-editable
-            await seller.save();
-
-            return res.json({
-                success: true,
-                message: 'Perfil actualizado correctamente',
-                profile: {
-                    id: seller._id,
-                    name: seller.name,
-                    lastName: seller.lastName,
-                    email: seller.email,
-                    phone: seller.phone,
-                    country: seller.country,
-                    address: seller.address,
-                    documentType: seller.documentType,
-                    documentNumber: seller.documentNumber,
-                    sellerCode: seller.sellerCode,
-                    createdAt: seller.createdAt
-                }
-            });
+            // Punto 12: Mi perfil es de solo consulta
+            return res.status(403).json({ success: false, message: 'Tus datos personales son de solo consulta. Para modificarlos, contacta con la empresa.' });
         }
 
         // GET /api/seller/referrals
@@ -203,26 +186,8 @@ module.exports = async (req, res) => {
 
         // POST /api/seller/withdraw
         if (req.method === 'POST' && pathname.endsWith('/withdraw')) {
-            const { amount } = req.body || {};
-            if (!amount || amount <= 0) return res.status(400).json({ success: false, message: 'Monto inválido' });
-
-            if ((seller.sellerBalance || 0) < amount) {
-                return res.status(400).json({ success: false, message: 'Saldo insuficiente' });
-            }
-
-            // Crear solicitud de retiro
-            await Transaction.create({
-                userId: seller._id,
-                type: 'withdrawal',
-                amount: amount,
-                status: 'pending',
-                description: 'Solicitud de retiro de saldo'
-            });
-
-            return res.json({
-                success: true,
-                message: 'Solicitud de retiro registrada. Apartado preparado para la entrega de comisiones y retiros.'
-            });
+            // Punto 12: apartado preparado; las solicitudes, comisiones y reglas de pago se implementarán posteriormente
+            return res.status(501).json({ success: false, message: 'Las solicitudes de retiro se habilitarán en la próxima fase de comisiones y retiros.' });
         }
 
         return res.status(404).json({ success: false, message: 'Ruta no encontrada' });

@@ -1659,6 +1659,12 @@ app.get('/api/seller/profile', authMiddleware, sellerMiddleware, async (req, res
         const seller = await User.findById(req.user.id);
         if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
 
+        let invitedBy = null;
+        if (seller.referredBy) {
+            const inv = await User.findById(seller.referredBy).select('name lastName role').lean();
+            if (inv) invitedBy = { name: `${inv.name || ''} ${inv.lastName || ''}`.trim(), role: inv.role };
+        }
+
         res.json({
             success: true,
             profile: {
@@ -1672,7 +1678,12 @@ app.get('/api/seller/profile', authMiddleware, sellerMiddleware, async (req, res
                 documentType: seller.documentType || 'DNI',
                 documentNumber: seller.documentNumber || '',
                 sellerCode: seller.sellerCode || '',
-                createdAt: seller.createdAt
+                createdAt: seller.createdAt,
+                role: seller.role,
+                invitedBy,
+                termsAcceptedAt: seller.termsAcceptedAt || null,
+                contractVersion: seller.contractVersion || null,
+                contractAcceptedAt: seller.contractAcceptedAt || null
             }
         });
     } catch (error) {
@@ -1681,43 +1692,8 @@ app.get('/api/seller/profile', authMiddleware, sellerMiddleware, async (req, res
 });
 
 app.put('/api/seller/profile', authMiddleware, sellerMiddleware, async (req, res) => {
-    try {
-        const seller = await User.findById(req.user.id);
-        if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
-
-        const { name, lastName, phone, country, address, documentType, documentNumber } = req.body || {};
-        if (name) seller.name = name.trim();
-        if (lastName !== undefined) seller.lastName = lastName.trim();
-        if (phone !== undefined) seller.phone = phone.trim();
-        if (country !== undefined) seller.country = country.trim();
-        if (address !== undefined) seller.address = address.trim();
-        if (documentType && ['DNI', 'Cédula', 'Pasaporte'].includes(documentType)) {
-            seller.documentType = documentType;
-        }
-        if (documentNumber !== undefined) seller.documentNumber = documentNumber.trim();
-        // sellerCode, email, role, referredBy are protected
-        await seller.save();
-
-        res.json({
-            success: true,
-            message: 'Perfil actualizado correctamente',
-            profile: {
-                id: seller._id,
-                name: seller.name,
-                lastName: seller.lastName,
-                email: seller.email,
-                phone: seller.phone,
-                country: seller.country,
-                address: seller.address,
-                documentType: seller.documentType,
-                documentNumber: seller.documentNumber,
-                sellerCode: seller.sellerCode,
-                createdAt: seller.createdAt
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error', error: error.message });
-    }
+    // Punto 12: Mi perfil es de solo consulta
+    res.status(403).json({ success: false, message: 'Tus datos personales son de solo consulta. Para modificarlos, contacta con la empresa.' });
 });
 
 // Lista de referidos del vendedor
@@ -1752,32 +1728,8 @@ app.get('/api/seller/transactions', authMiddleware, sellerMiddleware, async (req
 
 // Solicitar retiro
 app.post('/api/seller/withdraw', authMiddleware, sellerMiddleware, async (req, res) => {
-    try {
-        const { amount } = req.body || {};
-        if (!amount || amount <= 0) return res.status(400).json({ success: false, message: 'Monto inválido' });
-
-        const seller = await User.findById(req.user.id);
-        if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
-
-        if ((seller.sellerBalance || 0) < amount) {
-            return res.status(400).json({ success: false, message: 'Saldo insuficiente' });
-        }
-
-        await TransactionModel.create({
-            userId: seller._id,
-            type: 'withdrawal',
-            amount: amount,
-            status: 'pending',
-            description: 'Solicitud de retiro de saldo'
-        });
-
-        res.json({
-            success: true,
-            message: 'Solicitud de retiro registrada. Apartado preparado para la entrega de comisiones y retiros.'
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error', error: error.message });
-    }
+    // Punto 12: apartado preparado; las solicitudes, comisiones y reglas de pago se implementarán posteriormente
+    res.status(501).json({ success: false, message: 'Las solicitudes de retiro se habilitarán en la próxima fase de comisiones y retiros.' });
 });
 
 // ===================================

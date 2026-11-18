@@ -674,7 +674,7 @@
             <button class="seller-nav-tab director-only" data-tab="directores" onclick="switchSellerTab('directores')">Directores</button>
             <button class="seller-nav-tab" data-tab="resumen" onclick="switchSellerTab('resumen')" data-director-text="Resumen">Resumen mensual</button>
             <button class="seller-nav-tab" data-tab="retiros" onclick="switchSellerTab('retiros')">Retiros</button>
-            <button class="seller-nav-tab seller-only" data-tab="perfil" onclick="switchSellerTab('perfil')">Mi perfil</button>
+            <button class="seller-nav-tab" data-tab="perfil" onclick="switchSellerTab('perfil')">Mi perfil</button>
         </nav>
 
         <!-- ============================================== -->
@@ -991,9 +991,9 @@
                 <div>
                     <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; color:rgba(255,255,255,0.5); letter-spacing:0.04em;">Saldo disponible</div>
                     <h2 id="retiroBalanceDisplay" style="font-size:2.75rem; font-weight:900; color:#34D399; margin:0.25rem 0;">$ 0.00</h2>
-                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Acumulado por ventas de membresías</p>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Acumulado por ventas de membresías (solo consulta)</p>
                 </div>
-                <button class="btn-purple-copy" onclick="openWithdrawModal()" style="font-size:1rem; padding:0.9rem 2.25rem;">Solicitar Retiro</button>
+                <button class="btn-purple-copy" onclick="openWithdrawModal()" style="font-size:1rem; padding:0.9rem 2.25rem;">Solicitar retiro · Próximamente</button>
             </div>
 
             <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:1rem;">Historial de movimientos</h3>
@@ -1027,7 +1027,7 @@
             <div class="seller-link-banner" style="margin-bottom:2rem;">
                 <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
                     <span style="font-size:1.25rem;">🔒</span>
-                    <h3 style="margin:0; font-size:1.15rem;">Tu código de vendedor</h3>
+                    <h3 style="margin:0; font-size:1.15rem;" data-director-text="Tu código de director">Tu código de vendedor</h3>
                 </div>
                 <p style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:1.25rem;">
                     Código generado automáticamente por el sistema (no editable).
@@ -1042,29 +1042,29 @@
             <div class="seller-card-bg" style="border:1px solid var(--seller-card-border); border-radius:16px; padding:2rem; margin-bottom:2rem;">
                 <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:0.5rem;">Datos personales</h3>
                 <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin-bottom:2rem;">
-                    Actualiza tu información personal, de contacto y de identificación.
+                    Consulta tu información personal, de contacto y de identificación. Para modificar algún dato, contacta con la empresa.
                 </p>
 
-                <form id="profileForm" onsubmit="handleProfileSubmit(event)">
+                <form id="profileForm" onsubmit="return false;">
                     <div class="profile-form-grid">
                         <div class="form-group">
-                            <label>Nombres *</label>
-                            <input type="text" id="profileName" required>
+                            <label>Nombres</label>
+                            <input type="text" id="profileName" readonly>
                         </div>
 
                         <div class="form-group">
-                            <label>Apellidos *</label>
-                            <input type="text" id="profileLastName" required>
+                            <label>Apellidos</label>
+                            <input type="text" id="profileLastName" readonly>
                         </div>
 
                         <div class="form-group">
-                            <label>Correo Electrónico (No editable)</label>
+                            <label>Correo Electrónico</label>
                             <input type="email" id="profileEmail" disabled>
                         </div>
 
                         <div class="form-group">
                             <label>Tipo de Documento</label>
-                            <select id="profileDocType">
+                            <select id="profileDocType" disabled>
                                 <option value="DNI">DNI</option>
                                 <option value="Cédula">Cédula</option>
                                 <option value="Pasaporte">Pasaporte</option>
@@ -1073,34 +1073,38 @@
 
                         <div class="form-group">
                             <label>Número de Documento</label>
-                            <input type="text" id="profileDocNumber" placeholder="Número de identidad">
+                            <input type="text" id="profileDocNumber" placeholder="Número de identidad" readonly>
                         </div>
 
                         <div class="form-group">
                             <label>País</label>
-                            <input type="text" id="profileCountry" placeholder="País de residencia">
+                            <input type="text" id="profileCountry" placeholder="País de residencia" readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Celular / Teléfono (con prefijo internacional)</label>
-                            <input type="tel" id="profilePhone" placeholder="+51 987654321">
+                            <input type="tel" id="profilePhone" placeholder="+51 987654321" readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Dirección</label>
-                            <input type="text" id="profileAddress" placeholder="Dirección de residencia">
+                            <input type="text" id="profileAddress" placeholder="Dirección de residencia" readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Fecha de Registro</label>
                             <input type="text" id="profileCreatedAt" disabled>
                         </div>
-                    </div>
 
-                    <div style="display:flex; justify-content:flex-end;">
-                        <button type="submit" class="btn-purple-copy" id="btnSaveProfile" style="padding:0.85rem 2.5rem;">
-                            Guardar cambios
-                        </button>
+                        <div class="form-group">
+                            <label>Rol</label>
+                            <input type="text" id="profileRole" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Invitado por</label>
+                            <input type="text" id="profileInvitedBy" readonly>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -1517,11 +1521,11 @@
                             <tr>
                                 <td>${new Date(t.createdAt).toLocaleString()}</td>
                                 <td><strong style="color:${isComm ? '#34D399' : '#60A5FA'};">${isComm ? 'COMISIÓN' : 'RETIRO'}</strong></td>
-                                <td>${t.description || 'Movimiento de cuenta'}</td>
+                                <td>${escapeHtml(t.description || 'Movimiento de cuenta')}</td>
                                 <td style="font-weight:800; color:${isComm ? '#34D399' : '#EF4444'};">${isComm ? '+' : '-'} $ ${(t.amount || 0).toFixed(2)}</td>
                                 <td>
                                     <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; padding:0.25rem 0.6rem; border-radius:6px; background:${statusColor}22; color:${statusColor}; border:1px solid ${statusColor}44;">
-                                        ${t.status}
+                                        ${escapeHtml(t.status || '')}
                                     </span>
                                 </td>
                             </tr>
@@ -1565,59 +1569,30 @@
                     document.getElementById('profileCountry').value = p.country || '';
                     document.getElementById('profilePhone').value = p.phone || '';
                     document.getElementById('profileAddress').value = p.address || '';
-                    document.getElementById('profileCreatedAt').value = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '---';
+
+                    const roleMap = { vendedor: 'Vendedor', director: 'Director de ventas', admin: 'Empresa' };
+                    const roleLabel = (r) => roleMap[r] || r || '---';
+
+                    document.getElementById('profileRole').value = roleLabel(p.role);
+
+                    let invitedByText = 'La empresa';
+                    if (p.invitedBy) {
+                        invitedByText = p.invitedBy.role === 'admin'
+                            ? 'La empresa'
+                            : `${p.invitedBy.name} (${roleLabel(p.invitedBy.role)})`;
+                    }
+                    document.getElementById('profileInvitedBy').value = invitedByText;
+
+                    const baseDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '---';
+                    if (p.contractAcceptedAt) {
+                        const fechaContract = new Date(p.contractAcceptedAt).toLocaleDateString();
+                        document.getElementById('profileCreatedAt').value = `${baseDate} · Contrato v${p.contractVersion} aceptado el ${fechaContract}`;
+                    } else {
+                        document.getElementById('profileCreatedAt').value = baseDate;
+                    }
                 }
             } catch (err) {
                 console.error('Error loading profile', err);
-            }
-        }
-
-        // Save Profile Form
-        async function handleProfileSubmit(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSaveProfile');
-            const originalText = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Guardando...';
-
-            try {
-                await configReady;
-                const token = localStorage.getItem('authToken');
-                const payload = {
-                    name: document.getElementById('profileName').value.trim(),
-                    lastName: document.getElementById('profileLastName').value.trim(),
-                    documentType: document.getElementById('profileDocType').value,
-                    documentNumber: document.getElementById('profileDocNumber').value.trim(),
-                    country: document.getElementById('profileCountry').value.trim(),
-                    phone: document.getElementById('profilePhone').value.trim(),
-                    address: document.getElementById('profileAddress').value.trim()
-                };
-
-                const res = await fetch(apiUrl('/api/seller/profile'), {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    alert('¡Datos personales actualizados correctamente!');
-                    // Update authUser in storage
-                    const stored = JSON.parse(localStorage.getItem('authUser') || '{}');
-                    stored.name = payload.name;
-                    localStorage.setItem('authUser', JSON.stringify(stored));
-                    document.getElementById('sellerHeaderName').textContent = `${payload.name} ${payload.lastName}`.trim();
-                } else {
-                    alert(data.message || 'Error al actualizar perfil');
-                }
-            } catch (err) {
-                alert('Error al guardar datos: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = originalText;
             }
         }
 
