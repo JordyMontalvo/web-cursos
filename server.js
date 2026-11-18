@@ -18,6 +18,7 @@ const Banner = require('./models/Banner');
 const Settings = require('./models/Settings');
 const Category = require('./models/Category');
 const LandingConfig = require('./models/LandingConfig');
+const { registerDirector, getDirectorTeam, getDirectorDirectors } = require('./lib/salesAccounts');
 
 
 const app = express();
@@ -111,8 +112,16 @@ function adminMiddleware(req, res, next) {
 
 // Middleware de vendedor
 function sellerMiddleware(req, res, next) {
-    if (req.user.role !== 'vendedor' && req.user.role !== 'admin') {
+    if (req.user.role !== 'vendedor' && req.user.role !== 'director' && req.user.role !== 'admin') {
         return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de vendedor.' });
+    }
+    next();
+}
+
+// Middleware de director de ventas
+function directorMiddleware(req, res, next) {
+    if (req.user.role !== 'director') {
+        return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de director de ventas.' });
     }
     next();
 }
@@ -350,6 +359,29 @@ const upload = multer({
 // ===================================
 // RUTAS DE AUTENTICACIÓN
 // ===================================
+
+// Registro de Director de ventas por invitación (Punto 7)
+app.post('/api/auth/register-director', async (req, res) => {
+    try {
+        const result = await registerDirector(User, req.body);
+        if (!result.user) return res.status(result.status).json(result.body);
+        const user = result.user;
+
+        sendWelcomeEmail({ to: user.email, name: user.name })
+            .catch((err) => console.error('Error enviando email de bienvenida:', err && err.message ? err.message : err));
+
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({
+            success: true,
+            token,
+            sellerCode: user.sellerCode,
+            user: { id: user._id, name: user.name, lastName: user.lastName, email: user.email, role: user.role, sellerCode: user.sellerCode }
+        });
+    } catch (error) {
+        console.error('[RegisterDirector] Error:', error);
+        res.status(500).json({ success: false, message: 'Error al registrar director de ventas', error: error.message });
+    }
+});
 
 // Registro de Vendedor por Invitación (Punto 3)
 app.post('/api/auth/register-vendedor', async (req, res) => {
@@ -1515,6 +1547,26 @@ app.get('/curso/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/content/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'content-manager.html')));
 app.get('/vendedor', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor.html')));
+app.get('/director', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vendedor.html')));
+app.get('/registro/director', (req, res) => res.sendFile(path.join(__dirname, 'public', 'registro-director.html')));
+
+// Equipo del director: vendedores invitados por él con sus ventas
+app.get('/api/director/team', authMiddleware, directorMiddleware, async (req, res) => {
+    try {
+        res.json({ success: true, sellers: await getDirectorTeam(User, PaymentModel, req.user.id) });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error cargando equipo', error: error.message });
+    }
+});
+
+// Directores recomendados por el director
+app.get('/api/director/directors', authMiddleware, directorMiddleware, async (req, res) => {
+    try {
+        res.json({ success: true, directors: await getDirectorDirectors(User, req.user.id) });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error cargando directores', error: error.message });
+    }
+});
 
 // ===================================
 // RUTAS DE VENDEDORES (SELLER PANEL)
@@ -1571,9 +1623,10 @@ app.get('/api/seller/stats', authMiddleware, sellerMiddleware, async (req, res) 
         const seller = await User.findById(req.user.id);
         if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
 
-        const count = await User.countDocuments({ referredBy: seller._id });
+        const count = await User.countDocuments({ referredBy: seller._id, role: 'user' });
         const buyersCount = await User.countDocuments({
             referredBy: seller._id,
+            role: 'user',
             activeMembership: { $ne: null }
         });
         
@@ -1665,7 +1718,7 @@ app.put('/api/seller/profile', authMiddleware, sellerMiddleware, async (req, res
 // Lista de referidos del vendedor
 app.get('/api/seller/referrals', authMiddleware, sellerMiddleware, async (req, res) => {
     try {
-        const referrals = await User.find({ referredBy: req.user.id })
+        const referrals = await User.find({ referredBy: req.user.id, role: 'user' })
             .select('name lastName email phone country address documentType documentNumber createdAt membershipPlan membershipExpiresAt activeMembership izipayLastOrderId')
             .sort({ createdAt: -1 });
 
@@ -1745,7 +1798,7 @@ app.get('/api/seller/monthly-summary', authMiddleware, sellerMiddleware, async (
             if (m.planType) priceMap[m.planType.toLowerCase()] = m.price;
         });
 
-        const referrals = await User.find({ referredBy: req.user.id }).lean();
+        const referrals = await User.find({ referredBy: req.user.id, role: 'user' }).lean();
         const refIds = referrals.map(u => u._id);
         const refMap = {};
         referrals.forEach(u => { refMap[String(u._id)] = u; });

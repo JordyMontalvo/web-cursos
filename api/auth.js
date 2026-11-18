@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const https = require('https');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const { registerDirector } = require('../lib/salesAccounts');
 
 function getEmailConfig() {
     const user = (process.env.SMTP_USER || process.env.EMAIL_USER || '').trim();
@@ -146,6 +147,8 @@ try { User = mongoose.model('User'); } catch {
         termsAccepted:    { type: Boolean, default: false },
         termsAcceptedAt:  { type: Date },
         termsVersion:     { type: String, default: '1.0' },
+        contractVersion:  { type: String },
+        contractAcceptedAt: { type: Date },
         activeMembership:    { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
         membershipExpiresAt: { type: Date, default: null },
         membershipPlan:      { type: String, default: null },
@@ -275,6 +278,20 @@ module.exports = async (req, res) => {
     }
 
     const url = req.url.split('?')[0];
+
+    // ── POST /api/auth/register-director (Punto 7) ───────────────
+    if (req.method === 'POST' && url.endsWith('/register-director')) {
+        const result = await registerDirector(User, req.body);
+        if (!result.user) return res.status(result.status).json(result.body);
+        const user = result.user;
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        return res.json({
+            success: true,
+            token,
+            sellerCode: user.sellerCode,
+            user: { id: user._id, name: user.name, lastName: user.lastName, email: user.email, role: user.role, sellerCode: user.sellerCode }
+        });
+    }
 
     // ── POST /api/auth/register-vendedor ─────────────────────────
     if (req.method === 'POST' && (url.endsWith('/register-vendedor') || url.includes('register-vendedor'))) {

@@ -54,6 +54,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: '1.0'
     },
+    // Contrato aceptado (directores de ventas)
+    contractVersion: {
+        type: String
+    },
+    contractAcceptedAt: {
+        type: Date
+    },
     birthDate: {
         type: String,
         trim: true

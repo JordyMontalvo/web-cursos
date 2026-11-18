@@ -177,6 +177,13 @@
             animation: fadeInView 0.3s ease-out;
         }
 
+        .director-only { display: none !important; }
+        body.is-director .director-only { display: revert !important; }
+        body.is-director .seller-nav-tab.director-only { display: inline-block !important; }
+        body.is-director .seller-link-banner.director-only,
+        body.is-director .seller-card-btn.director-only { display: block !important; }
+        .seller-link-banner + .seller-link-banner { margin-top: 1rem; }
+
         .seller-view.active {
             display: block;
         }
@@ -632,7 +639,7 @@
                 </a>
 
                 <div style="display:flex; align-items:center; gap:1.25rem;">
-                    <span class="seller-role-badge">Vendedor</span>
+                    <span class="seller-role-badge" id="roleBadge">Vendedor</span>
                     <span id="sellerHeaderName" style="font-size:0.875rem; color:rgba(255,255,255,0.7); font-weight:600;"></span>
                     <button class="seller-logout-btn" onclick="sellerLogout()">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -656,6 +663,8 @@
         <nav class="seller-nav-tabs">
             <button class="seller-nav-tab active" data-tab="inicio" onclick="switchSellerTab('inicio')">Inicio</button>
             <button class="seller-nav-tab" data-tab="clientes" onclick="switchSellerTab('clientes')">Mis clientes</button>
+            <button class="seller-nav-tab director-only" data-tab="equipo" onclick="switchSellerTab('equipo')">Mi equipo</button>
+            <button class="seller-nav-tab director-only" data-tab="directores" onclick="switchSellerTab('directores')">Directores</button>
             <button class="seller-nav-tab" data-tab="resumen" onclick="switchSellerTab('resumen')">Resumen mensual</button>
             <button class="seller-nav-tab" data-tab="retiros" onclick="switchSellerTab('retiros')">Retiros</button>
             <button class="seller-nav-tab" data-tab="perfil" onclick="switchSellerTab('perfil')">Mi perfil</button>
@@ -674,11 +683,39 @@
                 </div>
             </div>
 
+            <!-- Enlaces del director (Punto 7) -->
+            <div class="seller-link-banner director-only">
+                <h3>Mi enlace para invitar vendedores</h3>
+                <div class="banner-input-row">
+                    <input type="text" id="inviteSellerLinkInput" readonly value="Cargando enlace...">
+                    <button class="btn-purple-copy" onclick="copyInputValue('inviteSellerLinkInput', this)">Copiar</button>
+                </div>
+            </div>
+            <div class="seller-link-banner director-only">
+                <h3>Mi enlace para recomendar directores</h3>
+                <div class="banner-input-row">
+                    <input type="text" id="inviteDirectorLinkInput" readonly value="Cargando enlace...">
+                    <button class="btn-purple-copy" onclick="copyInputValue('inviteDirectorLinkInput', this)">Copiar</button>
+                </div>
+            </div>
+
             <!-- Cards Grid: Mis clientes, Resumen mensual, Retiros, Mi perfil -->
             <div class="seller-cards-grid">
                 <div class="seller-card-btn" onclick="switchSellerTab('clientes')">
                     <h4>Mis clientes</h4>
                     <p>Ver clientes y compras</p>
+                    <span class="card-arrow">→</span>
+                </div>
+
+                <div class="seller-card-btn director-only" onclick="switchSellerTab('equipo')">
+                    <h4>Mi equipo</h4>
+                    <p>Vendedores y sus ventas</p>
+                    <span class="card-arrow">→</span>
+                </div>
+
+                <div class="seller-card-btn director-only" onclick="switchSellerTab('directores')">
+                    <h4>Directores</h4>
+                    <p>Directores que recomendaste</p>
                     <span class="card-arrow">→</span>
                 </div>
 
@@ -746,6 +783,47 @@
                                 Cargando clientes...
                             </td>
                         </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- ============================================== -->
+        <!-- VIEW: MI EQUIPO DE VENDEDORES (solo director)  -->
+        <!-- ============================================== -->
+        <section id="viewEquipo" class="seller-view">
+            <div class="filter-row">
+                <div>
+                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Mi equipo de vendedores</h2>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Vendedores registrados con tu enlace de invitación y sus ventas.</p>
+                </div>
+            </div>
+            <div class="seller-table-wrap">
+                <table class="seller-table">
+                    <thead><tr><th>Vendedor</th><th>Código</th><th>Fecha de registro</th><th>Clientes</th><th>Clientes activos</th><th>Ventas</th></tr></thead>
+                    <tbody id="teamTableBody">
+                        <tr><td colspan="6" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">Cargando equipo...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: DIRECTORES RECOMENDADOS (solo director)  -->
+        <!-- ============================================== -->
+        <section id="viewDirectores" class="seller-view">
+            <div class="filter-row">
+                <div>
+                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Directores recomendados</h2>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Directores registrados con tu enlace. Cada uno tiene su propio equipo.</p>
+                </div>
+            </div>
+            <div class="seller-table-wrap">
+                <table class="seller-table">
+                    <thead><tr><th>Director</th><th>Código</th><th>Fecha de registro</th><th>Vendedores</th><th>Clientes</th><th>Directores</th></tr></thead>
+                    <tbody id="directorsTableBody">
+                        <tr><td colspan="6" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">Cargando directores...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1034,6 +1112,7 @@
     <script src="/config.js?v=2.4"></script>
     <script>
         let currentSeller = null;
+        let isDirector = false;
         let allClients = [];
 
         // Auth & Startup
@@ -1041,12 +1120,23 @@
             const token = localStorage.getItem('authToken');
             const user = JSON.parse(localStorage.getItem('authUser') || '{}');
 
-            if (!token || (user.role !== 'vendedor' && user.role !== 'admin')) {
+            if (!token || (user.role !== 'vendedor' && user.role !== 'director' && user.role !== 'admin')) {
                 window.location.href = '/vendedor-login';
                 return;
             }
 
             document.getElementById('sellerHeaderName').textContent = user.name || 'Vendedor';
+
+            // Panel de director: mismas funciones del vendedor + equipo y directores
+            isDirector = user.role === 'director';
+            if (isDirector) {
+                document.body.classList.add('is-director');
+                document.getElementById('roleBadge').textContent = 'Director de ventas';
+                document.querySelector('.seller-brand').setAttribute('href', '/director');
+                document.title = document.title.replace(/Vendedor/g, 'Director');
+                loadDirectorTeam();
+                loadDirectorDirectors();
+            }
 
             initMonthSelector();
             await loadSellerData();
@@ -1073,7 +1163,9 @@
                 clientes: 'Mis clientes',
                 resumen: 'Resumen mensual',
                 retiros: 'Retiros',
-                perfil: 'Mi perfil'
+                perfil: 'Mi perfil',
+                equipo: 'Mi equipo',
+                directores: 'Directores'
             };
             document.getElementById('pageTitle').textContent = titles[tabKey] || 'Panel de Vendedor';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1118,6 +1210,10 @@
                     // Referral selling link: [dominio]/membresias?ref=TB...
                     const sellingUrl = `${window.location.origin}/membresias?ref=${code}`;
                     document.getElementById('sellerLinkInput').value = sellingUrl;
+                    if (isDirector) {
+                        document.getElementById('inviteSellerLinkInput').value = `${window.location.origin}/registro/vendedor?ref=${code}`;
+                        document.getElementById('inviteDirectorLinkInput').value = `${window.location.origin}/registro/director?ref=${code}`;
+                    }
                     document.getElementById('retiroBalanceDisplay').textContent = `$ ${(currentSeller.balance || 0).toFixed(2)}`;
 
                     if (currentSeller.name) {
@@ -1471,6 +1567,76 @@
             }).catch(() => {
                 document.execCommand('copy');
                 alert('¡Código copiado!');
+            });
+        }
+
+        // ── Director de ventas (Punto 7) ─────────────────────────────
+        function escapeHtml(v) {
+            return String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function personCell(p) {
+            const fullName = escapeHtml(`${p.name || ''} ${p.lastName || ''}`.trim());
+            return `<div style="font-weight:600; color:#fff;">${fullName}</div>
+                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.45);">${escapeHtml(p.email)}</div>`;
+        }
+
+        function emptyRow(cols, msg) {
+            return `<tr><td colspan="${cols}" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">${msg}</td></tr>`;
+        }
+
+        async function fetchDirector(path) {
+            await configReady;
+            const res = await fetch(apiUrl(path), { headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` } });
+            return res.json();
+        }
+
+        async function loadDirectorTeam() {
+            const tbody = document.getElementById('teamTableBody');
+            try {
+                const data = await fetchDirector('/api/director/team');
+                if (!data.success) throw new Error(data.message);
+                const sellers = data.sellers || [];
+                tbody.innerHTML = sellers.length ? sellers.map(s => `
+                    <tr>
+                        <td>${personCell(s)}</td>
+                        <td><code>${escapeHtml(s.sellerCode)}</code></td>
+                        <td>${new Date(s.createdAt).toLocaleDateString()}</td>
+                        <td>${s.clientsCount}</td>
+                        <td>${s.activeClients}</td>
+                        <td>${s.salesCount} · $ ${Number(s.salesTotal || 0).toFixed(2)}</td>
+                    </tr>`).join('') : emptyRow(6, 'Aún no tienes vendedores. Comparte tu enlace para invitar vendedores.');
+            } catch (err) {
+                tbody.innerHTML = emptyRow(6, 'No se pudo cargar tu equipo.');
+            }
+        }
+
+        async function loadDirectorDirectors() {
+            const tbody = document.getElementById('directorsTableBody');
+            try {
+                const data = await fetchDirector('/api/director/directors');
+                if (!data.success) throw new Error(data.message);
+                const directors = data.directors || [];
+                tbody.innerHTML = directors.length ? directors.map(d => `
+                    <tr>
+                        <td>${personCell(d)}</td>
+                        <td><code>${escapeHtml(d.sellerCode)}</code></td>
+                        <td>${new Date(d.createdAt).toLocaleDateString()}</td>
+                        <td>${d.sellersCount}</td>
+                        <td>${d.clientsCount}</td>
+                        <td>${d.directorsCount}</td>
+                    </tr>`).join('') : emptyRow(6, 'Aún no recomendaste directores. Comparte tu enlace para recomendar directores.');
+            } catch (err) {
+                tbody.innerHTML = emptyRow(6, 'No se pudo cargar la lista de directores.');
+            }
+        }
+
+        function copyInputValue(inputId, btn) {
+            const value = document.getElementById(inputId).value;
+            navigator.clipboard.writeText(value).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '¡Copiado!';
+                setTimeout(() => { btn.textContent = orig; }, 2000);
             });
         }
 

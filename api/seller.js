@@ -1,6 +1,7 @@
 const { connectDB } = require('../lib/db');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { getDirectorTeam, getDirectorDirectors } = require('../lib/salesAccounts');
 
 const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
 
@@ -64,7 +65,7 @@ function verifySeller(req) {
     if (!token) return null;
     try {
         const d = jwt.verify(token, JWT_SECRET);
-        return (d.role === 'vendedor' || d.role === 'admin') ? d : null;
+        return (d.role === 'vendedor' || d.role === 'director' || d.role === 'admin') ? d : null;
     } catch {
         return null;
     }
@@ -102,11 +103,19 @@ module.exports = async (req, res) => {
         const seller = await User.findById(sellerAuth.id);
         if (!seller) return res.status(404).json({ success: false, message: 'Vendedor no encontrado' });
 
+        // GET /api/director/team y /api/director/directors (Punto 7)
+        if (req.method === 'GET' && pathname.startsWith('/api/director/')) {
+            if (seller.role !== 'director') return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de director de ventas.' });
+            if (pathname.endsWith('/team')) return res.json({ success: true, sellers: await getDirectorTeam(User, Payment, seller._id) });
+            if (pathname.endsWith('/directors')) return res.json({ success: true, directors: await getDirectorDirectors(User, seller._id) });
+        }
+
         // GET /api/seller/stats
         if (req.method === 'GET' && pathname.endsWith('/stats')) {
-            const referralsCount = await User.countDocuments({ referredBy: seller._id });
+            const referralsCount = await User.countDocuments({ referredBy: seller._id, role: 'user' });
             const buyersCount = await User.countDocuments({
                 referredBy: seller._id,
+                role: 'user',
                 activeMembership: { $ne: null }
             });
 
@@ -181,7 +190,7 @@ module.exports = async (req, res) => {
 
         // GET /api/seller/referrals
         if (req.method === 'GET' && pathname.endsWith('/referrals')) {
-            const referrals = await User.find({ referredBy: seller._id })
+            const referrals = await User.find({ referredBy: seller._id, role: 'user' })
                 .select('name lastName email phone country address documentType documentNumber createdAt membershipPlan membershipExpiresAt activeMembership izipayLastOrderId')
                 .sort({ createdAt: -1 });
 
@@ -262,7 +271,7 @@ module.exports = async (req, res) => {
             });
 
             // Reffered users
-            const referrals = await User.find({ referredBy: seller._id }).lean();
+            const referrals = await User.find({ referredBy: seller._id, role: 'user' }).lean();
             const refIds = referrals.map(u => u._id);
             const refMap = {};
             referrals.forEach(u => { refMap[String(u._id)] = u; });
