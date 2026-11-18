@@ -31,7 +31,9 @@
     { "source": "/api/seller/profile",      "destination": "/api/seller" },
     { "source": "/api/seller/transactions",  "destination": "/api/seller" },
     { "source": "/api/seller/withdraw",      "destination": "/api/seller" },
+    { "source": "/api/director/team-summary", "destination": "/api/seller" },
     { "source": "/api/director/team",        "destination": "/api/seller" },
+    { "source": "/api/director/team/:id",    "destination": "/api/seller" },
     { "source": "/api/director/directors",   "destination": "/api/seller" },
 
     { "source": "/api/auth/check-access",   "destination": "/api/auth" },

@@ -183,6 +183,13 @@
         body.is-director .seller-link-banner.director-only,
         body.is-director .seller-card-btn.director-only { display: block !important; }
         .seller-link-banner + .seller-link-banner { margin-top: 1rem; }
+        body.is-director .seller-only { display: none !important; }
+        body.is-director .seller-cards-grid { grid-template-columns: repeat(3, 1fr); margin-top: 2.5rem; }
+        @media (max-width: 860px) { body.is-director .seller-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 560px) { body.is-director .seller-cards-grid { grid-template-columns: 1fr; } }
+        .btn-row-link { background: rgba(124,58,237,0.15); color: #C4B5FD; border: 1px solid rgba(124,58,237,0.35); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-row-link:hover { background: rgba(124,58,237,0.3); }
+        .director-section-title { font-size: 1.25rem; font-weight: 800; margin: 2.5rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); }
 
         .seller-view.active {
             display: block;
@@ -662,12 +669,12 @@
         <!-- Navigation Tabs -->
         <nav class="seller-nav-tabs">
             <button class="seller-nav-tab active" data-tab="inicio" onclick="switchSellerTab('inicio')">Inicio</button>
-            <button class="seller-nav-tab" data-tab="clientes" onclick="switchSellerTab('clientes')">Mis clientes</button>
-            <button class="seller-nav-tab director-only" data-tab="equipo" onclick="switchSellerTab('equipo')">Mi equipo</button>
+            <button class="seller-nav-tab" data-tab="clientes" onclick="switchSellerTab('clientes')" data-director-text="Clientes">Mis clientes</button>
+            <button class="seller-nav-tab director-only" data-tab="equipo" onclick="switchSellerTab('equipo')">Vendedores</button>
             <button class="seller-nav-tab director-only" data-tab="directores" onclick="switchSellerTab('directores')">Directores</button>
-            <button class="seller-nav-tab" data-tab="resumen" onclick="switchSellerTab('resumen')">Resumen mensual</button>
+            <button class="seller-nav-tab" data-tab="resumen" onclick="switchSellerTab('resumen')" data-director-text="Resumen">Resumen mensual</button>
             <button class="seller-nav-tab" data-tab="retiros" onclick="switchSellerTab('retiros')">Retiros</button>
-            <button class="seller-nav-tab" data-tab="perfil" onclick="switchSellerTab('perfil')">Mi perfil</button>
+            <button class="seller-nav-tab seller-only" data-tab="perfil" onclick="switchSellerTab('perfil')">Mi perfil</button>
         </nav>
 
         <!-- ============================================== -->
@@ -676,7 +683,7 @@
         <section id="viewInicio" class="seller-view active">
             <!-- Referral Selling Link Banner -->
             <div class="seller-link-banner">
-                <h3>Mi enlace para vender membresias</h3>
+                <h3 data-director-text="Mis clientes: vender membresías">Mi enlace para vender membresias</h3>
                 <div class="banner-input-row">
                     <input type="text" id="sellerLinkInput" readonly value="Cargando enlace...">
                     <button class="btn-purple-copy" id="btnCopyLink" onclick="copySellerLink()">Copiar</button>
@@ -685,14 +692,14 @@
 
             <!-- Enlaces del director (Punto 7) -->
             <div class="seller-link-banner director-only">
-                <h3>Mi enlace para invitar vendedores</h3>
+                <h3>Invitar vendedores a mi equipo</h3>
                 <div class="banner-input-row">
                     <input type="text" id="inviteSellerLinkInput" readonly value="Cargando enlace...">
                     <button class="btn-purple-copy" onclick="copyInputValue('inviteSellerLinkInput', this)">Copiar</button>
                 </div>
             </div>
             <div class="seller-link-banner director-only">
-                <h3>Mi enlace para recomendar directores</h3>
+                <h3>Recomendar directores</h3>
                 <div class="banner-input-row">
                     <input type="text" id="inviteDirectorLinkInput" readonly value="Cargando enlace...">
                     <button class="btn-purple-copy" onclick="copyInputValue('inviteDirectorLinkInput', this)">Copiar</button>
@@ -703,25 +710,25 @@
             <div class="seller-cards-grid">
                 <div class="seller-card-btn" onclick="switchSellerTab('clientes')">
                     <h4>Mis clientes</h4>
-                    <p>Ver clientes y compras</p>
+                    <p data-director-text="Ventas personales">Ver clientes y compras</p>
                     <span class="card-arrow">→</span>
                 </div>
 
                 <div class="seller-card-btn director-only" onclick="switchSellerTab('equipo')">
-                    <h4>Mi equipo</h4>
-                    <p>Vendedores y sus ventas</p>
+                    <h4>Mis vendedores</h4>
+                    <p>Equipo y sus ventas</p>
                     <span class="card-arrow">→</span>
                 </div>
 
                 <div class="seller-card-btn director-only" onclick="switchSellerTab('directores')">
-                    <h4>Directores</h4>
-                    <p>Directores que recomendaste</p>
+                    <h4>Mis directores</h4>
+                    <p>Directores recomendados</p>
                     <span class="card-arrow">→</span>
                 </div>
 
                 <div class="seller-card-btn" onclick="switchSellerTab('resumen')">
                     <h4>Resumen mensual</h4>
-                    <p>Consultar ventas del mes</p>
+                    <p data-director-text="Ventas del mes">Consultar ventas del mes</p>
                     <span class="card-arrow">→</span>
                 </div>
 
@@ -733,13 +740,13 @@
 
                 <div class="seller-card-btn" onclick="switchSellerTab('perfil')">
                     <h4>Mi perfil</h4>
-                    <p>Datos personales y código</p>
+                    <p data-director-text="Datos personales">Datos personales y código</p>
                     <span class="card-arrow">→</span>
                 </div>
             </div>
 
             <!-- Descriptive Note from PDF -->
-            <div class="seller-info-banner">
+            <div class="seller-info-banner seller-only">
                 <strong>Información importante:</strong> Tu enlace oficial contiene tu código automático único de vendedor para que el sistema reconozca a tus clientes cuando adquieran una membresía. Cada tarjeta abre su sección correspondiente. El vendedor ve únicamente sus propios clientes y ventas registradas.
             </div>
         </section>
@@ -751,7 +758,7 @@
             <div class="filter-row">
                 <div>
                     <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Clientes vinculados</h2>
-                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Clientes registrados a través de tu enlace de venta de membresías.</p>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;"><span data-director-text="Clientes captados personalmente por ti con tu enlace de venta, y sus compras.">Clientes registrados a través de tu enlace de venta de membresías.</span></p>
                 </div>
                 <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
                     <input type="text" id="clientSearch" oninput="filterClients()" placeholder="Buscar por nombre o correo..." class="seller-input" style="width:260px;">
@@ -795,17 +802,28 @@
         <section id="viewEquipo" class="seller-view">
             <div class="filter-row">
                 <div>
-                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Mi equipo de vendedores</h2>
-                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Vendedores registrados con tu enlace de invitación y sus ventas.</p>
+                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Mis vendedores</h2>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Solo tus vendedores directos. Abre uno para consultar sus clientes y ventas.</p>
                 </div>
             </div>
-            <div class="seller-table-wrap">
+            <div id="teamListWrap" class="seller-table-wrap">
                 <table class="seller-table">
-                    <thead><tr><th>Vendedor</th><th>Código</th><th>Fecha de registro</th><th>Clientes</th><th>Clientes activos</th><th>Ventas</th></tr></thead>
+                    <thead><tr><th>Vendedor</th><th>Código</th><th>Fecha de registro</th><th>Clientes</th><th>Clientes activos</th><th>Ventas</th><th></th></tr></thead>
                     <tbody id="teamTableBody">
-                        <tr><td colspan="6" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">Cargando equipo...</td></tr>
+                        <tr><td colspan="7" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">Cargando equipo...</td></tr>
                     </tbody>
                 </table>
+            </div>
+            <div id="sellerDetailWrap" style="display:none;">
+                <button class="btn-row-link" onclick="closeSellerDetail()" style="margin-bottom:1rem;">← Volver a mis vendedores</button>
+                <h3 id="sellerDetailTitle" style="font-size:1.2rem; font-weight:800; margin:0 0 0.25rem;"></h3>
+                <p id="sellerDetailSub" style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0 0 1rem;"></p>
+                <div class="seller-table-wrap">
+                    <table class="seller-table">
+                        <thead><tr><th>Cliente</th><th>País</th><th>Fecha de registro</th><th>Plan</th><th>Estado</th><th>Compras</th></tr></thead>
+                        <tbody id="sellerDetailBody"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -815,15 +833,15 @@
         <section id="viewDirectores" class="seller-view">
             <div class="filter-row">
                 <div>
-                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Directores recomendados</h2>
-                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Directores registrados con tu enlace. Cada uno tiene su propio equipo.</p>
+                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Mis directores</h2>
+                    <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Solo los directores que invitaste directamente. Los importes globales se incorporarán con las comisiones.</p>
                 </div>
             </div>
             <div class="seller-table-wrap">
                 <table class="seller-table">
-                    <thead><tr><th>Director</th><th>Código</th><th>Fecha de registro</th><th>Vendedores</th><th>Clientes</th><th>Directores</th></tr></thead>
+                    <thead><tr><th>Director</th><th>Fecha de registro</th></tr></thead>
                     <tbody id="directorsTableBody">
-                        <tr><td colspan="6" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">Cargando directores...</td></tr>
+                        <tr><td colspan="2" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">Cargando directores...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -835,7 +853,7 @@
         <section id="viewResumen" class="seller-view">
             <div class="filter-row">
                 <div>
-                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;">Ventas del mes</h2>
+                    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.25rem 0;" data-director-text="Ventas personales del mes">Ventas del mes</h2>
                     <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:0;">Muestra ventas confirmadas generadas por tus clientes (no calcula ganancias todavía).</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.75rem;">
@@ -910,6 +928,37 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Ventas de mis vendedores (solo director, Punto 8) -->
+            <div class="director-only">
+                <h2 class="director-section-title">Ventas de mis vendedores</h2>
+                <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin:-0.5rem 0 1.25rem;">Ventas de tus vendedores directos en el mismo periodo, separadas de tus ventas personales.</p>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Vendedores con ventas</div>
+                        <div class="kpi-value" id="teamKpiSellers">0</div>
+                        <div class="kpi-sub">Vendedores que vendieron en el mes</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Ventas confirmadas</div>
+                        <div class="kpi-value" id="teamKpiSales" style="color:#A78BFA;">0</div>
+                        <div class="kpi-sub">Membresías vendidas por tu equipo</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Importe vendido</div>
+                        <div class="kpi-value" id="teamKpiAmount" style="color:#34D399;">$ 0.00</div>
+                        <div class="kpi-sub">Volumen del equipo en el periodo</div>
+                    </div>
+                </div>
+                <div class="seller-table-wrap">
+                    <table class="seller-table">
+                        <thead><tr><th>Vendedor</th><th>Cliente</th><th>Plan</th><th>Fecha</th><th>Importe ($)</th></tr></thead>
+                        <tbody id="teamSalesTableBody">
+                            <tr><td colspan="5" style="text-align:center; padding:3rem; color:rgba(255,255,255,0.4);">Cargando ventas del equipo...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -1134,6 +1183,7 @@
                 document.getElementById('roleBadge').textContent = 'Director de ventas';
                 document.querySelector('.seller-brand').setAttribute('href', '/director');
                 document.title = document.title.replace(/Vendedor/g, 'Director');
+                document.querySelectorAll('[data-director-text]').forEach(el => { el.textContent = el.getAttribute('data-director-text'); });
                 loadDirectorTeam();
                 loadDirectorDirectors();
             }
@@ -1164,8 +1214,8 @@
                 resumen: 'Resumen mensual',
                 retiros: 'Retiros',
                 perfil: 'Mi perfil',
-                equipo: 'Mi equipo',
-                directores: 'Directores'
+                equipo: 'Mis vendedores',
+                directores: 'Mis directores'
             };
             document.getElementById('pageTitle').textContent = titles[tabKey] || 'Panel de Vendedor';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1356,6 +1406,7 @@
 
         // Load Monthly Summary
         async function loadMonthlySummary() {
+            if (isDirector) loadTeamSummary();
             try {
                 await configReady;
                 const token = localStorage.getItem('authToken');
@@ -1591,13 +1642,15 @@
             return res.json();
         }
 
+        let directorSellers = [];
+
         async function loadDirectorTeam() {
             const tbody = document.getElementById('teamTableBody');
             try {
                 const data = await fetchDirector('/api/director/team');
                 if (!data.success) throw new Error(data.message);
-                const sellers = data.sellers || [];
-                tbody.innerHTML = sellers.length ? sellers.map(s => `
+                directorSellers = data.sellers || [];
+                tbody.innerHTML = directorSellers.length ? directorSellers.map((s, i) => `
                     <tr>
                         <td>${personCell(s)}</td>
                         <td><code>${escapeHtml(s.sellerCode)}</code></td>
@@ -1605,10 +1658,46 @@
                         <td>${s.clientsCount}</td>
                         <td>${s.activeClients}</td>
                         <td>${s.salesCount} · $ ${Number(s.salesTotal || 0).toFixed(2)}</td>
-                    </tr>`).join('') : emptyRow(6, 'Aún no tienes vendedores. Comparte tu enlace para invitar vendedores.');
+                        <td><button class="btn-row-link" onclick="openSellerDetail(${i})">Ver clientes y ventas</button></td>
+                    </tr>`).join('') : emptyRow(7, 'Aún no tienes vendedores. Comparte tu enlace para invitar vendedores a tu equipo.');
             } catch (err) {
-                tbody.innerHTML = emptyRow(6, 'No se pudo cargar tu equipo.');
+                tbody.innerHTML = emptyRow(7, 'No se pudo cargar tu equipo.');
             }
+        }
+
+        async function openSellerDetail(index) {
+            const seller = directorSellers[index];
+            if (!seller) return;
+            document.getElementById('teamListWrap').style.display = 'none';
+            document.getElementById('sellerDetailWrap').style.display = 'block';
+            document.getElementById('sellerDetailTitle').textContent = `${seller.name || ''} ${seller.lastName || ''}`.trim();
+            document.getElementById('sellerDetailSub').textContent = `Código ${seller.sellerCode || ''} · Clientes y ventas del vendedor`;
+            const tbody = document.getElementById('sellerDetailBody');
+            tbody.innerHTML = emptyRow(6, 'Cargando clientes...');
+            try {
+                const data = await fetchDirector('/api/director/team/' + encodeURIComponent(seller._id));
+                if (!data.success) throw new Error(data.message);
+                const clients = data.clients || [];
+                tbody.innerHTML = clients.length ? clients.map(c => {
+                    const total = (c.purchases || []).reduce((sum, p) => sum + (p.amount || 0), 0);
+                    return `
+                    <tr>
+                        <td>${personCell(c)}</td>
+                        <td>${escapeHtml(c.country || 'No especificado')}</td>
+                        <td>${new Date(c.createdAt).toLocaleDateString()}</td>
+                        <td>${escapeHtml(c.membershipPlan || 'Sin membresía')}</td>
+                        <td><span class="badge-status ${c.hasMembership ? 'active' : 'inactive'}">${c.hasMembership ? 'Activo' : 'Inactivo'}</span></td>
+                        <td>${(c.purchases || []).length} · $ ${total.toFixed(2)}</td>
+                    </tr>`;
+                }).join('') : emptyRow(6, 'Este vendedor aún no tiene clientes.');
+            } catch (err) {
+                tbody.innerHTML = emptyRow(6, 'No se pudieron cargar los clientes del vendedor.');
+            }
+        }
+
+        function closeSellerDetail() {
+            document.getElementById('sellerDetailWrap').style.display = 'none';
+            document.getElementById('teamListWrap').style.display = '';
         }
 
         async function loadDirectorDirectors() {
@@ -1619,15 +1708,34 @@
                 const directors = data.directors || [];
                 tbody.innerHTML = directors.length ? directors.map(d => `
                     <tr>
-                        <td>${personCell(d)}</td>
-                        <td><code>${escapeHtml(d.sellerCode)}</code></td>
+                        <td style="font-weight:600; color:#fff;">${escapeHtml(`${d.name || ''} ${d.lastName || ''}`.trim())}</td>
                         <td>${new Date(d.createdAt).toLocaleDateString()}</td>
-                        <td>${d.sellersCount}</td>
-                        <td>${d.clientsCount}</td>
-                        <td>${d.directorsCount}</td>
-                    </tr>`).join('') : emptyRow(6, 'Aún no recomendaste directores. Comparte tu enlace para recomendar directores.');
+                    </tr>`).join('') : emptyRow(2, 'Aún no recomendaste directores. Comparte tu enlace para recomendar directores.');
             } catch (err) {
-                tbody.innerHTML = emptyRow(6, 'No se pudo cargar la lista de directores.');
+                tbody.innerHTML = emptyRow(2, 'No se pudo cargar la lista de directores.');
+            }
+        }
+
+        async function loadTeamSummary() {
+            const tbody = document.getElementById('teamSalesTableBody');
+            const [year, month] = (document.getElementById('monthSelector').value || '').split('-');
+            try {
+                const data = await fetchDirector(`/api/director/team-summary?year=${year}&month=${month}`);
+                if (!data.success) throw new Error(data.message);
+                const t = data.summary;
+                document.getElementById('teamKpiSellers').textContent = t.activeSellers || 0;
+                document.getElementById('teamKpiSales').textContent = t.totalSalesCount || 0;
+                document.getElementById('teamKpiAmount').textContent = `$ ${(t.totalAmount || 0).toFixed(2)}`;
+                tbody.innerHTML = (t.sales || []).length ? t.sales.map(x => `
+                    <tr>
+                        <td style="font-weight:600; color:#fff;">${escapeHtml(x.sellerName)}</td>
+                        <td>${escapeHtml(x.clientName)}<div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">${escapeHtml(x.clientEmail)}</div></td>
+                        <td>${escapeHtml(x.plan)}</td>
+                        <td>${new Date(x.date).toLocaleString()}</td>
+                        <td style="font-weight:800; color:#34D399;">$ ${(x.amount || 0).toFixed(2)}</td>
+                    </tr>`).join('') : emptyRow(5, 'Tus vendedores no registran ventas en este periodo.');
+            } catch (err) {
+                tbody.innerHTML = emptyRow(5, 'No se pudieron cargar las ventas del equipo.');
             }
         }
 

@@ -18,7 +18,7 @@ const Banner = require('./models/Banner');
 const Settings = require('./models/Settings');
 const Category = require('./models/Category');
 const LandingConfig = require('./models/LandingConfig');
-const { registerDirector, getDirectorTeam, getDirectorDirectors } = require('./lib/salesAccounts');
+const { registerDirector, getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales } = require('./lib/salesAccounts');
 
 
 const app = express();
@@ -1556,6 +1556,29 @@ app.get('/api/director/team', authMiddleware, directorMiddleware, async (req, re
         res.json({ success: true, sellers: await getDirectorTeam(User, PaymentModel, req.user.id) });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error cargando equipo', error: error.message });
+    }
+});
+
+// Ventas del mes de los vendedores del director (separadas de las personales)
+app.get('/api/director/team-summary', authMiddleware, directorMiddleware, async (req, res) => {
+    try {
+        const now = new Date();
+        const year = parseInt(req.query.year || now.getFullYear(), 10);
+        const month = parseInt(req.query.month || (now.getMonth() + 1), 10);
+        res.json({ success: true, summary: await getTeamMonthlySales(User, PaymentModel, Membership, req.user.id, year, month) });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error cargando ventas del equipo', error: error.message });
+    }
+});
+
+// Detalle de un vendedor del equipo: sus clientes y ventas
+app.get('/api/director/team/:sellerId', authMiddleware, directorMiddleware, async (req, res) => {
+    try {
+        const detail = await getSellerClients(User, PaymentModel, Membership, req.user.id, req.params.sellerId);
+        if (!detail) return res.status(404).json({ success: false, message: 'El vendedor no pertenece a tu equipo.' });
+        res.json({ success: true, ...detail });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error cargando vendedor', error: error.message });
     }
 });
 

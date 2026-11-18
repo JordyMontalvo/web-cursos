@@ -1,7 +1,7 @@
 const { connectDB } = require('../lib/db');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const { getDirectorTeam, getDirectorDirectors } = require('../lib/salesAccounts');
+const { getDirectorTeam, getDirectorDirectors, getSellerClients, getTeamMonthlySales } = require('../lib/salesAccounts');
 
 const JWT_SECRET = process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET env var not set'); })();
 
@@ -106,6 +106,18 @@ module.exports = async (req, res) => {
         // GET /api/director/team y /api/director/directors (Punto 7)
         if (req.method === 'GET' && pathname.startsWith('/api/director/')) {
             if (seller.role !== 'director') return res.status(403).json({ success: false, message: 'Acceso denegado. Se requiere rol de director de ventas.' });
+            if (pathname.endsWith('/team-summary')) {
+                const now = new Date();
+                const year = parseInt(parsedUrl.searchParams.get('year') || now.getFullYear(), 10);
+                const month = parseInt(parsedUrl.searchParams.get('month') || (now.getMonth() + 1), 10);
+                return res.json({ success: true, summary: await getTeamMonthlySales(User, Payment, Membership, seller._id, year, month) });
+            }
+            const teamMatch = pathname.match(/\/api\/director\/team\/([^/]+)$/);
+            if (teamMatch) {
+                const detail = await getSellerClients(User, Payment, Membership, seller._id, teamMatch[1]);
+                if (!detail) return res.status(404).json({ success: false, message: 'El vendedor no pertenece a tu equipo.' });
+                return res.json({ success: true, ...detail });
+            }
             if (pathname.endsWith('/team')) return res.json({ success: true, sellers: await getDirectorTeam(User, Payment, seller._id) });
             if (pathname.endsWith('/directors')) return res.json({ success: true, directors: await getDirectorDirectors(User, seller._id) });
         }
